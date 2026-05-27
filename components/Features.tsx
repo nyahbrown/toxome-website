@@ -1,53 +1,84 @@
 const features = [
   {
-    icon: "🔍",
-    title: "Instant Label Scanner",
+    n: "01",
+    title: "Instant label scanner",
     description:
-      "Photograph any clothing label and instantly detect chemicals, synthetic fibers, and hidden materials that could affect your health.",
+      "Photograph the composition tag on any garment. Toxome reads the fiber breakdown in under two seconds — no typing, no hunting for the brand online.",
   },
   {
-    icon: "🧬",
-    title: "Health + Environmental Insights",
+    n: "02",
+    title: "Six health & environmental axes",
     description:
-      "Get actionable insights on chemical exposure, endocrine disruptors, and environmental impact — all backed by peer-reviewed research.",
+      "Endocrine disruption, microplastic shedding, skin barrier, breathability, biodegradability, climate impact. Rated separately, weighted for the body over a lifetime.",
   },
   {
-    icon: "👗",
-    title: "Closet Analytics",
+    n: "03",
+    title: "Your closet, scored",
     description:
-      "Track your entire wardrobe, see your hazard score over time, and get personalized swap recommendations for safer alternatives.",
+      "Every scan lives in your private closet. Filter by detox priority. Track your average hazard score as you make swaps. Watch it drop.",
   },
 ];
 
 export default function Features() {
   return (
-    <section id="features" className="py-24 px-6 bg-[#F4F5F6]">
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-16">
-          <span className="inline-block bg-[#DDE3EA] text-[#4A5A68] text-xs font-semibold uppercase tracking-widest px-4 py-1.5 rounded-full mb-4">
-            Features
-          </span>
-          <h2 className="text-4xl md:text-5xl font-extrabold text-[#2D3C47]">
-            Everything you need to detox your wardrobe
+    <section style={{ padding: "120px 0", background: "var(--linen)" }}>
+      <div className="shell">
+        <div style={{ maxWidth: 560, marginBottom: 72 }}>
+          <div className="eyebrow">What Toxome does</div>
+          <h2 style={{
+            fontFamily: "var(--serif)",
+            fontWeight: 400,
+            fontSize: "clamp(36px, 4.5vw, 52px)",
+            lineHeight: 1.08,
+            letterSpacing: "-0.02em",
+            margin: "20px 0 0",
+          }}>
+            Fashion wellness,{" "}
+            <em style={{ fontStyle: "italic", color: "var(--ink-2)" }}>made legible.</em>
           </h2>
-          <p className="mt-4 text-[#5A6B78] text-lg max-w-xl mx-auto">
-            Transparency about what you wear — simplified.
-          </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 1, background: "var(--hairline-strong)" }}>
           {features.map((f) => (
-            <div
-              key={f.title}
-              className="bg-white rounded-3xl p-8 hover:shadow-lg transition-shadow border border-[#D5DAE0]"
-            >
-              <div className="text-4xl mb-5">{f.icon}</div>
-              <h3 className="text-xl font-bold text-[#2D3C47] mb-3">{f.title}</h3>
-              <p className="text-[#5A6B78] leading-relaxed">{f.description}</p>
+            <div key={f.title} style={{
+              background: "var(--bg-2)",
+              padding: "40px 36px 44px",
+              display: "flex",
+              flexDirection: "column",
+              gap: 20,
+            }}>
+              <div style={{
+                fontFamily: "var(--mono)",
+                fontSize: 11,
+                letterSpacing: "0.12em",
+                textTransform: "uppercase",
+                color: "var(--ink-3)",
+              }}>{f.n}</div>
+              <h3 style={{
+                fontFamily: "var(--serif)",
+                fontWeight: 400,
+                fontSize: 26,
+                lineHeight: 1.15,
+                letterSpacing: "-0.01em",
+                margin: 0,
+                color: "var(--ink)",
+              }}>{f.title}</h3>
+              <p style={{
+                fontSize: 15,
+                lineHeight: 1.6,
+                color: "var(--ink-2)",
+                margin: 0,
+              }}>{f.description}</p>
             </div>
           ))}
         </div>
       </div>
+
+      <style>{`
+        @media (max-width: 768px) {
+          .features-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </section>
   );
 }
