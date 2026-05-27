@@ -30,7 +30,7 @@ export default function Nav() {
           className="hidden md:flex">
           <a href="#how" style={{ fontWeight: 500 }}>How it works</a>
           <a href="#what" style={{ fontWeight: 500 }}>What we check</a>
-          <Link href="/shop" style={{ fontWeight: 500 }}>Shop</Link>
+          <Link href="/?view=shop" style={{ fontWeight: 500 }}>Shop</Link>
           <Link href="/blog" style={{ fontWeight: 500 }}>Blog</Link>
         </div>
 
@@ -53,7 +53,7 @@ export default function Nav() {
           className="md:hidden flex flex-col gap-4 text-sm">
           <a href="#how" onClick={() => setOpen(false)} style={{ fontWeight: 500, color: "var(--ink-2)" }}>How it works</a>
           <a href="#what" onClick={() => setOpen(false)} style={{ fontWeight: 500, color: "var(--ink-2)" }}>What we check</a>
-          <Link href="/shop" onClick={() => setOpen(false)} style={{ fontWeight: 500, color: "var(--ink-2)" }}>Shop</Link>
+          <Link href="/?view=shop" onClick={() => setOpen(false)} style={{ fontWeight: 500, color: "var(--ink-2)" }}>Shop</Link>
           <Link href="/blog" onClick={() => setOpen(false)} style={{ fontWeight: 500, color: "var(--ink-2)" }}>Blog</Link>
           <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer"
             className="pill-cta" style={{ justifyContent: "center", marginTop: 4 }}>

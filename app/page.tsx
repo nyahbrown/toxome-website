@@ -1,23 +1,9 @@
-import Nav from "@/components/Nav";
-import Hero from "@/components/Hero";
-import HowItWorks from "@/components/HowItWorks";
-import ScanPreview from "@/components/ScanPreview";
-import WhatWeCheck from "@/components/WhatWeCheck";
-import Faq from "@/components/Faq";
-import ClosingCta from "@/components/ClosingCta";
-import Footer from "@/components/Footer";
+import { getPublishedProducts } from "@/lib/supabase";
+import HomeClient from "./HomeClient";
 
-export default function Home() {
-  return (
-    <main style={{ background: "var(--bg)" }}>
-      <Nav />
-      <Hero />
-      <HowItWorks />
-      <ScanPreview />
-      <WhatWeCheck />
-      <Faq />
-      <ClosingCta />
-      <Footer />
-    </main>
-  );
+export const revalidate = 3600;
+
+export default async function Home() {
+  const products = await getPublishedProducts();
+  return <HomeClient products={products} />;
 }
