@@ -1,67 +1,144 @@
-export default function Hero() {
+import Image from "next/image";
+
+const APP_STORE_URL = "https://apps.apple.com/us/app/toxome/id6748622034";
+
+function AppleGlyph() {
   return (
-    <section
-      id="hero"
-      className="min-h-screen flex flex-col items-center justify-center text-center px-6 pt-24 pb-20 bg-gradient-to-b from-[#F0FDF4] to-white"
-    >
-      <span className="inline-block bg-[#DCFCE7] text-[#15803D] text-xs font-semibold uppercase tracking-widest px-4 py-1.5 rounded-full mb-6">
-        Know what you&apos;re wearing
-      </span>
-
-      <h1 className="text-5xl md:text-7xl font-extrabold text-[#1B4332] leading-tight max-w-4xl">
-        Discover the hidden impacts of your clothes
-      </h1>
-
-      <p className="mt-6 text-lg md:text-xl text-gray-600 max-w-xl leading-relaxed">
-        Detox your closet, one scan at a time.
-      </p>
-
-      <p className="mt-3 text-base text-gray-500 max-w-lg">
-        No greenwashing. No fluff. Just facts — backed by peer-reviewed research.
-      </p>
-
-      <div className="mt-10 flex flex-col sm:flex-row gap-4 items-center justify-center">
-        <a
-          href="https://apps.apple.com"
-          className="inline-flex items-center gap-3 bg-[#1B4332] text-white font-semibold px-8 py-4 rounded-full text-base hover:bg-[#2D6A4F] transition-colors shadow-lg"
-        >
-          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
-          </svg>
-          Download on the App Store
-        </a>
-        <a
-          href="#features"
-          className="text-[#1B4332] font-semibold text-base underline underline-offset-4 hover:text-[#2D6A4F] transition-colors"
-        >
-          See how it works →
-        </a>
-      </div>
-
-      {/* Hazard badges preview */}
-      <div className="mt-16 flex flex-col sm:flex-row gap-4 items-center justify-center">
-        <HazardCard label="Striped Long Sleeve" level="moderate" />
-        <HazardCard label="Pink Sports Bra" level="high" />
-        <HazardCard label="Linen Button-Down" level="low" />
-      </div>
-    </section>
+    <svg width="16" height="18" viewBox="0 0 16 18" fill="currentColor" aria-hidden="true">
+      <path d="M13.2 9.4c0-2.4 2-3.6 2.1-3.6-1.2-1.7-3-2-3.6-2-1.5-.2-3 .9-3.7.9-.8 0-2-.9-3.3-.9C2.9 3.9 1 5 0 6.7c-1.8 3.2-.5 7.9 1.3 10.5.9 1.3 1.9 2.7 3.2 2.6 1.3 0 1.8-.8 3.3-.8 1.5 0 2 .8 3.3.8 1.4 0 2.3-1.3 3.2-2.6 1-1.5 1.4-3 1.4-3-.1 0-2.7-1-2.7-4.1 0-2.6 2.1-3.8 2.2-3.9z" />
+    </svg>
   );
 }
 
-function HazardCard({ label, level }: { label: string; level: "low" | "moderate" | "high" }) {
-  const config = {
-    low: { bg: "bg-green-50", border: "border-green-200", dot: "bg-green-500", text: "Low Hazard", color: "text-green-700" },
-    moderate: { bg: "bg-yellow-50", border: "border-yellow-200", dot: "bg-yellow-500", text: "Moderate Hazard", color: "text-yellow-700" },
-    high: { bg: "bg-red-50", border: "border-red-200", dot: "bg-red-500", text: "High Hazard", color: "text-red-700" },
-  }[level];
-
+function Arrow() {
   return (
-    <div className={`${config.bg} ${config.border} border rounded-2xl px-5 py-4 flex items-center gap-3 w-64`}>
-      <span className={`w-3 h-3 rounded-full ${config.dot} shrink-0`} />
-      <div>
-        <p className="text-sm font-semibold text-gray-800">{label}</p>
-        <p className={`text-xs font-medium ${config.color}`}>{config.text}</p>
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+      <path d="M3 7h8m0 0L7.5 3.5M11 7l-3.5 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function PhoneScreenshot() {
+  const width = 320;
+  const height = Math.round(width * (2436 / 1125));
+  const radius = Math.round(width * 0.155);
+  return (
+    <div style={{
+      width, height,
+      borderRadius: radius,
+      background: "linear-gradient(160deg, #1a1d20 0%, #0c0e10 100%)",
+      padding: Math.round(width * 0.025),
+      boxShadow: "0 40px 90px rgba(20,24,27,.22), 0 12px 32px rgba(20,24,27,.10), 0 0 0 1px rgba(255,255,255,.06) inset",
+      position: "relative",
+      flexShrink: 0,
+    }}>
+      <div style={{
+        width: "100%", height: "100%",
+        borderRadius: radius - Math.round(width * 0.025),
+        overflow: "hidden",
+        position: "relative",
+        background: "#000",
+      }}>
+        <Image
+          src="/app-screenshot.png"
+          alt="Toxome hazard analysis: composition breakdown and per-axis health impact"
+          fill
+          style={{ objectFit: "cover", objectPosition: "top" }}
+        />
+        {/* Dynamic Island */}
+        <div style={{
+          position: "absolute",
+          top: Math.round(width * 0.038),
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: Math.round(width * 0.30),
+          height: Math.round(width * 0.085),
+          background: "#000",
+          borderRadius: 999,
+          zIndex: 10,
+        }} />
       </div>
     </div>
+  );
+}
+
+export default function Hero() {
+  return (
+    <section style={{ paddingBottom: 80 }}>
+      <div className="shell" style={{
+        display: "grid",
+        gridTemplateColumns: "1.05fr 1fr",
+        gap: 80,
+        alignItems: "center",
+        paddingTop: 80,
+      }}>
+        {/* Copy */}
+        <div>
+          <div className="eyebrow reveal" data-reveal-delay="0">
+            Toxome · A scanner for what you wear
+          </div>
+          <h1 className="reveal" data-reveal-delay="200" style={{
+            fontFamily: "var(--sans)",
+            fontWeight: 500,
+            fontSize: "clamp(44px, 5.5vw, 68px)",
+            lineHeight: 1.04,
+            letterSpacing: "-0.04em",
+            color: "var(--ink)",
+            margin: "24px 0 28px",
+          }}>
+            Know what&apos;s in<br /><em style={{ fontStyle: "italic", fontWeight: 500, color: "var(--ink-2)" }}>your clothes.</em>
+          </h1>
+          <p className="reveal" data-reveal-delay="400" style={{
+            fontSize: 19, lineHeight: 1.45, color: "var(--ink-2)",
+            maxWidth: 540, margin: "0 0 36px", letterSpacing: "-0.011em",
+          }}>
+            Photograph the composition tag on any garment. Toxome reads the fibers and
+            tells you exactly what they do to your body — and to the world.
+          </p>
+
+          <div className="reveal" data-reveal-delay="600">
+            <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
+              <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" className="pill-cta">
+                <AppleGlyph />
+                <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "flex-start", lineHeight: 1.05 }}>
+                  <span style={{ fontSize: 10.5, opacity: .8, letterSpacing: ".04em", textTransform: "uppercase" }}>Download on the</span>
+                  <span style={{ fontSize: 15, fontWeight: 600 }}>App Store</span>
+                </span>
+              </a>
+              <a href="#how" className="pill-cta ghost" style={{ textDecoration: "none" }}>
+                <span>See how it works</span>
+                <Arrow />
+              </a>
+            </div>
+            <div style={{
+              marginTop: 14, fontFamily: "var(--mono)", fontSize: 11.5,
+              letterSpacing: "0.08em", color: "var(--ink-3)", textTransform: "uppercase",
+            }}>LIVE ON IOS</div>
+          </div>
+        </div>
+
+        {/* Phone */}
+        <div className="reveal" data-reveal-delay="300" style={{
+          display: "flex", justifyContent: "center", alignItems: "center", position: "relative",
+        }}>
+          {/* Pedestal shadow */}
+          <div aria-hidden="true" style={{
+            position: "absolute", bottom: -28, left: "50%", transform: "translateX(-50%)",
+            width: 380, height: 80, borderRadius: "50%",
+            background: "radial-gradient(ellipse, rgba(20,24,27,.12) 0%, rgba(20,24,27,0) 70%)",
+            filter: "blur(10px)",
+          }} />
+          <PhoneScreenshot />
+        </div>
+      </div>
+
+      {/* Mobile stacked layout */}
+      <style>{`
+        @media (max-width: 768px) {
+          .hero-grid { grid-template-columns: 1fr !important; }
+          .hero-phone { display: none !important; }
+        }
+      `}</style>
+    </section>
   );
 }

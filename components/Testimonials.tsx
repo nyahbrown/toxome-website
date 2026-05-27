@@ -27,13 +27,13 @@ const testimonials = [
 
 export default function Testimonials() {
   return (
-    <section id="testimonials" className="py-24 px-6 bg-[#F0FDF4]">
+    <section id="testimonials" className="py-24 px-6 bg-[#EAECED]">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16">
-          <span className="inline-block bg-white text-[#15803D] text-xs font-semibold uppercase tracking-widest px-4 py-1.5 rounded-full mb-4 border border-[#BBF7D0]">
+          <span className="inline-block bg-white text-[#4A5A68] text-xs font-semibold uppercase tracking-widest px-4 py-1.5 rounded-full mb-4 border border-[#C5CDD7]">
             Real Users
           </span>
-          <h2 className="text-4xl md:text-5xl font-extrabold text-[#1B4332]">
+          <h2 className="text-4xl md:text-5xl font-extrabold text-[#2D3C47]">
             People are waking up
           </h2>
         </div>
@@ -42,16 +42,16 @@ export default function Testimonials() {
           {testimonials.map((t) => (
             <div
               key={t.name}
-              className="break-inside-avoid bg-white rounded-3xl p-7 border border-[#DCFCE7] shadow-sm"
+              className="break-inside-avoid bg-white rounded-3xl p-7 border border-[#D5DAE0] shadow-sm"
             >
-              <p className="text-gray-700 leading-relaxed mb-5 text-[15px]">
+              <p className="text-[#3D4F5E] leading-relaxed mb-5 text-[15px]">
                 &ldquo;{t.quote}&rdquo;
               </p>
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-[#DCFCE7] flex items-center justify-center text-[#15803D] font-bold text-sm">
+                <div className="w-8 h-8 rounded-full bg-[#A9B6C7] flex items-center justify-center text-white font-bold text-sm">
                   {t.name[0]}
                 </div>
-                <span className="text-sm font-semibold text-gray-800">{t.name}</span>
+                <span className="text-sm font-semibold text-[#2D3C47]">{t.name}</span>
               </div>
             </div>
           ))}

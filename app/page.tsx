@@ -1,20 +1,22 @@
 import Nav from "@/components/Nav";
 import Hero from "@/components/Hero";
-import Features from "@/components/Features";
-import Testimonials from "@/components/Testimonials";
 import HowItWorks from "@/components/HowItWorks";
-import CtaBanner from "@/components/CtaBanner";
+import ScanPreview from "@/components/ScanPreview";
+import WhatWeCheck from "@/components/WhatWeCheck";
+import Faq from "@/components/Faq";
+import ClosingCta from "@/components/ClosingCta";
 import Footer from "@/components/Footer";
 
 export default function Home() {
   return (
-    <main className="bg-white text-gray-900 font-sans">
+    <main style={{ background: "var(--bg)" }}>
       <Nav />
       <Hero />
-      <Features />
-      <Testimonials />
       <HowItWorks />
-      <CtaBanner />
+      <ScanPreview />
+      <WhatWeCheck />
+      <Faq />
+      <ClosingCta />
       <Footer />
     </main>
   );
