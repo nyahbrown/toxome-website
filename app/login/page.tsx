@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Image from "next/image";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Product } from "@/types/product";
 
@@ -190,11 +191,41 @@ function LoginContent() {
       >
         {/* Header */}
         <div style={{ textAlign: "center", marginBottom: 40 }}>
+          {/* Brand mark — logo above "Toxome", same eye + wordmark used in
+              the footer */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 8,
+              marginBottom: 28,
+            }}
+          >
+            <Image
+              src="/toxome-logo.png"
+              alt=""
+              width={56}
+              height={36}
+              style={{ height: 36, width: "auto", display: "block" }}
+              priority
+            />
+            <span
+              style={{
+                fontSize: 18,
+                fontWeight: 600,
+                letterSpacing: "-0.025em",
+                color: "var(--ink)",
+              }}
+            >
+              Toxome
+            </span>
+          </div>
           <h1
             style={{
               fontFamily: "var(--serif)",
               fontWeight: 400,
-              fontSize: 36,
+              fontSize: 29,
               letterSpacing: "-0.025em",
               color: "var(--ink)",
               margin: "0 0 10px",
