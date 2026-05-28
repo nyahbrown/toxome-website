@@ -90,8 +90,8 @@ export default function Nav() {
           : "rgba(252,251,247,0.92)",
         backdropFilter: transparent ? "none" : "blur(20px) saturate(160%)",
         WebkitBackdropFilter: transparent ? "none" : "blur(20px) saturate(160%)",
-        borderBottom: transparent ? "none" : "1px solid var(--hairline)",
-        transition: "background 300ms ease, border-color 300ms ease",
+        borderBottom: "none",
+        transition: "background 300ms ease",
       }}
     >
       <div
@@ -133,21 +133,104 @@ export default function Nav() {
           </div>
         </div>
 
-        {/* Account */}
-        <Link
-          href="/account"
-          style={{
-            fontSize: 14,
-            fontWeight: 400,
-            letterSpacing: "-0.005em",
-            color: transparent ? "rgba(255,255,255,0.92)" : "var(--ink-2)",
-            textDecoration: "none",
-            transition: "color 300ms ease",
-          }}
-        >
-          {user && wishlistCount > 0 ? `wishlist (${wishlistCount})` : "account"}
-        </Link>
+        {/* Search + Account */}
+        <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+          <NavSearch transparent={transparent} />
+          <Link
+            href="/account"
+            style={{
+              fontSize: 14,
+              fontWeight: 400,
+              letterSpacing: "-0.005em",
+              color: transparent ? "rgba(255,255,255,0.92)" : "var(--ink-2)",
+              textDecoration: "none",
+              transition: "color 300ms ease",
+            }}
+          >
+            {user && wishlistCount > 0 ? `wishlist (${wishlistCount})` : "account"}
+          </Link>
+        </div>
       </div>
     </nav>
+  );
+}
+
+function NavSearch({ transparent }: { transparent: boolean }) {
+  const [focused, setFocused] = useState(false);
+  const placeholderColor = transparent
+    ? "rgba(255,255,255,0.7)"
+    : "var(--ink-3)";
+  const textColor = transparent ? "rgba(255,255,255,0.95)" : "var(--ink)";
+  const borderColor = transparent
+    ? focused
+      ? "rgba(255,255,255,0.55)"
+      : "rgba(255,255,255,0.32)"
+    : focused
+    ? "var(--hairline-strong)"
+    : "rgba(59,60,58,0.18)";
+
+  return (
+    <form
+      action="/shop"
+      method="GET"
+      role="search"
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 8,
+        height: 32,
+        padding: "0 12px",
+        borderRadius: 999,
+        border: `1px solid ${borderColor}`,
+        background: "transparent",
+        transition: "border-color 200ms ease",
+        minWidth: 0,
+      }}
+    >
+      <svg
+        width="14"
+        height="14"
+        viewBox="0 0 16 16"
+        fill="none"
+        aria-hidden="true"
+        style={{ flexShrink: 0, color: placeholderColor }}
+      >
+        <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.4" />
+        <path
+          d="M11 11L14 14"
+          stroke="currentColor"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+        />
+      </svg>
+      <input
+        type="search"
+        name="q"
+        placeholder="Search"
+        aria-label="Search products"
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        style={{
+          background: "transparent",
+          border: "none",
+          outline: "none",
+          fontFamily: "var(--sans)",
+          fontSize: 13,
+          letterSpacing: "-0.005em",
+          color: textColor,
+          width: 160,
+          padding: 0,
+        }}
+      />
+      <style jsx>{`
+        input::placeholder {
+          color: ${placeholderColor};
+        }
+        input::-webkit-search-cancel-button {
+          -webkit-appearance: none;
+          appearance: none;
+        }
+      `}</style>
+    </form>
   );
 }

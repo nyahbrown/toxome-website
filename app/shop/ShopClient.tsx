@@ -238,13 +238,16 @@ export default function ShopClient({ products }: { products: Product[] }) {
   const [fiberFilter, setFiberFilter] = useState<string | null>(null);
   const [category, setCategory] = useState("All");
   const [gender, setGender] = useState("All");
-  const [budget, setBudget] = useState("All");
   const [sort, setSort] = useState("Featured");
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const fiber = params.get("fiber");
     if (fiber) setFiberFilter(fiber);
+
+    const q = params.get("q");
+    if (q) setQuery(q.trim());
 
     const matchExact = (raw: string | null, pool: (string | null)[]) => {
       if (!raw) return null;
@@ -282,12 +285,8 @@ export default function ShopClient({ products }: { products: Product[] }) {
     [products]
   );
 
-  const budgets = useMemo(
-    () => ["$", "$$", "$$$"].filter((b) => products.some((p) => p.budget === b)),
-    [products]
-  );
-
   const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
     let result = products.filter((p) => {
       if (fiberFilter) {
         const fibers = Object.keys(p.fabric_composition || {}).map((k) =>
@@ -297,7 +296,13 @@ export default function ShopClient({ products }: { products: Product[] }) {
       }
       if (category !== "All" && p.category !== category) return false;
       if (gender !== "All" && p.gender !== gender) return false;
-      if (budget !== "All" && p.budget !== budget) return false;
+      if (q) {
+        const haystack = [p.item_name, p.brand, p.category, p.gender]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+        if (!haystack.includes(q)) return false;
+      }
       return true;
     });
 
@@ -334,10 +339,13 @@ export default function ShopClient({ products }: { products: Product[] }) {
     }
 
     return result;
-  }, [products, fiberFilter, category, gender, budget, sort]);
+  }, [products, fiberFilter, category, gender, query, sort]);
 
   const hasFilters =
-    !!fiberFilter || category !== "All" || gender !== "All" || budget !== "All";
+    !!fiberFilter ||
+    category !== "All" ||
+    gender !== "All" ||
+    query.trim().length > 0;
 
   return (
     <main style={{ background: "var(--linen)", minHeight: "100vh", paddingBottom: 120, paddingTop: 64 }}>
@@ -485,14 +493,6 @@ export default function ShopClient({ products }: { products: Product[] }) {
                 options={genders}
                 value={gender}
                 onChange={setGender}
-              />
-            )}
-            {budgets.length > 0 && (
-              <FrostedSelect
-                label="Budget"
-                options={budgets}
-                value={budget}
-                onChange={setBudget}
               />
             )}
           </div>
