@@ -138,9 +138,38 @@ export default function Nav({
           </div>
         </div>
 
-        {/* Search + Account */}
-        <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+        {/* Search + Download app + Account */}
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <NavSearch transparent={transparent} />
+          <a
+            href="https://apps.apple.com/us/app/toxome/id6748622034"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              height: 32,
+              padding: "0 16px",
+              borderRadius: 999,
+              background: transparent
+                ? "rgba(255,255,255,0.14)"
+                : "var(--ink)",
+              border: transparent
+                ? "1px solid rgba(255,255,255,0.32)"
+                : "1px solid var(--ink)",
+              color: transparent
+                ? "rgba(255,255,255,0.96)"
+                : "var(--white)",
+              fontSize: 13,
+              letterSpacing: "-0.005em",
+              textDecoration: "none",
+              transition:
+                "background 200ms ease, border-color 200ms ease, color 200ms ease",
+              whiteSpace: "nowrap",
+            }}
+          >
+            download app
+          </a>
           <Link
             href="/account"
             style={{

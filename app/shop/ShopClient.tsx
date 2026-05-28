@@ -15,11 +15,11 @@ const PAGE_SIZE = 16;
 
 const SECTION_META: Record<
   "women" | "men" | "home",
-  { eyebrow: string; title: string }
+  { title: string }
 > = {
-  women: { eyebrow: "shop women", title: "clothes for her, clean by design" },
-  men: { eyebrow: "shop men", title: "clothes for him, clean by design" },
-  home: { eyebrow: "shop home", title: "for the spaces you live in" },
+  women: { title: "women's" },
+  men: { title: "men's" },
+  home: { title: "home" },
 };
 
 const FIBERS: { name: string; image: string }[] = [
@@ -411,31 +411,51 @@ export default function ShopClient({
   return (
     <main style={{ background: "var(--linen)", minHeight: "100vh", paddingBottom: 120, paddingTop: 64 }}>
       {/* Page header */}
-      <div style={{ textAlign: "center", paddingTop: 52, paddingBottom: 48 }}>
-        <div
-          style={{
-            fontFamily: "var(--mono)",
-            fontSize: 11,
-            letterSpacing: ".12em",
-            textTransform: "uppercase",
-            color: "var(--ink-3)",
-            marginBottom: 24,
-          }}
-        >
-          {header ? header.eyebrow : "shop all"}
-        </div>
+      <div
+        style={{
+          textAlign: "center",
+          paddingTop: header ? 36 : 52,
+          paddingBottom: header ? 32 : 48,
+        }}
+      >
+        {!header && (
+          <div
+            style={{
+              fontFamily: "var(--mono)",
+              fontSize: 11,
+              letterSpacing: ".12em",
+              textTransform: "uppercase",
+              color: "var(--ink-3)",
+              marginBottom: 24,
+            }}
+          >
+            shop all
+          </div>
+        )}
         <h1
-          style={{
-            fontFamily: "var(--serif)",
-            fontWeight: 400,
-            fontSize: "clamp(18px, 2.75vw, 34px)",
-            lineHeight: 1.25,
-            letterSpacing: "-0.018em",
-            color: "var(--ink)",
-            margin: "0 auto",
-            maxWidth: 640,
-            padding: "0 24px",
-          }}
+          style={
+            header
+              ? {
+                  fontFamily: "var(--serif)",
+                  fontWeight: 400,
+                  fontSize: "clamp(22px, 2.2vw, 30px)",
+                  lineHeight: 1.2,
+                  letterSpacing: "-0.015em",
+                  color: "var(--ink)",
+                  margin: 0,
+                }
+              : {
+                  fontFamily: "var(--serif)",
+                  fontWeight: 400,
+                  fontSize: "clamp(18px, 2.75vw, 34px)",
+                  lineHeight: 1.25,
+                  letterSpacing: "-0.018em",
+                  color: "var(--ink)",
+                  margin: "0 auto",
+                  maxWidth: 640,
+                  padding: "0 24px",
+                }
+          }
         >
           {header
             ? header.title
@@ -443,7 +463,8 @@ export default function ShopClient({
         </h1>
       </div>
 
-      {/* Browse by fiber */}
+      {/* Browse by fiber — only on the /shop default view */}
+      {!section && (
       <div className="shell" style={{ paddingBottom: 52 }}>
         <div
           className="eyebrow"
@@ -519,6 +540,7 @@ export default function ShopClient({
           })}
         </div>
       </div>
+      )}
 
       {/* Filter bar */}
       <div
