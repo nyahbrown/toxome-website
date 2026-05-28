@@ -36,13 +36,6 @@ function HeartOutline() {
   );
 }
 
-function isNewProduct(created_at: string): boolean {
-  const created = new Date(created_at).getTime();
-  if (!created) return false;
-  const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
-  return Date.now() - created < THIRTY_DAYS;
-}
-
 function StarIcon() {
   return (
     <svg
@@ -70,7 +63,7 @@ function ProductCard({
   const [hovered, setHovered] = useState(false);
   const shopUrl = p.affiliate_url || p.item_url;
   const isWishlisted = wishlist.has(p.id);
-  const isNew = isNewProduct(p.created_at);
+  const isNew = p.tags?.some((t) => t.toLowerCase() === "new") ?? false;
 
   return (
     <a
