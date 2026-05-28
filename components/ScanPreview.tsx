@@ -63,7 +63,7 @@ function ImpactCard({ impact, hovered, onEnter, onLeave }: { impact: Impact; hov
         padding: "20px 22px", borderRadius: 16,
         background: hovered ? "var(--bg)" : "transparent",
         border: "1px solid " + (hovered ? "transparent" : "var(--hairline)"),
-        boxShadow: hovered ? "0 0 0 1px var(--hairline-strong) inset, 0 6px 22px rgba(20,24,27,.06)" : "none",
+        boxShadow: hovered ? "0 0 0 1px var(--hairline-strong) inset, 0 6px 22px rgba(59,60,58,.06)" : "none",
         transition: "all 220ms var(--ease)", cursor: "default",
         display: "flex", flexDirection: "column", gap: 8, minHeight: 116,
       }}
@@ -119,7 +119,7 @@ export default function ScanPreview() {
         {/* Fiber selector */}
         <div className="reveal" style={{
           display: "flex", gap: 8, padding: 6,
-          background: "rgba(20,24,27,0.04)", borderRadius: 14, marginBottom: 28, maxWidth: 460,
+          background: "rgba(59,60,58,0.04)", borderRadius: 14, marginBottom: 28, maxWidth: 460,
         }}>
           {FIBERS.map((f, i) => (
             <button key={f.id} onClick={() => setSelected(i)} style={{
@@ -127,7 +127,7 @@ export default function ScanPreview() {
               background: selected === i ? "var(--bg)" : "transparent",
               color: selected === i ? "var(--ink)" : "var(--ink-2)",
               fontSize: 14, fontWeight: 500, border: 0,
-              boxShadow: selected === i ? "0 1px 3px rgba(20,24,27,.08), 0 0 0 1px var(--hairline)" : "none",
+              boxShadow: selected === i ? "0 1px 3px rgba(59,60,58,.08), 0 0 0 1px var(--hairline)" : "none",
               transition: "all 220ms var(--ease)", cursor: "pointer", letterSpacing: "-0.005em",
             }}>
               {f.name}
@@ -138,7 +138,7 @@ export default function ScanPreview() {
         {/* Scan card */}
         <div className="reveal" style={{
           background: "var(--bg)", borderRadius: 24, padding: "40px 44px 44px",
-          boxShadow: "0 0 0 1px var(--hairline) inset, 0 18px 60px rgba(20,24,27,.05)",
+          boxShadow: "0 0 0 1px var(--hairline) inset, 0 18px 60px rgba(59,60,58,.05)",
         }}>
           {/* Header */}
           <div style={{

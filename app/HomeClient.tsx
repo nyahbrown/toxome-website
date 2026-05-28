@@ -1,87 +1,160 @@
 "use client";
-import { Suspense } from "react";
-import { useSearchParams } from "next/navigation";
-import Nav from "@/components/Nav";
-import Hero from "@/components/Hero";
-import HowItWorks from "@/components/HowItWorks";
-import ScanPreview from "@/components/ScanPreview";
-import WhatWeCheck from "@/components/WhatWeCheck";
-import Faq from "@/components/Faq";
-import ClosingCta from "@/components/ClosingCta";
-import Footer from "@/components/Footer";
-import ShopClient from "@/app/shop/ShopClient";
-import type { Product } from "@/types/product";
 
-function TabBar({ active }: { active: "discover" | "shop" }) {
+import { useState } from "react";
+import Link from "next/link";
+import Nav from "@/components/Nav";
+import Footer from "@/components/Footer";
+
+const FIBERS = [
+  { name: "cotton", image: "/fibers/cotton.jpg" },
+  { name: "silk",   image: "/fibers/silk.jpg" },
+  { name: "wool",   image: "/fibers/wool.jpg" },
+  { name: "hemp",   image: "/fibers/hemp.jpg" },
+  { name: "linen",  image: "/fibers/linen.jpg" },
+];
+
+function FiberTile({ name, image }: { name: string; image: string }) {
+  const [hovered, setHovered] = useState(false);
   return (
-    <div style={{
-      position: "sticky", top: 64, zIndex: 39,
-      background: "rgba(231,230,222,0.88)",
-      backdropFilter: "blur(16px)",
-      borderBottom: "1px solid var(--hairline)",
-      padding: "10px 0",
-    }}>
-      <div className="shell" style={{ display: "flex", gap: 8 }}>
-        <a
-          href="/"
+    <Link href={`/shop?fiber=${name}`} style={{ textDecoration: "none" }}>
+      <div>
+        {/* Portrait ratio matching Figma: 232×289 */}
+        <div
           style={{
-            padding: "7px 18px", borderRadius: 999, fontSize: 13.5,
-            fontWeight: 500, letterSpacing: "-0.005em", textDecoration: "none",
-            transition: "all 180ms cubic-bezier(.22,.61,.36,1)",
-            border: active === "discover" ? "0" : "1px solid rgba(20,24,27,0.14)",
-            background: active === "discover" ? "#14181B" : "transparent",
-            color: active === "discover" ? "#fff" : "#3B3C3A",
+            position: "relative",
+            paddingBottom: "124.5%",
+            overflow: "hidden",
+          }}
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={image}
+            alt={name}
+            style={{
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              transition: "transform 400ms ease",
+              transform: hovered ? "scale(1.04)" : "scale(1)",
+            }}
+          />
+        </div>
+        <div
+          style={{
+            fontSize: 18,
+            fontWeight: 400,
+            letterSpacing: "-0.005em",
+            color: "var(--ink)",
+            marginTop: 17,
+            fontFamily: "var(--sans)",
           }}
         >
-          Discover
-        </a>
-        <a
-          href="/?view=shop"
-          style={{
-            padding: "7px 18px", borderRadius: 999, fontSize: 13.5,
-            fontWeight: 500, letterSpacing: "-0.005em", textDecoration: "none",
-            transition: "all 180ms cubic-bezier(.22,.61,.36,1)",
-            border: active === "shop" ? "0" : "1px solid rgba(20,24,27,0.14)",
-            background: active === "shop" ? "#14181B" : "transparent",
-            color: active === "shop" ? "#fff" : "#3B3C3A",
-          }}
-        >
-          Shop
-        </a>
+          {name}
+        </div>
       </div>
-    </div>
+    </Link>
   );
 }
 
-function HomeInner({ products }: { products: Product[] }) {
-  const searchParams = useSearchParams();
-  const active = searchParams.get("view") === "shop" ? "shop" : "discover";
-
+export default function HomeClient() {
   return (
     <div style={{ background: "var(--bg)" }}>
       <Nav />
-      <TabBar active={active} />
-      {active === "shop" ? (
-        <ShopClient products={products} />
-      ) : (
-        <main style={{ background: "var(--bg)" }}>
-          <Hero />
-          <HowItWorks />
-          <ScanPreview />
-          <WhatWeCheck />
-          <Faq />
-          <ClosingCta />
-        </main>
-      )}
+
+      {/* Hero — 670px matching Figma */}
+      <section
+        style={{
+          position: "relative",
+          height: 670,
+          overflow: "hidden",
+          background: "var(--espresso)",
+        }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/hero-bg.png"
+          alt=""
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            objectPosition: "center",
+          }}
+        />
+        {/* Subtle overlay so white text stays legible */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "rgba(10, 6, 2, 0.28)",
+          }}
+        />
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster="/hero-bg.png"
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+          }}
+        >
+          <source src="/meditation.mp4" type="video/mp4" />
+        </video>
+
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "0 40px",
+          }}
+        >
+          <h1
+            style={{
+              fontFamily: "var(--serif)",
+              fontWeight: 400,
+              fontSize: "clamp(28px, 5vw, 60px)",
+              color: "var(--white)",
+              textAlign: "center",
+              lineHeight: 1.1,
+              letterSpacing: "-0.02em",
+              margin: 0,
+              maxWidth: 900,
+            }}
+          >
+            the future of fashion is healthy
+          </h1>
+        </div>
+      </section>
+
+      {/* Browse by fiber — 50px gap below hero, matching Figma y=720 */}
+      <section style={{ paddingTop: 50, paddingBottom: 96 }}>
+        <div className="shell">
+          <div className="eyebrow" style={{ marginBottom: 24 }}>
+            Browse by fiber
+          </div>
+          <div className="fiber-grid">
+            {FIBERS.map((f) => (
+              <FiberTile key={f.name} name={f.name} image={f.image} />
+            ))}
+          </div>
+        </div>
+      </section>
+
       <Footer />
     </div>
-  );
-}
-
-export default function HomeClient({ products }: { products: Product[] }) {
-  return (
-    <Suspense fallback={null}>
-      <HomeInner products={products} />
-    </Suspense>
   );
 }

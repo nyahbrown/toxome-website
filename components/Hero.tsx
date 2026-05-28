@@ -28,7 +28,7 @@ function PhoneScreenshot() {
       borderRadius: radius,
       background: "linear-gradient(160deg, #1a1d20 0%, #0c0e10 100%)",
       padding: Math.round(width * 0.025),
-      boxShadow: "0 40px 90px rgba(20,24,27,.22), 0 12px 32px rgba(20,24,27,.10), 0 0 0 1px rgba(255,255,255,.06) inset",
+      boxShadow: "0 40px 90px rgba(59,60,58,.22), 0 12px 32px rgba(59,60,58,.10), 0 0 0 1px rgba(255,255,255,.06) inset",
       position: "relative",
       flexShrink: 0,
     }}>
@@ -37,7 +37,7 @@ function PhoneScreenshot() {
         borderRadius: radius - Math.round(width * 0.025),
         overflow: "hidden",
         position: "relative",
-        background: "#000",
+        background: "#0c0e10",
       }}>
         <Image
           src="/app-screenshot.png"
@@ -53,7 +53,7 @@ function PhoneScreenshot() {
           transform: "translateX(-50%)",
           width: Math.round(width * 0.30),
           height: Math.round(width * 0.085),
-          background: "#000",
+          background: "#0c0e10",
           borderRadius: 999,
           zIndex: 10,
         }} />
@@ -125,7 +125,7 @@ export default function Hero() {
           <div aria-hidden="true" style={{
             position: "absolute", bottom: -28, left: "50%", transform: "translateX(-50%)",
             width: 380, height: 80, borderRadius: "50%",
-            background: "radial-gradient(ellipse, rgba(20,24,27,.12) 0%, rgba(20,24,27,0) 70%)",
+            background: "radial-gradient(ellipse, rgba(59,60,58,.12) 0%, rgba(59,60,58,0) 70%)",
             filter: "blur(10px)",
           }} />
           <PhoneScreenshot />

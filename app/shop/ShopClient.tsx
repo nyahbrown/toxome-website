@@ -1,258 +1,536 @@
 "use client";
-import { useState, useMemo } from "react";
+
+import { useState, useMemo, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import type { Product } from "@/types/product";
+import { useAuth } from "@/contexts/AuthContext";
+import FrostedSelect from "@/components/FrostedSelect";
 
-const RISK_STYLE: Record<string, { bg: string; color: string; label: string }> = {
-  low:      { bg: "#ADC89C", color: "#233d18", label: "Low Risk" },
-  moderate: { bg: "#E6A638", color: "#4a2e00", label: "Moderate" },
-  high:     { bg: "#C84242", color: "#fff",    label: "High Risk" },
-};
+const FIBERS: { name: string; image: string }[] = [
+  { name: "cotton", image: "/fibers/cotton.jpg" },
+  { name: "silk",   image: "/fibers/silk.jpg" },
+  { name: "wool",   image: "/fibers/wool.jpg" },
+  { name: "hemp",   image: "/fibers/hemp.jpg" },
+  { name: "linen",  image: "/fibers/linen.jpg" },
+];
 
-function FilterPill({
-  label, active, onClick,
-}: {
-  label: string; active: boolean; onClick: () => void;
-}) {
+function HeartFilled() {
   return (
-    <button
-      onClick={onClick}
-      style={{
-        padding: "7px 14px", borderRadius: 999, fontSize: 13, fontWeight: 500,
-        letterSpacing: "-0.005em", cursor: "pointer", whiteSpace: "nowrap",
-        transition: "all 180ms cubic-bezier(.22,.61,.36,1)",
-        border: active ? "0" : "1px solid rgba(20,24,27,0.14)",
-        background: active ? "#3B3C3A" : "transparent",
-        color: active ? "#fff" : "#3B3C3A",
-      }}
-    >
-      {label}
-    </button>
+    <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+        fill="currentColor"
+      />
+    </svg>
   );
 }
 
-function ProductCard({ p }: { p: Product }) {
+function HeartOutline() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
+function ProductCard({
+  p,
+  wishlist,
+  onToggle,
+}: {
+  p: Product;
+  wishlist: Set<string>;
+  onToggle: (p: Product) => void;
+}) {
   const [hovered, setHovered] = useState(false);
   const shopUrl = p.affiliate_url || p.item_url;
-  const risk = p.risk_level ? RISK_STYLE[p.risk_level] : null;
+  const isWishlisted = wishlist.has(p.id);
 
   return (
-    <div
+    <a
+      href={shopUrl || "#"}
+      target={shopUrl ? "_blank" : undefined}
+      rel={shopUrl ? "noopener noreferrer sponsored" : undefined}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      style={{
-        background: "#fff", borderRadius: 14, overflow: "hidden", display: "flex",
-        flexDirection: "column",
-        boxShadow: hovered
-          ? "0 4px 24px rgba(20,24,27,.12)"
-          : "0 1px 3px rgba(20,24,27,.06), 0 4px 16px rgba(20,24,27,.04)",
-        transform: hovered ? "translateY(-3px)" : "none",
-        transition: "transform 220ms cubic-bezier(.22,.61,.36,1), box-shadow 220ms cubic-bezier(.22,.61,.36,1)",
-      }}
+      style={{ textDecoration: "none", display: "block" }}
     >
-      {/* Image */}
-      <div style={{ position: "relative", paddingBottom: "100%", background: "#f0efea", flexShrink: 0 }}>
-        {p.item_image ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={p.item_image}
-            alt={p.item_name}
-            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
-          />
-        ) : (
-          <div style={{
-            position: "absolute", inset: 0, display: "flex", alignItems: "center",
-            justifyContent: "center", fontFamily: "ui-monospace,SFMono-Regular,monospace",
-            fontSize: 10, letterSpacing: ".08em", textTransform: "uppercase", color: "#57636C",
-          }}>No image</div>
-        )}
-        <div style={{ position: "absolute", top: 10, right: 10, display: "flex", flexDirection: "column", gap: 5, alignItems: "flex-end" }}>
-          {risk && (
-            <span style={{
-              background: risk.bg, color: risk.color,
-              fontFamily: "ui-monospace,SFMono-Regular,monospace", fontSize: 10, fontWeight: 600,
-              letterSpacing: ".07em", textTransform: "uppercase", padding: "3px 8px", borderRadius: 999,
-            }}>{risk.label}</span>
+      <div
+        style={{
+          background: "var(--white)",
+          borderRadius: 6,
+          overflow: "hidden",
+          transition: "box-shadow 200ms ease, transform 200ms ease",
+          boxShadow: hovered
+            ? "0 8px 32px rgba(59,60,58,.10)"
+            : "0 1px 4px rgba(59,60,58,.06)",
+          transform: hovered ? "translateY(-2px)" : "none",
+        }}
+      >
+        {/* Image */}
+        <div
+          style={{
+            position: "relative",
+            paddingBottom: "100%",
+            background: "var(--tan)",
+            overflow: "hidden",
+          }}
+        >
+          {p.item_image ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={p.item_image}
+              alt={p.item_name}
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                transition: "transform 400ms ease",
+                transform: hovered ? "scale(1.03)" : "scale(1)",
+              }}
+            />
+          ) : (
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                background: "var(--tan)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontFamily: "var(--mono)",
+                fontSize: 10,
+                letterSpacing: ".1em",
+                textTransform: "uppercase",
+                color: "var(--ink-3)",
+              }}
+            >
+              No image
+            </div>
           )}
           {p.brand_verified && (
-            <span style={{
-              background: "#14181B", color: "#fff",
-              fontFamily: "ui-monospace,SFMono-Regular,monospace", fontSize: 10, fontWeight: 600,
-              letterSpacing: ".07em", textTransform: "uppercase", padding: "3px 8px", borderRadius: 999,
-            }}>Verified</span>
-          )}
-        </div>
-      </div>
-
-      {/* Details */}
-      <div style={{ padding: "16px 18px 20px", flex: 1, display: "flex", flexDirection: "column", gap: 5 }}>
-        <div style={{
-          fontFamily: "ui-monospace,SFMono-Regular,monospace", fontSize: 10.5, fontWeight: 500,
-          letterSpacing: ".12em", textTransform: "uppercase", color: "#57636C",
-        }}>{p.brand}</div>
-        <div style={{ fontSize: 14.5, fontWeight: 500, lineHeight: 1.3, letterSpacing: "-0.012em", color: "#14181B" }}>
-          {p.item_name}
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 1 }}>
-          {p.item_price != null && (
-            <span style={{ fontSize: 14, fontWeight: 600, color: "#14181B" }}>
-              ${p.item_price.toLocaleString()}
+            <span
+              style={{
+                position: "absolute",
+                top: 12,
+                left: 12,
+                background: "var(--ink)",
+                color: "var(--white)",
+                fontFamily: "var(--mono)",
+                fontSize: 10,
+                fontWeight: 600,
+                letterSpacing: ".08em",
+                textTransform: "uppercase",
+                padding: "4px 10px",
+                borderRadius: 999,
+              }}
+            >
+              Verified
             </span>
           )}
-          {p.budget && (
-            <span style={{
-              fontSize: 11, fontFamily: "ui-monospace,SFMono-Regular,monospace",
-              color: "#57636C", letterSpacing: ".04em",
-            }}>{p.budget}</span>
-          )}
-        </div>
-        {p.category && (
-          <div style={{ marginTop: 3 }}>
-            <span style={{
-              fontSize: 10.5, fontFamily: "ui-monospace,SFMono-Regular,monospace",
-              background: "#E1DCCC", color: "#3B3C3A", padding: "3px 9px",
-              borderRadius: 999, letterSpacing: ".06em", textTransform: "uppercase",
-            }}>{p.category}</span>
-          </div>
-        )}
-        {shopUrl ? (
-          <a
-            href={shopUrl}
-            target="_blank"
-            rel="noopener noreferrer sponsored"
+          {/* Heart button */}
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onToggle(p);
+            }}
+            aria-label={isWishlisted ? "Remove from saved" : "Save item"}
             style={{
-              marginTop: "auto", paddingTop: 14, display: "inline-flex", alignItems: "center",
-              gap: 6, fontSize: 13, fontWeight: 500, color: "#3B3C3A",
-              borderTop: "1px solid rgba(20,24,27,0.08)",
-              textDecoration: "none",
+              position: "absolute",
+              top: 12,
+              right: 12,
+              width: 32,
+              height: 32,
+              background: "rgba(252,251,247,0.85)",
+              borderRadius: 999,
+              border: "none",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: isWishlisted ? "var(--ink)" : "var(--ink-3)",
             }}
           >
-            Shop now
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-              <path d="M2.5 6h7m0 0L6 2.5M9.5 6 6 9.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </a>
-        ) : (
-          <div style={{ marginTop: "auto", paddingTop: 14, borderTop: "1px solid rgba(20,24,27,0.08)" }} />
-        )}
+            {isWishlisted ? <HeartFilled /> : <HeartOutline />}
+          </button>
+        </div>
+
+        {/* Info */}
+        <div style={{ padding: "14px 16px 18px" }}>
+          <div
+            style={{
+              fontFamily: "var(--mono)",
+              fontSize: 10,
+              letterSpacing: ".12em",
+              textTransform: "uppercase",
+              color: "var(--ink-3)",
+              marginBottom: 5,
+            }}
+          >
+            {p.brand}
+          </div>
+          <div
+            style={{
+              fontSize: 14.5,
+              lineHeight: 1.3,
+              letterSpacing: "-0.01em",
+              color: "var(--ink)",
+              marginBottom: 6,
+            }}
+          >
+            {p.item_name}
+          </div>
+          {p.item_price != null && (
+            <div
+              style={{
+                fontSize: 13,
+                color: "var(--ink-3)",
+              }}
+            >
+              ${p.item_price.toLocaleString()}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </a>
   );
 }
 
-function EmptyState({ filters }: { filters: boolean }) {
+function EmptyState({ hasFilters }: { hasFilters: boolean }) {
   return (
-    <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "80px 0", color: "#57636C" }}>
-      <div style={{ fontSize: 32, marginBottom: 12 }}>🧺</div>
-      <div style={{ fontSize: 15, fontWeight: 500 }}>
-        {filters ? "No items match those filters." : "No products yet — check back soon."}
-      </div>
+    <div
+      style={{
+        gridColumn: "1 / -1",
+        textAlign: "center",
+        padding: "80px 0",
+        color: "var(--ink-3)",
+        fontFamily: "var(--mono)",
+        fontSize: 11,
+        letterSpacing: ".1em",
+        textTransform: "uppercase",
+      }}
+    >
+      {hasFilters ? "No items match those filters." : "No products yet — check back soon."}
     </div>
   );
 }
 
 export default function ShopClient({ products }: { products: Product[] }) {
+  const router = useRouter();
+  const { user, wishlist, toggleWishlist } = useAuth();
+
+  function handleToggle(p: Product) {
+    if (!user) {
+      sessionStorage.setItem("pendingLike", p.id);
+      sessionStorage.setItem("pendingLikeProduct", JSON.stringify(p));
+      router.push("/login?return=/shop");
+      return;
+    }
+    toggleWishlist(p);
+  }
+
+  const [fiberFilter, setFiberFilter] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fiber = new URLSearchParams(window.location.search).get("fiber");
+    if (fiber) setFiberFilter(fiber);
+  }, []);
   const [category, setCategory] = useState("All");
   const [gender, setGender] = useState("All");
   const [budget, setBudget] = useState("All");
+  const [sort, setSort] = useState("All");
 
-  const categories = useMemo(() => {
-    const cats = Array.from(new Set(products.map(p => p.category).filter(Boolean))) as string[];
-    return ["All", ...cats.sort()];
-  }, [products]);
+  const categories = useMemo(
+    () =>
+      Array.from(
+        new Set(products.map((p) => p.category).filter(Boolean))
+      ) as string[],
+    [products]
+  );
 
-  const genders = useMemo(() => {
-    const gs = Array.from(new Set(products.map(p => p.gender).filter(Boolean))) as string[];
-    return gs.length > 0 ? ["All", ...gs.sort()] : [];
-  }, [products]);
+  const genders = useMemo(
+    () =>
+      Array.from(
+        new Set(products.map((p) => p.gender).filter(Boolean))
+      ) as string[],
+    [products]
+  );
 
-  const budgets = useMemo(() => {
-    const bs = Array.from(new Set(products.map(p => p.budget).filter(Boolean))) as string[];
-    return bs.length > 0 ? ["All", "$", "$$", "$$$"].filter(b => b === "All" || bs.includes(b)) : [];
-  }, [products]);
+  const budgets = useMemo(
+    () => ["$", "$$", "$$$"].filter((b) => products.some((p) => p.budget === b)),
+    [products]
+  );
 
-  const filtered = useMemo(() => products.filter(p => {
-    if (category !== "All" && p.category !== category) return false;
-    if (gender !== "All" && p.gender !== gender) return false;
-    if (budget !== "All" && p.budget !== budget) return false;
-    return true;
-  }), [products, category, gender, budget]);
+  const filtered = useMemo(() => {
+    let result = products.filter((p) => {
+      if (fiberFilter) {
+        const fibers = Object.keys(p.fabric_composition || {}).map((k) =>
+          k.toLowerCase()
+        );
+        if (!fibers.includes(fiberFilter)) return false;
+      }
+      if (category !== "All" && p.category !== category) return false;
+      if (gender !== "All" && p.gender !== gender) return false;
+      if (budget !== "All" && p.budget !== budget) return false;
+      return true;
+    });
 
-  const hasFilters = category !== "All" || gender !== "All" || budget !== "All";
+    if (sort === "Price: Low to High")
+      result = [...result].sort(
+        (a, b) => (a.item_price ?? Infinity) - (b.item_price ?? Infinity)
+      );
+    if (sort === "Price: High to Low")
+      result = [...result].sort(
+        (a, b) => (b.item_price ?? -Infinity) - (a.item_price ?? -Infinity)
+      );
+
+    return result;
+  }, [products, fiberFilter, category, gender, budget, sort]);
+
+  const hasFilters =
+    !!fiberFilter || category !== "All" || gender !== "All" || budget !== "All";
 
   return (
-    <main style={{ background: "var(--bg)", minHeight: "60vh", paddingBottom: 100 }}>
-      {/* Header */}
-      <div style={{ borderBottom: "1px solid var(--hairline)", paddingBottom: 40 }}>
-        <div className="shell" style={{ paddingTop: 64 }}>
-          <div className="eyebrow" style={{ marginBottom: 16 }}>Toxome · Shop</div>
-          <h1 style={{
-            fontWeight: 500, fontSize: "clamp(34px, 4.5vw, 54px)", lineHeight: 1.06,
-            letterSpacing: "-0.04em", color: "var(--ink)", margin: "0 0 16px",
-          }}>
-            Clean clothing,<br />
-            <em style={{ fontStyle: "italic", color: "var(--ink-2)" }}>curated for you.</em>
-          </h1>
-          <p style={{ fontSize: 17, color: "var(--ink-2)", margin: 0, maxWidth: 520, lineHeight: 1.5, letterSpacing: "-0.01em" }}>
-            Every item is hand-selected for lower toxin load.
-          </p>
+    <main style={{ background: "var(--linen)", minHeight: "100vh", paddingBottom: 120, paddingTop: 64 }}>
+      {/* Page header */}
+      <div style={{ textAlign: "center", paddingTop: 52, paddingBottom: 48 }}>
+        <div
+          style={{
+            fontFamily: "var(--mono)",
+            fontSize: 11,
+            letterSpacing: ".12em",
+            textTransform: "uppercase",
+            color: "var(--ink-3)",
+            marginBottom: 24,
+          }}
+        >
+          shop all
+        </div>
+        <h1
+          style={{
+            fontFamily: "var(--serif)",
+            fontWeight: 400,
+            fontSize: "clamp(36px, 5.5vw, 68px)",
+            lineHeight: 1.05,
+            letterSpacing: "-0.025em",
+            color: "var(--ink)",
+            margin: "0 auto",
+            maxWidth: 780,
+            padding: "0 24px",
+          }}
+        >
+          clothing that&apos;s clean by design
+        </h1>
+      </div>
+
+      {/* Browse by fiber */}
+      <div className="shell" style={{ paddingBottom: 52 }}>
+        <div
+          className="eyebrow"
+          style={{ marginBottom: 20 }}
+        >
+          Browse by fiber
+        </div>
+        <div className="fiber-grid" style={{ gap: 8 }}>
+          {FIBERS.map((fiber) => {
+            const active = fiberFilter === fiber.name;
+            return (
+              <button
+                key={fiber.name}
+                onClick={() => setFiberFilter(active ? null : fiber.name)}
+                style={{
+                  border: "none",
+                  background: "none",
+                  padding: 0,
+                  cursor: "pointer",
+                  textAlign: "left",
+                }}
+              >
+                <div
+                  style={{
+                    position: "relative",
+                    paddingBottom: "124.5%",
+                    overflow: "hidden",
+                    outline: active ? "2px solid var(--ink)" : "none",
+                    outlineOffset: 2,
+                  }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={fiber.image}
+                    alt={fiber.name}
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      opacity: active ? 1 : 0.88,
+                      transition: "opacity 160ms ease, transform 300ms ease",
+                      transform: active ? "scale(1.03)" : "scale(1)",
+                    }}
+                  />
+                  {active && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        background: "rgba(59,60,58,.12)",
+                      }}
+                    />
+                  )}
+                </div>
+                <div
+                  style={{
+                    fontSize: 14,
+                    letterSpacing: "-0.005em",
+                    color: active ? "var(--ink)" : "var(--ink-2)",
+                    marginTop: 10,
+                    fontWeight: active ? 500 : 400,
+                    fontFamily: "var(--sans)",
+                  }}
+                >
+                  {fiber.name}
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Filters */}
-      <div style={{ position: "sticky", top: 64, zIndex: 40, background: "rgba(231,230,222,0.88)", backdropFilter: "blur(16px)", borderBottom: "1px solid var(--hairline)", padding: "14px 0" }}>
-        <div className="shell" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {/* Category row */}
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            {categories.map(c => (
-              <FilterPill key={c} label={c} active={category === c} onClick={() => setCategory(c)} />
-            ))}
+      {/* Filter bar */}
+      <div
+        style={{
+          borderTop: "1px solid var(--hairline)",
+          borderBottom: "1px solid var(--hairline)",
+          padding: "14px 0",
+          marginBottom: 32,
+        }}
+      >
+        <div
+          className="shell"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 16,
+          }}
+        >
+          <span
+            className="eyebrow"
+            style={{ flexShrink: 0, marginRight: 4 }}
+          >
+            Filter by
+          </span>
+          <div style={{ display: "flex", gap: 8, flex: 1, flexWrap: "wrap" }}>
+            {categories.length > 0 && (
+              <FrostedSelect
+                label="Category"
+                options={categories}
+                value={category}
+                onChange={setCategory}
+              />
+            )}
+            {genders.length > 0 && (
+              <FrostedSelect
+                label="Gender"
+                options={genders}
+                value={gender}
+                onChange={setGender}
+              />
+            )}
+            {budgets.length > 0 && (
+              <FrostedSelect
+                label="Budget"
+                options={budgets}
+                value={budget}
+                onChange={setBudget}
+              />
+            )}
           </div>
-          {/* Gender + Budget row */}
-          {(genders.length > 1 || budgets.length > 1) && (
-            <div style={{ display: "flex", gap: 20, alignItems: "center", flexWrap: "wrap" }}>
-              {genders.length > 1 && (
-                <div style={{ display: "flex", gap: 6 }}>
-                  {genders.map(g => (
-                    <FilterPill key={g} label={g} active={gender === g} onClick={() => setGender(g)} />
-                  ))}
-                </div>
-              )}
-              {genders.length > 1 && budgets.length > 1 && (
-                <div style={{ width: 1, height: 20, background: "var(--hairline-strong)" }} />
-              )}
-              {budgets.length > 1 && (
-                <div style={{ display: "flex", gap: 6 }}>
-                  {budgets.map(b => (
-                    <FilterPill key={b} label={b} active={budget === b} onClick={() => setBudget(b)} />
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+          <FrostedSelect
+            label="Sort By"
+            options={["Price: Low to High", "Price: High to Low"]}
+            value={sort}
+            onChange={setSort}
+            align="right"
+          />
         </div>
       </div>
 
-      {/* Grid */}
-      <div className="shell" style={{ paddingTop: 48 }}>
-        <div style={{ marginBottom: 24, fontFamily: "var(--mono)", fontSize: 11.5, letterSpacing: ".08em", textTransform: "uppercase", color: "var(--ink-3)" }}>
-          {filtered.length} {filtered.length === 1 ? "item" : "items"}
-        </div>
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-          gap: 24,
-        }}>
+      {/* Product grid */}
+      <div className="shell">
+        {fiberFilter && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              marginBottom: 24,
+            }}
+          >
+            <span
+              style={{
+                fontFamily: "var(--mono)",
+                fontSize: 11,
+                letterSpacing: ".08em",
+                textTransform: "uppercase",
+                color: "var(--ink-3)",
+              }}
+            >
+              {filtered.length} {filtered.length === 1 ? "item" : "items"} · fiber:{" "}
+              {fiberFilter}
+            </span>
+            <button
+              onClick={() => setFiberFilter(null)}
+              style={{
+                fontFamily: "var(--mono)",
+                fontSize: 10,
+                letterSpacing: ".06em",
+                textTransform: "uppercase",
+                color: "var(--ink-3)",
+                background: "none",
+                border: "1px solid var(--hairline-strong)",
+                borderRadius: 999,
+                padding: "3px 10px",
+                cursor: "pointer",
+              }}
+            >
+              clear
+            </button>
+          </div>
+        )}
+
+        <div className="product-grid">
           {filtered.length === 0 ? (
-            <EmptyState filters={hasFilters} />
+            <EmptyState hasFilters={hasFilters} />
           ) : (
-            filtered.map(p => <ProductCard key={p.id} p={p} />)
+            filtered.map((p) => (
+              <ProductCard
+                key={p.id}
+                p={p}
+                wishlist={wishlist}
+                onToggle={handleToggle}
+              />
+            ))
           )}
         </div>
-        <p style={{
-          marginTop: 64, fontSize: 11.5, color: "var(--ink-3)",
-          fontFamily: "var(--mono)", letterSpacing: ".04em",
-        }}>
-          The products featured here may contain affiliate links.
+
+        <p
+          style={{
+            marginTop: 64,
+            fontSize: 11,
+            color: "var(--ink-3)",
+            fontFamily: "var(--mono)",
+            letterSpacing: ".04em",
+          }}
+        >
+          Some products may contain affiliate links.
         </p>
       </div>
     </main>

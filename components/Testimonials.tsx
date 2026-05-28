@@ -1,6 +1,6 @@
 const testimonials = [
   {
-    quote: "This app is a game changer. Had no idea how toxic my closet was.",
+    quote: "Had no idea how toxic my closet was until I started scanning. Every label is a surprise.",
     name: "Kendall B.",
   },
   {

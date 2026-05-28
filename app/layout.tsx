@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { Instrument_Serif, Inter } from "next/font/google";
+import { Source_Serif_4, Inter } from "next/font/google";
 import "./globals.css";
 import AnimationProvider from "@/components/AnimationProvider";
+import { AuthProvider } from "@/contexts/AuthContext";
 
-const instrumentSerif = Instrument_Serif({
+const sourceSerif = Source_Serif_4({
   subsets: ["latin"],
-  weight: "400",
+  weight: ["400"],
   style: ["normal", "italic"],
   variable: "--font-serif",
   display: "swap",
@@ -27,10 +28,10 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${instrumentSerif.variable} ${inter.variable}`}>
+    <html lang="en" className={`${sourceSerif.variable} ${inter.variable}`}>
       <body>
         <AnimationProvider />
-        {children}
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );

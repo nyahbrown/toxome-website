@@ -6,7 +6,7 @@ const FAQ_ITEMS = [
   { q: "Where does the scoring data come from?", a: "Peer-reviewed material science and toxicology, plus published lifecycle assessments. Each fiber has a source-linked dossier inside the app. We don't accept payment from brands to influence scores — ever." },
   { q: "What if my tag is blurry or in another language?", a: "Toxome handles 28 languages and most degraded tags. If a tag is unreadable, you can search by brand and product name as a fallback. We're also working on care-symbol recognition for tags that have been worn off entirely." },
   { q: "Is my closet private?", a: "Yes. Scans live on-device by default. Optional iCloud sync is end-to-end encrypted. We never sell or share scan data, and you can wipe your closet at any time." },
-  { q: "Is it free?", a: "Scanning is free, forever. Toxome Plus ($4/mo) unlocks lifetime closet history, replacement suggestions, and the article library. Cancel anytime." },
+  { q: "Is it free?", a: "Scanning is free, forever. The subscription ($2.99/mo or $14.99/yr, with a 14-day free trial) adds your full closet history, swap suggestions, and the article library. Cancel anytime." },
   { q: "When does Android land?", a: "iOS is live on the App Store today. Android is in active development. Drop your email below to get notified the day it ships." },
 ];
 
@@ -58,9 +58,9 @@ export default function Faq() {
           <div style={{ position: "sticky", top: 100 }}>
             <div className="eyebrow">FAQ</div>
             <h2 style={{
-              fontFamily: "var(--sans)", fontWeight: 600,
+              fontFamily: "var(--serif)", fontWeight: 400,
               fontSize: "clamp(32px, 4vw, 52px)",
-              lineHeight: 1.02, letterSpacing: "-0.04em", margin: "20px 0 16px",
+              lineHeight: 1.02, letterSpacing: "-0.025em", margin: "20px 0 16px",
             } as React.CSSProperties}>
               Questions,{" "}
               <em style={{ fontStyle: "italic", color: "var(--ink-2)" }}>answered.</em>

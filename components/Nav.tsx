@@ -1,66 +1,114 @@
 "use client";
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
-const APP_STORE_URL = "https://apps.apple.com/us/app/toxome/id6748622034";
+const NAV_LINKS = [
+  { href: "/shop", label: "shop" },
+  { href: "/journal", label: "journal" },
+];
 
 export default function Nav() {
-  const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+  const [scrolled, setScrolled] = useState(false);
+  const isHome = pathname === "/";
+  const transparent = isHome && !scrolled;
+  const { user, wishlist } = useAuth();
+  const wishlistCount = wishlist.size;
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 60);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
-    <nav style={{
-      position: "sticky", top: 0, zIndex: 50,
-      background: "rgba(231,230,222,0.78)",
-      backdropFilter: "blur(20px) saturate(160%)",
-      WebkitBackdropFilter: "blur(20px) saturate(160%)",
-      borderBottom: "1px solid var(--hairline)",
-    }}>
-      <div className="shell" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: 64 }}>
-        {/* Wordmark */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <Image src="/toxome-logo.png" alt="" width={40} height={26} style={{ display: "block" }} />
-          <span style={{ fontFamily: "var(--sans)", fontSize: 20, fontWeight: 700, letterSpacing: "-0.025em", color: "var(--ink)" }}>
-            Toxome
-          </span>
+    <nav
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 50,
+        background: transparent
+          ? "transparent"
+          : "rgba(252,251,247,0.92)",
+        backdropFilter: transparent ? "none" : "blur(20px) saturate(160%)",
+        WebkitBackdropFilter: transparent ? "none" : "blur(20px) saturate(160%)",
+        borderBottom: transparent ? "none" : "1px solid var(--hairline)",
+        transition: "background 300ms ease, border-color 300ms ease",
+      }}
+    >
+      <div
+        className="shell"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          height: 64,
+        }}
+      >
+        {/* Logo + links */}
+        <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
+          <Link href="/" aria-label="Toxome home">
+            <Image
+              src="/toxome-logo.png"
+              alt=""
+              width={64}
+              height={42}
+              priority
+              style={{ display: "block" }}
+            />
+          </Link>
+          <div style={{ display: "flex", gap: 28 }}>
+            {NAV_LINKS.map(({ href, label }) => {
+              const active =
+                pathname === href || pathname.startsWith(href + "/");
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 400,
+                    letterSpacing: "-0.005em",
+                    color: transparent
+                      ? "rgba(255,255,255,0.92)"
+                      : active
+                      ? "var(--ink)"
+                      : "var(--ink-2)",
+                    textDecoration: !transparent && active ? "underline" : "none",
+                    textUnderlineOffset: 5,
+                    textDecorationThickness: 1,
+                    transition: "color 300ms ease",
+                  }}
+                >
+                  {label}
+                </Link>
+              );
+            })}
+          </div>
         </div>
 
-        {/* Desktop links */}
-        <div style={{ display: "flex", alignItems: "center", gap: 36, fontSize: 14, color: "var(--ink-2)" }}
-          className="hidden md:flex">
-          <a href="#how" style={{ fontWeight: 500 }}>How it works</a>
-          <a href="#what" style={{ fontWeight: 500 }}>What we check</a>
-          <Link href="/?view=shop" style={{ fontWeight: 500 }}>Shop</Link>
-          <Link href="/blog" style={{ fontWeight: 500 }}>Blog</Link>
-        </div>
-
-        <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer"
-          className="pill-cta hidden md:inline-flex"
-          style={{ height: 40, padding: "8px 18px", fontSize: 14 }}>
-          Get the app
-        </a>
-
-        {/* Mobile hamburger */}
-        <button onClick={() => setOpen(!open)} className="md:hidden p-2" aria-label="Menu">
-          <div style={{ width: 20, height: 1.5, background: "var(--ink)", transition: "all .2s", transform: open ? "rotate(45deg) translate(0,5px)" : "none" }} />
-          <div style={{ width: 20, height: 1.5, background: "var(--ink)", margin: "4px 0", opacity: open ? 0 : 1, transition: "all .2s" }} />
-          <div style={{ width: 20, height: 1.5, background: "var(--ink)", transition: "all .2s", transform: open ? "rotate(-45deg) translate(0,-5px)" : "none" }} />
-        </button>
+        {/* Account */}
+        <Link
+          href="/account"
+          style={{
+            fontSize: 14,
+            fontWeight: 400,
+            letterSpacing: "-0.005em",
+            color: transparent ? "rgba(255,255,255,0.92)" : "var(--ink-2)",
+            textDecoration: "none",
+            transition: "color 300ms ease",
+          }}
+        >
+          {user && wishlistCount > 0 ? `wishlist (${wishlistCount})` : "account"}
+        </Link>
       </div>
-
-      {open && (
-        <div style={{ background: "rgba(231,230,222,0.97)", borderTop: "1px solid var(--hairline)", padding: "16px 20px 20px" }}
-          className="md:hidden flex flex-col gap-4 text-sm">
-          <a href="#how" onClick={() => setOpen(false)} style={{ fontWeight: 500, color: "var(--ink-2)" }}>How it works</a>
-          <a href="#what" onClick={() => setOpen(false)} style={{ fontWeight: 500, color: "var(--ink-2)" }}>What we check</a>
-          <Link href="/?view=shop" onClick={() => setOpen(false)} style={{ fontWeight: 500, color: "var(--ink-2)" }}>Shop</Link>
-          <Link href="/blog" onClick={() => setOpen(false)} style={{ fontWeight: 500, color: "var(--ink-2)" }}>Blog</Link>
-          <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer"
-            className="pill-cta" style={{ justifyContent: "center", marginTop: 4 }}>
-            Get the app
-          </a>
-        </div>
-      )}
     </nav>
   );
 }

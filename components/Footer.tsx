@@ -9,16 +9,16 @@ const cols = [
 
 export default function Footer() {
   return (
-    <footer style={{ background: "#D5D5CD", padding: "80px 0 40px" }}>
+    <footer style={{ background: "var(--bg)", borderTop: "1px solid var(--hairline)", padding: "80px 0 40px" }}>
       <div className="shell">
-        <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr 1fr 1fr 1fr", gap: 48, marginBottom: 80 }}>
+        <div className="footer-grid">
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
               <Image src="/toxome-logo.png" alt="" width={37} height={24} style={{ height: 24, width: "auto" }} />
               <span style={{ fontSize: 18, fontWeight: 600, letterSpacing: "-0.025em", color: "var(--ink)" }}>Toxome</span>
             </div>
             <p style={{ fontSize: 13.5, lineHeight: 1.55, margin: 0, maxWidth: 260, color: "var(--ink)" }}>
-              A clothing scanner for people who want to know what their bodies are wearing.
+              A clothing scanner for people who want to know what&apos;s in their clothes.
             </p>
           </div>
           {cols.map((c) => (
@@ -37,7 +37,7 @@ export default function Footer() {
 
         <div style={{
           display: "flex", justifyContent: "space-between",
-          paddingTop: 24, borderTop: "1px solid rgba(20,24,27,0.12)",
+          paddingTop: 24, borderTop: "1px solid var(--hairline)",
           fontFamily: "var(--mono)", fontSize: 11, letterSpacing: ".06em",
           textTransform: "uppercase", color: "var(--ink-3)",
         }}>

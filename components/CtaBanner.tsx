@@ -25,7 +25,7 @@ export default function CtaBanner() {
           <p style={{
             fontSize: 17,
             lineHeight: 1.55,
-            color: "rgba(231,230,222,0.65)",
+            color: "rgba(252,251,247,0.65)",
             maxWidth: 500,
             margin: "0 auto 40px",
           }}>
