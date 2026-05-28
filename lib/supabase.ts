@@ -63,6 +63,31 @@ export const getShopTaxonomy = cache(async (): Promise<ShopTaxonomy> => {
   };
 });
 
+export async function getCleanerAlternatives(
+  problemCategories: string[],
+  limit = 4
+): Promise<Product[]> {
+  // No problem categories → pull general low-risk picks regardless of category.
+  let q = supabase
+    .from("products")
+    .select("*")
+    .eq("published", true)
+    .order("toxome_score", { ascending: true, nullsFirst: false })
+    .limit(limit);
+
+  if (problemCategories.length > 0) {
+    q = q.in("category", problemCategories);
+  }
+  q = q.or("risk_level.eq.low,toxome_score.lte.30");
+
+  const { data, error } = await q;
+  if (error) {
+    console.error("Supabase alternatives fetch error:", error.message);
+    return [];
+  }
+  return data ?? [];
+}
+
 export async function getProductById(id: string): Promise<Product | null> {
   const { data, error } = await supabase
     .from("products")
