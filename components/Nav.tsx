@@ -5,11 +5,56 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import NavDropdown from "./NavDropdown";
 
-const NAV_LINKS = [
-  { href: "/shop", label: "shop" },
-  { href: "/journal", label: "journal" },
+const SHOP_CATEGORIES = [
+  "Outerwear",
+  "Tops",
+  "Bottoms",
+  "Pajamas",
+  "Activewear",
+  "Undergarments",
 ];
+
+const JOURNAL_TOPICS = [
+  { label: "Fibers", topic: "fibers" },
+  { label: "Toxicology", topic: "toxicology" },
+  { label: "Wellness", topic: "wellness" },
+  { label: "Style", topic: "style" },
+];
+
+function buildShopColumns() {
+  const make = (gender: "men" | "women") => ({
+    heading: gender === "men" ? "Men" : "Women",
+    items: [
+      {
+        label: `All ${gender === "men" ? "Men" : "Women"}`,
+        href: `/shop?gender=${gender}`,
+        muted: true,
+      },
+      ...SHOP_CATEGORIES.map((c) => ({
+        label: c,
+        href: `/shop?gender=${gender}&category=${encodeURIComponent(c)}`,
+      })),
+    ],
+  });
+  return [make("women"), make("men")];
+}
+
+function buildJournalColumns() {
+  return [
+    {
+      heading: "Read",
+      items: [
+        { label: "All articles", href: "/journal", muted: true },
+        ...JOURNAL_TOPICS.map((t) => ({
+          label: t.label,
+          href: `/journal?topic=${t.topic}`,
+        })),
+      ],
+    },
+  ];
+}
 
 export default function Nav() {
   const pathname = usePathname();
@@ -64,33 +109,22 @@ export default function Nav() {
               style={{ display: "block" }}
             />
           </Link>
-          <div style={{ display: "flex", gap: 28 }}>
-            {NAV_LINKS.map(({ href, label }) => {
-              const active =
-                pathname === href || pathname.startsWith(href + "/");
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  style={{
-                    fontSize: 14,
-                    fontWeight: 400,
-                    letterSpacing: "-0.005em",
-                    color: transparent
-                      ? "rgba(255,255,255,0.92)"
-                      : active
-                      ? "var(--ink)"
-                      : "var(--ink-2)",
-                    textDecoration: !transparent && active ? "underline" : "none",
-                    textUnderlineOffset: 5,
-                    textDecorationThickness: 1,
-                    transition: "color 300ms ease",
-                  }}
-                >
-                  {label}
-                </Link>
-              );
-            })}
+          <div style={{ display: "flex", gap: 28, alignItems: "center" }}>
+            <NavDropdown
+              label="shop"
+              href="/shop"
+              transparent={transparent}
+              active={pathname === "/shop" || pathname.startsWith("/shop/")}
+              columns={buildShopColumns()}
+            />
+            <NavDropdown
+              label="journal"
+              href="/journal"
+              transparent={transparent}
+              active={pathname === "/journal" || pathname.startsWith("/journal/")}
+              columns={buildJournalColumns()}
+              panelWidth={240}
+            />
           </div>
         </div>
 

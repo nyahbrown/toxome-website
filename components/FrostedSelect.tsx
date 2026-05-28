@@ -9,6 +9,7 @@ type Props = {
   onChange: (v: string) => void;
   allLabel?: string;
   align?: "left" | "right";
+  hideAll?: boolean;
 };
 
 function Chevron({ open }: { open: boolean }) {
@@ -73,10 +74,11 @@ export default function FrostedSelect({
   onChange,
   allLabel = "All",
   align = "left",
+  hideAll = false,
 }: Props) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement | null>(null);
-  const isActive = value !== "All";
+  const isActive = hideAll ? true : value !== "All";
 
   useEffect(() => {
     if (!open) return;
@@ -153,15 +155,17 @@ export default function FrostedSelect({
             animation: "frostedFadeIn 160ms var(--ease)",
           }}
         >
-          <DropdownItem
-            isSelected={value === "All"}
-            onClick={() => {
-              onChange("All");
-              setOpen(false);
-            }}
-            label={allLabel}
-            muted
-          />
+          {!hideAll && (
+            <DropdownItem
+              isSelected={value === "All"}
+              onClick={() => {
+                onChange("All");
+                setOpen(false);
+              }}
+              label={allLabel}
+              muted
+            />
+          )}
           {options.map((opt) => (
             <DropdownItem
               key={opt}

@@ -236,15 +236,35 @@ export default function ShopClient({ products }: { products: Product[] }) {
   }
 
   const [fiberFilter, setFiberFilter] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fiber = new URLSearchParams(window.location.search).get("fiber");
-    if (fiber) setFiberFilter(fiber);
-  }, []);
   const [category, setCategory] = useState("All");
   const [gender, setGender] = useState("All");
   const [budget, setBudget] = useState("All");
-  const [sort, setSort] = useState("All");
+  const [sort, setSort] = useState("Featured");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const fiber = params.get("fiber");
+    if (fiber) setFiberFilter(fiber);
+
+    const matchExact = (raw: string | null, pool: (string | null)[]) => {
+      if (!raw) return null;
+      const lowered = raw.toLowerCase();
+      const hit = pool.find((v) => v && v.toLowerCase() === lowered);
+      return hit ?? null;
+    };
+
+    const g = matchExact(
+      params.get("gender"),
+      products.map((p) => p.gender)
+    );
+    if (g) setGender(g);
+
+    const c = matchExact(
+      params.get("category"),
+      products.map((p) => p.category)
+    );
+    if (c) setCategory(c);
+  }, [products]);
 
   const categories = useMemo(
     () =>
@@ -281,14 +301,37 @@ export default function ShopClient({ products }: { products: Product[] }) {
       return true;
     });
 
-    if (sort === "Price: Low to High")
+    if (sort === "Featured") {
+      result = [...result].sort((a, b) => {
+        const va = a.brand_verified ? 1 : 0;
+        const vb = b.brand_verified ? 1 : 0;
+        if (vb !== va) return vb - va;
+        const sa = a.toxome_score ?? -Infinity;
+        const sb = b.toxome_score ?? -Infinity;
+        if (sb !== sa) return sb - sa;
+        return (
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+      });
+    } else if (sort === "Newest") {
+      result = [...result].sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+    } else if (sort === "Oldest") {
+      result = [...result].sort(
+        (a, b) =>
+          new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+      );
+    } else if (sort === "Price: Low to High") {
       result = [...result].sort(
         (a, b) => (a.item_price ?? Infinity) - (b.item_price ?? Infinity)
       );
-    if (sort === "Price: High to Low")
+    } else if (sort === "Price: High to Low") {
       result = [...result].sort(
         (a, b) => (b.item_price ?? -Infinity) - (a.item_price ?? -Infinity)
       );
+    }
 
     return result;
   }, [products, fiberFilter, category, gender, budget, sort]);
@@ -455,10 +498,17 @@ export default function ShopClient({ products }: { products: Product[] }) {
           </div>
           <FrostedSelect
             label="Sort By"
-            options={["Price: Low to High", "Price: High to Low"]}
+            options={[
+              "Featured",
+              "Newest",
+              "Oldest",
+              "Price: Low to High",
+              "Price: High to Low",
+            ]}
             value={sort}
             onChange={setSort}
             align="right"
+            hideAll
           />
         </div>
       </div>
