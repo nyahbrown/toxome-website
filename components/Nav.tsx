@@ -22,25 +22,22 @@ const JOURNAL_TOPICS = [
 ];
 
 function buildShopColumns(taxonomy: ShopTaxonomy) {
-  const makeGendered = (gender: "Men" | "Women", categories: string[]) => ({
-    heading: gender,
-    items: [
-      {
-        label: `All ${gender}`,
-        href: `/shop?gender=${gender}`,
-        muted: true,
-      },
-      ...categories.map((c) => ({
-        label: c,
-        href: `/shop?gender=${gender}&category=${encodeURIComponent(c)}`,
-      })),
-    ],
-  });
+  const makeGendered = (label: "Men" | "Women", categories: string[]) => {
+    const slug = label.toLowerCase();
+    return {
+      heading: label,
+      items: [
+        { label: `All ${label}`, href: `/shop/${slug}`, muted: true },
+        ...categories.map((c) => ({
+          label: c,
+          href: `/shop/${slug}?category=${encodeURIComponent(c)}`,
+        })),
+      ],
+    };
+  };
   const home = {
     heading: "Home",
-    items: [
-      { label: "All Home", href: "/shop?category=Other", muted: true },
-    ],
+    items: [{ label: "All Home", href: "/shop/home", muted: true }],
   };
   return [
     makeGendered("Women", taxonomy.women),

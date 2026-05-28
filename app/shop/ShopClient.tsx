@@ -4,10 +4,24 @@ import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { Product } from "@/types/product";
+import type { ShopTaxonomy } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import FrostedSelect from "@/components/FrostedSelect";
 import { StarIcon } from "@/components/icons";
 import WishlistHeart from "@/components/WishlistHeart";
+
+export type ShopSection = "women" | "men" | "home" | null;
+
+const PAGE_SIZE = 16;
+
+const SECTION_META: Record<
+  "women" | "men" | "home",
+  { eyebrow: string; title: string }
+> = {
+  women: { eyebrow: "shop women", title: "clothes for her, clean by design" },
+  men: { eyebrow: "shop men", title: "clothes for him, clean by design" },
+  home: { eyebrow: "shop home", title: "for the spaces you live in" },
+};
 
 const FIBERS: { name: string; image: string }[] = [
   { name: "cotton", image: "/fibers/cotton.jpg" },
@@ -161,91 +175,172 @@ function ProductCard({
   );
 }
 
-function EmptyState({ hasFilters }: { hasFilters: boolean }) {
+function FilterChip({
+  label,
+  onRemove,
+}: {
+  label: string;
+  onRemove: () => void;
+}) {
+  return (
+    <button
+      onClick={onRemove}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 6,
+        fontFamily: "var(--sans)",
+        fontSize: 12,
+        letterSpacing: "-0.005em",
+        color: "var(--ink)",
+        background: "transparent",
+        border: "1px solid var(--hairline-strong)",
+        borderRadius: 999,
+        padding: "4px 8px 4px 12px",
+        cursor: "pointer",
+        lineHeight: 1.2,
+      }}
+      aria-label={`Remove ${label} filter`}
+    >
+      {label}
+      <span
+        style={{
+          fontSize: 14,
+          lineHeight: 1,
+          color: "var(--ink-3)",
+          marginLeft: 2,
+        }}
+      >
+        ×
+      </span>
+    </button>
+  );
+}
+
+function SmartEmpty({
+  hasUserFilters,
+  onClear,
+}: {
+  hasUserFilters: boolean;
+  onClear: () => void;
+}) {
   return (
     <div
       style={{
         gridColumn: "1 / -1",
         textAlign: "center",
-        padding: "80px 0",
-        color: "var(--ink-3)",
-        fontFamily: "var(--mono)",
-        fontSize: 11,
-        letterSpacing: ".1em",
-        textTransform: "uppercase",
+        padding: "80px 24px",
+        color: "var(--ink-2)",
       }}
     >
-      {hasFilters ? "No items match those filters." : "No products yet — check back soon."}
+      <p
+        style={{
+          fontFamily: "var(--mono)",
+          fontSize: 11,
+          letterSpacing: ".1em",
+          textTransform: "uppercase",
+          color: "var(--ink-3)",
+          margin: "0 0 14px",
+        }}
+      >
+        {hasUserFilters
+          ? "No items match those filters."
+          : "No products yet — check back soon."}
+      </p>
+      {hasUserFilters && (
+        <button
+          onClick={onClear}
+          className="pill-cta ghost"
+          style={{ minWidth: 180, justifyContent: "center" }}
+        >
+          Clear filters
+        </button>
+      )}
     </div>
   );
 }
 
-export default function ShopClient({ products }: { products: Product[] }) {
+export default function ShopClient({
+  products,
+  taxonomy,
+  section,
+}: {
+  products: Product[];
+  taxonomy: ShopTaxonomy;
+  section: ShopSection;
+}) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, wishlist, toggleWishlist } = useAuth();
+
+  // Base path the section lives under — filter changes route here.
+  const sectionPath =
+    section === "women" ? "/shop/women"
+    : section === "men" ? "/shop/men"
+    : section === "home" ? "/shop/home"
+    : "/shop";
+
+  // Section-imposed constraints (always applied, never appear as user filters).
+  const sectionGender =
+    section === "women" ? "Women" : section === "men" ? "Men" : null;
+  const sectionCategoryConstraint = section === "home" ? "Other" : null;
+
+  // Categories selectable for the current section.
+  const sectionCategories = useMemo<string[]>(() => {
+    if (section === "women") return taxonomy.women;
+    if (section === "men") return taxonomy.men;
+    if (section === "home") return []; // no sub-categories yet under Home
+    // null section = all categories
+    return Array.from(
+      new Set([...taxonomy.women, ...taxonomy.men, ...taxonomy.home])
+    ).sort();
+  }, [section, taxonomy]);
+
+  // Read filters from URL (case-insensitive match against actual values).
+  const fiberFilter = searchParams.get("fiber") || null;
+  const query = (searchParams.get("q") || "").trim();
+  const rawSort = searchParams.get("sort");
+  const sort = rawSort && rawSort.length > 0 ? rawSort : "Featured";
+  const categoryRaw = searchParams.get("category");
+  const category =
+    categoryRaw &&
+    sectionCategories.some(
+      (c) => c.toLowerCase() === categoryRaw.toLowerCase()
+    )
+      ? sectionCategories.find(
+          (c) => c.toLowerCase() === categoryRaw.toLowerCase()
+        )!
+      : "All";
+
+  // Push a partial URL update — replace so we don't pollute history per pill click.
+  function updateParams(updates: Record<string, string | null>) {
+    const p = new URLSearchParams(searchParams.toString());
+    for (const [k, v] of Object.entries(updates)) {
+      if (v === null || v === "" || v === "All") p.delete(k);
+      else p.set(k, v);
+    }
+    const qs = p.toString();
+    router.replace(qs ? `${sectionPath}?${qs}` : sectionPath, {
+      scroll: false,
+    });
+  }
 
   function handleToggle(p: Product) {
     if (!user) {
       sessionStorage.setItem("pendingLike", p.id);
       sessionStorage.setItem("pendingLikeProduct", JSON.stringify(p));
-      router.push("/login?return=/shop");
+      router.push(`/login?return=${sectionPath}`);
       return;
     }
     toggleWishlist(p);
   }
 
-  const searchParams = useSearchParams();
-  const [fiberFilter, setFiberFilter] = useState<string | null>(null);
-  const [category, setCategory] = useState("All");
-  const [gender, setGender] = useState("All");
-  const [sort, setSort] = useState("Featured");
-  const [query, setQuery] = useState("");
-
-  // Fully derive filter state from URL params — both setting and clearing.
-  // useSearchParams makes this reactive to client-side navigations, so nav
-  // dropdown links (e.g. /shop?gender=Women&category=Bottoms) update the
-  // grid immediately.
-  useEffect(() => {
-    const matchExact = (raw: string | null, pool: (string | null)[]) => {
-      if (!raw) return null;
-      const lowered = raw.toLowerCase();
-      const hit = pool.find((v) => v && v.toLowerCase() === lowered);
-      return hit ?? null;
-    };
-
-    setFiberFilter(searchParams.get("fiber") || null);
-    setQuery((searchParams.get("q") || "").trim());
-    setGender(
-      matchExact(searchParams.get("gender"), products.map((p) => p.gender)) ??
-        "All"
-    );
-    setCategory(
-      matchExact(
-        searchParams.get("category"),
-        products.map((p) => p.category)
-      ) ?? "All"
-    );
-  }, [searchParams, products]);
-
-  const categories = useMemo(
-    () =>
-      Array.from(
-        new Set(products.map((p) => p.category).filter(Boolean))
-      ) as string[],
-    [products]
-  );
-
-  const genders = useMemo(
-    () =>
-      Array.from(
-        new Set(products.map((p) => p.gender).filter(Boolean))
-      ) as string[],
-    [products]
-  );
-
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const q = query.toLowerCase();
     let result = products.filter((p) => {
+      if (sectionGender && p.gender !== sectionGender) return false;
+      if (sectionCategoryConstraint && p.category !== sectionCategoryConstraint)
+        return false;
       if (fiberFilter) {
         const fibers = Object.keys(p.fabric_composition || {}).map((k) =>
           k.toLowerCase()
@@ -253,7 +348,6 @@ export default function ShopClient({ products }: { products: Product[] }) {
         if (!fibers.includes(fiberFilter)) return false;
       }
       if (category !== "All" && p.category !== category) return false;
-      if (gender !== "All" && p.gender !== gender) return false;
       if (q) {
         const haystack = [p.item_name, p.brand, p.category, p.gender]
           .filter(Boolean)
@@ -307,13 +401,28 @@ export default function ShopClient({ products }: { products: Product[] }) {
     }
 
     return result;
-  }, [products, fiberFilter, category, gender, query, sort]);
+  }, [
+    products,
+    sectionGender,
+    sectionCategoryConstraint,
+    fiberFilter,
+    category,
+    query,
+    sort,
+  ]);
 
-  const hasFilters =
-    !!fiberFilter ||
-    category !== "All" ||
-    gender !== "All" ||
-    query.trim().length > 0;
+  const hasUserFilters =
+    !!fiberFilter || category !== "All" || query.length > 0;
+
+  // Pagination — reset to first page when filters change.
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [section, fiberFilter, category, query, sort]);
+  const visible = filtered.slice(0, visibleCount);
+  const hiddenCount = Math.max(0, filtered.length - visibleCount);
+
+  const header = section ? SECTION_META[section] : null;
 
   return (
     <main style={{ background: "var(--linen)", minHeight: "100vh", paddingBottom: 120, paddingTop: 64 }}>
@@ -329,7 +438,7 @@ export default function ShopClient({ products }: { products: Product[] }) {
             marginBottom: 24,
           }}
         >
-          shop all
+          {header ? header.eyebrow : "shop all"}
         </div>
         <h1
           style={{
@@ -344,7 +453,7 @@ export default function ShopClient({ products }: { products: Product[] }) {
             padding: "0 24px",
           }}
         >
-          clothing that&apos;s clean by design
+          {header ? header.title : "clothing that's clean by design"}
         </h1>
       </div>
 
@@ -362,7 +471,9 @@ export default function ShopClient({ products }: { products: Product[] }) {
             return (
               <button
                 key={fiber.name}
-                onClick={() => setFiberFilter(active ? null : fiber.name)}
+                onClick={() =>
+                  updateParams({ fiber: active ? null : fiber.name })
+                }
                 style={{
                   border: "none",
                   background: "none",
@@ -447,20 +558,12 @@ export default function ShopClient({ products }: { products: Product[] }) {
             Filter by
           </span>
           <div style={{ display: "flex", gap: 8, flex: 1, flexWrap: "wrap" }}>
-            {categories.length > 0 && (
+            {sectionCategories.length > 0 && (
               <FrostedSelect
                 label="Category"
-                options={categories}
+                options={sectionCategories}
                 value={category}
-                onChange={setCategory}
-              />
-            )}
-            {genders.length > 0 && (
-              <FrostedSelect
-                label="Gender"
-                options={genders}
-                value={gender}
-                onChange={setGender}
+                onChange={(v) => updateParams({ category: v })}
               />
             )}
           </div>
@@ -475,7 +578,9 @@ export default function ShopClient({ products }: { products: Product[] }) {
               "Price: High to Low",
             ]}
             value={sort}
-            onChange={setSort}
+            onChange={(v) =>
+              updateParams({ sort: v === "Featured" ? null : v })
+            }
             align="right"
             hideAll
           />
@@ -484,29 +589,55 @@ export default function ShopClient({ products }: { products: Product[] }) {
 
       {/* Product grid */}
       <div className="shell" style={{ maxWidth: "none", padding: "0 32px" }}>
-        {fiberFilter && (
-          <div
+        {/* Result count + active filter chips */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: 10,
+            marginBottom: 24,
+          }}
+        >
+          <span
             style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              marginBottom: 24,
+              fontFamily: "var(--mono)",
+              fontSize: 11,
+              letterSpacing: ".08em",
+              textTransform: "uppercase",
+              color: "var(--ink-3)",
+              marginRight: 4,
             }}
           >
-            <span
-              style={{
-                fontFamily: "var(--mono)",
-                fontSize: 11,
-                letterSpacing: ".08em",
-                textTransform: "uppercase",
-                color: "var(--ink-3)",
-              }}
-            >
-              {filtered.length} {filtered.length === 1 ? "item" : "items"} · fiber:{" "}
-              {fiberFilter}
-            </span>
+            {filtered.length} {filtered.length === 1 ? "item" : "items"}
+          </span>
+          {category !== "All" && (
+            <FilterChip
+              label={category}
+              onRemove={() => updateParams({ category: null })}
+            />
+          )}
+          {fiberFilter && (
+            <FilterChip
+              label={`${fiberFilter} fiber`}
+              onRemove={() => updateParams({ fiber: null })}
+            />
+          )}
+          {query && (
+            <FilterChip
+              label={`"${query}"`}
+              onRemove={() => updateParams({ q: null })}
+            />
+          )}
+          {hasUserFilters && (
             <button
-              onClick={() => setFiberFilter(null)}
+              onClick={() =>
+                updateParams({
+                  category: null,
+                  fiber: null,
+                  q: null,
+                })
+              }
               style={{
                 fontFamily: "var(--mono)",
                 fontSize: 10,
@@ -514,22 +645,28 @@ export default function ShopClient({ products }: { products: Product[] }) {
                 textTransform: "uppercase",
                 color: "var(--ink-3)",
                 background: "none",
-                border: "1px solid var(--hairline-strong)",
-                borderRadius: 999,
-                padding: "3px 10px",
+                border: "none",
+                padding: "3px 6px",
                 cursor: "pointer",
+                textDecoration: "underline",
+                textUnderlineOffset: 3,
               }}
             >
-              clear
+              Clear all
             </button>
-          </div>
-        )}
+          )}
+        </div>
 
         <div className="product-grid">
           {filtered.length === 0 ? (
-            <EmptyState hasFilters={hasFilters} />
+            <SmartEmpty
+              hasUserFilters={hasUserFilters}
+              onClear={() =>
+                updateParams({ category: null, fiber: null, q: null })
+              }
+            />
           ) : (
-            filtered.map((p) => (
+            visible.map((p) => (
               <ProductCard
                 key={p.id}
                 p={p}
@@ -539,6 +676,18 @@ export default function ShopClient({ products }: { products: Product[] }) {
             ))
           )}
         </div>
+
+        {hiddenCount > 0 && (
+          <div style={{ display: "flex", justifyContent: "center", marginTop: 56 }}>
+            <button
+              onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
+              className="pill-cta ghost"
+              style={{ minWidth: 200, justifyContent: "center" }}
+            >
+              Load more ({hiddenCount} remaining)
+            </button>
+          </div>
+        )}
 
         <p
           style={{
