@@ -20,6 +20,7 @@ import {
 } from "@/lib/firestore";
 import { getCleanerAlternatives, type Product } from "@/lib/supabase";
 import { hazardColor, prettyFiber } from "@/lib/fabricScores";
+import WishlistHeart from "@/components/WishlistHeart";
 
 function firstName(displayName: string | null | undefined, email: string | null | undefined) {
   if (displayName) return displayName.split(" ")[0];
@@ -39,7 +40,13 @@ function formatRelative(date: Date | null) {
 }
 
 export default function AccountPage() {
-  const { user, loading, signOut } = useAuth();
+  const {
+    user,
+    loading,
+    signOut,
+    wishlist: wishlistIds,
+    toggleWishlist,
+  } = useAuth();
   const router = useRouter();
 
   const [profile, setProfile] = useState<UserProfile | null | undefined>(undefined);
@@ -108,132 +115,203 @@ export default function AccountPage() {
       >
         <div
           style={{
-            maxWidth: 760,
+            maxWidth: 1200,
             margin: "0 auto",
             padding: "0 32px",
           }}
         >
-          {/* Greeting */}
-          <div style={{ marginBottom: 48 }}>
-            <div className="eyebrow" style={{ marginBottom: 14 }}>
-              account
-            </div>
-            <h1
-              style={{
-                fontFamily: "var(--serif)",
-                fontWeight: 400,
-                fontSize: "clamp(36px, 5vw, 56px)",
-                lineHeight: 1.05,
-                letterSpacing: "-0.025em",
-                color: "var(--ink)",
-                margin: 0,
-              }}
-            >
-              hi {firstName(user.displayName, user.email)}.
-            </h1>
-          </div>
-
-          <SectionDivider />
-
-          {/* The closet — gated for non-premium users */}
-          <Section
-            eyebrow="the closet"
-            aside={
-              profile?.isPremium && stats?.lastScanAt
-                ? `last scan · ${formatRelative(stats.lastScanAt)}`
-                : undefined
-            }
+          {/* Greeting hero */}
+          <header
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-end",
+              flexWrap: "wrap",
+              gap: 16,
+              marginBottom: 28,
+            }}
           >
-            {profile === undefined || scans === null ? (
-              <SectionLoading />
-            ) : !profile?.isPremium ? (
-              <ClosetLockedCTA scanCount={profile?.scanCount ?? 0} />
-            ) : stats && stats.totalCount > 0 ? (
-              <ClosetSnapshot stats={stats} />
-            ) : (
-              <EmptyClosetCTA />
-            )}
-          </Section>
+            <div>
+              <div className="eyebrow" style={{ marginBottom: 12 }}>
+                account
+              </div>
+              <h1
+                style={{
+                  fontFamily: "var(--serif)",
+                  fontWeight: 400,
+                  fontSize: "clamp(32px, 4.4vw, 48px)",
+                  lineHeight: 1.05,
+                  letterSpacing: "-0.025em",
+                  color: "var(--ink)",
+                  margin: 0,
+                }}
+              >
+                hi {firstName(user.displayName, user.email)}.
+              </h1>
+            </div>
+            {profile && <PlanChip profile={profile} />}
+          </header>
 
-          {/* Fiber donut — gated like the closet snapshot */}
-          {profile !== undefined &&
-            (!profile?.isPremium ||
-              (stats && stats.fiberDistribution.length > 0)) && (
-              <>
-                <SectionDivider />
-                <Section eyebrow="what you own">
-                  {!profile?.isPremium ? (
-                    <FiberLockedCTA />
-                  ) : (
-                    stats && <FiberDonut stats={stats} />
-                  )}
-                </Section>
-              </>
-            )}
-
-          {/* Cleaner alternatives */}
-          {alternatives && alternatives.length > 0 && (
-            <>
-              <SectionDivider />
-              <Section
-                eyebrow="cleaner alternatives"
+          {/* Dashboard grid */}
+          <div className="account-grid">
+            {/* Closet snapshot */}
+            <div className="account-cell account-cell--closet">
+              <Panel
+                eyebrow="the closet"
                 aside={
-                  <Link
-                    href="/shop"
-                    style={{ color: "var(--ink-3)", textDecoration: "none" }}
-                  >
-                    view all →
-                  </Link>
+                  profile?.isPremium && stats?.lastScanAt
+                    ? `last scan · ${formatRelative(stats.lastScanAt)}`
+                    : undefined
                 }
               >
-                <p
-                  style={{
-                    fontSize: 14,
-                    color: "var(--ink-2)",
-                    margin: "0 0 20px",
-                    maxWidth: 540,
-                    lineHeight: 1.5,
-                  }}
-                >
-                  {stats && stats.problemCategories.length > 0
-                    ? `Low-risk picks for the categories where your closet leans high — ${stats.problemCategories
-                        .slice(0, 3)
-                        .join(", ")
-                        .toLowerCase()}.`
-                    : "Editor's picks — our cleanest verified items right now."}
-                </p>
-                <AlternativesRow items={alternatives} />
-              </Section>
-            </>
-          )}
+                {profile === undefined || scans === null ? (
+                  <PanelLoading />
+                ) : !profile?.isPremium ? (
+                  <ClosetLockedCTA scanCount={profile?.scanCount ?? 0} />
+                ) : stats && stats.totalCount > 0 ? (
+                  <ClosetSnapshot stats={stats} />
+                ) : (
+                  <EmptyClosetCTA />
+                )}
+              </Panel>
+            </div>
 
-          {/* Saved (wishlist preview) */}
-          <SectionDivider />
-          <Section
-            eyebrow="saved"
-            aside={
-              wishlist && wishlist.length > 0 ? (
-                <Link
-                  href="/account/wishlist"
-                  style={{ color: "var(--ink-3)", textDecoration: "none" }}
+            {/* Fiber donut */}
+            <div className="account-cell account-cell--fiber">
+              <Panel eyebrow="what you own">
+                {profile === undefined ? (
+                  <PanelLoading />
+                ) : !profile?.isPremium ? (
+                  <FiberLockedCTA />
+                ) : stats && stats.fiberDistribution.length > 0 ? (
+                  <FiberDonut stats={stats} />
+                ) : (
+                  <EmptyFiberHint />
+                )}
+              </Panel>
+            </div>
+
+            {/* Recent scans */}
+            {profile !== undefined &&
+              (!profile?.isPremium ||
+                (scans && scans.length > 0)) && (
+                <div className="account-cell account-cell--recent">
+                  <Panel
+                    eyebrow="recent scans"
+                    aside={
+                      profile?.isPremium && scans && scans.length > 8
+                        ? `${scans.length} total`
+                        : undefined
+                    }
+                  >
+                    {!profile?.isPremium ? (
+                      <RecentScansLockedCTA />
+                    ) : (
+                      scans && <RecentScansRow scans={scans} />
+                    )}
+                  </Panel>
+                </div>
+              )}
+
+            {/* Cleaner alternatives */}
+            {alternatives && alternatives.length > 0 && (
+              <div className="account-cell account-cell--alts">
+                <Panel
+                  eyebrow="cleaner alternatives"
+                  aside={
+                    <Link
+                      href="/shop"
+                      style={{ color: "var(--ink-3)", textDecoration: "none" }}
+                    >
+                      view all →
+                    </Link>
+                  }
                 >
-                  view all →
-                </Link>
-              ) : undefined
-            }
-          >
-            {wishlist === null ? (
-              <SectionLoading />
-            ) : wishlist.length === 0 ? (
-              <EmptyWishlistCTA />
-            ) : (
-              <WishlistRow items={wishlist.slice(0, 4)} />
+                  <p
+                    style={{
+                      fontSize: 14,
+                      color: "var(--ink-2)",
+                      margin: "0 0 18px",
+                      maxWidth: 540,
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    {stats && stats.problemCategories.length > 0
+                      ? `Low-risk picks for the categories where your closet leans high — ${stats.problemCategories
+                          .slice(0, 3)
+                          .join(", ")
+                          .toLowerCase()}.`
+                      : "Editor's picks — our cleanest verified items right now."}
+                  </p>
+                  <AlternativesRow items={alternatives} />
+                </Panel>
+              </div>
             )}
-          </Section>
 
-          {/* Settings */}
-          <SectionDivider />
-          <Section eyebrow="settings">
+            {/* Saved wishlist */}
+            <div className="account-cell account-cell--saved">
+              <Panel
+                eyebrow="saved"
+                aside={
+                  wishlist && wishlist.length > 0 ? (
+                    <Link
+                      href="/account/wishlist"
+                      style={{ color: "var(--ink-3)", textDecoration: "none" }}
+                    >
+                      view all →
+                    </Link>
+                  ) : undefined
+                }
+              >
+                {wishlist === null ? (
+                  <PanelLoading />
+                ) : wishlist.filter((w) => wishlistIds.has(w.productId))
+                    .length === 0 ? (
+                  <EmptyWishlistCTA />
+                ) : (
+                  <WishlistRow
+                    items={wishlist
+                      .filter((w) => wishlistIds.has(w.productId))
+                      .slice(0, 4)}
+                    onRemove={async (item) => {
+                      await toggleWishlist({
+                        id: item.productId,
+                        item_name: item.item_name,
+                        brand: item.brand,
+                        item_price: item.item_price,
+                        item_image: item.item_image,
+                        affiliate_url: item.affiliate_url,
+                        item_url: item.item_url,
+                        brand_verified: item.brand_verified,
+                        currency: "",
+                        budget: null,
+                        category: null,
+                        gender: null,
+                        region: null,
+                        affiliate_program: null,
+                        commission_rate: null,
+                        toxome_score: null,
+                        risk_level: null,
+                        fabric_composition: null,
+                        tags: null,
+                        added_by: "",
+                        published: true,
+                        created_at: "",
+                        updated_at: "",
+                        images: null,
+                        description: null,
+                        materials_text: null,
+                        certifications: null,
+                      });
+                    }}
+                  />
+                )}
+              </Panel>
+            </div>
+
+            {/* Settings */}
+            <div className="account-cell account-cell--settings">
+              <Panel eyebrow="settings">
             <div
               style={{
                 display: "flex",
@@ -266,7 +344,9 @@ export default function AccountPage() {
                 sign out
               </button>
             </div>
-          </Section>
+              </Panel>
+            </div>
+          </div>
         </div>
       </main>
       <Footer />
@@ -276,7 +356,7 @@ export default function AccountPage() {
 
 /* ──────────────────────────────────────────────────────────────── */
 
-function Section({
+function Panel({
   eyebrow,
   aside,
   children,
@@ -286,14 +366,24 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section style={{ padding: "40px 0" }}>
+    <section
+      style={{
+        background: "var(--white)",
+        border: "1px solid var(--hairline)",
+        borderRadius: 16,
+        padding: 24,
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
       <div
         style={{
           display: "flex",
           alignItems: "baseline",
           justifyContent: "space-between",
           gap: 12,
-          marginBottom: 24,
+          marginBottom: 18,
         }}
       >
         <span className="eyebrow">{eyebrow}</span>
@@ -311,23 +401,12 @@ function Section({
           </span>
         )}
       </div>
-      {children}
+      <div style={{ flex: 1 }}>{children}</div>
     </section>
   );
 }
 
-function SectionDivider() {
-  return (
-    <div
-      style={{
-        height: 1,
-        background: "var(--hairline)",
-      }}
-    />
-  );
-}
-
-function SectionLoading() {
+function PanelLoading() {
   return (
     <div
       style={{
@@ -337,6 +416,45 @@ function SectionLoading() {
         opacity: 0.35,
       }}
     />
+  );
+}
+
+function PlanChip({ profile }: { profile: UserProfile }) {
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 6,
+        fontFamily: "var(--mono)",
+        fontSize: 10,
+        fontWeight: 600,
+        letterSpacing: "0.12em",
+        textTransform: "uppercase",
+        color: profile.isPremium ? "var(--ink)" : "var(--ink-3)",
+        background: profile.isPremium ? "var(--honey)" : "var(--hairline)",
+        padding: "5px 11px",
+        borderRadius: 999,
+      }}
+    >
+      {profile.isPremium ? `premium · ${profile.subscriptionStatus}` : "free plan"}
+    </span>
+  );
+}
+
+function EmptyFiberHint() {
+  return (
+    <p
+      style={{
+        fontSize: 14,
+        color: "var(--ink-3)",
+        lineHeight: 1.5,
+        margin: 0,
+      }}
+    >
+      Scan a few items in the app to see the fiber breakdown of everything
+      you own.
+    </p>
   );
 }
 
@@ -582,6 +700,186 @@ function FiberDonut({ stats }: { stats: ClosetStats }) {
 
 /* ──────────────────────────────────────────────────────────────── */
 
+function RecentScansRow({ scans }: { scans: ClosetScan[] }) {
+  const recent = [...scans]
+    .filter((s) => s.scanImageUrl)
+    .sort((a, b) => {
+      const at = a.scanDate?.getTime() ?? 0;
+      const bt = b.scanDate?.getTime() ?? 0;
+      return bt - at;
+    })
+    .slice(0, 8);
+
+  if (recent.length === 0) {
+    return (
+      <p style={{ fontSize: 14, color: "var(--ink-3)", margin: 0 }}>
+        Your recent scans will appear here once you save items to your closet.
+      </p>
+    );
+  }
+
+  return (
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fill, minmax(110px, 1fr))",
+        gap: 12,
+      }}
+    >
+      {recent.map((s) => (
+        <div key={s.id}>
+          <div
+            style={{
+              position: "relative",
+              aspectRatio: "1",
+              background: "var(--tan)",
+              borderRadius: 10,
+              overflow: "hidden",
+            }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={s.scanImageUrl}
+              alt={s.itemDescription || s.brandName || "scan"}
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
+            />
+            <span
+              aria-label={`${s.overallHazardLevel} risk`}
+              title={`${s.overallHazardLevel} risk`}
+              style={{
+                position: "absolute",
+                top: 8,
+                right: 8,
+                width: 10,
+                height: 10,
+                borderRadius: 999,
+                background:
+                  s.overallHazardLevel === "low"
+                    ? "var(--risk-low)"
+                    : s.overallHazardLevel === "moderate"
+                    ? "var(--orange)"
+                    : "var(--red)",
+                boxShadow: "0 0 0 2px rgba(252,251,247,0.85)",
+              }}
+            />
+          </div>
+          <div
+            style={{
+              fontFamily: "var(--mono)",
+              fontSize: 10,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              color: "var(--ink-3)",
+              marginTop: 8,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {s.brandName || s.category || "—"}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function RecentScansLockedCTA() {
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 18,
+        flexWrap: "wrap",
+      }}
+    >
+      <div
+        aria-hidden="true"
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(4, 1fr)",
+          gap: 8,
+          opacity: 0.35,
+          filter: "blur(4px)",
+          flex: 1,
+          minWidth: 220,
+          maxWidth: 360,
+        }}
+      >
+        {[
+          "var(--tan)",
+          "var(--risk-low)",
+          "var(--orange)",
+          "var(--tan)",
+        ].map((c, i) => (
+          <div
+            key={i}
+            style={{
+              aspectRatio: "1",
+              background: c,
+              borderRadius: 8,
+            }}
+          />
+        ))}
+      </div>
+      <div style={{ flex: 1, minWidth: 240 }}>
+        <div
+          style={{
+            fontFamily: "var(--mono)",
+            fontSize: 10,
+            letterSpacing: "0.12em",
+            textTransform: "uppercase",
+            color: "var(--ink-3)",
+            marginBottom: 8,
+          }}
+        >
+          premium
+        </div>
+        <p
+          style={{
+            fontFamily: "var(--serif)",
+            fontSize: 20,
+            letterSpacing: "-0.015em",
+            color: "var(--ink)",
+            margin: "0 0 8px",
+            fontWeight: 500,
+            lineHeight: 1.2,
+          }}
+        >
+          See every item you&apos;ve scanned.
+        </p>
+        <p
+          style={{
+            fontSize: 14,
+            color: "var(--ink-2)",
+            lineHeight: 1.5,
+            margin: "0 0 14px",
+          }}
+        >
+          Your scan history lives in the app. Unlock to keep them all in one
+          view here.
+        </p>
+        <a
+          href="https://apps.apple.com/us/app/toxome/id6748622034"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="pill-cta"
+          style={{ height: 40, padding: "0 18px" }}
+        >
+          Download the app
+        </a>
+      </div>
+    </div>
+  );
+}
+
 function AlternativesRow({ items }: { items: Product[] }) {
   return (
     <div
@@ -652,61 +950,75 @@ function AlternativesRow({ items }: { items: Product[] }) {
 
 /* ──────────────────────────────────────────────────────────────── */
 
-function WishlistRow({ items }: { items: WishlistItem[] }) {
+function WishlistRow({
+  items,
+  onRemove,
+}: {
+  items: WishlistItem[];
+  onRemove: (item: WishlistItem) => void | Promise<void>;
+}) {
   return (
     <div
       style={{
         display: "grid",
-        gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
-        gap: 20,
+        gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
+        gap: 16,
       }}
     >
       {items.map((item) => (
-        <Link
-          key={item.productId}
-          href={`/shop/${item.productId}`}
-          style={{ textDecoration: "none", color: "inherit", display: "block" }}
-        >
-          <div
-            style={{
-              position: "relative",
-              aspectRatio: "266 / 334",
-              background: "var(--tan)",
-              borderRadius: 10,
-              overflow: "hidden",
-              marginBottom: 12,
-            }}
+        <div key={item.productId} style={{ position: "relative" }}>
+          <Link
+            href={`/shop/${item.productId}`}
+            style={{ textDecoration: "none", color: "inherit", display: "block" }}
           >
-            {item.item_image && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={item.item_image}
-                alt={item.item_name}
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                }}
+            <div
+              style={{
+                position: "relative",
+                aspectRatio: "266 / 334",
+                background: "var(--tan)",
+                borderRadius: 10,
+                overflow: "hidden",
+                marginBottom: 10,
+              }}
+            >
+              {item.item_image && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={item.item_image}
+                  alt={item.item_name}
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                />
+              )}
+              <WishlistHeart
+                isWishlisted
+                onClick={() => onRemove(item)}
+                stopPropagation
               />
-            )}
-          </div>
-          <div
-            style={{
-              fontFamily: "var(--serif)",
-              fontSize: 15,
-              fontWeight: 500,
-              lineHeight: 1.25,
-              letterSpacing: "-0.01em",
-              color: "var(--ink)",
-              marginBottom: 4,
-            }}
-          >
-            {item.item_name}
-          </div>
-          <div style={{ fontSize: 12, color: "var(--ink-2)" }}>{item.brand}</div>
-        </Link>
+            </div>
+            <div
+              style={{
+                fontFamily: "var(--serif)",
+                fontSize: 14,
+                fontWeight: 500,
+                lineHeight: 1.25,
+                letterSpacing: "-0.01em",
+                color: "var(--ink)",
+                marginBottom: 2,
+              }}
+            >
+              {item.item_name}
+            </div>
+            <div style={{ fontSize: 11, color: "var(--ink-2)" }}>
+              {item.brand}
+            </div>
+          </Link>
+        </div>
       ))}
     </div>
   );
@@ -716,14 +1028,7 @@ function WishlistRow({ items }: { items: WishlistItem[] }) {
 
 function EmptyClosetCTA() {
   return (
-    <div
-      style={{
-        padding: "32px 28px",
-        background: "var(--white)",
-        border: "1px solid var(--hairline)",
-        borderRadius: 14,
-      }}
-    >
+    <div>
       <p
         style={{
           fontFamily: "var(--serif)",
@@ -781,11 +1086,8 @@ function FiberLockedCTA() {
     <div
       style={{
         position: "relative",
-        padding: "32px 28px",
-        background: "var(--white)",
-        border: "1px solid var(--hairline)",
-        borderRadius: 14,
         overflow: "hidden",
+        minHeight: 180,
       }}
     >
       <div
@@ -886,10 +1188,6 @@ function ClosetLockedCTA({ scanCount }: { scanCount: number }) {
     <div
       style={{
         position: "relative",
-        padding: "32px 28px",
-        background: "var(--white)",
-        border: "1px solid var(--hairline)",
-        borderRadius: 14,
         overflow: "hidden",
       }}
     >
@@ -899,7 +1197,6 @@ function ClosetLockedCTA({ scanCount }: { scanCount: number }) {
         style={{
           position: "absolute",
           inset: 0,
-          padding: "32px 28px",
           opacity: 0.18,
           filter: "blur(6px)",
           pointerEvents: "none",
