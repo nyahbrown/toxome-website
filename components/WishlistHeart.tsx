@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { HeartFilled, HeartOutline } from "./icons";
 
 type Props = {
@@ -13,6 +14,8 @@ export default function WishlistHeart({
   onClick,
   stopPropagation = false,
 }: Props) {
+  const [hovered, setHovered] = useState(false);
+
   return (
     <button
       type="button"
@@ -23,6 +26,8 @@ export default function WishlistHeart({
         }
         onClick();
       }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       aria-label={isWishlisted ? "Remove from saved" : "Save item"}
       style={{
         position: "absolute",
@@ -38,15 +43,13 @@ export default function WishlistHeart({
         alignItems: "center",
         justifyContent: "center",
         color: isWishlisted ? "var(--ink)" : "rgba(255,255,255,0.96)",
-        filter: isWishlisted
-          ? "drop-shadow(0 1px 2px rgba(255,255,255,0.45))"
-          : "drop-shadow(0 1px 3px rgba(59,60,58,0.45))",
+        transform: hovered ? "scale(1.18)" : "scale(1)",
+        transition:
+          "transform 220ms cubic-bezier(.22,.61,.36,1), color 180ms ease",
         zIndex: 2,
       }}
     >
-      <span style={{ transform: "scale(1.5)", display: "inline-flex" }}>
-        {isWishlisted ? <HeartFilled /> : <HeartOutline />}
-      </span>
+      {isWishlisted ? <HeartFilled /> : <HeartOutline />}
     </button>
   );
 }
