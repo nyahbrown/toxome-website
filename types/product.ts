@@ -24,4 +24,8 @@ export interface Product {
   published: boolean;
   created_at: string;
   updated_at: string;
+  images: string[] | null;
+  description: string | null;
+  materials_text: string | null;
+  certifications: string[] | null;
 }

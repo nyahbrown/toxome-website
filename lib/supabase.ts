@@ -21,3 +21,18 @@ export async function getPublishedProducts(): Promise<Product[]> {
   }
   return data ?? [];
 }
+
+export async function getProductById(id: string): Promise<Product | null> {
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .eq("id", id)
+    .eq("published", true)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Supabase product fetch error:", error.message);
+    return null;
+  }
+  return data;
+}

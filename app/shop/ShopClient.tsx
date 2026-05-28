@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Product } from "@/types/product";
 import { useAuth } from "@/contexts/AuthContext";
 import FrostedSelect from "@/components/FrostedSelect";
+import { HeartFilled, HeartOutline, StarIcon } from "@/components/icons";
 
 const FIBERS: { name: string; image: string }[] = [
   { name: "cotton", image: "/fibers/cotton.jpg" },
@@ -13,43 +15,6 @@ const FIBERS: { name: string; image: string }[] = [
   { name: "hemp",   image: "/fibers/hemp.jpg" },
   { name: "linen",  image: "/fibers/linen.jpg" },
 ];
-
-function HeartFilled() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
-      <path
-        d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-}
-
-function HeartOutline() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
-      <path
-        d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-}
-
-function StarIcon() {
-  return (
-    <svg
-      width="11"
-      height="11"
-      viewBox="0 0 16 16"
-      fill="currentColor"
-      aria-hidden="true"
-      style={{ flexShrink: 0 }}
-    >
-      <path d="M8 1.5l1.95 4.4 4.8.45-3.6 3.2 1.05 4.7L8 11.95 3.8 14.25l1.05-4.7-3.6-3.2 4.8-.45L8 1.5z" />
-    </svg>
-  );
-}
 
 function ProductCard({
   p,
@@ -61,15 +26,12 @@ function ProductCard({
   onToggle: (p: Product) => void;
 }) {
   const [hovered, setHovered] = useState(false);
-  const shopUrl = p.affiliate_url || p.item_url;
   const isWishlisted = wishlist.has(p.id);
   const isNew = p.tags?.some((t) => t.toLowerCase() === "new") ?? false;
 
   return (
-    <a
-      href={shopUrl || "#"}
-      target={shopUrl ? "_blank" : undefined}
-      rel={shopUrl ? "noopener noreferrer sponsored" : undefined}
+    <Link
+      href={`/shop/${p.id}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{ textDecoration: "none", display: "block" }}
@@ -214,7 +176,7 @@ function ProductCard({
           </div>
         )}
       </div>
-    </a>
+    </Link>
   );
 }
 

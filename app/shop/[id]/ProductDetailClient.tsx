@@ -1,0 +1,547 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import type { Product } from "@/types/product";
+import { useAuth } from "@/contexts/AuthContext";
+import { HeartFilled, HeartOutline, StarIcon } from "@/components/icons";
+
+const FIBER_LABELS: Record<string, string> = {
+  organic_cotton: "Organic cotton",
+  cotton: "Cotton",
+  linen: "Linen",
+  hemp: "Hemp",
+  tencel: "Tencel",
+  lyocell: "Lyocell",
+  modal: "Modal",
+  bamboo: "Bamboo",
+  wool: "Wool",
+  merino: "Merino wool",
+  silk: "Silk",
+  recycled_polyester: "Recycled polyester",
+  polyester: "Polyester",
+  nylon: "Nylon",
+  acrylic: "Acrylic",
+  spandex: "Spandex",
+  elastane: "Elastane",
+  viscose: "Viscose",
+  rayon: "Rayon",
+  microfiber: "Microfiber",
+  fleece: "Fleece",
+};
+
+function prettyFiber(key: string) {
+  return (
+    FIBER_LABELS[key.toLowerCase()] ||
+    key
+      .split(/[_\s-]+/)
+      .map((p) => p[0]?.toUpperCase() + p.slice(1))
+      .join(" ")
+  );
+}
+
+function RiskChip({ level }: { level: "low" | "moderate" | "high" }) {
+  const map = {
+    low: { color: "var(--risk-low)", label: "Low risk" },
+    moderate: { color: "var(--orange)", label: "Moderate risk" },
+    high: { color: "var(--red)", label: "High risk" },
+  } as const;
+  const m = map[level];
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 6,
+        fontFamily: "var(--mono)",
+        fontSize: 11,
+        fontWeight: 500,
+        letterSpacing: "0.08em",
+        textTransform: "uppercase",
+        color: "var(--ink)",
+        background: m.color,
+        padding: "5px 11px",
+        borderRadius: 999,
+      }}
+    >
+      {m.label}
+    </span>
+  );
+}
+
+function SectionHeading({ children }: { children: React.ReactNode }) {
+  return (
+    <h3
+      style={{
+        fontFamily: "var(--mono)",
+        fontSize: 11,
+        fontWeight: 500,
+        letterSpacing: "0.14em",
+        textTransform: "uppercase",
+        color: "var(--ink-3)",
+        margin: "0 0 14px",
+      }}
+    >
+      {children}
+    </h3>
+  );
+}
+
+function Divider() {
+  return (
+    <div
+      style={{
+        height: 1,
+        background: "var(--hairline)",
+        margin: "28px 0",
+      }}
+    />
+  );
+}
+
+export default function ProductDetailClient({ product }: { product: Product }) {
+  const router = useRouter();
+  const { user, wishlist, toggleWishlist } = useAuth();
+  const [imgError, setImgError] = useState<Record<number, boolean>>({});
+
+  const isWishlisted = wishlist.has(product.id);
+  const buyUrl = product.affiliate_url || product.item_url || null;
+
+  const images = (product.images && product.images.length > 0
+    ? product.images
+    : product.item_image
+    ? [product.item_image]
+    : []) as string[];
+
+  const fabricEntries = product.fabric_composition
+    ? Object.entries(product.fabric_composition)
+        .filter(([, v]) => typeof v === "number" && v > 0)
+        .sort(([, a], [, b]) => b - a)
+    : [];
+
+  function handleWishlist() {
+    if (!user) {
+      sessionStorage.setItem("pendingLike", product.id);
+      sessionStorage.setItem("pendingLikeProduct", JSON.stringify(product));
+      router.push(`/login?return=/shop/${product.id}`);
+      return;
+    }
+    toggleWishlist(product);
+  }
+
+  return (
+    <main
+      style={{
+        background: "var(--linen)",
+        minHeight: "100vh",
+        paddingTop: 88,
+        paddingBottom: 120,
+      }}
+    >
+      <div
+        style={{
+          maxWidth: 1280,
+          margin: "0 auto",
+          padding: "0 32px",
+          display: "grid",
+          gridTemplateColumns: "minmax(0, 1fr)",
+          gap: 32,
+        }}
+        className="product-detail-grid"
+      >
+        {/* Image column */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {images.length === 0 ? (
+            <div
+              style={{
+                aspectRatio: "266 / 334",
+                background: "var(--tan)",
+                borderRadius: 10,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontFamily: "var(--mono)",
+                fontSize: 10,
+                letterSpacing: ".1em",
+                textTransform: "uppercase",
+                color: "var(--ink-3)",
+              }}
+            >
+              No image
+            </div>
+          ) : (
+            images.map((src, i) =>
+              imgError[i] ? null : (
+                <div
+                  key={src + i}
+                  style={{
+                    position: "relative",
+                    aspectRatio: "266 / 334",
+                    background: "var(--tan)",
+                    borderRadius: 10,
+                    overflow: "hidden",
+                  }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={src}
+                    alt={`${product.item_name} — image ${i + 1}`}
+                    onError={() =>
+                      setImgError((prev) => ({ ...prev, [i]: true }))
+                    }
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
+                </div>
+              )
+            )
+          )}
+        </div>
+
+        {/* Info column */}
+        <div className="product-detail-info">
+          <div
+            style={{
+              fontFamily: "var(--mono)",
+              fontSize: 11,
+              fontWeight: 500,
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+              color: "var(--ink-3)",
+              marginBottom: 18,
+            }}
+          >
+            <Link href="/shop" style={{ color: "inherit" }}>
+              Shop
+            </Link>
+            {product.category && (
+              <>
+                {" / "}
+                <Link
+                  href={`/shop?category=${encodeURIComponent(product.category)}`}
+                  style={{ color: "inherit" }}
+                >
+                  {product.category}
+                </Link>
+              </>
+            )}
+          </div>
+
+          <h1
+            style={{
+              fontFamily: "var(--serif)",
+              fontSize: "clamp(30px, 3.4vw, 44px)",
+              fontWeight: 500,
+              lineHeight: 1.08,
+              letterSpacing: "-0.022em",
+              color: "var(--ink)",
+              margin: "0 0 14px",
+            }}
+          >
+            {product.item_name}
+          </h1>
+
+          <div
+            style={{
+              display: "flex",
+              alignItems: "baseline",
+              gap: 12,
+              flexWrap: "wrap",
+              marginBottom: 18,
+            }}
+          >
+            <span
+              style={{
+                fontSize: 15,
+                color: "var(--ink-2)",
+                letterSpacing: "-0.005em",
+              }}
+            >
+              {product.brand}
+              {product.brand_verified && (
+                <span
+                  style={{
+                    marginLeft: 8,
+                    fontFamily: "var(--mono)",
+                    fontSize: 10,
+                    fontWeight: 600,
+                    letterSpacing: "0.08em",
+                    textTransform: "uppercase",
+                    background: "var(--ink)",
+                    color: "var(--white)",
+                    padding: "3px 9px",
+                    borderRadius: 999,
+                  }}
+                >
+                  Verified
+                </span>
+              )}
+            </span>
+            {product.item_price != null && (
+              <span
+                style={{
+                  fontSize: 18,
+                  color: "var(--ink)",
+                  letterSpacing: "-0.01em",
+                }}
+              >
+                ${product.item_price.toLocaleString()}
+              </span>
+            )}
+          </div>
+
+          {(product.toxome_score != null || product.risk_level) && (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 14,
+                flexWrap: "wrap",
+                marginBottom: 26,
+              }}
+            >
+              {product.toxome_score != null && (
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                    fontSize: 14,
+                    color: "var(--ink-2)",
+                    letterSpacing: "-0.005em",
+                  }}
+                >
+                  <StarIcon size={13} />
+                  {product.toxome_score} Toxome Score
+                </span>
+              )}
+              {product.risk_level && <RiskChip level={product.risk_level} />}
+            </div>
+          )}
+
+          {/* Buy CTA + heart */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "stretch",
+              gap: 12,
+              marginBottom: 12,
+            }}
+          >
+            {buyUrl ? (
+              <a
+                href={buyUrl}
+                target="_blank"
+                rel="noopener noreferrer sponsored"
+                className="pill-cta"
+                style={{ flex: 1, justifyContent: "center" }}
+              >
+                Buy at {product.brand}
+              </a>
+            ) : (
+              <span
+                className="pill-cta"
+                style={{
+                  flex: 1,
+                  justifyContent: "center",
+                  opacity: 0.55,
+                  cursor: "not-allowed",
+                }}
+              >
+                Unavailable
+              </span>
+            )}
+            <button
+              type="button"
+              onClick={handleWishlist}
+              aria-label={isWishlisted ? "Remove from saved" : "Save item"}
+              style={{
+                width: 52,
+                height: 52,
+                border: "1px solid var(--hairline-strong)",
+                borderRadius: 999,
+                background: "transparent",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: isWishlisted ? "var(--ink)" : "var(--ink-3)",
+                flexShrink: 0,
+                transition: "background 160ms ease",
+              }}
+            >
+              {isWishlisted ? <HeartFilled /> : <HeartOutline />}
+            </button>
+          </div>
+          <p
+            style={{
+              fontFamily: "var(--mono)",
+              fontSize: 10,
+              letterSpacing: "0.06em",
+              color: "var(--ink-3)",
+              margin: "0 0 8px",
+            }}
+          >
+            Opens in a new tab · affiliate link
+          </p>
+
+          {product.description && (
+            <>
+              <Divider />
+              <SectionHeading>About</SectionHeading>
+              <p
+                style={{
+                  fontSize: 15,
+                  lineHeight: 1.55,
+                  color: "var(--ink-2)",
+                  letterSpacing: "-0.005em",
+                  margin: 0,
+                  whiteSpace: "pre-wrap",
+                }}
+              >
+                {product.description}
+              </p>
+            </>
+          )}
+
+          {(product.materials_text || fabricEntries.length > 0) && (
+            <>
+              <Divider />
+              <SectionHeading>Materials</SectionHeading>
+              {fabricEntries.length > 0 && (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 10,
+                    marginBottom: product.materials_text ? 18 : 0,
+                  }}
+                >
+                  {fabricEntries.map(([fiber, pct]) => {
+                    const percent = pct > 1 ? pct : pct * 100;
+                    return (
+                      <div key={fiber}>
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "baseline",
+                            fontSize: 14,
+                            color: "var(--ink)",
+                            letterSpacing: "-0.005em",
+                            marginBottom: 5,
+                          }}
+                        >
+                          <Link
+                            href={`/shop?fiber=${encodeURIComponent(
+                              fiber.toLowerCase()
+                            )}`}
+                            style={{
+                              color: "inherit",
+                              textDecoration: "underline",
+                              textUnderlineOffset: 3,
+                              textDecorationColor: "var(--hairline-strong)",
+                            }}
+                          >
+                            {prettyFiber(fiber)}
+                          </Link>
+                          <span style={{ color: "var(--ink-2)" }}>
+                            {Math.round(percent)}%
+                          </span>
+                        </div>
+                        <div
+                          style={{
+                            height: 4,
+                            background: "var(--hairline)",
+                            borderRadius: 999,
+                            overflow: "hidden",
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: `${Math.min(100, Math.max(0, percent))}%`,
+                              height: "100%",
+                              background: "var(--ink)",
+                              borderRadius: 999,
+                            }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+              {product.materials_text && (
+                <p
+                  style={{
+                    fontSize: 14,
+                    lineHeight: 1.55,
+                    color: "var(--ink-2)",
+                    letterSpacing: "-0.005em",
+                    margin: 0,
+                    whiteSpace: "pre-wrap",
+                  }}
+                >
+                  {product.materials_text}
+                </p>
+              )}
+            </>
+          )}
+
+          {product.certifications && product.certifications.length > 0 && (
+            <>
+              <Divider />
+              <SectionHeading>Certifications</SectionHeading>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                {product.certifications.map((c) => (
+                  <span
+                    key={c}
+                    style={{
+                      fontSize: 12,
+                      fontFamily: "var(--mono)",
+                      letterSpacing: "0.06em",
+                      textTransform: "uppercase",
+                      color: "var(--ink-2)",
+                      background: "transparent",
+                      border: "1px solid var(--hairline-strong)",
+                      padding: "5px 12px",
+                      borderRadius: 999,
+                    }}
+                  >
+                    {c}
+                  </span>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+
+      <style jsx>{`
+        @media (min-width: 900px) {
+          :global(.product-detail-grid) {
+            grid-template-columns: minmax(0, 1fr) 420px !important;
+            gap: 56px !important;
+            align-items: start;
+          }
+          :global(.product-detail-info) {
+            position: sticky;
+            top: 96px;
+          }
+        }
+        @media (min-width: 1200px) {
+          :global(.product-detail-grid) {
+            grid-template-columns: minmax(0, 1fr) 460px !important;
+            gap: 72px !important;
+          }
+        }
+      `}</style>
+    </main>
+  );
+}
