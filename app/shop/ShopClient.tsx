@@ -530,7 +530,7 @@ export default function ShopClient({ products }: { products: Product[] }) {
       </div>
 
       {/* Product grid */}
-      <div className="shell" style={{ maxWidth: "none", padding: "0 13px" }}>
+      <div className="shell" style={{ maxWidth: "none", padding: "0 32px" }}>
         {fiberFilter && (
           <div
             style={{
