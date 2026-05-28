@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import type { Product } from "@/types/product";
 import { useAuth } from "@/contexts/AuthContext";
 import FrostedSelect from "@/components/FrostedSelect";
@@ -194,20 +194,18 @@ export default function ShopClient({ products }: { products: Product[] }) {
     toggleWishlist(p);
   }
 
+  const searchParams = useSearchParams();
   const [fiberFilter, setFiberFilter] = useState<string | null>(null);
   const [category, setCategory] = useState("All");
   const [gender, setGender] = useState("All");
   const [sort, setSort] = useState("Featured");
   const [query, setQuery] = useState("");
 
+  // Fully derive filter state from URL params — both setting and clearing.
+  // useSearchParams makes this reactive to client-side navigations, so nav
+  // dropdown links (e.g. /shop?gender=Women&category=Bottoms) update the
+  // grid immediately.
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const fiber = params.get("fiber");
-    if (fiber) setFiberFilter(fiber);
-
-    const q = params.get("q");
-    if (q) setQuery(q.trim());
-
     const matchExact = (raw: string | null, pool: (string | null)[]) => {
       if (!raw) return null;
       const lowered = raw.toLowerCase();
@@ -215,18 +213,19 @@ export default function ShopClient({ products }: { products: Product[] }) {
       return hit ?? null;
     };
 
-    const g = matchExact(
-      params.get("gender"),
-      products.map((p) => p.gender)
+    setFiberFilter(searchParams.get("fiber") || null);
+    setQuery((searchParams.get("q") || "").trim());
+    setGender(
+      matchExact(searchParams.get("gender"), products.map((p) => p.gender)) ??
+        "All"
     );
-    if (g) setGender(g);
-
-    const c = matchExact(
-      params.get("category"),
-      products.map((p) => p.category)
+    setCategory(
+      matchExact(
+        searchParams.get("category"),
+        products.map((p) => p.category)
+      ) ?? "All"
     );
-    if (c) setCategory(c);
-  }, [products]);
+  }, [searchParams, products]);
 
   const categories = useMemo(
     () =>
