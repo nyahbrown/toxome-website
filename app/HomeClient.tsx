@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
+import NewsletterPopup from "@/components/NewsletterPopup";
 import type { ShopTaxonomy } from "@/lib/supabase";
 
 const FIBERS = [
@@ -159,6 +160,7 @@ export default function HomeClient({
         </div>
       </section>
 
+      <NewsletterPopup />
       <Footer />
     </div>
   );

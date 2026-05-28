@@ -42,13 +42,14 @@ function LoginContent() {
   const searchParams = useSearchParams();
   const returnTo = searchParams.get("return") || "/shop";
 
-  const { user, loading, signInWithGoogle, signInWithApple, signInWithEmail, signUpWithEmail, toggleWishlist } = useAuth();
+  const { user, loading, signInWithGoogle, signInWithApple, signInWithEmail, signUpWithEmail, sendPasswordReset, toggleWishlist } = useAuth();
 
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
 
   // Redirect if already signed in
   useEffect(() => {
@@ -90,6 +91,32 @@ function LoginContent() {
       await handlePostLogin();
     } catch (e: unknown) {
       if (e instanceof Error) setError(e.message);
+    }
+  }
+
+  async function handleForgotPassword() {
+    setError("");
+    setResetSent(false);
+    const target = email.trim();
+    if (!target) {
+      setError("Enter your email above and we'll send a reset link.");
+      return;
+    }
+    try {
+      await sendPasswordReset(target);
+      setResetSent(true);
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        const msg = e.message;
+        if (msg.includes("user-not-found")) {
+          // Don't leak account existence — confirm reset either way.
+          setResetSent(true);
+        } else if (msg.includes("invalid-email")) {
+          setError("That email doesn't look right.");
+        } else {
+          setError(msg);
+        }
+      }
     }
   }
 
@@ -300,6 +327,44 @@ function LoginContent() {
             required
             style={inputStyle}
           />
+
+          {mode === "signin" && (
+            <div style={{ textAlign: "right", marginTop: -2 }}>
+              <button
+                type="button"
+                onClick={handleForgotPassword}
+                style={{
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  fontFamily: "var(--sans)",
+                  fontSize: 12,
+                  color: "var(--ink-3)",
+                  letterSpacing: "-0.005em",
+                  padding: "2px 0",
+                  textDecoration: "underline",
+                  textUnderlineOffset: 3,
+                }}
+              >
+                forgot password?
+              </button>
+            </div>
+          )}
+
+          {resetSent && (
+            <p
+              style={{
+                fontFamily: "var(--sans)",
+                fontSize: 13,
+                color: "var(--ink-2)",
+                margin: "4px 0 0",
+                letterSpacing: "-0.005em",
+              }}
+            >
+              If an account exists for that email, a reset link is on its way.
+              Check your inbox (and spam).
+            </p>
+          )}
 
           {error && (
             <p
