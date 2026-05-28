@@ -36,6 +36,28 @@ function HeartOutline() {
   );
 }
 
+function isNewProduct(created_at: string): boolean {
+  const created = new Date(created_at).getTime();
+  if (!created) return false;
+  const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
+  return Date.now() - created < THIRTY_DAYS;
+}
+
+function StarIcon() {
+  return (
+    <svg
+      width="11"
+      height="11"
+      viewBox="0 0 16 16"
+      fill="currentColor"
+      aria-hidden="true"
+      style={{ flexShrink: 0 }}
+    >
+      <path d="M8 1.5l1.95 4.4 4.8.45-3.6 3.2 1.05 4.7L8 11.95 3.8 14.25l1.05-4.7-3.6-3.2 4.8-.45L8 1.5z" />
+    </svg>
+  );
+}
+
 function ProductCard({
   p,
   wishlist,
@@ -48,6 +70,7 @@ function ProductCard({
   const [hovered, setHovered] = useState(false);
   const shopUrl = p.affiliate_url || p.item_url;
   const isWishlisted = wishlist.has(p.id);
+  const isNew = isNewProduct(p.created_at);
 
   return (
     <a
@@ -58,145 +81,145 @@ function ProductCard({
       onMouseLeave={() => setHovered(false)}
       style={{ textDecoration: "none", display: "block" }}
     >
+      {/* Image card */}
       <div
         style={{
-          background: "var(--white)",
-          borderRadius: 6,
+          position: "relative",
+          paddingBottom: "100%",
+          background: "var(--tan)",
+          borderRadius: 10,
           overflow: "hidden",
-          transition: "box-shadow 200ms ease, transform 200ms ease",
-          boxShadow: hovered
-            ? "0 8px 32px rgba(59,60,58,.10)"
-            : "0 1px 4px rgba(59,60,58,.06)",
+          transition: "transform 200ms ease",
           transform: hovered ? "translateY(-2px)" : "none",
         }}
       >
-        {/* Image */}
-        <div
-          style={{
-            position: "relative",
-            paddingBottom: "100%",
-            background: "var(--tan)",
-            overflow: "hidden",
-          }}
-        >
-          {p.item_image ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={p.item_image}
-              alt={p.item_name}
-              style={{
-                position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                transition: "transform 400ms ease",
-                transform: hovered ? "scale(1.03)" : "scale(1)",
-              }}
-            />
-          ) : (
-            <div
-              style={{
-                position: "absolute",
-                inset: 0,
-                background: "var(--tan)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontFamily: "var(--mono)",
-                fontSize: 10,
-                letterSpacing: ".1em",
-                textTransform: "uppercase",
-                color: "var(--ink-3)",
-              }}
-            >
-              No image
-            </div>
-          )}
-          {p.brand_verified && (
-            <span
-              style={{
-                position: "absolute",
-                top: 12,
-                left: 12,
-                background: "var(--ink)",
-                color: "var(--white)",
-                fontFamily: "var(--mono)",
-                fontSize: 10,
-                fontWeight: 600,
-                letterSpacing: ".08em",
-                textTransform: "uppercase",
-                padding: "4px 10px",
-                borderRadius: 999,
-              }}
-            >
-              Verified
-            </span>
-          )}
-          {/* Heart button */}
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onToggle(p);
-            }}
-            aria-label={isWishlisted ? "Remove from saved" : "Save item"}
+        {p.item_image ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={p.item_image}
+            alt={p.item_name}
             style={{
               position: "absolute",
-              top: 12,
-              right: 12,
-              width: 32,
-              height: 32,
-              background: "rgba(252,251,247,0.85)",
-              borderRadius: 999,
-              border: "none",
-              cursor: "pointer",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              transition: "transform 400ms ease",
+              transform: hovered ? "scale(1.03)" : "scale(1)",
+            }}
+          />
+        ) : (
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: "var(--tan)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              color: isWishlisted ? "var(--ink)" : "var(--ink-3)",
-            }}
-          >
-            {isWishlisted ? <HeartFilled /> : <HeartOutline />}
-          </button>
-        </div>
-
-        {/* Info */}
-        <div style={{ padding: "14px 16px 18px" }}>
-          <div
-            style={{
               fontFamily: "var(--mono)",
               fontSize: 10,
-              letterSpacing: ".12em",
+              letterSpacing: ".1em",
               textTransform: "uppercase",
               color: "var(--ink-3)",
-              marginBottom: 5,
             }}
           >
-            {p.brand}
+            No image
           </div>
+        )}
+        {isNew && (
+          <span
+            style={{
+              position: "absolute",
+              top: 14,
+              left: 14,
+              background: "var(--ink)",
+              color: "var(--white)",
+              fontFamily: "var(--sans)",
+              fontSize: 12,
+              fontWeight: 500,
+              letterSpacing: "-0.005em",
+              padding: "4px 12px",
+              borderRadius: 999,
+            }}
+          >
+            New
+          </span>
+        )}
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onToggle(p);
+          }}
+          aria-label={isWishlisted ? "Remove from saved" : "Save item"}
+          style={{
+            position: "absolute",
+            top: 14,
+            right: 14,
+            width: 32,
+            height: 32,
+            background: "rgba(252,251,247,0.85)",
+            borderRadius: 999,
+            border: "none",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: isWishlisted ? "var(--ink)" : "var(--ink-3)",
+          }}
+        >
+          {isWishlisted ? <HeartFilled /> : <HeartOutline />}
+        </button>
+      </div>
+
+      {/* Info below card */}
+      <div style={{ paddingTop: 20 }}>
+        <h3
+          style={{
+            fontFamily: "var(--serif)",
+            fontSize: 20,
+            fontWeight: 600,
+            lineHeight: 1.2,
+            letterSpacing: "-0.015em",
+            color: "var(--ink)",
+            margin: "0 0 6px",
+          }}
+        >
+          {p.item_name}
+        </h3>
+        <p
+          style={{
+            fontSize: 14,
+            lineHeight: 1.4,
+            letterSpacing: "-0.005em",
+            color: "var(--ink-2)",
+            margin: "0 0 10px",
+          }}
+        >
+          {p.brand}
+          {p.item_price != null && (
+            <>
+              <span style={{ color: "var(--ink-3)", margin: "0 6px" }}>·</span>
+              ${p.item_price.toLocaleString()}
+            </>
+          )}
+        </p>
+        {p.toxome_score != null && (
           <div
             style={{
-              fontSize: 14.5,
-              lineHeight: 1.3,
-              letterSpacing: "-0.01em",
-              color: "var(--ink)",
-              marginBottom: 6,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              fontSize: 13,
+              color: "var(--ink-2)",
+              letterSpacing: "-0.005em",
             }}
           >
-            {p.item_name}
+            <StarIcon />
+            {p.toxome_score} Toxome Score
           </div>
-          {p.item_price != null && (
-            <div
-              style={{
-                fontSize: 13,
-                color: "var(--ink-3)",
-              }}
-            >
-              ${p.item_price.toLocaleString()}
-            </div>
-          )}
-        </div>
+        )}
       </div>
     </a>
   );

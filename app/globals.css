@@ -130,11 +130,12 @@ button { font-family: inherit; }
 .product-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
+  column-gap: 28px;
+  row-gap: 56px;
 }
-@media (max-width: 1024px) { .product-grid { grid-template-columns: repeat(3, 1fr); } }
-@media (max-width: 640px)  { .product-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; } }
-@media (max-width: 380px)  { .product-grid { grid-template-columns: 1fr; } }
+@media (max-width: 1024px) { .product-grid { grid-template-columns: repeat(3, 1fr); row-gap: 48px; } }
+@media (max-width: 640px)  { .product-grid { grid-template-columns: repeat(2, 1fr); column-gap: 16px; row-gap: 40px; } }
+@media (max-width: 380px)  { .product-grid { grid-template-columns: 1fr; row-gap: 32px; } }
 
 /* Footer grid */
 .footer-grid {

@@ -24,6 +24,7 @@ export default function NavDropdown({
   panelWidth,
 }: Props) {
   const [open, setOpen] = useState(false);
+  const [hovered, setHovered] = useState(false);
   const wrapRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -44,7 +45,7 @@ export default function NavDropdown({
 
   const triggerColor = transparent
     ? "rgba(255,255,255,0.92)"
-    : active || open
+    : active || open || hovered
     ? "var(--ink)"
     : "var(--ink-2)";
 
@@ -60,6 +61,8 @@ export default function NavDropdown({
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
         aria-haspopup="true"
         aria-expanded={open}
         style={{
