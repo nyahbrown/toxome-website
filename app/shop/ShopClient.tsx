@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { Product } from "@/types/product";
@@ -398,13 +398,31 @@ export default function ShopClient({
   const hasUserFilters =
     !!fiberFilter || category !== "All" || query.length > 0;
 
-  // Pagination — reset to first page when filters change.
+  // Auto-load pagination — reveal a fresh PAGE_SIZE every time the
+  // sentinel below the grid scrolls into view. Reset to first page
+  // whenever any filter changes.
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
   }, [section, fiberFilter, category, query, sort]);
   const visible = filtered.slice(0, visibleCount);
   const hiddenCount = Math.max(0, filtered.length - visibleCount);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (hiddenCount === 0) return;
+    const el = sentinelRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setVisibleCount((c) => c + PAGE_SIZE);
+        }
+      },
+      { rootMargin: "600px 0px" }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [hiddenCount, visibleCount]);
 
   const header = section ? SECTION_META[section] : null;
 
@@ -686,15 +704,11 @@ export default function ShopClient({
         </div>
 
         {hiddenCount > 0 && (
-          <div style={{ display: "flex", justifyContent: "center", marginTop: 56 }}>
-            <button
-              onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
-              className="pill-cta ghost"
-              style={{ minWidth: 200, justifyContent: "center" }}
-            >
-              Load more ({hiddenCount} remaining)
-            </button>
-          </div>
+          <div
+            ref={sentinelRef}
+            aria-hidden="true"
+            style={{ height: 1, marginTop: 1 }}
+          />
         )}
 
         <p
