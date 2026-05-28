@@ -1,10 +1,41 @@
 import Image from "next/image";
 
-const cols = [
-  { h: "Toxome", items: ["Get the app", "What's new", "Pricing"] },
-  { h: "The science", items: ["Methodology", "Fiber dossier", "Sources"] },
-  { h: "Company", items: ["Mission", "Press kit", "Contact"] },
-  { h: "Legal", items: ["Privacy", "Terms", "Data deletion"] },
+type FooterLink = { label: string; href: string };
+type FooterCol = { h: string; items: FooterLink[] };
+
+const cols: FooterCol[] = [
+  {
+    h: "Toxome",
+    items: [
+      { label: "Get the app", href: "https://apps.apple.com/us/app/toxome/id6748622034" },
+      { label: "What's new", href: "#" },
+      { label: "Pricing", href: "#" },
+    ],
+  },
+  {
+    h: "The science",
+    items: [
+      { label: "Methodology", href: "#" },
+      { label: "Fiber dossier", href: "#" },
+      { label: "Sources", href: "#" },
+    ],
+  },
+  {
+    h: "Company",
+    items: [
+      { label: "Mission", href: "#" },
+      { label: "Press kit", href: "#" },
+      { label: "Contact", href: "mailto:nyah@toxome.app" },
+    ],
+  },
+  {
+    h: "Legal",
+    items: [
+      { label: "Privacy", href: "/privacy" },
+      { label: "Terms", href: "/terms" },
+      { label: "Data deletion", href: "/privacy#your-rights" },
+    ],
+  },
 ];
 
 export default function Footer() {
@@ -26,8 +57,15 @@ export default function Footer() {
               <div className="eyebrow" style={{ marginBottom: 16, color: "var(--ink)" }}>{c.h}</div>
               <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 10 }}>
                 {c.items.map((item) => (
-                  <li key={item}>
-                    <a href="#" style={{ fontSize: 13.5, color: "var(--ink-2)" }}>{item}</a>
+                  <li key={item.label}>
+                    <a
+                      href={item.href}
+                      target={item.href.startsWith("http") ? "_blank" : undefined}
+                      rel={item.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                      style={{ fontSize: 13.5, color: "var(--ink-2)" }}
+                    >
+                      {item.label}
+                    </a>
                   </li>
                 ))}
               </ul>
@@ -41,7 +79,7 @@ export default function Footer() {
           fontFamily: "var(--mono)", fontSize: 11, letterSpacing: ".06em",
           textTransform: "uppercase", color: "var(--ink-3)",
         }}>
-          <span>© 2026 Toxome Labs</span>
+          <span>© 2026 Toxome LLC</span>
           <span>v0.6.2 · Indexed 4,212 fibers</span>
         </div>
       </div>
