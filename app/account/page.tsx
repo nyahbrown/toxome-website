@@ -155,15 +155,21 @@ export default function AccountPage() {
             )}
           </Section>
 
-          {/* Fiber donut — only when premium and has data */}
-          {profile?.isPremium && stats && stats.fiberDistribution.length > 0 && (
-            <>
-              <SectionDivider />
-              <Section eyebrow="what you own">
-                <FiberDonut stats={stats} />
-              </Section>
-            </>
-          )}
+          {/* Fiber donut — gated like the closet snapshot */}
+          {profile !== undefined &&
+            (!profile?.isPremium ||
+              (stats && stats.fiberDistribution.length > 0)) && (
+              <>
+                <SectionDivider />
+                <Section eyebrow="what you own">
+                  {!profile?.isPremium ? (
+                    <FiberLockedCTA />
+                  ) : (
+                    stats && <FiberDonut stats={stats} />
+                  )}
+                </Section>
+              </>
+            )}
 
           {/* Cleaner alternatives */}
           {alternatives && alternatives.length > 0 && (
@@ -751,6 +757,126 @@ function EmptyClosetCTA() {
       >
         Download the app
       </a>
+    </div>
+  );
+}
+
+function FiberLockedCTA() {
+  // A static donut preview rendered blurred behind the CTA copy. Picks
+  // arbitrary slices so the visual stays consistent regardless of user.
+  const size = 130;
+  const stroke = 18;
+  const radius = (size - stroke) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const slices: { length: number; color: string }[] = [
+    { length: 0.42 * circumference, color: "var(--red)" },
+    { length: 0.22 * circumference, color: "var(--orange)" },
+    { length: 0.18 * circumference, color: "var(--risk-low)" },
+    { length: 0.12 * circumference, color: "var(--risk-low)" },
+    { length: 0.06 * circumference, color: "var(--ink-3)" },
+  ];
+  let offset = 0;
+
+  return (
+    <div
+      style={{
+        position: "relative",
+        padding: "32px 28px",
+        background: "var(--white)",
+        border: "1px solid var(--hairline)",
+        borderRadius: 14,
+        overflow: "hidden",
+      }}
+    >
+      <div
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          right: 24,
+          top: "50%",
+          transform: "translateY(-50%)",
+          opacity: 0.22,
+          filter: "blur(5px)",
+          pointerEvents: "none",
+        }}
+      >
+        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            fill="none"
+            stroke="var(--hairline)"
+            strokeWidth={stroke}
+          />
+          {slices.map((s, i) => {
+            const node = (
+              <circle
+                key={i}
+                cx={size / 2}
+                cy={size / 2}
+                r={radius}
+                fill="none"
+                stroke={s.color}
+                strokeWidth={stroke}
+                strokeDasharray={`${s.length} ${circumference}`}
+                strokeDashoffset={-offset}
+                transform={`rotate(-90 ${size / 2} ${size / 2})`}
+              />
+            );
+            offset += s.length;
+            return node;
+          })}
+        </svg>
+      </div>
+
+      <div style={{ position: "relative", maxWidth: 420 }}>
+        <div
+          style={{
+            fontFamily: "var(--mono)",
+            fontSize: 10,
+            letterSpacing: "0.12em",
+            textTransform: "uppercase",
+            color: "var(--ink-3)",
+            marginBottom: 10,
+          }}
+        >
+          premium
+        </div>
+        <p
+          style={{
+            fontFamily: "var(--serif)",
+            fontSize: 22,
+            letterSpacing: "-0.015em",
+            color: "var(--ink)",
+            margin: "0 0 10px",
+            fontWeight: 500,
+            lineHeight: 1.2,
+          }}
+        >
+          See what your wardrobe is made of.
+        </p>
+        <p
+          style={{
+            fontSize: 14,
+            color: "var(--ink-2)",
+            lineHeight: 1.55,
+            margin: "0 0 20px",
+          }}
+        >
+          Toxome Premium breaks down every fiber in your closet — polyester,
+          cotton, wool, elastane — color-coded by hazard.
+        </p>
+        <a
+          href="https://apps.apple.com/us/app/toxome/id6748622034"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="pill-cta"
+          style={{ justifyContent: "center" }}
+        >
+          Download the app to unlock
+        </a>
+      </div>
     </div>
   );
 }
