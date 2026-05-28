@@ -4,10 +4,50 @@ import {
   doc,
   setDoc,
   deleteDoc,
+  getDoc,
   getDocs,
   serverTimestamp,
 } from "firebase/firestore";
 import type { Product } from "@/types/product";
+
+export interface UserProfile {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+  photoUrl: string | null;
+  isPremium: boolean;
+  subscriptionStatus: "free" | "trial" | "monthly" | "annual";
+  scanCount: number;
+}
+
+export async function getUserProfile(uid: string): Promise<UserProfile | null> {
+  try {
+    const snap = await getDoc(doc(db, "users", uid));
+    if (!snap.exists()) {
+      // Web-only signup with no iOS-side users/{uid} doc yet.
+      return null;
+    }
+    const d = snap.data() as Record<string, unknown>;
+    const status =
+      (d.subscriptionStatus as UserProfile["subscriptionStatus"]) || "free";
+    return {
+      uid,
+      email: (d.email as string) || null,
+      displayName: (d.displayName as string) || null,
+      photoUrl: (d.photo_url as string) || null,
+      isPremium:
+        d.isPremium === true ||
+        status === "monthly" ||
+        status === "annual" ||
+        status === "trial",
+      subscriptionStatus: status,
+      scanCount: Number(d.scanCount ?? 0),
+    };
+  } catch (err) {
+    console.error("getUserProfile error:", err);
+    return null;
+  }
+}
 
 export interface WishlistItem {
   productId: string;

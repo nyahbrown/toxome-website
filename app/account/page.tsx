@@ -12,7 +12,12 @@ import {
   type ClosetScan,
   type ClosetStats,
 } from "@/lib/closet";
-import { getWishlist, type WishlistItem } from "@/lib/firestore";
+import {
+  getWishlist,
+  getUserProfile,
+  type WishlistItem,
+  type UserProfile,
+} from "@/lib/firestore";
 import { getCleanerAlternatives, type Product } from "@/lib/supabase";
 import { hazardColor, prettyFiber } from "@/lib/fabricScores";
 
@@ -37,6 +42,7 @@ export default function AccountPage() {
   const { user, loading, signOut } = useAuth();
   const router = useRouter();
 
+  const [profile, setProfile] = useState<UserProfile | null | undefined>(undefined);
   const [scans, setScans] = useState<ClosetScan[] | null>(null);
   const [wishlist, setWishlist] = useState<WishlistItem[] | null>(null);
   const [alternatives, setAlternatives] = useState<Product[] | null>(null);
@@ -49,17 +55,28 @@ export default function AccountPage() {
     if (!user) return;
     let cancelled = false;
     (async () => {
-      const [s, w] = await Promise.all([
-        getClosetScans(user.uid).catch(() => []),
+      const [p, w] = await Promise.all([
+        getUserProfile(user.uid),
         getWishlist(user.uid).catch(() => []),
       ]);
       if (cancelled) return;
-      setScans(s);
+      setProfile(p);
       setWishlist(w);
+
+      // Only pull closet data if the user is premium — Firestore reads
+      // for a free user would just be wasted work since we gate the UI.
+      const isPremium = p?.isPremium === true;
+      const s = isPremium
+        ? await getClosetScans(user.uid).catch(() => [])
+        : [];
+      if (cancelled) return;
+      setScans(s);
+
       const stats = computeClosetStats(s);
-      const alts = await getCleanerAlternatives(stats.problemCategories, 4).catch(
-        () => []
-      );
+      const alts = await getCleanerAlternatives(
+        stats.problemCategories,
+        4
+      ).catch(() => []);
       if (cancelled) return;
       setAlternatives(alts);
     })();
@@ -118,17 +135,19 @@ export default function AccountPage() {
 
           <SectionDivider />
 
-          {/* The closet */}
+          {/* The closet — gated for non-premium users */}
           <Section
             eyebrow="the closet"
             aside={
-              stats?.lastScanAt
+              profile?.isPremium && stats?.lastScanAt
                 ? `last scan · ${formatRelative(stats.lastScanAt)}`
                 : undefined
             }
           >
-            {scans === null ? (
+            {profile === undefined || scans === null ? (
               <SectionLoading />
+            ) : !profile?.isPremium ? (
+              <ClosetLockedCTA scanCount={profile?.scanCount ?? 0} />
             ) : stats && stats.totalCount > 0 ? (
               <ClosetSnapshot stats={stats} />
             ) : (
@@ -136,8 +155,8 @@ export default function AccountPage() {
             )}
           </Section>
 
-          {/* Fiber donut */}
-          {stats && stats.fiberDistribution.length > 0 && (
+          {/* Fiber donut — only when premium and has data */}
+          {profile?.isPremium && stats && stats.fiberDistribution.length > 0 && (
             <>
               <SectionDivider />
               <Section eyebrow="what you own">
@@ -222,6 +241,14 @@ export default function AccountPage() {
                 <span style={{ color: "var(--ink-3)" }}>email · </span>
                 {user.email}
               </div>
+              {profile && (
+                <div>
+                  <span style={{ color: "var(--ink-3)" }}>plan · </span>
+                  {profile.isPremium
+                    ? `Premium (${profile.subscriptionStatus})`
+                    : "Free"}
+                </div>
+              )}
               <button
                 onClick={async () => {
                   await signOut();
@@ -724,6 +751,114 @@ function EmptyClosetCTA() {
       >
         Download the app
       </a>
+    </div>
+  );
+}
+
+function ClosetLockedCTA({ scanCount }: { scanCount: number }) {
+  return (
+    <div
+      style={{
+        position: "relative",
+        padding: "32px 28px",
+        background: "var(--white)",
+        border: "1px solid var(--hairline)",
+        borderRadius: 14,
+        overflow: "hidden",
+      }}
+    >
+      {/* Blurred preview of the closet score behind the CTA */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          inset: 0,
+          padding: "32px 28px",
+          opacity: 0.18,
+          filter: "blur(6px)",
+          pointerEvents: "none",
+          userSelect: "none",
+        }}
+      >
+        <div
+          style={{
+            fontFamily: "var(--serif)",
+            fontSize: 64,
+            lineHeight: 1,
+            letterSpacing: "-0.03em",
+            color: "var(--ink)",
+            marginBottom: 20,
+          }}
+        >
+          ——
+        </div>
+        <div
+          style={{
+            height: 8,
+            borderRadius: 999,
+            background:
+              "linear-gradient(to right, var(--risk-low) 0 35%, var(--orange) 35% 65%, var(--red) 65% 100%)",
+          }}
+        />
+      </div>
+
+      <div style={{ position: "relative" }}>
+        <div
+          style={{
+            fontFamily: "var(--mono)",
+            fontSize: 10,
+            letterSpacing: "0.12em",
+            textTransform: "uppercase",
+            color: "var(--ink-3)",
+            marginBottom: 10,
+          }}
+        >
+          premium
+        </div>
+        <p
+          style={{
+            fontFamily: "var(--serif)",
+            fontSize: 24,
+            letterSpacing: "-0.015em",
+            color: "var(--ink)",
+            margin: "0 0 10px",
+            fontWeight: 500,
+            lineHeight: 1.2,
+          }}
+        >
+          Unlock your closet score.
+        </p>
+        <p
+          style={{
+            fontSize: 14,
+            color: "var(--ink-2)",
+            lineHeight: 1.55,
+            margin: "0 0 22px",
+            maxWidth: 460,
+          }}
+        >
+          Toxome Premium gives you your closet&apos;s average score, the fiber
+          breakdown of everything you own, and cleaner alternatives matched to
+          the categories you wear most.
+          {scanCount > 0 && (
+            <>
+              {" "}
+              You&apos;ve already scanned {scanCount}{" "}
+              {scanCount === 1 ? "item" : "items"} — unlock to see them all in
+              one view.
+            </>
+          )}
+        </p>
+        <a
+          href="https://apps.apple.com/us/app/toxome/id6748622034"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="pill-cta"
+          style={{ justifyContent: "center" }}
+        >
+          Download the app to unlock
+        </a>
+      </div>
     </div>
   );
 }
