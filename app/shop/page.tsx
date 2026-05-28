@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { getPublishedProducts, getShopTaxonomy } from "@/lib/supabase";
 import Nav from "@/components/Nav";
@@ -20,7 +21,9 @@ export default async function ShopPage() {
   return (
     <>
       <Nav taxonomy={taxonomy} />
-      <ShopClient products={products} taxonomy={taxonomy} section={null} />
+      <Suspense fallback={null}>
+        <ShopClient products={products} taxonomy={taxonomy} section={null} />
+      </Suspense>
       <Footer />
     </>
   );
