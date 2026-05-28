@@ -98,7 +98,7 @@ export default function Nav() {
         style={{
           maxWidth: "none",
           margin: 0,
-          padding: "0 11px",
+          padding: "0 16px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
