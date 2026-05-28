@@ -271,6 +271,10 @@ export default function WishlistPage() {
                     published: true,
                     created_at: "",
                     updated_at: "",
+                    images: null,
+                    description: null,
+                    materials_text: null,
+                    certifications: null,
                   });
                 }}
               />
