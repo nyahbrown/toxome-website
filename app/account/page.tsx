@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
@@ -21,6 +21,177 @@ import {
 import { getCleanerAlternatives, type Product } from "@/lib/supabase";
 import { hazardColor, prettyFiber } from "@/lib/fabricScores";
 import WishlistHeart from "@/components/WishlistHeart";
+
+const DEV_PROFILE: UserProfile = {
+  uid: "dev-preview",
+  email: "preview@toxome.app",
+  displayName: "Preview",
+  photoUrl: null,
+  isPremium: true,
+  subscriptionStatus: "monthly",
+  scanCount: 14,
+};
+
+const DEV_SCANS: ClosetScan[] = (() => {
+  const today = Date.now();
+  const d = (daysAgo: number) => new Date(today - daysAgo * 86_400_000);
+  const fakes: Array<Omit<ClosetScan, "id">> = [
+    {
+      itemDescription: "Linen midi dress",
+      brandName: "Reformation",
+      category: "Dresses",
+      scanImageUrl: "https://picsum.photos/seed/dress1/300/300",
+      scanDate: d(1),
+      overallHazardScore: 14,
+      overallHazardLevel: "low",
+      naturalFiberPercentage: 100,
+      composition: [{ fiber: "linen", percentage: 100 }],
+    },
+    {
+      itemDescription: "Cotton tee",
+      brandName: "Everlane",
+      category: "Tops",
+      scanImageUrl: "https://picsum.photos/seed/tee2/300/300",
+      scanDate: d(3),
+      overallHazardScore: 22,
+      overallHazardLevel: "low",
+      naturalFiberPercentage: 100,
+      composition: [{ fiber: "organic_cotton", percentage: 100 }],
+    },
+    {
+      itemDescription: "Workout legging",
+      brandName: "Lululemon",
+      category: "Activewear",
+      scanImageUrl: "https://picsum.photos/seed/legging3/300/300",
+      scanDate: d(5),
+      overallHazardScore: 62,
+      overallHazardLevel: "moderate",
+      naturalFiberPercentage: 0,
+      composition: [
+        { fiber: "nylon", percentage: 73 },
+        { fiber: "elastane", percentage: 27 },
+      ],
+    },
+    {
+      itemDescription: "Wool blend coat",
+      brandName: "Aritzia",
+      category: "Outerwear",
+      scanImageUrl: "https://picsum.photos/seed/coat4/300/300",
+      scanDate: d(8),
+      overallHazardScore: 28,
+      overallHazardLevel: "low",
+      naturalFiberPercentage: 88,
+      composition: [
+        { fiber: "wool", percentage: 88 },
+        { fiber: "polyester", percentage: 12 },
+      ],
+    },
+    {
+      itemDescription: "Polyester blouse",
+      brandName: "Zara",
+      category: "Tops",
+      scanImageUrl: "https://picsum.photos/seed/blouse5/300/300",
+      scanDate: d(10),
+      overallHazardScore: 78,
+      overallHazardLevel: "high",
+      naturalFiberPercentage: 5,
+      composition: [
+        { fiber: "polyester", percentage: 95 },
+        { fiber: "elastane", percentage: 5 },
+      ],
+    },
+    {
+      itemDescription: "Denim jeans",
+      brandName: "Levi's",
+      category: "Bottoms",
+      scanImageUrl: "https://picsum.photos/seed/jeans6/300/300",
+      scanDate: d(12),
+      overallHazardScore: 24,
+      overallHazardLevel: "low",
+      naturalFiberPercentage: 98,
+      composition: [
+        { fiber: "cotton", percentage: 98 },
+        { fiber: "elastane", percentage: 2 },
+      ],
+    },
+    {
+      itemDescription: "Silk pajama set",
+      brandName: "Printfresh",
+      category: "Pajamas",
+      scanImageUrl: "https://picsum.photos/seed/pj7/300/300",
+      scanDate: d(15),
+      overallHazardScore: 16,
+      overallHazardLevel: "low",
+      naturalFiberPercentage: 100,
+      composition: [{ fiber: "silk", percentage: 100 }],
+    },
+    {
+      itemDescription: "Sports bra",
+      brandName: "Nike",
+      category: "Activewear",
+      scanImageUrl: "https://picsum.photos/seed/bra8/300/300",
+      scanDate: d(18),
+      overallHazardScore: 72,
+      overallHazardLevel: "high",
+      naturalFiberPercentage: 0,
+      composition: [
+        { fiber: "polyester", percentage: 82 },
+        { fiber: "elastane", percentage: 18 },
+      ],
+    },
+    {
+      itemDescription: "Hemp tee",
+      brandName: "Outerknown",
+      category: "Tops",
+      scanImageUrl: "https://picsum.photos/seed/hemp9/300/300",
+      scanDate: d(22),
+      overallHazardScore: 10,
+      overallHazardLevel: "low",
+      naturalFiberPercentage: 100,
+      composition: [
+        { fiber: "hemp", percentage: 55 },
+        { fiber: "cotton", percentage: 45 },
+      ],
+    },
+    {
+      itemDescription: "Cashmere sweater",
+      brandName: "Quince",
+      category: "Sweaters",
+      scanImageUrl: "https://picsum.photos/seed/sweater10/300/300",
+      scanDate: d(25),
+      overallHazardScore: 15,
+      overallHazardLevel: "low",
+      naturalFiberPercentage: 100,
+      composition: [{ fiber: "wool", percentage: 100 }],
+    },
+    {
+      itemDescription: "Fleece pullover",
+      brandName: "Patagonia",
+      category: "Outerwear",
+      scanImageUrl: "https://picsum.photos/seed/fleece11/300/300",
+      scanDate: d(40),
+      overallHazardScore: 55,
+      overallHazardLevel: "moderate",
+      naturalFiberPercentage: 0,
+      composition: [{ fiber: "recycled_polyester", percentage: 100 }],
+    },
+    {
+      itemDescription: "Underwear set",
+      brandName: "Pact",
+      category: "Undergarments",
+      scanImageUrl: "https://picsum.photos/seed/under12/300/300",
+      scanDate: d(60),
+      overallHazardScore: 20,
+      overallHazardLevel: "low",
+      naturalFiberPercentage: 95,
+      composition: [
+        { fiber: "organic_cotton", percentage: 95 },
+        { fiber: "elastane", percentage: 5 },
+      ],
+    },
+  ];
+  return fakes.map((f, i) => ({ id: `dev-${i + 1}`, ...f }));
+})();
 
 function firstName(displayName: string | null | undefined, email: string | null | undefined) {
   if (displayName) return displayName.split(" ")[0];
@@ -48,6 +219,10 @@ export default function AccountPage() {
     toggleWishlist,
   } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const devMode =
+    searchParams.get("dev") === "1" ||
+    searchParams.get("dev") === "premium";
 
   const [profile, setProfile] = useState<UserProfile | null | undefined>(undefined);
   const [scans, setScans] = useState<ClosetScan[] | null>(null);
@@ -55,10 +230,26 @@ export default function AccountPage() {
   const [alternatives, setAlternatives] = useState<Product[] | null>(null);
 
   useEffect(() => {
-    if (!loading && !user) router.replace("/login?return=/account");
-  }, [user, loading, router]);
+    if (!loading && !user && !devMode) {
+      router.replace("/login?return=/account");
+    }
+  }, [user, loading, router, devMode]);
 
   useEffect(() => {
+    // Dev preview mode — bypass auth + gating, use mock closet data so
+    // every panel renders populated without a subscription or signed-in
+    // user.
+    if (devMode) {
+      setProfile(DEV_PROFILE);
+      setScans(DEV_SCANS);
+      setWishlist([]);
+      const stats = computeClosetStats(DEV_SCANS);
+      getCleanerAlternatives(stats.problemCategories, 4)
+        .catch(() => [])
+        .then((alts) => setAlternatives(alts));
+      return;
+    }
+
     if (!user) return;
     let cancelled = false;
     (async () => {
@@ -90,15 +281,23 @@ export default function AccountPage() {
     return () => {
       cancelled = true;
     };
-  }, [user]);
+  }, [user, devMode]);
 
-  if (loading || !user) {
+  if ((loading || !user) && !devMode) {
     return (
       <main style={{ background: "var(--cream)", minHeight: "100vh" }}>
         <Nav />
       </main>
     );
   }
+
+  // Dev mode uses a synthetic "user" shape so the greeting renders without
+  // requiring a signed-in Firebase user.
+  const displayUser = user ?? {
+    uid: "dev-preview",
+    email: "preview@toxome.app",
+    displayName: "Preview",
+  };
 
   const stats: ClosetStats | null = scans ? computeClosetStats(scans) : null;
 
@@ -120,6 +319,8 @@ export default function AccountPage() {
             padding: "0 32px",
           }}
         >
+          {devMode && <DevBanner />}
+
           {/* Greeting hero */}
           <header
             style={{
@@ -146,7 +347,7 @@ export default function AccountPage() {
                   margin: 0,
                 }}
               >
-                hi {firstName(user.displayName, user.email)}.
+                hi {firstName(displayUser.displayName, displayUser.email)}.
               </h1>
             </div>
             {profile && <PlanChip profile={profile} />}
@@ -323,7 +524,7 @@ export default function AccountPage() {
             >
               <div>
                 <span style={{ color: "var(--ink-3)" }}>email · </span>
-                {user.email}
+                {displayUser.email}
               </div>
               {profile && (
                 <div>
@@ -355,6 +556,40 @@ export default function AccountPage() {
 }
 
 /* ──────────────────────────────────────────────────────────────── */
+
+function DevBanner() {
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: 12,
+        marginBottom: 24,
+        padding: "10px 16px",
+        background: "var(--honey)",
+        borderRadius: 10,
+        fontFamily: "var(--mono)",
+        fontSize: 11,
+        letterSpacing: "0.12em",
+        textTransform: "uppercase",
+        color: "var(--ink)",
+      }}
+    >
+      <span>dev preview · mock closet, premium unlocked</span>
+      <Link
+        href="/account"
+        style={{
+          color: "var(--ink)",
+          textDecoration: "underline",
+          textUnderlineOffset: 3,
+        }}
+      >
+        exit
+      </Link>
+    </div>
+  );
+}
 
 function Panel({
   eyebrow,
