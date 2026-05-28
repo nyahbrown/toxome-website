@@ -95,8 +95,10 @@ export default function Nav() {
       }}
     >
       <div
-        className="shell"
         style={{
+          maxWidth: "none",
+          margin: 0,
+          padding: "0 11px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
