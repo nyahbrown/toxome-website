@@ -7,7 +7,6 @@ import type { Product } from "@/types/product";
 import type { ShopTaxonomy } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import FrostedSelect from "@/components/FrostedSelect";
-import { StarIcon } from "@/components/icons";
 import WishlistHeart from "@/components/WishlistHeart";
 
 export type ShopSection = "women" | "men" | "home" | null;
@@ -155,21 +154,6 @@ function ProductCard({
             </>
           )}
         </p>
-        {p.toxome_score != null && (
-          <div
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 6,
-              fontSize: 13,
-              color: "var(--ink-2)",
-              letterSpacing: "-0.005em",
-            }}
-          >
-            <StarIcon />
-            {p.toxome_score} Toxome Score
-          </div>
-        )}
       </div>
     </Link>
   );
