@@ -6,15 +6,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import NavDropdown from "./NavDropdown";
+import type { ShopTaxonomy } from "@/lib/supabase";
 
-const SHOP_CATEGORIES = [
-  "Outerwear",
-  "Tops",
-  "Bottoms",
-  "Pajamas",
-  "Activewear",
-  "Undergarments",
-];
+const FALLBACK_TAXONOMY: ShopTaxonomy = {
+  women: ["Activewear", "Bottoms", "Outerwear", "Tops"],
+  men: ["Activewear", "Bottoms", "Outerwear", "Tops"],
+  home: ["Other"],
+};
 
 const JOURNAL_TOPICS = [
   { label: "Fibers", topic: "fibers" },
@@ -23,16 +21,16 @@ const JOURNAL_TOPICS = [
   { label: "Style", topic: "style" },
 ];
 
-function buildShopColumns() {
-  const makeGendered = (gender: "men" | "women") => ({
-    heading: gender === "men" ? "Men" : "Women",
+function buildShopColumns(taxonomy: ShopTaxonomy) {
+  const makeGendered = (gender: "Men" | "Women", categories: string[]) => ({
+    heading: gender,
     items: [
       {
-        label: `All ${gender === "men" ? "Men" : "Women"}`,
+        label: `All ${gender}`,
         href: `/shop?gender=${gender}`,
         muted: true,
       },
-      ...SHOP_CATEGORIES.map((c) => ({
+      ...categories.map((c) => ({
         label: c,
         href: `/shop?gender=${gender}&category=${encodeURIComponent(c)}`,
       })),
@@ -44,7 +42,11 @@ function buildShopColumns() {
       { label: "All Home", href: "/shop?category=Other", muted: true },
     ],
   };
-  return [makeGendered("women"), makeGendered("men"), home];
+  return [
+    makeGendered("Women", taxonomy.women),
+    makeGendered("Men", taxonomy.men),
+    home,
+  ];
 }
 
 function buildJournalColumns() {
@@ -62,7 +64,11 @@ function buildJournalColumns() {
   ];
 }
 
-export default function Nav() {
+export default function Nav({
+  taxonomy = FALLBACK_TAXONOMY,
+}: {
+  taxonomy?: ShopTaxonomy;
+} = {}) {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const isHome = pathname === "/";
@@ -122,7 +128,7 @@ export default function Nav() {
               label="shop"
               transparent={transparent}
               active={pathname === "/shop" || pathname.startsWith("/shop/")}
-              columns={buildShopColumns()}
+              columns={buildShopColumns(taxonomy)}
               topRow={{ label: "Shop all", href: "/shop", muted: true }}
             />
             <NavDropdown

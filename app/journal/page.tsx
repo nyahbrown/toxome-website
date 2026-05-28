@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
+import { getShopTaxonomy } from "@/lib/supabase";
 
 export const metadata: Metadata = {
   title: "Journal — Toxome",
   description: "Fiber science, slow fashion, and the invisible chemistry in your wardrobe.",
 };
 
-export default function JournalPage() {
+export default async function JournalPage() {
+  const taxonomy = await getShopTaxonomy();
   return (
     <main style={{ background: "var(--bg)", minHeight: "100vh" }}>
-      <Nav />
+      <Nav taxonomy={taxonomy} />
 
       <div className="shell" style={{ paddingTop: 80, paddingBottom: 120 }}>
         <div style={{ maxWidth: 720 }}>

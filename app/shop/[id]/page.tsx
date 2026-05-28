@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getProductById } from "@/lib/supabase";
+import { getProductById, getShopTaxonomy } from "@/lib/supabase";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import ProductDetailClient from "./ProductDetailClient";
@@ -38,11 +38,14 @@ export default async function ProductPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const product = await getProductById(id);
+  const [product, taxonomy] = await Promise.all([
+    getProductById(id),
+    getShopTaxonomy(),
+  ]);
   if (!product) notFound();
   return (
     <>
-      <Nav />
+      <Nav taxonomy={taxonomy} />
       <ProductDetailClient product={product} />
       <Footer />
     </>

@@ -295,6 +295,16 @@ export default function ShopClient({ products }: { products: Product[] }) {
       result = [...result].sort(
         (a, b) => (b.item_price ?? -Infinity) - (a.item_price ?? -Infinity)
       );
+    } else if (sort === "Lowest Risk") {
+      const riskRank = { low: 0, moderate: 1, high: 2 } as const;
+      result = [...result].sort((a, b) => {
+        const ra = a.risk_level ? riskRank[a.risk_level] : 3;
+        const rb = b.risk_level ? riskRank[b.risk_level] : 3;
+        if (ra !== rb) return ra - rb;
+        const sa = a.toxome_score ?? Infinity;
+        const sb = b.toxome_score ?? Infinity;
+        return sa - sb;
+      });
     }
 
     return result;
@@ -459,6 +469,7 @@ export default function ShopClient({ products }: { products: Product[] }) {
             label="Sort By"
             options={[
               "Featured",
+              "Lowest Risk",
               "Newest",
               "Oldest",
               "Price: Low to High",

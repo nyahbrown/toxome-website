@@ -100,7 +100,7 @@ For each product you find, extract:
 - item_url: direct product page URL
 - item_image: direct image URL (use the main product image)
 - category: one of [Tops, Bottoms, Dresses, Outerwear, Activewear, Loungewear, Footwear, Accessories]
-- gender: one of [Female, Male, Unisex]
+- gender: one of [Women, Men, Unisex]
 - budget: one of [$, $$, $$$] based on price ($=under $50, $$=$50-150, $$$=over $150)
 - fabric_composition: object mapping fabric name to percentage (e.g. {"organic cotton": 95, "elastane": 5})
 

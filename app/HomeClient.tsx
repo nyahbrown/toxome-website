@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
+import type { ShopTaxonomy } from "@/lib/supabase";
 
 const FIBERS = [
   { name: "cotton", image: "/fibers/cotton.jpg" },
@@ -60,10 +61,14 @@ function FiberTile({ name, image }: { name: string; image: string }) {
   );
 }
 
-export default function HomeClient() {
+export default function HomeClient({
+  taxonomy,
+}: {
+  taxonomy: ShopTaxonomy;
+}) {
   return (
     <div style={{ background: "var(--bg)" }}>
-      <Nav />
+      <Nav taxonomy={taxonomy} />
 
       {/* Hero — 670px matching Figma */}
       <section

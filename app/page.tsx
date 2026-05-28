@@ -1,5 +1,7 @@
 import HomeClient from "./HomeClient";
+import { getShopTaxonomy } from "@/lib/supabase";
 
-export default function Home() {
-  return <HomeClient />;
+export default async function Home() {
+  const taxonomy = await getShopTaxonomy();
+  return <HomeClient taxonomy={taxonomy} />;
 }

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getPublishedProducts } from "@/lib/supabase";
+import { getPublishedProducts, getShopTaxonomy } from "@/lib/supabase";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import ShopClient from "./ShopClient";
@@ -13,10 +13,13 @@ export const metadata: Metadata = {
 };
 
 export default async function ShopPage() {
-  const products = await getPublishedProducts();
+  const [products, taxonomy] = await Promise.all([
+    getPublishedProducts(),
+    getShopTaxonomy(),
+  ]);
   return (
     <>
-      <Nav />
+      <Nav taxonomy={taxonomy} />
       <ShopClient products={products} />
       <Footer />
     </>
