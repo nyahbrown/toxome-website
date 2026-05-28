@@ -74,11 +74,11 @@ function ProductCard({
       onMouseLeave={() => setHovered(false)}
       style={{ textDecoration: "none", display: "block" }}
     >
-      {/* Image card */}
+      {/* Image card — 266:334 aspect (portrait) */}
       <div
         style={{
           position: "relative",
-          paddingBottom: "100%",
+          paddingBottom: "125.56%",
           background: "var(--tan)",
           borderRadius: 10,
           overflow: "hidden",
@@ -530,7 +530,7 @@ export default function ShopClient({ products }: { products: Product[] }) {
       </div>
 
       {/* Product grid */}
-      <div className="shell">
+      <div className="shell" style={{ maxWidth: "none", padding: "0 13px" }}>
         {fiberFilter && (
           <div
             style={{
