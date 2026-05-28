@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useAuth } from "@/contexts/AuthContext";
 import NavDropdown from "./NavDropdown";
 import type { ShopTaxonomy } from "@/lib/supabase";
 
@@ -70,8 +69,6 @@ export default function Nav({
   const [scrolled, setScrolled] = useState(false);
   const isHome = pathname === "/";
   const transparent = isHome && !scrolled;
-  const { user, wishlist } = useAuth();
-  const wishlistCount = wishlist.size;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60);
@@ -181,7 +178,7 @@ export default function Nav({
               transition: "color 300ms ease",
             }}
           >
-            {user && wishlistCount > 0 ? `wishlist (${wishlistCount})` : "account"}
+            account
           </Link>
         </div>
       </div>
