@@ -428,16 +428,18 @@ export default function ShopClient({
           style={{
             fontFamily: "var(--serif)",
             fontWeight: 400,
-            fontSize: "clamp(36px, 5.5vw, 68px)",
-            lineHeight: 1.05,
-            letterSpacing: "-0.025em",
+            fontSize: "clamp(18px, 2.75vw, 34px)",
+            lineHeight: 1.25,
+            letterSpacing: "-0.018em",
             color: "var(--ink)",
             margin: "0 auto",
-            maxWidth: 780,
+            maxWidth: 640,
             padding: "0 24px",
           }}
         >
-          {header ? header.title : "clothing that's clean by design"}
+          {header
+            ? header.title
+            : "There is no wellness without what touches the skin all day."}
         </h1>
       </div>
 
