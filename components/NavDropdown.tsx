@@ -10,68 +10,21 @@ type Props = {
   label: string;
   transparent: boolean;
   active: boolean;
-  href: string;
   columns: Column[];
+  topRow?: NavItem;
   panelWidth?: number;
 };
-
-const OPEN_DELAY = 120;
-const CLOSE_DELAY = 220;
-
-function Chevron({ open }: { open: boolean }) {
-  return (
-    <svg
-      width="9"
-      height="6"
-      viewBox="0 0 10 6"
-      fill="none"
-      aria-hidden="true"
-      style={{
-        marginLeft: 4,
-        transition: "transform 180ms var(--ease)",
-        transform: open ? "rotate(180deg)" : "none",
-      }}
-    >
-      <path
-        d="M1 1L5 5L9 1"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
 
 export default function NavDropdown({
   label,
   transparent,
   active,
-  href,
   columns,
+  topRow,
   panelWidth,
 }: Props) {
   const [open, setOpen] = useState(false);
-  const openTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const wrapRef = useRef<HTMLDivElement | null>(null);
-
-  function scheduleOpen() {
-    if (closeTimer.current) {
-      clearTimeout(closeTimer.current);
-      closeTimer.current = null;
-    }
-    if (open) return;
-    openTimer.current = setTimeout(() => setOpen(true), OPEN_DELAY);
-  }
-
-  function scheduleClose() {
-    if (openTimer.current) {
-      clearTimeout(openTimer.current);
-      openTimer.current = null;
-    }
-    closeTimer.current = setTimeout(() => setOpen(false), CLOSE_DELAY);
-  }
 
   useEffect(() => {
     if (!open) return;
@@ -89,37 +42,30 @@ export default function NavDropdown({
     };
   }, [open]);
 
-  useEffect(() => {
-    return () => {
-      if (openTimer.current) clearTimeout(openTimer.current);
-      if (closeTimer.current) clearTimeout(closeTimer.current);
-    };
-  }, []);
-
   const triggerColor = transparent
     ? "rgba(255,255,255,0.92)"
     : active || open
     ? "var(--ink)"
     : "var(--ink-2)";
 
-  const computedWidth = panelWidth ?? (columns.length > 1 ? 460 : 240);
+  const computedWidth =
+    panelWidth ??
+    (columns.length === 1 ? 240 : columns.length === 2 ? 460 : 600);
 
   return (
     <div
       ref={wrapRef}
-      onMouseEnter={scheduleOpen}
-      onMouseLeave={scheduleClose}
       style={{ position: "relative", display: "inline-flex", alignItems: "center" }}
     >
-      <Link
-        href={href}
-        onFocus={scheduleOpen}
-        onClick={() => setOpen(false)}
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
         aria-haspopup="true"
         aria-expanded={open}
         style={{
-          display: "inline-flex",
-          alignItems: "center",
+          background: "none",
+          border: "none",
+          cursor: "pointer",
           fontSize: 14,
           fontWeight: 400,
           letterSpacing: "-0.005em",
@@ -132,26 +78,18 @@ export default function NavDropdown({
         }}
       >
         {label}
-        <Chevron open={open} />
-      </Link>
+      </button>
 
       {open && (
         <div
           role="menu"
-          onMouseEnter={scheduleOpen}
-          onMouseLeave={scheduleClose}
           style={{
             position: "absolute",
             top: "calc(100% + 10px)",
             left: 0,
             width: computedWidth,
             padding: 14,
-            display: "grid",
-            gridTemplateColumns: columns.length > 1 ? "1fr 1fr" : "1fr",
-            gap: columns.length > 1 ? 12 : 0,
-            background: "rgba(252,251,247,0.72)",
-            backdropFilter: "blur(20px) saturate(180%)",
-            WebkitBackdropFilter: "blur(20px) saturate(180%)",
+            background: "var(--cream)",
             border: "1px solid var(--hairline)",
             borderRadius: 18,
             boxShadow:
@@ -160,25 +98,49 @@ export default function NavDropdown({
             animation: "navDropFade 160ms var(--ease)",
           }}
         >
-          {columns.map((col) => (
-            <div key={col.heading} style={{ padding: 4 }}>
+          {topRow && (
+            <div style={{ padding: 4, marginBottom: 4 }}>
+              <NavMenuLink item={topRow} onNavigate={() => setOpen(false)} />
               <div
                 style={{
-                  fontFamily: "var(--mono)",
-                  fontSize: 10,
-                  letterSpacing: "0.14em",
-                  textTransform: "uppercase",
-                  color: "var(--ink-3)",
-                  padding: "6px 10px 8px",
+                  height: 1,
+                  background: "var(--hairline)",
+                  margin: "6px 6px 0",
                 }}
-              >
-                {col.heading}
-              </div>
-              {col.items.map((item) => (
-                <NavMenuLink key={item.href + item.label} item={item} onNavigate={() => setOpen(false)} />
-              ))}
+              />
             </div>
-          ))}
+          )}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: `repeat(${columns.length}, 1fr)`,
+              gap: columns.length > 1 ? 12 : 0,
+            }}
+          >
+            {columns.map((col) => (
+              <div key={col.heading} style={{ padding: 4 }}>
+                <div
+                  style={{
+                    fontFamily: "var(--mono)",
+                    fontSize: 10,
+                    letterSpacing: "0.14em",
+                    textTransform: "uppercase",
+                    color: "var(--ink-3)",
+                    padding: "6px 10px 8px",
+                  }}
+                >
+                  {col.heading}
+                </div>
+                {col.items.map((item) => (
+                  <NavMenuLink
+                    key={item.href + item.label}
+                    item={item}
+                    onNavigate={() => setOpen(false)}
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
         </div>
       )}
 

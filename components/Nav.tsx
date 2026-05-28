@@ -24,7 +24,7 @@ const JOURNAL_TOPICS = [
 ];
 
 function buildShopColumns() {
-  const make = (gender: "men" | "women") => ({
+  const makeGendered = (gender: "men" | "women") => ({
     heading: gender === "men" ? "Men" : "Women",
     items: [
       {
@@ -38,7 +38,13 @@ function buildShopColumns() {
       })),
     ],
   });
-  return [make("women"), make("men")];
+  const home = {
+    heading: "Home",
+    items: [
+      { label: "All Home", href: "/shop?category=Other", muted: true },
+    ],
+  };
+  return [makeGendered("women"), makeGendered("men"), home];
 }
 
 function buildJournalColumns() {
@@ -112,14 +118,13 @@ export default function Nav() {
           <div style={{ display: "flex", gap: 28, alignItems: "center" }}>
             <NavDropdown
               label="shop"
-              href="/shop"
               transparent={transparent}
               active={pathname === "/shop" || pathname.startsWith("/shop/")}
               columns={buildShopColumns()}
+              topRow={{ label: "Shop all", href: "/shop", muted: true }}
             />
             <NavDropdown
               label="journal"
-              href="/journal"
               transparent={transparent}
               active={pathname === "/journal" || pathname.startsWith("/journal/")}
               columns={buildJournalColumns()}
