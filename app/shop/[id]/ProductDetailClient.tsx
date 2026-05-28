@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Product } from "@/types/product";
 import { useAuth } from "@/contexts/AuthContext";
-import { HeartFilled, HeartOutline, StarIcon } from "@/components/icons";
+import WishlistHeart from "@/components/WishlistHeart";
 
 const FIBER_LABELS: Record<string, string> = {
   organic_cotton: "Organic cotton",
@@ -31,6 +31,32 @@ const FIBER_LABELS: Record<string, string> = {
   fleece: "Fleece",
 };
 
+// Mirrors scripts/agent.js FABRIC_SCORES — lower = cleaner. Used to color
+// each fabric's bar by hazard (green / orange / red).
+const FABRIC_SCORES: Record<string, number> = {
+  organic_cotton: 5,
+  cotton: 20,
+  linen: 8,
+  hemp: 6,
+  tencel: 18,
+  lyocell: 18,
+  modal: 22,
+  bamboo: 25,
+  wool: 15,
+  merino: 15,
+  silk: 12,
+  recycled_polyester: 45,
+  polyester: 65,
+  nylon: 62,
+  acrylic: 78,
+  spandex: 55,
+  elastane: 55,
+  viscose: 40,
+  rayon: 40,
+  microfiber: 70,
+  fleece: 60,
+};
+
 function prettyFiber(key: string) {
   return (
     FIBER_LABELS[key.toLowerCase()] ||
@@ -39,6 +65,13 @@ function prettyFiber(key: string) {
       .map((p) => p[0]?.toUpperCase() + p.slice(1))
       .join(" ")
   );
+}
+
+function fiberHazardColor(key: string): string {
+  const score = FABRIC_SCORES[key.toLowerCase().replace(/\s+/g, "_")] ?? 50;
+  if (score <= 33) return "var(--risk-low)";
+  if (score <= 66) return "var(--orange)";
+  return "var(--red)";
 }
 
 function RiskChip({ level }: { level: "low" | "moderate" | "high" }) {
@@ -155,6 +188,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
           {images.length === 0 ? (
             <div
               style={{
+                position: "relative",
                 aspectRatio: "266 / 334",
                 background: "var(--tan)",
                 borderRadius: 10,
@@ -169,6 +203,10 @@ export default function ProductDetailClient({ product }: { product: Product }) {
               }}
             >
               No image
+              <WishlistHeart
+                isWishlisted={isWishlisted}
+                onClick={handleWishlist}
+              />
             </div>
           ) : (
             images.map((src, i) =>
@@ -198,6 +236,12 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                       objectFit: "cover",
                     }}
                   />
+                  {i === 0 && (
+                    <WishlistHeart
+                      isWishlisted={isWishlisted}
+                      onClick={handleWishlist}
+                    />
+                  )}
                 </div>
               )
             )
@@ -309,15 +353,11 @@ export default function ProductDetailClient({ product }: { product: Product }) {
               {product.toxome_score != null && (
                 <span
                   style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 6,
                     fontSize: 14,
                     color: "var(--ink-2)",
                     letterSpacing: "-0.005em",
                   }}
                 >
-                  <StarIcon size={13} />
                   {product.toxome_score} Toxome Score
                 </span>
               )}
@@ -325,22 +365,15 @@ export default function ProductDetailClient({ product }: { product: Product }) {
             </div>
           )}
 
-          {/* Buy CTA + heart */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "stretch",
-              gap: 12,
-              marginBottom: 12,
-            }}
-          >
+          {/* Buy CTA */}
+          <div style={{ marginBottom: 12 }}>
             {buyUrl ? (
               <a
                 href={buyUrl}
                 target="_blank"
                 rel="noopener noreferrer sponsored"
                 className="pill-cta"
-                style={{ flex: 1, justifyContent: "center" }}
+                style={{ width: "100%", justifyContent: "center" }}
               >
                 Buy at {product.brand}
               </a>
@@ -348,7 +381,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
               <span
                 className="pill-cta"
                 style={{
-                  flex: 1,
+                  width: "100%",
                   justifyContent: "center",
                   opacity: 0.55,
                   cursor: "not-allowed",
@@ -357,27 +390,6 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                 Unavailable
               </span>
             )}
-            <button
-              type="button"
-              onClick={handleWishlist}
-              aria-label={isWishlisted ? "Remove from saved" : "Save item"}
-              style={{
-                width: 52,
-                height: 52,
-                border: "1px solid var(--hairline-strong)",
-                borderRadius: 999,
-                background: "transparent",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: isWishlisted ? "var(--ink)" : "var(--ink-3)",
-                flexShrink: 0,
-                transition: "background 160ms ease",
-              }}
-            >
-              {isWishlisted ? <HeartFilled /> : <HeartOutline />}
-            </button>
           </div>
           <p
             style={{
@@ -467,7 +479,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                             style={{
                               width: `${Math.min(100, Math.max(0, percent))}%`,
                               height: "100%",
-                              background: "var(--ink)",
+                              background: fiberHazardColor(fiber),
                               borderRadius: 999,
                             }}
                           />

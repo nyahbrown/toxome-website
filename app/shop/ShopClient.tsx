@@ -6,7 +6,8 @@ import { useRouter } from "next/navigation";
 import type { Product } from "@/types/product";
 import { useAuth } from "@/contexts/AuthContext";
 import FrostedSelect from "@/components/FrostedSelect";
-import { HeartFilled, HeartOutline, StarIcon } from "@/components/icons";
+import { StarIcon } from "@/components/icons";
+import WishlistHeart from "@/components/WishlistHeart";
 
 const FIBERS: { name: string; image: string }[] = [
   { name: "cotton", image: "/fibers/cotton.jpg" },
@@ -101,31 +102,11 @@ function ProductCard({
             New
           </span>
         )}
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            onToggle(p);
-          }}
-          aria-label={isWishlisted ? "Remove from saved" : "Save item"}
-          style={{
-            position: "absolute",
-            top: 14,
-            right: 14,
-            width: 32,
-            height: 32,
-            background: "rgba(252,251,247,0.85)",
-            borderRadius: 999,
-            border: "none",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: isWishlisted ? "var(--ink)" : "var(--ink-3)",
-          }}
-        >
-          {isWishlisted ? <HeartFilled /> : <HeartOutline />}
-        </button>
+        <WishlistHeart
+          isWishlisted={isWishlisted}
+          onClick={() => onToggle(p)}
+          stopPropagation
+        />
       </div>
 
       {/* Info below card */}

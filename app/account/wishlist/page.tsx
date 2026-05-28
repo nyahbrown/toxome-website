@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import type { WishlistItem } from "@/lib/firestore";
+import WishlistHeart from "@/components/WishlistHeart";
 
 function WishlistCard({
   item,
@@ -92,37 +93,11 @@ function WishlistCard({
                 Verified
               </span>
             )}
-            {/* Remove (filled heart) button */}
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                onRemove();
-              }}
-              aria-label="Remove from saved"
-              style={{
-                position: "absolute",
-                top: 12,
-                right: 12,
-                width: 32,
-                height: 32,
-                background: "rgba(252,251,247,0.85)",
-                borderRadius: 999,
-                border: "none",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "var(--ink)",
-              }}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
-                <path
-                  d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
-                  fill="currentColor"
-                />
-              </svg>
-            </button>
+            <WishlistHeart
+              isWishlisted
+              onClick={onRemove}
+              stopPropagation
+            />
           </div>
 
           {/* Info */}
