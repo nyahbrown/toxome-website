@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
 
 const STORAGE_KEY = "toxome-newsletter-popup";
 const DELAY_MS = 8000;
@@ -48,6 +47,11 @@ export default function NewsletterPopup() {
     setState("submitting");
     setErrorMessage("");
     try {
+      // Imported lazily so the ~200KB Supabase client stays out of the
+      // homepage's initial JS bundle. The popup only appears after 8s and the
+      // client is only needed on submit, so eager-loading it just delayed
+      // hydration (and made the nav feel dead) for no benefit.
+      const { supabase } = await import("@/lib/supabase");
       const { error } = await supabase
         .from("newsletter_signups")
         .insert({ email: trimmed, source: "homepage_popup" });
