@@ -120,6 +120,7 @@ export default function Nav({
           <div style={{ display: "flex", gap: 28, alignItems: "center" }}>
             <NavDropdown
               label="shop"
+              href="/shop"
               transparent={transparent}
               active={pathname === "/shop" || pathname.startsWith("/shop/")}
               columns={buildShopColumns(taxonomy)}
@@ -127,6 +128,7 @@ export default function Nav({
             />
             <NavDropdown
               label="journal"
+              href="/journal"
               transparent={transparent}
               active={pathname === "/journal" || pathname.startsWith("/journal/")}
               columns={buildJournalColumns()}

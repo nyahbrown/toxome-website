@@ -13,6 +13,14 @@ type Props = {
   columns: Column[];
   topRow?: NavItem;
   panelWidth?: number;
+  /**
+   * Destination the trigger links to. Rendering the trigger as a real <a href>
+   * means clicking it navigates even before the page's JS has hydrated (the
+   * dropdown is a button otherwise and is dead until hydration, which can take
+   * several seconds on the homepage). Once hydrated, the click is intercepted
+   * to open the dropdown instead — progressive enhancement.
+   */
+  href?: string;
 };
 
 export default function NavDropdown({
@@ -22,6 +30,7 @@ export default function NavDropdown({
   columns,
   topRow,
   panelWidth,
+  href,
 }: Props) {
   const [open, setOpen] = useState(false);
   const [hovered, setHovered] = useState(false);
@@ -58,30 +67,63 @@ export default function NavDropdown({
       ref={wrapRef}
       style={{ position: "relative", display: "inline-flex", alignItems: "center" }}
     >
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-        aria-haspopup="true"
-        aria-expanded={open}
-        style={{
-          background: "none",
-          border: "none",
-          cursor: "pointer",
-          fontSize: 14,
-          fontWeight: 400,
-          letterSpacing: "-0.005em",
-          color: triggerColor,
-          textDecoration: !transparent && active ? "underline" : "none",
-          textUnderlineOffset: 5,
-          textDecorationThickness: 1,
-          transition: "color 300ms ease",
-          padding: "8px 0",
-        }}
-      >
-        {label}
-      </button>
+      {href ? (
+        <a
+          href={href}
+          // Once hydrated, intercept the click to open the dropdown instead of
+          // navigating (the user wanted click-to-open). Before hydration there
+          // is no handler, so the browser follows the href — navigation always
+          // works even if the page's JS is slow or fails to load.
+          onClick={(e) => {
+            e.preventDefault();
+            setOpen((o) => !o);
+          }}
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+          aria-haspopup="true"
+          aria-expanded={open}
+          style={{
+            display: "inline-block",
+            cursor: "pointer",
+            fontSize: 14,
+            fontWeight: 400,
+            letterSpacing: "-0.005em",
+            color: triggerColor,
+            textDecoration: !transparent && active ? "underline" : "none",
+            textUnderlineOffset: 5,
+            textDecorationThickness: 1,
+            transition: "color 300ms ease",
+            padding: "8px 0",
+          }}
+        >
+          {label}
+        </a>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setOpen((o) => !o)}
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+          aria-haspopup="true"
+          aria-expanded={open}
+          style={{
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            fontSize: 14,
+            fontWeight: 400,
+            letterSpacing: "-0.005em",
+            color: triggerColor,
+            textDecoration: !transparent && active ? "underline" : "none",
+            textUnderlineOffset: 5,
+            textDecorationThickness: 1,
+            transition: "color 300ms ease",
+            padding: "8px 0",
+          }}
+        >
+          {label}
+        </button>
+      )}
 
       {open && (
         <div
