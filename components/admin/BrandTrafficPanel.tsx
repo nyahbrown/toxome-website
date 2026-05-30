@@ -1,24 +1,39 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-// Internal "Brand traffic" panel for the admin. Shows per-brand outbound
-// clicks so Nyah can grab a pitch line ("we sent {brand} N shoppers to your
-// site this month") in one click. Reads from /api/admin/analytics, which is
-// gated by verifyAdmin and queries the service-role-only get_brand_report fn.
+// Brand-traffic dashboard. Reads the consolidated /api/admin/analytics endpoint
+// (one round-trip → get_brand_dashboard) and renders KPIs with period deltas, a
+// daily trend, and top brands / products / searches. Built for pulling a pitch
+// number fast while also showing what's resonating.
 
+type Kpis = {
+  clicks: number;
+  unique_shoppers: number;
+  views: number;
+  likes: number;
+  searches: number;
+  prev_clicks: number;
+  has_prev: boolean;
+};
+type DailyPoint = { day: string; clicks: number; views: number };
 type BrandRow = {
   brand: string;
   clicks: number;
   unique_shoppers: number;
-  logged_in_clicks: number;
+  views: number;
+  likes: number;
   last_click: string | null;
 };
+type ProductRow = { product_name: string; brand: string; clicks: number; views: number };
+type SearchRow = { q: string; count: number };
 
-type Report = {
-  rows: BrandRow[];
-  totals: { clicks: number; shoppers: number };
-  brandCount: number;
+type Dashboard = {
+  kpis: Kpis;
+  daily: DailyPoint[];
+  top_brands: BrandRow[];
+  top_products: ProductRow[];
+  top_searches: SearchRow[];
 };
 
 const RANGES = [
@@ -29,9 +44,106 @@ const RANGES = [
 ] as const;
 
 function rangeWord(days: string): string {
-  if (days === "all") return "to date";
-  return `in the last ${days} days`;
+  return days === "all" ? "to date" : `in the last ${days} days`;
 }
+
+// ---- small presentational helpers ----------------------------------------
+
+const card: React.CSSProperties = {
+  background: "var(--white)",
+  border: "1px solid var(--hairline-strong)",
+  borderRadius: 16,
+  padding: 20,
+  marginBottom: 20,
+};
+const sectionLabel: React.CSSProperties = {
+  fontFamily: "var(--mono)",
+  fontSize: 11,
+  fontWeight: 500,
+  letterSpacing: "0.14em",
+  textTransform: "uppercase",
+  color: "var(--ink-3)",
+  margin: "0 0 14px",
+};
+const cell: React.CSSProperties = {
+  padding: "10px 12px",
+  fontFamily: "var(--sans)",
+  fontSize: 13,
+  color: "var(--ink-2)",
+  letterSpacing: "-0.005em",
+  borderBottom: "1px solid var(--hairline)",
+  whiteSpace: "nowrap",
+};
+const headCell: React.CSSProperties = {
+  ...cell,
+  color: "var(--ink-3)",
+  fontFamily: "var(--mono)",
+  fontSize: 11,
+  letterSpacing: "0.08em",
+  textTransform: "uppercase",
+  borderBottom: "1px solid var(--hairline-strong)",
+};
+
+function Delta({ pct }: { pct: number | null }) {
+  if (pct === null) return null;
+  const up = pct >= 0;
+  return (
+    <span
+      style={{
+        fontFamily: "var(--sans)",
+        fontSize: 12,
+        color: up ? "#5c7a47" : "var(--red)",
+        marginLeft: 8,
+      }}
+    >
+      {up ? "▲" : "▼"} {Math.abs(pct).toFixed(0)}%
+    </span>
+  );
+}
+
+function KpiCard({
+  label,
+  value,
+  delta,
+  suffix,
+}: {
+  label: string;
+  value: string | number;
+  delta?: number | null;
+  suffix?: string;
+}) {
+  return (
+    <div
+      style={{
+        flex: "1 1 150px",
+        minWidth: 140,
+        background: "var(--white)",
+        border: "1px solid var(--hairline-strong)",
+        borderRadius: 14,
+        padding: "14px 16px",
+      }}
+    >
+      <div style={sectionLabel}>{label}</div>
+      <div
+        style={{
+          fontFamily: "var(--serif)",
+          fontSize: 26,
+          color: "var(--ink)",
+          letterSpacing: "-0.02em",
+          lineHeight: 1,
+        }}
+      >
+        {value}
+        {suffix ? (
+          <span style={{ fontSize: 14, color: "var(--ink-3)" }}> {suffix}</span>
+        ) : null}
+        {delta !== undefined && <Delta pct={delta ?? null} />}
+      </div>
+    </div>
+  );
+}
+
+// ---- main -----------------------------------------------------------------
 
 export default function BrandTrafficPanel({
   getToken,
@@ -39,7 +151,7 @@ export default function BrandTrafficPanel({
   getToken: () => Promise<string>;
 }) {
   const [days, setDays] = useState<string>("30");
-  const [report, setReport] = useState<Report | null>(null);
+  const [data, setData] = useState<Dashboard | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState<string | null>(null);
@@ -53,7 +165,7 @@ export default function BrandTrafficPanel({
         headers: { Authorization: `Bearer ${t}` },
       });
       if (!res.ok) throw new Error(`Request failed (${res.status})`);
-      setReport(await res.json());
+      setData(await res.json());
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not load brand traffic");
     } finally {
@@ -62,91 +174,69 @@ export default function BrandTrafficPanel({
   }, [days, getToken]);
 
   useEffect(() => {
+    // Fetches from an external API (Supabase), not synchronous derived state,
+    // so the cascading-render rule does not apply — same pattern as /admin.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void load();
   }, [load]);
+
+  const k = data?.kpis;
+  const clickDelta = useMemo<number | null>(() => {
+    if (!k || !k.has_prev) return null;
+    if (k.prev_clicks === 0) return k.clicks > 0 ? 100 : 0;
+    return ((k.clicks - k.prev_clicks) / k.prev_clicks) * 100;
+  }, [k]);
+  const ctr = k && k.views > 0 ? (k.clicks / k.views) * 100 : null;
+  const maxDaily = useMemo(
+    () => Math.max(1, ...(data?.daily ?? []).map((d) => Math.max(d.clicks, d.views))),
+    [data]
+  );
 
   const copyPitch = (r: BrandRow) => {
     const line = `Toxome sent ${r.brand} ${r.clicks} click${
       r.clicks === 1 ? "" : "s"
     } from ${r.unique_shoppers} clean-fabric shopper${
       r.unique_shoppers === 1 ? "" : "s"
-    } ${rangeWord(days)} — verify it in your own analytics (utm_source=toxome.app).`;
+    } ${rangeWord(days)} (plus ${r.views} product views) — verify it in your own analytics (utm_source=toxome.app).`;
     void navigator.clipboard?.writeText(line);
     setCopied(r.brand);
     window.setTimeout(() => setCopied((c) => (c === r.brand ? null : c)), 1800);
   };
 
-  const cell: React.CSSProperties = {
-    padding: "10px 12px",
-    fontFamily: "var(--sans)",
-    fontSize: 13,
-    color: "var(--ink-2)",
-    letterSpacing: "-0.005em",
-    borderBottom: "1px solid var(--hairline)",
-    whiteSpace: "nowrap",
-  };
-  const head: React.CSSProperties = {
-    ...cell,
-    color: "var(--ink-3)",
-    fontFamily: "var(--mono)",
-    fontSize: 11,
-    letterSpacing: "0.08em",
-    textTransform: "uppercase",
-    borderBottom: "1px solid var(--hairline-strong)",
+  const exportCsv = () => {
+    const rows = data?.top_brands ?? [];
+    const header = ["brand", "clicks", "unique_shoppers", "views", "likes", "last_click"];
+    const body = rows.map((r) =>
+      [r.brand, r.clicks, r.unique_shoppers, r.views, r.likes, r.last_click ?? ""]
+        .map((v) => `"${String(v).replace(/"/g, '""')}"`)
+        .join(",")
+    );
+    const csv = [header.join(","), ...body].join("\n");
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `toxome-brand-traffic-${days}d.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
-    <div
-      style={{
-        background: "var(--white)",
-        border: "1px solid var(--hairline-strong)",
-        borderRadius: 16,
-        padding: 20,
-        marginBottom: 28,
-      }}
-    >
-      {/* Header: title + headline number + range pills */}
+    <div>
+      {/* Header + range pills */}
       <div
         style={{
           display: "flex",
-          alignItems: "baseline",
+          alignItems: "center",
           justifyContent: "space-between",
           flexWrap: "wrap",
           gap: 12,
           marginBottom: 16,
         }}
       >
-        <div>
-          <h2
-            style={{
-              fontFamily: "var(--mono)",
-              fontSize: 11,
-              fontWeight: 500,
-              letterSpacing: "0.14em",
-              textTransform: "uppercase",
-              color: "var(--ink-3)",
-              margin: "0 0 6px",
-            }}
-          >
-            Brand traffic
-          </h2>
-          <div
-            style={{
-              fontFamily: "var(--serif)",
-              fontSize: 22,
-              color: "var(--ink)",
-              letterSpacing: "-0.02em",
-            }}
-          >
-            {report
-              ? `${report.totals.clicks} clicks · ${report.totals.shoppers} shoppers · ${report.brandCount} brands`
-              : "—"}
-          </div>
-        </div>
-
+        <h2 style={{ ...sectionLabel, margin: 0 }}>Brand traffic</h2>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
           {RANGES.map((r) => {
-            const active = days === r.key;
+            const on = days === r.key;
             return (
               <button
                 key={r.key}
@@ -156,11 +246,9 @@ export default function BrandTrafficPanel({
                   fontSize: 12,
                   padding: "5px 12px",
                   borderRadius: 999,
-                  border: `1px solid ${
-                    active ? "var(--ink)" : "var(--hairline-strong)"
-                  }`,
-                  background: active ? "var(--ink)" : "var(--white)",
-                  color: active ? "var(--white)" : "var(--ink-2)",
+                  border: `1px solid ${on ? "var(--ink)" : "var(--hairline-strong)"}`,
+                  background: on ? "var(--ink)" : "var(--white)",
+                  color: on ? "var(--white)" : "var(--ink-2)",
                   cursor: "pointer",
                   letterSpacing: "-0.005em",
                 }}
@@ -173,73 +261,251 @@ export default function BrandTrafficPanel({
       </div>
 
       {error && (
-        <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--red)" }}>
+        <div style={{ ...card, color: "var(--red)", fontFamily: "var(--sans)", fontSize: 13 }}>
           {error}
         </div>
       )}
 
-      {!error && loading && !report && (
-        <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)" }}>
+      {!error && !data && loading && (
+        <div style={{ ...card, color: "var(--ink-3)", fontFamily: "var(--sans)", fontSize: 13 }}>
           Loading…
         </div>
       )}
 
-      {!error && report && report.rows.length === 0 && (
-        <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)" }}>
-          No outbound clicks yet {rangeWord(days)}. Once shoppers start clicking
-          “Buy at [brand]”, brands show up here.
-        </div>
-      )}
+      {!error && data && k && (
+        <div style={{ opacity: loading ? 0.6 : 1 }}>
+          {/* KPI cards */}
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 20 }}>
+            <KpiCard label="Outbound clicks" value={k.clicks} delta={clickDelta} />
+            <KpiCard label="Unique shoppers" value={k.unique_shoppers} />
+            <KpiCard label="Product views" value={k.views} />
+            <KpiCard label="Likes" value={k.likes} />
+            <KpiCard
+              label="Click rate"
+              value={ctr === null ? "—" : ctr.toFixed(0)}
+              suffix={ctr === null ? "" : "%"}
+            />
+          </div>
 
-      {!error && report && report.rows.length > 0 && (
-        <div style={{ overflowX: "auto", opacity: loading ? 0.6 : 1 }}>
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead>
-              <tr>
-                <th style={{ ...head, textAlign: "left" }}>Brand</th>
-                <th style={{ ...head, textAlign: "right" }}>Clicks</th>
-                <th style={{ ...head, textAlign: "right" }}>Shoppers</th>
-                <th style={{ ...head, textAlign: "right" }}>Signed in</th>
-                <th style={{ ...head, textAlign: "right" }}>Last click</th>
-                <th style={{ ...head, textAlign: "right" }} />
-              </tr>
-            </thead>
-            <tbody>
-              {report.rows.map((r) => (
-                <tr key={r.brand}>
-                  <td style={{ ...cell, color: "var(--ink)", fontWeight: 500 }}>
-                    {r.brand}
-                  </td>
-                  <td style={{ ...cell, textAlign: "right" }}>{r.clicks}</td>
-                  <td style={{ ...cell, textAlign: "right" }}>{r.unique_shoppers}</td>
-                  <td style={{ ...cell, textAlign: "right" }}>{r.logged_in_clicks}</td>
-                  <td style={{ ...cell, textAlign: "right", color: "var(--ink-3)" }}>
-                    {r.last_click
-                      ? new Date(r.last_click).toLocaleDateString()
-                      : "—"}
-                  </td>
-                  <td style={{ ...cell, textAlign: "right" }}>
-                    <button
-                      onClick={() => copyPitch(r)}
+          {/* Daily trend */}
+          <div style={card}>
+            <div style={sectionLabel}>Daily trend · clicks (dark) vs views (light)</div>
+            {data.daily.length === 0 ? (
+              <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)" }}>
+                No activity yet {rangeWord(days)}.
+              </div>
+            ) : (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "flex-end",
+                  gap: 3,
+                  height: 120,
+                  overflowX: "auto",
+                  paddingTop: 8,
+                }}
+              >
+                {data.daily.map((d) => (
+                  <div
+                    key={d.day}
+                    title={`${d.day} · ${d.clicks} clicks · ${d.views} views`}
+                    style={{
+                      flex: "1 0 8px",
+                      minWidth: 8,
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "flex-end",
+                      alignItems: "center",
+                      height: "100%",
+                      position: "relative",
+                    }}
+                  >
+                    {/* views (light, behind) */}
+                    <div
                       style={{
+                        position: "absolute",
+                        bottom: 0,
+                        width: "100%",
+                        height: `${(d.views / maxDaily) * 100}%`,
+                        background: "var(--tan)",
+                        borderRadius: "3px 3px 0 0",
+                      }}
+                    />
+                    {/* clicks (dark, front) */}
+                    <div
+                      style={{
+                        position: "relative",
+                        width: "60%",
+                        height: `${(d.clicks / maxDaily) * 100}%`,
+                        background: "var(--ink)",
+                        borderRadius: "3px 3px 0 0",
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Top brands */}
+          <div style={card}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 12,
+              }}
+            >
+              <div style={sectionLabel}>Top brands</div>
+              <button
+                onClick={exportCsv}
+                disabled={!data.top_brands.length}
+                style={{
+                  fontFamily: "var(--sans)",
+                  fontSize: 12,
+                  padding: "5px 12px",
+                  borderRadius: 999,
+                  border: "1px solid var(--hairline-strong)",
+                  background: "var(--white)",
+                  color: "var(--ink-2)",
+                  cursor: data.top_brands.length ? "pointer" : "not-allowed",
+                }}
+              >
+                Export CSV
+              </button>
+            </div>
+            {data.top_brands.length === 0 ? (
+              <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)" }}>
+                No brand activity yet {rangeWord(days)}. Once shoppers click “Buy at
+                [brand]”, brands show up here.
+              </div>
+            ) : (
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                  <thead>
+                    <tr>
+                      <th style={{ ...headCell, textAlign: "left" }}>Brand</th>
+                      <th style={{ ...headCell, textAlign: "right" }}>Clicks</th>
+                      <th style={{ ...headCell, textAlign: "right" }}>Shoppers</th>
+                      <th style={{ ...headCell, textAlign: "right" }}>Views</th>
+                      <th style={{ ...headCell, textAlign: "right" }}>Likes</th>
+                      <th style={{ ...headCell, textAlign: "right" }}>CTR</th>
+                      <th style={{ ...headCell, textAlign: "right" }}>Last click</th>
+                      <th style={{ ...headCell, textAlign: "right" }} />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.top_brands.map((r) => {
+                      const brandCtr = r.views > 0 ? (r.clicks / r.views) * 100 : null;
+                      return (
+                        <tr key={r.brand}>
+                          <td style={{ ...cell, color: "var(--ink)", fontWeight: 500 }}>
+                            {r.brand}
+                          </td>
+                          <td style={{ ...cell, textAlign: "right" }}>{r.clicks}</td>
+                          <td style={{ ...cell, textAlign: "right" }}>{r.unique_shoppers}</td>
+                          <td style={{ ...cell, textAlign: "right" }}>{r.views}</td>
+                          <td style={{ ...cell, textAlign: "right" }}>{r.likes}</td>
+                          <td style={{ ...cell, textAlign: "right", color: "var(--ink-3)" }}>
+                            {brandCtr === null ? "—" : `${brandCtr.toFixed(0)}%`}
+                          </td>
+                          <td style={{ ...cell, textAlign: "right", color: "var(--ink-3)" }}>
+                            {r.last_click
+                              ? new Date(r.last_click).toLocaleDateString()
+                              : "—"}
+                          </td>
+                          <td style={{ ...cell, textAlign: "right" }}>
+                            <button
+                              onClick={() => copyPitch(r)}
+                              style={{
+                                fontFamily: "var(--sans)",
+                                fontSize: 12,
+                                padding: "4px 10px",
+                                borderRadius: 999,
+                                border: "1px solid var(--hairline-strong)",
+                                background:
+                                  copied === r.brand ? "var(--ink)" : "var(--white)",
+                                color: copied === r.brand ? "var(--white)" : "var(--ink-2)",
+                                cursor: "pointer",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              {copied === r.brand ? "Copied" : "Copy pitch"}
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          {/* Top products + Top searches, side by side */}
+          <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
+            <div style={{ ...card, flex: "1 1 360px" }}>
+              <div style={sectionLabel}>Top products</div>
+              {data.top_products.length === 0 ? (
+                <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)" }}>
+                  No product activity yet.
+                </div>
+              ) : (
+                <div style={{ overflowX: "auto" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                    <thead>
+                      <tr>
+                        <th style={{ ...headCell, textAlign: "left" }}>Product</th>
+                        <th style={{ ...headCell, textAlign: "left" }}>Brand</th>
+                        <th style={{ ...headCell, textAlign: "right" }}>Clicks</th>
+                        <th style={{ ...headCell, textAlign: "right" }}>Views</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {data.top_products.map((p, i) => (
+                        <tr key={`${p.product_name}-${p.brand}-${i}`}>
+                          <td style={{ ...cell, color: "var(--ink)" }}>{p.product_name}</td>
+                          <td style={{ ...cell }}>{p.brand}</td>
+                          <td style={{ ...cell, textAlign: "right" }}>{p.clicks}</td>
+                          <td style={{ ...cell, textAlign: "right" }}>{p.views}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            <div style={{ ...card, flex: "1 1 240px" }}>
+              <div style={sectionLabel}>Top searches</div>
+              {data.top_searches.length === 0 ? (
+                <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)" }}>
+                  No searches yet — these show what shoppers want.
+                </div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {data.top_searches.map((s) => (
+                    <div
+                      key={s.q}
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
                         fontFamily: "var(--sans)",
-                        fontSize: 12,
-                        padding: "4px 10px",
-                        borderRadius: 999,
-                        border: "1px solid var(--hairline-strong)",
-                        background: copied === r.brand ? "var(--ink)" : "var(--white)",
-                        color: copied === r.brand ? "var(--white)" : "var(--ink-2)",
-                        cursor: "pointer",
-                        whiteSpace: "nowrap",
+                        fontSize: 13,
+                        color: "var(--ink-2)",
+                        borderBottom: "1px solid var(--hairline)",
+                        paddingBottom: 6,
                       }}
                     >
-                      {copied === r.brand ? "Copied" : "Copy pitch"}
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                      <span style={{ color: "var(--ink)" }}>{s.q}</span>
+                      <span style={{ color: "var(--ink-3)" }}>{s.count}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>

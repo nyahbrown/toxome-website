@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Product } from "@/types/product";
@@ -80,6 +80,20 @@ export default function ProductDetailClient({ product }: { product: Product }) {
   const buyUrl = product.affiliate_url || product.item_url || null;
   // UTM-tagged so the brand can verify Toxome-referred traffic in their own GA.
   const outboundUrl = buyUrl ? withUtm(buyUrl) : null;
+
+  // Record a product view once per product, so the dashboard can show demand
+  // (and click-through rate) even for products that don't get a Buy click.
+  useEffect(() => {
+    track("product_view", {
+      brand: product.brand,
+      productId: product.id,
+      productName: product.item_name,
+      category: product.category,
+      scoreAtTime: product.toxome_score,
+      userId: user?.uid ?? null,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product.id]);
 
   const images = (product.images && product.images.length > 0
     ? product.images

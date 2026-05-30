@@ -28,6 +28,7 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
+import { track } from "@/lib/track";
 import type { Product } from "@/types/product";
 import type { WishlistItem } from "@/lib/firestore";
 
@@ -122,6 +123,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         affiliate_url: product.affiliate_url,
         item_url: product.item_url,
         brand_verified: product.brand_verified,
+      });
+      // Track the like (adds only, not removals) so the dashboard sees what
+      // people bookmark. Centralized here so every surface — product page and
+      // grid cards — is covered in one place.
+      track("item_liked", {
+        brand: product.brand,
+        productId: product.id,
+        productName: product.item_name,
+        category: product.category,
+        scoreAtTime: product.toxome_score,
+        userId: user.uid,
       });
     }
   }, [user, wishlist]);

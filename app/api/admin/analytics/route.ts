@@ -5,7 +5,8 @@ import { supabaseAdmin } from "@/lib/supabaseAdmin";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// Per-brand outbound-click report for the admin "Brand traffic" panel.
+// Full brand-traffic dashboard in one round-trip: KPIs (+ previous period for
+// deltas), daily trend, top brands, top products, and top searches.
 // ?days=7|30|90  (omit or days=all → all time)
 export async function GET(req: Request) {
   const auth = await verifyAdmin(req);
@@ -14,27 +15,15 @@ export async function GET(req: Request) {
   }
 
   const daysParam = new URL(req.url).searchParams.get("days");
-  const p_days =
-    daysParam === "all" || daysParam === null ? null : Number(daysParam);
+  const parsed = daysParam === "all" || daysParam === null ? null : Number(daysParam);
+  const p_days = Number.isFinite(parsed as number) ? parsed : null;
 
-  const { data, error } = await supabaseAdmin.rpc("get_brand_report", {
-    p_days: Number.isFinite(p_days as number) ? p_days : null,
-  });
+  const { data, error } = await supabaseAdmin.rpc("get_brand_dashboard", { p_days });
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  const rows = data ?? [];
-  // Totals across all brands, so the header can show the headline number.
-  const totals = rows.reduce(
-    (acc: { clicks: number; shoppers: number }, r: { clicks: number; unique_shoppers: number }) => {
-      acc.clicks += Number(r.clicks);
-      acc.shoppers += Number(r.unique_shoppers);
-      return acc;
-    },
-    { clicks: 0, shoppers: 0 }
-  );
-
-  return NextResponse.json({ rows, totals, brandCount: rows.length });
+  // The function already returns the full shaped object as jsonb.
+  return NextResponse.json(data);
 }

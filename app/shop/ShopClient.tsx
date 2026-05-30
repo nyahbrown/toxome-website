@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import FrostedSelect from "@/components/FrostedSelect";
 import WishlistHeart from "@/components/WishlistHeart";
 import { normalizeFiber } from "@/lib/fabricScores";
+import { track } from "@/lib/track";
 
 export type ShopSection = "women" | "men" | "home" | null;
 
@@ -320,6 +321,18 @@ export default function ShopClient({
   // Read filters from URL (case-insensitive match against actual values).
   const fiberFilter = searchParams.get("fiber") || null;
   const query = (searchParams.get("q") || "").trim();
+
+  // Record committed searches (debounced so we log the settled term, not every
+  // keystroke) — a free read on what shoppers want, including gaps we don't stock.
+  useEffect(() => {
+    if (!query) return;
+    const t = setTimeout(
+      () => track("search_query", { metadata: { q: query } }),
+      800
+    );
+    return () => clearTimeout(t);
+  }, [query]);
+
   const rawSort = searchParams.get("sort");
   const sort = rawSort && rawSort.length > 0 ? rawSort : "Featured";
   const categoryRaw = searchParams.get("category");
