@@ -101,8 +101,13 @@ function harvestImages(page, shopify, prodLd, url) {
   const found = [];
   const base = (page && page.finalUrl) || url;
   const push = (s) => {
+    // All sources here are authoritative product images (Shopify images,
+    // JSON-LD image, og:image). Don't require a file extension — many CDNs
+    // (e.g. Reformation's Cloudinary) serve extensionless image URLs. The
+    // imageLoads() check validates the actual content-type later.
     const abs = s && absolutize(s, base);
-    if (abs && /\.(jpg|jpeg|png|webp|avif)(\?|$)/i.test(abs)) found.push(abs);
+    if (abs && /^https?:\/\//i.test(abs) && !/\.(svg|gif)(\?|$)/i.test(abs))
+      found.push(abs);
   };
   if (shopify && Array.isArray(shopify.images)) shopify.images.forEach(push);
   if (prodLd && prodLd.image) {

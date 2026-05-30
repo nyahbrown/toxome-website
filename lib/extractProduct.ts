@@ -147,8 +147,12 @@ function harvestImages(
   const found: string[] = [];
   const base = page.finalUrl || url;
   const push = (s?: string | null) => {
+    // Authoritative sources (Shopify images, JSON-LD image, og:image) — don't
+    // require a file extension; many CDNs serve extensionless image URLs.
+    // imageLoads() validates the content-type later.
     const abs = s && absolutize(s, base);
-    if (abs && /\.(jpg|jpeg|png|webp|avif)(\?|$)/i.test(abs)) found.push(abs);
+    if (abs && /^https?:\/\//i.test(abs) && !/\.(svg|gif)(\?|$)/i.test(abs))
+      found.push(abs);
   };
   if (shopify && Array.isArray(shopify.images)) shopify.images.forEach(push);
   if (prodLd && prodLd.image) {
