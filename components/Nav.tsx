@@ -77,18 +77,6 @@ export default function Nav({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // On phones the full bar (logo + shop + journal + search + download pill +
-  // account) won't fit, so we drop the search field and the download pill —
-  // iOS already shows the native App Store smart banner.
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 768px)");
-    const update = () => setIsMobile(mq.matches);
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
-  }, []);
-
   return (
     <nav
       style={{
@@ -151,13 +139,17 @@ export default function Nav({
 
         {/* Search + Download app + Account */}
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          {!isMobile && <NavSearch transparent={transparent} />}
-          {!isMobile && (
-            <a
-              href="https://apps.apple.com/us/app/toxome/id6748622034"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
+          {/* Hidden on phones via CSS (.nav-desktop-only) — pure CSS so it
+              never depends on hydration. iOS shows the App Store smart banner. */}
+          <span className="nav-desktop-only" style={{ display: "inline-flex" }}>
+            <NavSearch transparent={transparent} />
+          </span>
+          <a
+            className="nav-desktop-only"
+            href="https://apps.apple.com/us/app/toxome/id6748622034"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
                 display: "inline-flex",
                 alignItems: "center",
                 height: 32,
@@ -182,7 +174,6 @@ export default function Nav({
             >
               download app
             </a>
-          )}
           <Link
             href="/account"
             style={{

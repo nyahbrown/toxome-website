@@ -171,3 +171,8 @@ button { font-family: inherit; }
 @media (max-width: 900px) { .footer-grid { grid-template-columns: 1fr 1fr 1fr; gap: 32px; } }
 @media (max-width: 560px) { .footer-grid { grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 48px; } }
 @media (max-width: 380px) { .footer-grid { grid-template-columns: 1fr; } }
+
+/* Nav: hide the search field + download pill on phones (the bar would overflow). */
+@media (max-width: 768px) {
+  .nav-desktop-only { display: none !important; }
+}
