@@ -22,6 +22,13 @@
  *   node --env-file=.env.local scripts/agent.js --dry-run --brands 4 --per-brand 3
  *   node --env-file=.env.local scripts/agent.js --max-score 25   # stricter fibers
  *
+ * Model + cost guard:
+ *   Defaults to the cheaper Haiku model (these are drafts you review before
+ *   publishing). Override with --model claude-sonnet-4-6 (or CLAUDE_MODEL=...)
+ *   on a run where you want Sonnet quality.
+ *   A per-run guard caps spend: --max-brands (8), --max-model-calls (40),
+ *   --web-max-uses (3). The run stops cleanly once the model-call ceiling hits.
+ *
  * Schedule (GitHub Actions cron — see .github/workflows/shop-agent.yml).
  */
 
@@ -30,7 +37,6 @@ const { createClient } = require("@supabase/supabase-js");
 const { getValidatedProduct } = require("./scrape");
 
 const SUPABASE_URL = "https://xclvodbmllglmharezqa.supabase.co";
-const MODEL = "claude-sonnet-4-6";
 
 // ---------------------------------------------------------------------------
 // CLI flags
@@ -51,6 +57,37 @@ function intFlag(name) {
 function strFlag(name) {
   const i = ARGV.indexOf(name);
   return i >= 0 && ARGV[i + 1] ? ARGV[i + 1] : null;
+}
+
+// ---------------------------------------------------------------------------
+// Model + run guard
+// ---------------------------------------------------------------------------
+// Default to the cheaper Haiku model. These are drafts you review before
+// publishing, so Haiku is fine here; override with --model or CLAUDE_MODEL=...
+// on a run where you want Sonnet quality.
+const MODEL =
+  strFlag("--model") || process.env.CLAUDE_MODEL || "claude-haiku-4-5-20251001";
+
+// Run guard — hard ceilings so one run (especially while debugging) can't
+// spiral through API credits. All tunable, with deliberately low defaults.
+const GUARD = {
+  maxBrands: intFlag("--max-brands") ?? 8, // never source more than this many brands per run
+  webMaxUses: intFlag("--web-max-uses") ?? 3, // web searches per product lookup (was 5)
+  maxModelCalls: intFlag("--max-model-calls") ?? 40, // hard ceiling on total Anthropic calls per run
+};
+let modelCalls = 0;
+// Call immediately BEFORE every Anthropic request. Returns false (and logs)
+// once the per-run ceiling is hit, so callers stop instead of spending more.
+function reserveModelCall() {
+  if (modelCalls >= GUARD.maxModelCalls) {
+    console.error(
+      `\n⚠  Run guard tripped: reached ${GUARD.maxModelCalls} Anthropic calls this run — ` +
+        `stopping to protect credits.\n   Raise with --max-model-calls N if that was intentional.\n`
+    );
+    return false;
+  }
+  modelCalls++;
+  return true;
 }
 
 // ---------------------------------------------------------------------------
@@ -104,6 +141,7 @@ async function suggestSimilarBrands(client, existingBrands, count) {
 
   // The web-search step sometimes makes the final message non-JSON; retry.
   for (let attempt = 0; attempt < 3; attempt++) {
+    if (!reserveModelCall()) break;
     let resp;
     try {
       // No web_search here: it occasionally leaves the final message with no
@@ -169,12 +207,15 @@ async function findProductsForBrand(client, brand, perBrand) {
   // web_search often leaves the final message as prose; parse all text blocks
   // robustly and retry once if no array comes back.
   for (let attempt = 0; attempt < 2; attempt++) {
+    if (!reserveModelCall()) return [];
     let resp;
     try {
       resp = await client.messages.create({
         model: MODEL,
         max_tokens: 4096,
-        tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 5 }],
+        tools: [
+          { type: "web_search_20250305", name: "web_search", max_uses: GUARD.webMaxUses },
+        ],
         system: PRODUCT_SYSTEM,
         messages: [{ role: "user", content: prompt }],
       });
@@ -225,6 +266,9 @@ async function run() {
     .filter(Boolean);
 
   console.log(
+    `Model: ${MODEL}  |  Guard: <=${GUARD.maxBrands} brands, <=${GUARD.maxModelCalls} model calls, <=${GUARD.webMaxUses} searches/lookup`
+  );
+  console.log(
     (includeBrands.length
       ? `Sourcing from ${includeBrands.length} specified brand(s): ${includeBrands.join(", ")}`
       : `Catalog has ${existingBrands.length} brands. Finding ${FLAGS.brands} similar new brands`) +
@@ -232,11 +276,19 @@ async function run() {
       `\nFiber bar: Toxome score <= ${FLAGS.maxScore}\n`
   );
 
-  const suggested = includeBrands.length
+  const requestedBrandCount = Math.min(FLAGS.brands, GUARD.maxBrands);
+  let suggested = includeBrands.length
     ? includeBrands
         .filter((b) => !isBlacklisted(b))
         .map((b) => ({ brand: b, certifications: [], note: "manually specified" }))
-    : await suggestSimilarBrands(anthropic, existingBrands, FLAGS.brands);
+    : await suggestSimilarBrands(anthropic, existingBrands, requestedBrandCount);
+  // Run guard: never process more than maxBrands in a single run.
+  if (suggested.length > GUARD.maxBrands) {
+    console.warn(
+      `Run guard: capping ${suggested.length} brands to ${GUARD.maxBrands} for this run.`
+    );
+    suggested = suggested.slice(0, GUARD.maxBrands);
+  }
   if (suggested.length === 0) {
     console.error("No brands to source. Exiting.");
     return;
@@ -266,6 +318,12 @@ async function run() {
   };
 
   for (const b of suggested) {
+    if (modelCalls >= GUARD.maxModelCalls) {
+      console.warn(
+        `Run guard: hit ${GUARD.maxModelCalls} Anthropic calls — stopping before the remaining brands.`
+      );
+      break;
+    }
     const brand = b.brand;
     console.log(`Searching ${brand}...`);
     const rawItems = await findProductsForBrand(anthropic, brand, FLAGS.perBrand);
