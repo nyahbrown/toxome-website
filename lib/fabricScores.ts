@@ -10,6 +10,7 @@ export const FABRIC_SCORES: Record<string, number> = {
   tencel: 12,
   tencel_lyocell: 12,
   lyocell: 12,
+  saxcell: 12, // regenerated lyocell-grade cellulose from recycled cotton — clean to wear
   silk: 15,
   alpaca: 16,
   cashmere: 16,
@@ -141,6 +142,7 @@ const FIBER_LABELS: Record<string, string> = {
   hemp: "Hemp",
   tencel: "Tencel",
   lyocell: "Lyocell",
+  saxcell: "SaXcell",
   tencel_lyocell: "Tencel Lyocell",
   tencel_modal: "Tencel Modal",
   ecovero: "LENZING ECOVERO™",

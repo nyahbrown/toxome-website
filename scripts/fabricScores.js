@@ -17,6 +17,7 @@ const FABRIC_SCORES = {
   tencel: 12,
   tencel_lyocell: 12,
   lyocell: 12,
+  saxcell: 12, // regenerated lyocell-grade cellulose from recycled cotton — clean to wear
   silk: 15,
   alpaca: 16,
   cashmere: 16,

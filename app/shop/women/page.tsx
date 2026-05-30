@@ -8,7 +8,7 @@ import ShopClient from "../ShopClient";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "Shop Women — Toxome",
+  title: "Toxome | Women's",
   description:
     "Non-plastic women's clothing, hand-curated by Toxome. Every item is low-toxin, made from cleaner natural fibers.",
 };

@@ -4,7 +4,7 @@ import Footer from "@/components/Footer";
 import { getShopTaxonomy } from "@/lib/supabase";
 
 export const metadata: Metadata = {
-  title: "Journal — Toxome",
+  title: "Toxome | Journal",
   description: "Fiber science, slow fashion, and the invisible chemistry in your wardrobe.",
 };
 

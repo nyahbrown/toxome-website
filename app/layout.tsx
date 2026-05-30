@@ -20,7 +20,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Toxome — Know what's in your clothes",
+  title: "Toxome | Know what's in your clothes",
   description:
     "Photograph the composition tag on any garment. Toxome reads the fibers and tells you exactly what they do to your body — and to the world.",
   // Native iOS Safari "Smart App Banner" — shown automatically at the top

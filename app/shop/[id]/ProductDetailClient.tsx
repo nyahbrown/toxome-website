@@ -10,6 +10,7 @@ import WishlistHeart from "@/components/WishlistHeart";
 // page bars in sync with the score table (alpaca/cashmere green, Lenzing green,
 // recycled synthetics red, "european linen" -> linen via keyword fallback, etc.)
 import { fiberHazardColor, prettyFiber } from "@/lib/fabricScores";
+import { track, withUtm } from "@/lib/track";
 
 function RiskChip({ level }: { level: "low" | "moderate" | "high" }) {
   const map = {
@@ -77,6 +78,8 @@ export default function ProductDetailClient({ product }: { product: Product }) {
 
   const isWishlisted = wishlist.has(product.id);
   const buyUrl = product.affiliate_url || product.item_url || null;
+  // UTM-tagged so the brand can verify Toxome-referred traffic in their own GA.
+  const outboundUrl = buyUrl ? withUtm(buyUrl) : null;
 
   const images = (product.images && product.images.length > 0
     ? product.images
@@ -306,11 +309,21 @@ export default function ProductDetailClient({ product }: { product: Product }) {
           <div style={{ marginBottom: 12 }}>
             {buyUrl ? (
               <a
-                href={buyUrl}
+                href={outboundUrl!}
                 target="_blank"
                 rel="noopener noreferrer sponsored"
                 className="pill-cta"
                 style={{ width: "100%", justifyContent: "center" }}
+                onClick={() =>
+                  track("outbound_click", {
+                    brand: product.brand,
+                    productId: product.id,
+                    productName: product.item_name,
+                    category: product.category,
+                    scoreAtTime: product.toxome_score,
+                    userId: user?.uid ?? null,
+                  })
+                }
               >
                 Buy at {product.brand}
               </a>

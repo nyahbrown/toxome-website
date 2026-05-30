@@ -15,9 +15,9 @@ export async function generateMetadata({
   const { id } = await params;
   const product = await getProductById(id);
   if (!product) {
-    return { title: "Product not found — Toxome" };
+    return { title: "Toxome | Product not found" };
   }
-  const title = `${product.item_name} — ${product.brand} · Toxome`;
+  const title = `Toxome | ${product.item_name}`;
   const desc =
     product.description ||
     `${product.item_name} by ${product.brand}. Vetted by Toxome.`;

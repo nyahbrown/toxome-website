@@ -4,7 +4,7 @@ import Nav from "@/components/Nav";
 import AccountClient from "./AccountClient";
 
 export const metadata: Metadata = {
-  title: "Account — Toxome",
+  title: "Toxome | Account",
 };
 
 // useSearchParams() inside AccountClient bails out of static rendering.

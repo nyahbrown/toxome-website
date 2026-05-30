@@ -8,7 +8,7 @@ import ShopClient from "../ShopClient";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "Shop Home — Toxome",
+  title: "Toxome | Home",
   description:
     "Clean home goods, hand-curated by Toxome. Low-toxin textiles for the spaces you live in.",
 };
