@@ -64,42 +64,72 @@ function isBlacklisted(brand) {
 // ---------------------------------------------------------------------------
 // Step 1 — suggest brands similar to the existing catalog
 // ---------------------------------------------------------------------------
-async function suggestSimilarBrands(client, existingBrands, count) {
-  const resp = await client.messages.create({
-    model: MODEL,
-    max_tokens: 8000,
-    tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 6 }],
-    system: `You curate brands for Toxome, a clean-clothing platform. Toxome only features clothing made from natural / low-toxin fibers (organic cotton, linen, hemp, wool, alpaca, silk, Tencel/lyocell) and avoids synthetic-heavy fast fashion. The aesthetic is elevated-casual and sustainability-minded.`,
-    messages: [
-      {
-        role: "user",
-        content: `These brands are ALREADY in our catalog:\n${existingBrands.join(
-          ", "
-        )}\n\nNEVER suggest these blacklisted brands: ${
-          BRAND_BLACKLIST.join(", ") || "(none)"
-        }.\n\nSuggest ${count} DIFFERENT brands we do NOT already carry that fit the same world: natural / low-tox fibers, elevated-casual, comparable price and values. Favor brands in the mid-range / accessible-premium price band (most pieces roughly $50–$150), not ultra-budget fast fashion or high-luxury labels. Strongly prioritize brands that hold recognized certifications (GOTS, OEKO-TEX, Fair Trade, bluesign, B Corp). Use web search to confirm each brand exists and sells natural-fiber clothing.\n\nReturn ONLY a JSON array, no markdown:\n[{"brand":"...","certifications":["GOTS"],"note":"why it fits"}]`,
-      },
-    ],
-  });
-  const textBlock = resp.content.find((b) => b.type === "text");
-  if (!textBlock) return [];
-  const match = textBlock.text.match(/\[[\s\S]*\]/);
-  if (!match) return [];
-  try {
-    const arr = JSON.parse(match[0]);
-    const existingLower = new Set(existingBrands.map((b) => b.toLowerCase().trim()));
-    return Array.isArray(arr)
-      ? arr.filter(
-          (b) =>
-            b &&
-            b.brand &&
-            !existingLower.has(b.brand.toLowerCase().trim()) &&
-            !isBlacklisted(b.brand)
-        )
-      : [];
-  } catch {
-    return [];
+// Pull a JSON array of {brand,...} objects out of a model response that may
+// wrap it in prose or markdown fences. Tries the longest bracketed span first,
+// then a fenced block.
+function parseBrandArray(text) {
+  const candidates = [];
+  const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fence) candidates.push(fence[1]);
+  // all top-level [ ... ] spans, longest first
+  const spans = text.match(/\[[\s\S]*\]/g) || [];
+  spans.sort((a, b) => b.length - a.length);
+  candidates.push(...spans);
+  for (const c of candidates) {
+    try {
+      const arr = JSON.parse(c);
+      if (Array.isArray(arr) && arr.some((x) => x && x.brand)) return arr;
+    } catch {
+      /* try next */
+    }
   }
+  return null;
+}
+
+async function suggestSimilarBrands(client, existingBrands, count) {
+  const existingLower = new Set(existingBrands.map((b) => b.toLowerCase().trim()));
+  const userPrompt = `These brands are ALREADY in our catalog:\n${existingBrands.join(
+    ", "
+  )}\n\nNEVER suggest these blacklisted brands: ${
+    BRAND_BLACKLIST.join(", ") || "(none)"
+  }.\n\nSuggest ${count} DIFFERENT brands we do NOT already carry that fit the same world: natural / low-tox fibers, elevated-casual, comparable price and values. Favor brands in the mid-range / accessible-premium price band (most pieces roughly $50–$150), not ultra-budget fast fashion or high-luxury labels. Strongly prioritize brands that hold recognized certifications (GOTS, OEKO-TEX, Fair Trade, bluesign, B Corp). Use your knowledge of the clean-fashion brand landscape. Respond with ONLY the JSON array (no prose, no markdown fences):\n[{"brand":"...","certifications":["GOTS"],"note":"why it fits"}]`;
+
+  // The web-search step sometimes makes the final message non-JSON; retry.
+  for (let attempt = 0; attempt < 3; attempt++) {
+    let resp;
+    try {
+      // No web_search here: it occasionally leaves the final message with no
+      // JSON. The model already knows the clean-fashion brand landscape; the
+      // per-brand product search (which DOES use web_search) validates each
+      // brand by finding (or not finding) real current products.
+      resp = await client.messages.create({
+        model: MODEL,
+        max_tokens: 8000,
+        system: `You curate brands for Toxome, a clean-clothing platform. Toxome only features clothing made from natural / low-toxin fibers (organic cotton, linen, hemp, wool, alpaca, silk, Tencel/lyocell) and avoids synthetic-heavy fast fashion. The aesthetic is elevated-casual and sustainability-minded. Always respond with ONLY the requested JSON array.`,
+        messages: [{ role: "user", content: userPrompt }],
+      });
+    } catch (err) {
+      console.error(`  Brand suggestion error (attempt ${attempt + 1}):`, err.message);
+      continue;
+    }
+    const text = resp.content
+      .filter((b) => b.type === "text")
+      .map((b) => b.text)
+      .join("\n");
+    const arr = parseBrandArray(text);
+    if (arr) {
+      const filtered = arr.filter(
+        (b) =>
+          b &&
+          b.brand &&
+          !existingLower.has(b.brand.toLowerCase().trim()) &&
+          !isBlacklisted(b.brand)
+      );
+      if (filtered.length) return filtered;
+    }
+    console.warn(`  Brand suggestion returned no parseable list (attempt ${attempt + 1}), retrying...`);
+  }
+  return [];
 }
 
 // ---------------------------------------------------------------------------

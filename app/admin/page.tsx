@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   hazardColor,
+  fiberHazardColor,
   prettyFiber,
   calcToxomeScore,
   scoreToRiskLevel,
@@ -74,6 +75,10 @@ export default function AdminPage() {
   const [error, setError] = useState("");
   const [busyId, setBusyId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
+
+  // Gamified review session tally (resets on reload).
+  const [sessionApproved, setSessionApproved] = useState(0);
+  const [sessionRejected, setSessionRejected] = useState(0);
 
   // sign-in form state
   const [email, setEmail] = useState("");
@@ -183,6 +188,38 @@ export default function AdminPage() {
       }
     },
     [token, refreshList, refreshStats]
+  );
+
+  // Lightweight PATCH for the gamified review flow. Unlike `mutate`, it does
+  // not refetch the whole list (the review card advances optimistically and
+  // manages its own queue); it just refreshes the stat counts. Returns true
+  // on success so the caller can revert an optimistic advance on failure.
+  const reviewDecision = useCallback(
+    async (id: string, action: "approve" | "reject"): Promise<boolean> => {
+      try {
+        const t = await token();
+        const res = await fetch(`/api/admin/products/${id}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${t}`,
+          },
+          body: JSON.stringify({ action }),
+        });
+        if (!res.ok) {
+          const j = await res.json().catch(() => ({}));
+          throw new Error(j.error || `Request failed (${res.status})`);
+        }
+        if (action === "approve") setSessionApproved((n) => n + 1);
+        else setSessionRejected((n) => n + 1);
+        refreshStats();
+        return true;
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Action failed");
+        return false;
+      }
+    },
+    [token, refreshStats]
   );
 
   const addByUrl = useCallback(async () => {
@@ -575,46 +612,56 @@ export default function AdminPage() {
 
         {error && <p style={errorTextStyle}>{error}</p>}
 
-        {/* List */}
-        <div
-          style={{
-            border: "1px solid var(--hairline-strong)",
-            borderRadius: 12,
-            overflow: "hidden",
-            background: "var(--white)",
-          }}
-        >
-          {/* Header row */}
-          <div style={listHeaderStyle}>
-            <div style={{ width: 56 }} />
-            <div style={{ flex: 1 }}>Product</div>
-            <div style={{ width: 90 }}>Price</div>
-            <div style={{ width: 120 }}>Score</div>
-            <div style={{ width: 160 }}>Fabric</div>
-            <div style={{ width: 100 }}>Status</div>
-            <div style={{ width: 220, textAlign: "right" }}>Actions</div>
+        {status === "pending" ? (
+          /* Gamified one-at-a-time review */
+          <ReviewFlow
+            products={products}
+            loading={listLoading}
+            totalPending={stats?.pending ?? products.length}
+            sessionApproved={sessionApproved}
+            sessionRejected={sessionRejected}
+            onDecision={reviewDecision}
+          />
+        ) : (
+          /* Table view (Live / Rejected / Removed / All) */
+          <div
+            style={{
+              border: "1px solid var(--hairline-strong)",
+              borderRadius: 12,
+              overflow: "hidden",
+              background: "var(--white)",
+            }}
+          >
+            {/* Header row */}
+            <div style={listHeaderStyle}>
+              <div style={{ width: 56 }} />
+              <div style={{ flex: 1 }}>Product</div>
+              <div style={{ width: 90 }}>Price</div>
+              <div style={{ width: 120 }}>Score</div>
+              <div style={{ width: 160 }}>Fabric</div>
+              <div style={{ width: 100 }}>Status</div>
+              <div style={{ width: 220, textAlign: "right" }}>Actions</div>
+            </div>
+
+            {listLoading && <div style={emptyRowStyle}>Loading products…</div>}
+            {!listLoading && products.length === 0 && (
+              <div style={emptyRowStyle}>No products in this view.</div>
+            )}
+
+            {!listLoading &&
+              products.map((p) => (
+                <ProductRow
+                  key={p.id}
+                  p={p}
+                  busy={busyId === p.id}
+                  editing={editingId === p.id}
+                  onEdit={() => setEditingId(editingId === p.id ? null : p.id)}
+                  onCloseEdit={() => setEditingId(null)}
+                  onAction={mutate}
+                />
+              ))}
           </div>
-
-          {listLoading && (
-            <div style={emptyRowStyle}>Loading products…</div>
-          )}
-          {!listLoading && products.length === 0 && (
-            <div style={emptyRowStyle}>No products in this view.</div>
-          )}
-
-          {!listLoading &&
-            products.map((p) => (
-              <ProductRow
-                key={p.id}
-                p={p}
-                busy={busyId === p.id}
-                editing={editingId === p.id}
-                onEdit={() => setEditingId(editingId === p.id ? null : p.id)}
-                onCloseEdit={() => setEditingId(null)}
-                onAction={mutate}
-              />
-            ))}
-        </div>
+        )}
       </div>
     </main>
   );
@@ -654,6 +701,10 @@ function ProductRow({
     : [];
   const fabricSummary = fibers.slice(0, 3).join(", ") + (fibers.length > 3 ? "…" : "");
 
+  // Change 2: thumbnail + name link out to the external retailer page.
+  const externalUrl = p.item_url || p.affiliate_url || null;
+  const stopPropagation = (e: React.MouseEvent) => e.stopPropagation();
+
   return (
     <div style={{ borderTop: "1px solid var(--hairline)" }}>
       <div
@@ -669,13 +720,19 @@ function ProductRow({
       >
         {/* Thumb */}
         <div style={{ width: 56 }}>
-          <div
+          <a
+            href={externalUrl ?? undefined}
+            target={externalUrl ? "_blank" : undefined}
+            rel={externalUrl ? "noopener noreferrer" : undefined}
+            onClick={externalUrl ? stopPropagation : undefined}
             style={{
+              display: "block",
               width: 40,
               height: 52,
               borderRadius: 6,
               overflow: "hidden",
               background: "var(--tan)",
+              cursor: externalUrl ? "pointer" : "default",
             }}
           >
             {imgSrc && (
@@ -687,22 +744,42 @@ function ProductRow({
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
               />
             )}
-          </div>
+          </a>
         </div>
 
         {/* Name + brand */}
         <div style={{ flex: 1, minWidth: 0, paddingRight: 12 }}>
-          <div
-            style={{
-              fontWeight: 500,
-              color: "var(--ink)",
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-            }}
-          >
-            {p.item_name || "Untitled"}
-          </div>
+          {externalUrl ? (
+            <a
+              href={externalUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={stopPropagation}
+              style={{
+                display: "block",
+                fontWeight: 500,
+                color: "var(--ink)",
+                textDecoration: "none",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
+              {p.item_name || "Untitled"}
+            </a>
+          ) : (
+            <div
+              style={{
+                fontWeight: 500,
+                color: "var(--ink)",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
+              {p.item_name || "Untitled"}
+            </div>
+          )}
           <div style={{ color: "var(--ink-3)", fontSize: 12 }}>
             {p.brand}
             {p.added_by ? ` · ${p.added_by}` : ""}
@@ -795,8 +872,8 @@ function ProductRow({
             </>
           )}
           {st === "live" && (
-            <RowButton disabled={busy} onClick={() => onAction(p.id, "unpublish")}>
-              Unpublish
+            <RowButton tone="danger" disabled={busy} onClick={() => onAction(p.id, "unpublish")}>
+              Remove from shop
             </RowButton>
           )}
           {st === "rejected" && (
@@ -828,6 +905,782 @@ function ProductRow({
     </div>
   );
 }
+
+// ---- Gamified review flow -------------------------------------------
+// Shows ONE pending product at a time, presented like the product detail
+// page. Approve/Reject advance optimistically (with revert on failure);
+// Skip moves to the next without deciding. Keyboard: A approve, R reject,
+// →/S skip.
+function ReviewFlow({
+  products,
+  loading,
+  totalPending,
+  sessionApproved,
+  sessionRejected,
+  onDecision,
+}: {
+  products: AdminProduct[];
+  loading: boolean;
+  totalPending: number;
+  sessionApproved: number;
+  sessionRejected: number;
+  onDecision: (id: string, action: "approve" | "reject") => Promise<boolean>;
+}) {
+  // Local queue so we can advance instantly without waiting on a refetch.
+  const [queue, setQueue] = useState<AdminProduct[]>(products);
+  const [idx, setIdx] = useState(0);
+  const [deciding, setDeciding] = useState(false);
+
+  // When a fresh list arrives (tab opened, filters changed), reset the queue.
+  const loadKey = products.map((p) => p.id).join(",");
+  const prevKey = useRef(loadKey);
+  useEffect(() => {
+    if (prevKey.current !== loadKey) {
+      prevKey.current = loadKey;
+      setQueue(products);
+      setIdx(0);
+    }
+  }, [loadKey, products]);
+
+  const current = queue[idx];
+
+  const advance = useCallback(() => {
+    setIdx((i) => i + 1);
+  }, []);
+
+  const decide = useCallback(
+    async (action: "approve" | "reject") => {
+      if (!current || deciding) return;
+      const target = current;
+      setDeciding(true);
+      // Optimistic advance.
+      advance();
+      const ok = await onDecision(target.id, action);
+      if (!ok) {
+        // Revert: step back to the failed card.
+        setIdx((i) => Math.max(0, i - 1));
+      }
+      setDeciding(false);
+    },
+    [current, deciding, advance, onDecision]
+  );
+
+  const skip = useCallback(() => {
+    if (!current) return;
+    advance();
+  }, [current, advance]);
+
+  // Keyboard shortcuts.
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+      const k = e.key.toLowerCase();
+      if (k === "a") {
+        e.preventDefault();
+        decide("approve");
+      } else if (k === "r") {
+        e.preventDefault();
+        decide("reject");
+      } else if (k === "s" || e.key === "ArrowRight") {
+        e.preventDefault();
+        skip();
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [decide, skip]);
+
+  if (loading) {
+    return (
+      <div style={{ ...reviewShellStyle, ...reviewEmptyStyle }}>
+        <span
+          style={{
+            fontFamily: "var(--mono)",
+            fontSize: 11,
+            letterSpacing: ".14em",
+            textTransform: "uppercase",
+            color: "var(--ink-3)",
+          }}
+        >
+          Loading review queue…
+        </span>
+      </div>
+    );
+  }
+
+  // Inbox zero — either no pending at all, or we've worked through the queue.
+  if (!current) {
+    return (
+      <div style={{ ...reviewShellStyle, ...reviewEmptyStyle }}>
+        <div
+          style={{
+            fontFamily: "var(--serif)",
+            fontSize: 40,
+            letterSpacing: "-0.03em",
+            color: "var(--ink)",
+            marginBottom: 10,
+          }}
+        >
+          All caught up
+        </div>
+        <p
+          style={{
+            fontFamily: "var(--sans)",
+            fontSize: 15,
+            color: "var(--ink-2)",
+            margin: "0 0 6px",
+          }}
+        >
+          Inbox zero. Nothing left to review.
+        </p>
+        {(sessionApproved > 0 || sessionRejected > 0) && (
+          <p style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)", margin: 0 }}>
+            This session: {sessionApproved} approved · {sessionRejected} rejected
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  // Progress numbers.
+  const reviewedTotal = sessionApproved + sessionRejected;
+  const positionInQueue = idx + 1;
+  const queueLeft = queue.length - idx;
+  const progressDenom = reviewedTotal + queueLeft;
+  const progressPct =
+    progressDenom > 0 ? Math.min(100, Math.round((reviewedTotal / progressDenom) * 100)) : 0;
+
+  return (
+    <div>
+      {/* Gamification header: progress + tally */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 16,
+          flexWrap: "wrap",
+          marginBottom: 14,
+        }}
+      >
+        <div style={{ flex: 1, minWidth: 220 }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "baseline",
+              marginBottom: 6,
+            }}
+          >
+            <span
+              style={{
+                fontFamily: "var(--mono)",
+                fontSize: 10,
+                letterSpacing: ".12em",
+                textTransform: "uppercase",
+                color: "var(--ink-2)",
+              }}
+            >
+              {reviewedTotal} of {Math.max(totalPending, reviewedTotal + queueLeft)} reviewed
+              {" · "}#{positionInQueue} in queue
+            </span>
+            <span
+              style={{
+                fontFamily: "var(--mono)",
+                fontSize: 10,
+                letterSpacing: ".12em",
+                textTransform: "uppercase",
+                color: "var(--ink-3)",
+              }}
+            >
+              {queueLeft} left
+            </span>
+          </div>
+          <div
+            style={{
+              height: 6,
+              background: "var(--tan)",
+              borderRadius: 999,
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                width: `${progressPct}%`,
+                height: "100%",
+                background: "var(--risk-low)",
+                borderRadius: 999,
+                transition: "width 280ms ease",
+              }}
+            />
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <TallyChip color="#4f6e3b" bg="rgba(173,200,156,0.25)" label="Approved" value={sessionApproved} />
+          <TallyChip color="var(--red)" bg="rgba(200,66,66,0.10)" label="Rejected" value={sessionRejected} />
+        </div>
+      </div>
+
+      {/* The card — keyed so it remounts (image reset + transition) per product */}
+      <ReviewCard
+        key={current.id}
+        p={current}
+        deciding={deciding}
+        onApprove={() => decide("approve")}
+        onReject={() => decide("reject")}
+        onSkip={skip}
+      />
+    </div>
+  );
+}
+
+function TallyChip({
+  color,
+  bg,
+  label,
+  value,
+}: {
+  color: string;
+  bg: string;
+  label: string;
+  value: number;
+}) {
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "baseline",
+        gap: 7,
+        padding: "7px 13px",
+        borderRadius: 999,
+        background: bg,
+        border: `1px solid ${color}`,
+      }}
+    >
+      <span style={{ fontFamily: "var(--serif)", fontSize: 18, color, lineHeight: 1 }}>{value}</span>
+      <span
+        style={{
+          fontFamily: "var(--mono)",
+          fontSize: 9,
+          letterSpacing: ".1em",
+          textTransform: "uppercase",
+          color,
+        }}
+      >
+        {label}
+      </span>
+    </span>
+  );
+}
+
+// One pending product, presented like ProductDetailClient, scaled for the
+// dashboard. Approve / Reject / Skip with shortcut hints.
+function ReviewCard({
+  p,
+  deciding,
+  onApprove,
+  onReject,
+  onSkip,
+}: {
+  p: AdminProduct;
+  deciding: boolean;
+  onApprove: () => void;
+  onReject: () => void;
+  onSkip: () => void;
+}) {
+  const candidates = (
+    p.images && p.images.length > 0
+      ? p.images
+      : p.item_image
+      ? [p.item_image]
+      : []
+  ).filter((u): u is string => !!u);
+
+  const [primaryIdx, setPrimaryIdx] = useState(0);
+  const [failed, setFailed] = useState<Record<number, boolean>>({});
+  const visible = candidates.filter((_, i) => !failed[i]);
+  const primarySrc = candidates[primaryIdx] && !failed[primaryIdx] ? candidates[primaryIdx] : visible[0];
+
+  const externalUrl = p.item_url || p.affiliate_url || null;
+
+  const fabricEntries = p.fabric_composition
+    ? Object.entries(p.fabric_composition)
+        .filter(([, v]) => typeof v === "number" && v > 0)
+        .sort(([, a], [, b]) => b - a)
+    : [];
+
+  const risk = p.risk_level;
+  const riskMap = {
+    low: { color: "var(--risk-low)", label: "Low risk" },
+    moderate: { color: "var(--orange)", label: "Moderate risk" },
+    high: { color: "var(--red)", label: "High risk" },
+  } as const;
+
+  return (
+    <div
+      style={{
+        border: "1px solid var(--hairline-strong)",
+        borderRadius: 16,
+        background: "var(--white)",
+        overflow: "hidden",
+        animation: "reviewCardIn 280ms ease",
+      }}
+    >
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "minmax(0, 0.85fr) minmax(0, 1fr)",
+          gap: 0,
+        }}
+        className="review-card-grid"
+      >
+        {/* Image column */}
+        <div style={{ background: "var(--tan)", padding: 20 }}>
+          <div
+            style={{
+              position: "relative",
+              aspectRatio: "266 / 334",
+              background: "var(--tan)",
+              borderRadius: 10,
+              overflow: "hidden",
+              border: "1px solid var(--hairline)",
+            }}
+          >
+            {primarySrc ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={primarySrc}
+                alt={p.item_name || ""}
+                onError={() =>
+                  setFailed((prev) => ({ ...prev, [primaryIdx]: true }))
+                }
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                }}
+              />
+            ) : (
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontFamily: "var(--mono)",
+                  fontSize: 10,
+                  letterSpacing: ".1em",
+                  textTransform: "uppercase",
+                  color: "var(--ink-3)",
+                }}
+              >
+                No image
+              </div>
+            )}
+          </div>
+
+          {/* Gallery thumbnails */}
+          {candidates.length > 1 && (
+            <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
+              {candidates.map((src, i) =>
+                failed[i] ? null : (
+                  <button
+                    key={src + i}
+                    onClick={() => setPrimaryIdx(i)}
+                    style={{
+                      width: 48,
+                      height: 60,
+                      borderRadius: 6,
+                      overflow: "hidden",
+                      padding: 0,
+                      cursor: "pointer",
+                      background: "var(--white)",
+                      border: `1px solid ${i === primaryIdx ? "var(--ink)" : "var(--hairline-strong)"}`,
+                    }}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={src}
+                      alt=""
+                      onError={() => setFailed((prev) => ({ ...prev, [i]: true }))}
+                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    />
+                  </button>
+                )
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Info column */}
+        <div style={{ padding: "28px 30px" }}>
+          <h2
+            style={{
+              fontFamily: "var(--serif)",
+              fontSize: "clamp(24px, 2.4vw, 32px)",
+              fontWeight: 500,
+              lineHeight: 1.1,
+              letterSpacing: "-0.022em",
+              color: "var(--ink)",
+              margin: "0 0 10px",
+            }}
+          >
+            {p.item_name || "Untitled"}
+          </h2>
+
+          <div
+            style={{
+              display: "flex",
+              alignItems: "baseline",
+              gap: 12,
+              flexWrap: "wrap",
+              marginBottom: 16,
+            }}
+          >
+            <span style={{ fontFamily: "var(--sans)", fontSize: 15, color: "var(--ink-2)" }}>
+              {p.brand}
+            </span>
+            {p.item_price != null && (
+              <span style={{ fontFamily: "var(--sans)", fontSize: 17, color: "var(--ink)" }}>
+                ${p.item_price.toLocaleString()}
+              </span>
+            )}
+          </div>
+
+          {/* Score + risk */}
+          {(p.toxome_score != null || risk) && (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                flexWrap: "wrap",
+                marginBottom: 20,
+              }}
+            >
+              {p.toxome_score != null && (
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 7,
+                    padding: "5px 12px",
+                    borderRadius: 999,
+                    background: "var(--cream)",
+                    border: `1px solid ${hazardColor(p.toxome_score)}`,
+                    fontFamily: "var(--sans)",
+                    fontSize: 13,
+                  }}
+                >
+                  <span
+                    style={{
+                      width: 9,
+                      height: 9,
+                      borderRadius: 999,
+                      background: hazardColor(p.toxome_score),
+                    }}
+                  />
+                  {p.toxome_score} Toxome Score
+                </span>
+              )}
+              {risk && riskMap[risk] && (
+                <span
+                  style={{
+                    fontFamily: "var(--mono)",
+                    fontSize: 10,
+                    fontWeight: 500,
+                    letterSpacing: ".08em",
+                    textTransform: "uppercase",
+                    color: "var(--ink)",
+                    background: riskMap[risk].color,
+                    padding: "5px 11px",
+                    borderRadius: 999,
+                  }}
+                >
+                  {riskMap[risk].label}
+                </span>
+              )}
+            </div>
+          )}
+
+          {/* External link */}
+          {externalUrl && (
+            <a
+              href={externalUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "inline-block",
+                fontFamily: "var(--sans)",
+                fontSize: 13,
+                color: "var(--ink-2)",
+                textDecoration: "underline",
+                textUnderlineOffset: 3,
+                marginBottom: 20,
+              }}
+            >
+              View on {p.brand} ↗
+            </a>
+          )}
+
+          {/* Fabric composition bars */}
+          {fabricEntries.length > 0 && (
+            <div style={{ marginBottom: 20 }}>
+              <ReviewSectionHeading>Materials</ReviewSectionHeading>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {fabricEntries.map(([fiber, pct]) => {
+                  const percent = pct > 1 ? pct : pct * 100;
+                  return (
+                    <div key={fiber}>
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "baseline",
+                          fontFamily: "var(--sans)",
+                          fontSize: 13,
+                          color: "var(--ink)",
+                          marginBottom: 4,
+                        }}
+                      >
+                        <span>{prettyFiber(fiber)}</span>
+                        <span style={{ color: "var(--ink-2)" }}>{Math.round(percent)}%</span>
+                      </div>
+                      <div
+                        style={{
+                          height: 4,
+                          background: "var(--hairline)",
+                          borderRadius: 999,
+                          overflow: "hidden",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: `${Math.min(100, Math.max(0, percent))}%`,
+                            height: "100%",
+                            background: fiberHazardColor(fiber),
+                            borderRadius: 999,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {p.materials_text && (
+            <p
+              style={{
+                fontFamily: "var(--sans)",
+                fontSize: 13,
+                lineHeight: 1.55,
+                color: "var(--ink-2)",
+                margin: "0 0 16px",
+                whiteSpace: "pre-wrap",
+              }}
+            >
+              {p.materials_text}
+            </p>
+          )}
+
+          {p.description && (
+            <div style={{ marginBottom: 16 }}>
+              <ReviewSectionHeading>About</ReviewSectionHeading>
+              <p
+                style={{
+                  fontFamily: "var(--sans)",
+                  fontSize: 13,
+                  lineHeight: 1.55,
+                  color: "var(--ink-2)",
+                  margin: 0,
+                  whiteSpace: "pre-wrap",
+                }}
+              >
+                {p.description}
+              </p>
+            </div>
+          )}
+
+          {p.certifications && p.certifications.length > 0 && (
+            <div style={{ marginBottom: 4 }}>
+              <ReviewSectionHeading>Certifications</ReviewSectionHeading>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                {p.certifications.map((c) => (
+                  <span
+                    key={c}
+                    style={{
+                      fontFamily: "var(--mono)",
+                      fontSize: 11,
+                      letterSpacing: ".06em",
+                      textTransform: "uppercase",
+                      color: "var(--ink-2)",
+                      border: "1px solid var(--hairline-strong)",
+                      padding: "5px 12px",
+                      borderRadius: 999,
+                    }}
+                  >
+                    {c}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Decision bar */}
+      <div
+        style={{
+          borderTop: "1px solid var(--hairline)",
+          background: "var(--cream)",
+          padding: "16px 24px",
+          display: "flex",
+          alignItems: "center",
+          gap: 12,
+          flexWrap: "wrap",
+        }}
+      >
+        <button
+          onClick={onReject}
+          disabled={deciding}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            fontFamily: "var(--sans)",
+            fontSize: 15,
+            padding: "12px 26px",
+            borderRadius: 999,
+            border: "1px solid var(--red)",
+            background: "rgba(200,66,66,0.08)",
+            color: "var(--red)",
+            cursor: deciding ? "not-allowed" : "pointer",
+            opacity: deciding ? 0.6 : 1,
+          }}
+        >
+          Reject
+          <kbd style={kbdStyle}>R</kbd>
+        </button>
+
+        <button
+          onClick={onSkip}
+          disabled={deciding}
+          style={{
+            fontFamily: "var(--sans)",
+            fontSize: 13,
+            padding: "12px 18px",
+            borderRadius: 999,
+            border: "1px solid var(--hairline-strong)",
+            background: "var(--white)",
+            color: "var(--ink-2)",
+            cursor: deciding ? "not-allowed" : "pointer",
+            opacity: deciding ? 0.6 : 1,
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+          }}
+        >
+          Skip
+          <kbd style={kbdStyle}>→</kbd>
+        </button>
+
+        <div style={{ flex: 1 }} />
+
+        <button
+          onClick={onApprove}
+          disabled={deciding}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 10,
+            fontFamily: "var(--sans)",
+            fontSize: 15,
+            fontWeight: 500,
+            padding: "12px 32px",
+            borderRadius: 999,
+            border: "1px solid var(--ink)",
+            background: "var(--ink)",
+            color: "var(--white)",
+            cursor: deciding ? "not-allowed" : "pointer",
+            opacity: deciding ? 0.6 : 1,
+          }}
+        >
+          Approve
+          <kbd style={{ ...kbdStyle, borderColor: "rgba(255,255,255,0.4)", color: "var(--white)" }}>
+            A
+          </kbd>
+        </button>
+      </div>
+
+      <style jsx>{`
+        @keyframes reviewCardIn {
+          from {
+            opacity: 0;
+            transform: translateY(8px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @media (max-width: 760px) {
+          :global(.review-card-grid) {
+            grid-template-columns: minmax(0, 1fr) !important;
+          }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+function ReviewSectionHeading({ children }: { children: React.ReactNode }) {
+  return (
+    <h3
+      style={{
+        fontFamily: "var(--mono)",
+        fontSize: 10,
+        fontWeight: 500,
+        letterSpacing: ".14em",
+        textTransform: "uppercase",
+        color: "var(--ink-3)",
+        margin: "0 0 12px",
+      }}
+    >
+      {children}
+    </h3>
+  );
+}
+
+const kbdStyle: React.CSSProperties = {
+  fontFamily: "var(--mono)",
+  fontSize: 10,
+  lineHeight: 1,
+  padding: "3px 6px",
+  borderRadius: 5,
+  border: "1px solid var(--hairline-strong)",
+  color: "var(--ink-3)",
+  background: "transparent",
+};
+
+const reviewShellStyle: React.CSSProperties = {
+  border: "1px solid var(--hairline-strong)",
+  borderRadius: 16,
+  background: "var(--white)",
+};
+
+const reviewEmptyStyle: React.CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  textAlign: "center",
+  padding: "72px 24px",
+};
 
 // ---- Edit panel ------------------------------------------------------
 function EditPanel({
