@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import TrendChart from "@/components/admin/TrendChart";
 
 // Brand-traffic dashboard. Reads the consolidated /api/admin/analytics endpoint
 // (one round-trip → get_brand_dashboard) and renders KPIs with period deltas, a
@@ -16,7 +17,7 @@ type Kpis = {
   prev_clicks: number;
   has_prev: boolean;
 };
-type DailyPoint = { day: string; clicks: number; views: number };
+type DailyPoint = { day: string; clicks: number; views: number; likes: number };
 type BrandRow = {
   brand: string;
   clicks: number;
@@ -187,10 +188,6 @@ export default function BrandTrafficPanel({
     return ((k.clicks - k.prev_clicks) / k.prev_clicks) * 100;
   }, [k]);
   const ctr = k && k.views > 0 ? (k.clicks / k.views) * 100 : null;
-  const maxDaily = useMemo(
-    () => Math.max(1, ...(data?.daily ?? []).map((d) => Math.max(d.clicks, d.views))),
-    [data]
-  );
 
   const copyPitch = (r: BrandRow) => {
     const line = `Toxome sent ${r.brand} ${r.clicks} click${
@@ -287,64 +284,10 @@ export default function BrandTrafficPanel({
             />
           </div>
 
-          {/* Daily trend */}
+          {/* Daily trend — animated, interactive SVG */}
           <div style={card}>
-            <div style={sectionLabel}>Daily trend · clicks (dark) vs views (light)</div>
-            {data.daily.length === 0 ? (
-              <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)" }}>
-                No activity yet {rangeWord(days)}.
-              </div>
-            ) : (
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "flex-end",
-                  gap: 3,
-                  height: 120,
-                  overflowX: "auto",
-                  paddingTop: 8,
-                }}
-              >
-                {data.daily.map((d) => (
-                  <div
-                    key={d.day}
-                    title={`${d.day} · ${d.clicks} clicks · ${d.views} views`}
-                    style={{
-                      flex: "1 0 8px",
-                      minWidth: 8,
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "flex-end",
-                      alignItems: "center",
-                      height: "100%",
-                      position: "relative",
-                    }}
-                  >
-                    {/* views (light, behind) */}
-                    <div
-                      style={{
-                        position: "absolute",
-                        bottom: 0,
-                        width: "100%",
-                        height: `${(d.views / maxDaily) * 100}%`,
-                        background: "var(--tan)",
-                        borderRadius: "3px 3px 0 0",
-                      }}
-                    />
-                    {/* clicks (dark, front) */}
-                    <div
-                      style={{
-                        position: "relative",
-                        width: "60%",
-                        height: `${(d.clicks / maxDaily) * 100}%`,
-                        background: "var(--ink)",
-                        borderRadius: "3px 3px 0 0",
-                      }}
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
+            <div style={sectionLabel}>Daily trend</div>
+            <TrendChart daily={data.daily} rangeKey={days} />
           </div>
 
           {/* Top brands */}
