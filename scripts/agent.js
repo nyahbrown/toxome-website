@@ -41,10 +41,16 @@ const FLAGS = {
   brands: intFlag("--brands") ?? 6, // how many new similar brands to source per run
   perBrand: intFlag("--per-brand") ?? 3, // products to try per brand
   maxScore: intFlag("--max-score") ?? 33, // fiber bar: only keep Toxome score <= this
+  include: strFlag("--include"), // comma-separated exact brands to source from (skips auto-suggest)
+  category: strFlag("--category"), // force a category on every inserted item (e.g. "Other" for home goods)
 };
 function intFlag(name) {
   const i = ARGV.indexOf(name);
   return i >= 0 && ARGV[i + 1] ? parseInt(ARGV[i + 1], 10) : null;
+}
+function strFlag(name) {
+  const i = ARGV.indexOf(name);
+  return i >= 0 && ARGV[i + 1] ? ARGV[i + 1] : null;
 }
 
 // ---------------------------------------------------------------------------
@@ -79,7 +85,8 @@ function parseBrandArray(text) {
   for (const c of candidates) {
     try {
       const arr = JSON.parse(c);
-      if (Array.isArray(arr) && arr.some((x) => x && x.brand)) return arr;
+      if (Array.isArray(arr) && arr.some((x) => x && (x.brand || x.item_name)))
+        return arr;
     } catch {
       /* try next */
     }
@@ -93,7 +100,7 @@ async function suggestSimilarBrands(client, existingBrands, count) {
     ", "
   )}\n\nNEVER suggest these blacklisted brands: ${
     BRAND_BLACKLIST.join(", ") || "(none)"
-  }.\n\nSuggest ${count} DIFFERENT brands we do NOT already carry that fit the same world: natural / low-tox fibers, elevated-casual, comparable price and values. Favor brands in the mid-range / accessible-premium price band (most pieces roughly $50–$150), not ultra-budget fast fashion or high-luxury labels. Strongly prioritize brands that hold recognized certifications (GOTS, OEKO-TEX, Fair Trade, bluesign, B Corp). Use your knowledge of the clean-fashion brand landscape. Respond with ONLY the JSON array (no prose, no markdown fences):\n[{"brand":"...","certifications":["GOTS"],"note":"why it fits"}]`;
+  }.\n\nSuggest ${count} DIFFERENT brands we do NOT already carry that fit the same world: natural / low-tox fibers, elevated-casual, comparable price and values. Anchor on the AESTHETIC of brands like Sézane, DÔEN, Brandy Melville, and Buck Mason — elevated-feminine, coastal, vintage-Americana, trend-aware but timeless — and find clean-fiber brands with that look and customer. Favor brands in the mid-range / accessible-premium price band (most pieces roughly $50–$150), not ultra-budget fast fashion or high-luxury labels. Strongly prioritize brands that hold recognized certifications (GOTS, OEKO-TEX, Fair Trade, bluesign, B Corp). Use your knowledge of the clean-fashion brand landscape. Respond with ONLY the JSON array (no prose, no markdown fences):\n[{"brand":"...","certifications":["GOTS"],"note":"why it fits"}]`;
 
   // The web-search step sometimes makes the final message non-JSON; retry.
   for (let attempt = 0; attempt < 3; attempt++) {
@@ -158,34 +165,32 @@ PRICE PRIORITY: Strongly prioritize mid-range prices — roughly $50–$150, wit
 Return ONLY a valid JSON array, no markdown.`;
 
 async function findProductsForBrand(client, brand, perBrand) {
-  let resp;
-  try {
-    resp = await client.messages.create({
-      model: MODEL,
-      max_tokens: 4096,
-      tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 4 }],
-      system: PRODUCT_SYSTEM,
-      messages: [
-        {
-          role: "user",
-          content: `Search ${brand}'s website and find ${perBrand} specific products made from natural / low-tox fabrics, prioritizing ones that state fabric composition and hold certifications. Return a JSON array.`,
-        },
-      ],
-    });
-  } catch (err) {
-    console.error(`  Error for ${brand}:`, err.message);
-    return [];
+  const prompt = `Search ${brand}'s website and find ${perBrand} specific products made from natural / low-tox fabrics, prioritizing ones that state fabric composition and hold certifications. Give the DIRECT product-page URL for each (not the homepage or a collection page). After researching, your FINAL message must be ONLY the JSON array — no prose, no markdown fences.`;
+  // web_search often leaves the final message as prose; parse all text blocks
+  // robustly and retry once if no array comes back.
+  for (let attempt = 0; attempt < 2; attempt++) {
+    let resp;
+    try {
+      resp = await client.messages.create({
+        model: MODEL,
+        max_tokens: 4096,
+        tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 5 }],
+        system: PRODUCT_SYSTEM,
+        messages: [{ role: "user", content: prompt }],
+      });
+    } catch (err) {
+      console.error(`  Error for ${brand} (attempt ${attempt + 1}):`, err.message);
+      continue;
+    }
+    const text = resp.content
+      .filter((b) => b.type === "text")
+      .map((b) => b.text)
+      .join("\n");
+    const arr = parseBrandArray(text);
+    if (arr && arr.length) return arr;
+    console.warn(`  ${brand}: no parseable products (attempt ${attempt + 1})`);
   }
-  const textBlock = resp.content.find((b) => b.type === "text");
-  if (!textBlock) return [];
-  const match = textBlock.text.match(/\[[\s\S]*\]/);
-  if (!match) return [];
-  try {
-    const items = JSON.parse(match[0]);
-    return Array.isArray(items) ? items : [];
-  } catch {
-    return [];
-  }
+  return [];
 }
 
 // ---------------------------------------------------------------------------
@@ -213,15 +218,27 @@ async function run() {
   ];
   const existingUrls = new Set((existing ?? []).map((r) => r.item_url).filter(Boolean));
 
+  // Explicit brands via --include skip the auto-suggestion step entirely.
+  const includeBrands = (FLAGS.include || "")
+    .split(",")
+    .map((b) => b.trim())
+    .filter(Boolean);
+
   console.log(
-    `Catalog has ${existingBrands.length} brands. Finding ${FLAGS.brands} similar new brands` +
+    (includeBrands.length
+      ? `Sourcing from ${includeBrands.length} specified brand(s): ${includeBrands.join(", ")}`
+      : `Catalog has ${existingBrands.length} brands. Finding ${FLAGS.brands} similar new brands`) +
       (FLAGS.dryRun ? "  [DRY RUN — no inserts]" : "") +
       `\nFiber bar: Toxome score <= ${FLAGS.maxScore}\n`
   );
 
-  const suggested = await suggestSimilarBrands(anthropic, existingBrands, FLAGS.brands);
+  const suggested = includeBrands.length
+    ? includeBrands
+        .filter((b) => !isBlacklisted(b))
+        .map((b) => ({ brand: b, certifications: [], note: "manually specified" }))
+    : await suggestSimilarBrands(anthropic, existingBrands, FLAGS.brands);
   if (suggested.length === 0) {
-    console.error("No new brands suggested. Exiting.");
+    console.error("No brands to source. Exiting.");
     return;
   }
   console.log(
@@ -300,7 +317,7 @@ async function run() {
         brand: item.brand ?? brand,
         item_price: item.item_price ?? null,
         budget: item.budget ?? null,
-        category: item.category ?? null,
+        category: FLAGS.category || item.category || null,
         gender: item.gender ?? null,
         item_image: item.item_image,
         item_url: item.item_url,
