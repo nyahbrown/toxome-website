@@ -511,7 +511,7 @@ export default function AdminPage() {
                   {addedProduct.item_name || "Untitled"}
                 </div>
                 <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)" }}>
-                  {addedProduct.brand} · added to Pending review
+                  {addedProduct.brand} · published live
                 </div>
               </div>
               {addedProduct.toxome_score != null && (

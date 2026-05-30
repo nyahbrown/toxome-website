@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { verifyAdmin } from "@/lib/adminAuth";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { isBlacklisted } from "@/lib/brandBlacklist";
@@ -67,11 +68,12 @@ export async function POST(req: Request) {
     );
   }
 
+  // Manual adds go live immediately (no pending review).
   const { data, error } = await supabaseAdmin
     .from("products")
     .insert({
       ...product,
-      published: false,
+      published: true,
       rejected: false,
       added_by: "manual",
       reviewed_at: new Date().toISOString(),
@@ -82,6 +84,12 @@ export async function POST(req: Request) {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  // Make it appear on the shop grid right away.
+  for (const p of ["/shop", "/shop/women", "/shop/men", "/shop/home"]) {
+    revalidatePath(p);
+  }
+  if (data?.id) revalidatePath(`/shop/${data.id}`);
 
   return NextResponse.json({ product: data });
 }
