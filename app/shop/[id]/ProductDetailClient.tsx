@@ -6,73 +6,10 @@ import { useRouter } from "next/navigation";
 import type { Product } from "@/types/product";
 import { useAuth } from "@/contexts/AuthContext";
 import WishlistHeart from "@/components/WishlistHeart";
-
-const FIBER_LABELS: Record<string, string> = {
-  organic_cotton: "Organic cotton",
-  cotton: "Cotton",
-  linen: "Linen",
-  hemp: "Hemp",
-  tencel: "Tencel",
-  lyocell: "Lyocell",
-  modal: "Modal",
-  bamboo: "Bamboo",
-  wool: "Wool",
-  merino: "Merino wool",
-  silk: "Silk",
-  recycled_polyester: "Recycled polyester",
-  polyester: "Polyester",
-  nylon: "Nylon",
-  acrylic: "Acrylic",
-  spandex: "Spandex",
-  elastane: "Elastane",
-  viscose: "Viscose",
-  rayon: "Rayon",
-  microfiber: "Microfiber",
-  fleece: "Fleece",
-};
-
-// Mirrors scripts/agent.js FABRIC_SCORES — lower = cleaner. Used to color
-// each fabric's bar by hazard (green / orange / red).
-const FABRIC_SCORES: Record<string, number> = {
-  organic_cotton: 5,
-  cotton: 20,
-  linen: 8,
-  hemp: 6,
-  tencel: 18,
-  lyocell: 18,
-  modal: 22,
-  bamboo: 25,
-  wool: 15,
-  merino: 15,
-  silk: 12,
-  recycled_polyester: 45,
-  polyester: 65,
-  nylon: 62,
-  acrylic: 78,
-  spandex: 55,
-  elastane: 55,
-  viscose: 40,
-  rayon: 40,
-  microfiber: 70,
-  fleece: 60,
-};
-
-function prettyFiber(key: string) {
-  return (
-    FIBER_LABELS[key.toLowerCase()] ||
-    key
-      .split(/[_\s-]+/)
-      .map((p) => p[0]?.toUpperCase() + p.slice(1))
-      .join(" ")
-  );
-}
-
-function fiberHazardColor(key: string): string {
-  const score = FABRIC_SCORES[key.toLowerCase().replace(/\s+/g, "_")] ?? 50;
-  if (score <= 33) return "var(--risk-low)";
-  if (score <= 66) return "var(--orange)";
-  return "var(--red)";
-}
+// Single source of truth for fiber hazard colors + labels — keeps the product
+// page bars in sync with the score table (alpaca/cashmere green, Lenzing green,
+// recycled synthetics red, "european linen" -> linen via keyword fallback, etc.)
+import { fiberHazardColor, prettyFiber } from "@/lib/fabricScores";
 
 function RiskChip({ level }: { level: "low" | "moderate" | "high" }) {
   const map = {
