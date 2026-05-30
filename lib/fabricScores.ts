@@ -43,6 +43,25 @@ export function fiberKey(name: string): string {
   return name.toLowerCase().trim().replace(/\s+/g, "_");
 }
 
+/**
+ * Collapse a specific fiber name to the base fiber used for browse/filtering,
+ * so "mulberry silk" filters under silk, "european linen" under linen, "merino
+ * wool" under wool, etc. Organic cotton is kept distinct from conventional
+ * cotton (the brand browses organic cotton specifically, not generic cotton).
+ */
+export function normalizeFiber(name: string): string {
+  const k = (name || "").toLowerCase().trim();
+  if (k.includes("organic cotton")) return "organic cotton";
+  if (k.includes("cotton")) return "cotton";
+  if (k.includes("silk")) return "silk";
+  if (k.includes("linen")) return "linen";
+  if (k.includes("hemp")) return "hemp";
+  if (k.includes("alpaca")) return "alpaca";
+  if (k.includes("cashmere")) return "cashmere";
+  if (k.includes("merino") || k.includes("wool")) return "wool";
+  return k;
+}
+
 export function fiberScore(name: string): number {
   const key = fiberKey(name);
   if (key in FABRIC_SCORES) return FABRIC_SCORES[key];

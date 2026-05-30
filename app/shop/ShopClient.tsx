@@ -8,6 +8,7 @@ import type { ShopTaxonomy } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import FrostedSelect from "@/components/FrostedSelect";
 import WishlistHeart from "@/components/WishlistHeart";
+import { normalizeFiber } from "@/lib/fabricScores";
 
 export type ShopSection = "women" | "men" | "home" | null;
 
@@ -23,7 +24,7 @@ const SECTION_META: Record<
 };
 
 const FIBERS: { name: string; image: string }[] = [
-  { name: "cotton", image: "/fibers/cotton.jpg" },
+  { name: "organic cotton", image: "/fibers/cotton.jpg" },
   { name: "silk",   image: "/fibers/silk.jpg" },
   { name: "wool",   image: "/fibers/wool.jpg" },
   { name: "hemp",   image: "/fibers/hemp.jpg" },
@@ -337,10 +338,11 @@ export default function ShopClient({
       if (sectionCategoryConstraint && p.category !== sectionCategoryConstraint)
         return false;
       if (fiberFilter) {
-        const fibers = Object.keys(p.fabric_composition || {}).map((k) =>
-          k.toLowerCase()
-        );
-        if (!fibers.includes(fiberFilter)) return false;
+        // Match on the base fiber so "mulberry silk" filters under silk,
+        // "european linen" under linen, etc. Organic cotton stays distinct.
+        const target = normalizeFiber(fiberFilter);
+        const fibers = Object.keys(p.fabric_composition || {}).map(normalizeFiber);
+        if (!fibers.includes(target)) return false;
       }
       if (category !== "All" && p.category !== category) return false;
       if (q) {

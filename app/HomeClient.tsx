@@ -8,7 +8,7 @@ import NewsletterPopup from "@/components/NewsletterPopup";
 import type { ShopTaxonomy } from "@/lib/supabase";
 
 const FIBERS = [
-  { name: "cotton", image: "/fibers/cotton.jpg" },
+  { name: "organic cotton", image: "/fibers/cotton.jpg" },
   { name: "silk",   image: "/fibers/silk.jpg" },
   { name: "wool",   image: "/fibers/wool.jpg" },
   { name: "hemp",   image: "/fibers/hemp.jpg" },
