@@ -6,7 +6,9 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { calcToxomeScore, scoreToRiskLevel } from "@/lib/fabricScores";
 
-const MODEL = "claude-sonnet-4-6";
+// Haiku is fast and plenty for structured extraction from text we hand it —
+// keeps the add-by-URL request well under the serverless timeout.
+const MODEL = "claude-haiku-4-5-20251001";
 const UA =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 " +
   "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
@@ -67,7 +69,7 @@ async function fetchPage(url: string): Promise<PageFetch> {
     const res = await fetch(url, {
       headers: { "User-Agent": UA, Accept: "text/html,application/xhtml+xml" },
       redirect: "follow",
-      signal: AbortSignal.timeout(20000),
+      signal: AbortSignal.timeout(12000),
     });
     const html = await res.text().catch(() => "");
     return { status: res.status, html, finalUrl: res.url };
@@ -115,7 +117,7 @@ async function shopifyProduct(url: string): Promise<ShopifyProduct | null> {
     if (!m) return null;
     const res = await fetch(`${u.origin}/products/${m[1]}.js`, {
       headers: { "User-Agent": UA, Accept: "application/json" },
-      signal: AbortSignal.timeout(15000),
+      signal: AbortSignal.timeout(8000),
     });
     if (!res.ok) return null;
     const data = (await res.json()) as ShopifyProduct;
@@ -189,7 +191,7 @@ async function imageLoads(url: string): Promise<boolean> {
     const res = await fetch(url, {
       headers: { "User-Agent": UA, Referer: REFERER, Accept: "image/*" },
       redirect: "follow",
-      signal: AbortSignal.timeout(15000),
+      signal: AbortSignal.timeout(7000),
     });
     if (!res.ok) return false;
     const ct = (res.headers.get("content-type") || "").toLowerCase();
@@ -416,27 +418,30 @@ export async function extractProductFromUrl(
     return { ok: false, error: "Not a specific product page" };
   }
 
-  let fields: ExtractedFields | null;
-  try {
-    const client = new Anthropic({ apiKey });
-    fields = await extractWithClaude(client, url, page, shopify);
-  } catch (e) {
-    return { ok: false, error: `Extraction failed: ${(e as Error).message}` };
-  }
+  // Run the (slow) Claude extraction and the image-render checks concurrently,
+  // and validate the image candidates in parallel — sequential image checks
+  // alone were ~12s and blew the serverless timeout (504). Cap candidates so
+  // one slow CDN can't dominate.
+  const client = new Anthropic({ apiKey });
+  const candidateImages = harvestImages(page, shopify, prodLd, finalUrl).slice(
+    0,
+    4
+  );
+  const [fields, images] = await Promise.all([
+    extractWithClaude(client, url, page, shopify).catch((e) => {
+      console.error("extractWithClaude failed:", (e as Error).message);
+      return null;
+    }),
+    Promise.all(
+      candidateImages.map(async (img) => ((await imageLoads(img)) ? img : null))
+    ).then((res) => res.filter((x): x is string => !!x).slice(0, MAX_IMAGES)),
+  ]);
 
   if (!fields || !fields.item_name?.trim() || !fields.brand?.trim()) {
     return {
       ok: false,
       error: "Could not read a product name and brand from this page",
     };
-  }
-
-  // Harvest candidate images, then keep only the ones that actually render.
-  const candidateImages = harvestImages(page, shopify, prodLd, finalUrl);
-  const images: string[] = [];
-  for (const img of candidateImages) {
-    if (await imageLoads(img)) images.push(img);
-    if (images.length >= MAX_IMAGES) break;
   }
   if (images.length < 1) {
     return { ok: false, error: "No working product image found" };
