@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
@@ -67,6 +67,17 @@ export default function HomeClient({
 }: {
   taxonomy: ShopTaxonomy;
 }) {
+  // The 11MB hero video downloads eagerly and starves the page's JS chunk
+  // loads on a real network, which blocked React hydration on the homepage
+  // (nav dropdowns dead, no navigation). Defer it until after hydration —
+  // this effect only runs once the page is interactive, so the JS loads and
+  // hydrates first, then the video mounts and plays. The poster image below
+  // shows instantly, so there's no visual change.
+  const [showVideo, setShowVideo] = useState(false);
+  useEffect(() => {
+    setShowVideo(true);
+  }, []);
+
   return (
     <div style={{ background: "var(--bg)" }}>
       <Nav taxonomy={taxonomy} />
@@ -101,22 +112,25 @@ export default function HomeClient({
             background: "rgba(10, 6, 2, 0.28)",
           }}
         />
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          poster="/hero-bg.png"
-          style={{
-            position: "absolute",
-            inset: 0,
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-          }}
-        >
-          <source src="/meditation.mp4" type="video/mp4" />
-        </video>
+        {showVideo && (
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="none"
+            poster="/hero-bg.png"
+            style={{
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+            }}
+          >
+            <source src="/meditation.mp4" type="video/mp4" />
+          </video>
+        )}
 
         <div
           style={{
