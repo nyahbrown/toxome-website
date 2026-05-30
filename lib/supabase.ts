@@ -40,26 +40,34 @@ export const getShopTaxonomy = cache(async (): Promise<ShopTaxonomy> => {
     return { women: [], men: [], home: [] };
   }
 
-  const women = new Set<string>();
-  const men = new Set<string>();
-  const home = new Set<string>();
+  // Count products per category so the filter dropdown can rank by relevance
+  // (most-stocked categories first) instead of alphabetically.
+  const women = new Map<string, number>();
+  const men = new Map<string, number>();
+  const home = new Map<string, number>();
+  const bump = (m: Map<string, number>, k: string) => m.set(k, (m.get(k) ?? 0) + 1);
 
   for (const row of data ?? []) {
     if (!row.category) continue;
     if (row.category === "Other") {
-      home.add("Other");
+      bump(home, "Other");
       continue;
     }
     const g = (row.gender || "").toLowerCase();
-    if (g === "women" || g === "female") women.add(row.category);
-    else if (g === "men" || g === "male") men.add(row.category);
+    if (g === "women" || g === "female") bump(women, row.category);
+    else if (g === "men" || g === "male") bump(men, row.category);
   }
 
-  const sortAlpha = (a: string, b: string) => a.localeCompare(b);
+  // Rank by count desc, alphabetical as a stable tiebreaker.
+  const byRelevance = (m: Map<string, number>) =>
+    [...m.entries()]
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .map(([cat]) => cat);
+
   return {
-    women: [...women].sort(sortAlpha),
-    men: [...men].sort(sortAlpha),
-    home: [...home].sort(sortAlpha),
+    women: byRelevance(women),
+    men: byRelevance(men),
+    home: byRelevance(home),
   };
 });
 

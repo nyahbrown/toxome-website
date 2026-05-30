@@ -284,10 +284,11 @@ export default function ShopClient({
     if (section === "women") return taxonomy.women;
     if (section === "men") return taxonomy.men;
     if (section === "home") return []; // no sub-categories yet under Home
-    // null section = all categories
+    // null section = all categories, kept in relevance order (taxonomy is
+    // already ranked by product count), deduped without re-alphabetizing.
     return Array.from(
       new Set([...taxonomy.women, ...taxonomy.men, ...taxonomy.home])
-    ).sort();
+    );
   }, [section, taxonomy]);
 
   // Read filters from URL (case-insensitive match against actual values).
