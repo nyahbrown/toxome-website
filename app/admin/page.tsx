@@ -68,6 +68,7 @@ export default function AdminPage() {
 
   const [products, setProducts] = useState<AdminProduct[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
+  const [allBrands, setAllBrands] = useState<{ brand: string; count: number }[]>([]);
   const [status, setStatus] = useState<Status>("pending");
   const [search, setSearch] = useState("");
   const [debounced, setDebounced] = useState("");
@@ -108,10 +109,12 @@ export default function AdminPage() {
     if (!isAdmin) return;
     try {
       const t = await token();
-      const res = await fetch("/api/admin/stats", {
-        headers: { Authorization: `Bearer ${t}` },
-      });
-      if (res.ok) setStats(await res.json());
+      const [statsRes, brandsRes] = await Promise.all([
+        fetch("/api/admin/stats", { headers: { Authorization: `Bearer ${t}` } }),
+        fetch("/api/admin/brands", { headers: { Authorization: `Bearer ${t}` } }),
+      ]);
+      if (statsRes.ok) setStats(await statsRes.json());
+      if (brandsRes.ok) setAllBrands((await brandsRes.json()).brands ?? []);
     } catch {
       /* non-fatal */
     }
@@ -253,10 +256,14 @@ export default function AdminPage() {
     }
   }, [addUrl, adding, token, refreshList, refreshStats]);
 
-  // Brand options derived from the loaded list (simple, no extra request).
-  const brandOptions = Array.from(
-    new Set(products.map((p) => p.brand).filter(Boolean))
-  ).sort((a, b) => a.localeCompare(b));
+  // Every brand in the catalog (from /api/admin/brands) so you can search by any
+  // brand, not just ones in the current view. Falls back to the loaded list.
+  const brandOptions: { brand: string; count: number | null }[] =
+    allBrands.length > 0
+      ? allBrands
+      : Array.from(new Set(products.map((p) => p.brand).filter(Boolean)))
+          .sort((a, b) => a.localeCompare(b))
+          .map((brand) => ({ brand, count: null }));
 
   // ---- Gated states ----------------------------------------------------
   if (loading) {
@@ -605,10 +612,11 @@ export default function AdminPage() {
             onChange={(e) => setBrand(e.target.value)}
             style={{ ...inputStyle, width: 180, cursor: "pointer" }}
           >
-            <option value="">All brands</option>
+            <option value="">All brands{allBrands.length ? ` (${allBrands.length})` : ""}</option>
             {brandOptions.map((b) => (
-              <option key={b} value={b}>
-                {b}
+              <option key={b.brand} value={b.brand}>
+                {b.brand}
+                {b.count != null ? ` (${b.count})` : ""}
               </option>
             ))}
           </select>
