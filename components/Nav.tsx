@@ -77,6 +77,18 @@ export default function Nav({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // On phones the full bar (logo + shop + journal + search + download pill +
+  // account) won't fit, so we drop the search field and the download pill —
+  // iOS already shows the native App Store smart banner.
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 768px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
   return (
     <nav
       style={{
@@ -139,36 +151,38 @@ export default function Nav({
 
         {/* Search + Download app + Account */}
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <NavSearch transparent={transparent} />
-          <a
-            href="https://apps.apple.com/us/app/toxome/id6748622034"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              height: 32,
-              padding: "0 16px",
-              borderRadius: 999,
-              background: transparent
-                ? "rgba(255,255,255,0.14)"
-                : "var(--ink)",
-              border: transparent
-                ? "1px solid rgba(255,255,255,0.32)"
-                : "1px solid var(--ink)",
-              color: transparent
-                ? "rgba(255,255,255,0.96)"
-                : "var(--white)",
-              fontSize: 13,
-              letterSpacing: "-0.005em",
-              textDecoration: "none",
-              transition:
-                "background 200ms ease, border-color 200ms ease, color 200ms ease",
-              whiteSpace: "nowrap",
-            }}
-          >
-            download app
-          </a>
+          {!isMobile && <NavSearch transparent={transparent} />}
+          {!isMobile && (
+            <a
+              href="https://apps.apple.com/us/app/toxome/id6748622034"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                height: 32,
+                padding: "0 16px",
+                borderRadius: 999,
+                background: transparent
+                  ? "rgba(255,255,255,0.14)"
+                  : "var(--ink)",
+                border: transparent
+                  ? "1px solid rgba(255,255,255,0.32)"
+                  : "1px solid var(--ink)",
+                color: transparent
+                  ? "rgba(255,255,255,0.96)"
+                  : "var(--white)",
+                fontSize: 13,
+                letterSpacing: "-0.005em",
+                textDecoration: "none",
+                transition:
+                  "background 200ms ease, border-color 200ms ease, color 200ms ease",
+                whiteSpace: "nowrap",
+              }}
+            >
+              download app
+            </a>
+          )}
           <Link
             href="/account"
             style={{
