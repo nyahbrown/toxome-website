@@ -67,8 +67,8 @@ function isBlacklisted(brand) {
 async function suggestSimilarBrands(client, existingBrands, count) {
   const resp = await client.messages.create({
     model: MODEL,
-    max_tokens: 1500,
-    tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 4 }],
+    max_tokens: 8000,
+    tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 6 }],
     system: `You curate brands for Toxome, a clean-clothing platform. Toxome only features clothing made from natural / low-toxin fibers (organic cotton, linen, hemp, wool, alpaca, silk, Tencel/lyocell) and avoids synthetic-heavy fast fashion. The aesthetic is elevated-casual and sustainability-minded.`,
     messages: [
       {
@@ -77,7 +77,7 @@ async function suggestSimilarBrands(client, existingBrands, count) {
           ", "
         )}\n\nNEVER suggest these blacklisted brands: ${
           BRAND_BLACKLIST.join(", ") || "(none)"
-        }.\n\nSuggest ${count} DIFFERENT brands we do NOT already carry that fit the same world: natural / low-tox fibers, elevated-casual, comparable price and values. Strongly prioritize brands that hold recognized certifications (GOTS, OEKO-TEX, Fair Trade, bluesign, B Corp). Use web search to confirm each brand exists and sells natural-fiber clothing.\n\nReturn ONLY a JSON array, no markdown:\n[{"brand":"...","certifications":["GOTS"],"note":"why it fits"}]`,
+        }.\n\nSuggest ${count} DIFFERENT brands we do NOT already carry that fit the same world: natural / low-tox fibers, elevated-casual, comparable price and values. Favor brands in the mid-range / accessible-premium price band (most pieces roughly $50–$150), not ultra-budget fast fashion or high-luxury labels. Strongly prioritize brands that hold recognized certifications (GOTS, OEKO-TEX, Fair Trade, bluesign, B Corp). Use web search to confirm each brand exists and sells natural-fiber clothing.\n\nReturn ONLY a JSON array, no markdown:\n[{"brand":"...","certifications":["GOTS"],"note":"why it fits"}]`,
       },
     ],
   });
@@ -120,7 +120,11 @@ For each product extract:
 - fabric_composition: object mapping fabric name to PERCENTAGE number (e.g. {"organic cotton": 95, "elastane": 5})
 - certifications: array of certs explicitly stated (e.g. ["GOTS","OEKO-TEX Standard 100"]); [] if none
 
-Only include products that are currently available for purchase and made primarily from natural/low-tox fibers. Return ONLY a valid JSON array, no markdown.`;
+Only include products that are currently available for purchase and made primarily from natural/low-tox fibers.
+
+PRICE PRIORITY: Strongly prioritize mid-range prices — roughly $50–$150, with the sweet spot around $100 (this reflects where Toxome's catalog and customers sit). De-prioritize ultra-cheap basics under ~$40 and luxury outliers over ~$200; only include those if they are exceptional. When a brand spans many prices, pick the mid-range pieces.
+
+Return ONLY a valid JSON array, no markdown.`;
 
 async function findProductsForBrand(client, brand, perBrand) {
   let resp;
