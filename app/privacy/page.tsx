@@ -156,7 +156,11 @@ export default async function PrivacyPage() {
               website. Some links contain an affiliate code so we earn a
               small commission. We don&apos;t share your Toxome account or
               closet data with them; they only see that the click came from
-              us.
+              us. We also keep our own anonymous record of which products and
+              brands get viewed and clicked &mdash; tied to a random device id,
+              never your name or email &mdash; so we can see what&apos;s
+              resonating and show brands the interest we send their way. This
+              stays inside Toxome; it isn&apos;t sold or handed to advertisers.
             </li>
             <li>
               Law enforcement, if we receive a valid legal request and we

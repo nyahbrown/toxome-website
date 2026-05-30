@@ -10,6 +10,7 @@ import {
   scoreToRiskLevel,
 } from "@/lib/fabricScores";
 import type { Product } from "@/types/product";
+import BrandTrafficPanel from "@/components/admin/BrandTrafficPanel";
 
 const ADMIN_EMAIL = "nyah@toxome.app";
 
@@ -553,6 +554,9 @@ export default function AdminPage() {
           <StatCard label="Removed" value={stats?.removed} />
           <StatCard label="Total" value={stats?.total} muted />
         </div>
+
+        {/* Brand traffic — outbound clicks per brand, for pitch numbers */}
+        <BrandTrafficPanel getToken={token} />
 
         {/* Controls */}
         <div
