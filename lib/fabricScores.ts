@@ -1,43 +1,47 @@
-// Per-fiber hazard scores (0 = clean, 100 = high concern).
-// Mirrors scripts/agent.js FABRIC_SCORES. If the agent's scores change,
-// update both files in lockstep.
+// Per-fiber WEARER hazard scores (0 = clean, 100 = high concern).
+// MIRRORS THE TOXOME APP (assets/data/fiber_database.json / SCORING_RUBRIC.md).
+// Keep scripts/fabricScores.js in lockstep. Worker-health + environment are
+// informational in the app and never affect this number.
 export const FABRIC_SCORES: Record<string, number> = {
-  organic_cotton: 5,
-  cotton: 20,
-  linen: 8,
-  hemp: 6,
-  tencel: 18,
-  lyocell: 18,
-  wool: 15,
-  merino: 15,
-  alpaca: 12,
-  cashmere: 14,
-  silk: 12,
-  // Lenzing-branded cellulosics (TENCEL™ Lyocell/Modal, LENZING™ ECOVERO™
-  // viscose) are the certified, closed-loop, traceable versions — healthy.
-  // Generic/unverified `viscose` and `rayon` stay moderate.
+  hemp: 8,
+  organic_cotton: 10,
+  linen: 10,
+  ramie: 14,
+  tencel: 12,
+  tencel_lyocell: 12,
+  lyocell: 12,
+  silk: 15,
+  alpaca: 16,
+  cashmere: 16,
+  merino: 18,
+  merino_wool: 18,
   ecovero: 18,
-  lenzing_viscose: 18,
   lenzing_ecovero: 18,
-  tencel_lyocell: 18,
-  tencel_modal: 18,
-  // Generic / unverified cellulosics — same viscose process, moderate concern.
-  modal: 40,
-  bamboo: 40,
-  viscose: 40,
-  rayon: 40,
-  spandex: 55,
-  elastane: 55,
-  fleece: 60,
-  // Plastics — high concern. Recycled synthetics are still plastic, so they
-  // stay red, same as virgin.
-  recycled_polyester: 70,
-  recycled_nylon: 70,
-  microfiber: 70,
-  nylon: 70,
-  polyester: 72,
-  acrylic: 78,
+  lenzing_viscose: 18,
+  mohair: 20,
+  modal: 20,
+  // Viscose / rayon / bamboo are CLEAN TO WEAR (the CS2 process harm is
+  // occupational, not in the finished fiber) — low, per the app rubric.
+  viscose: 22,
+  rayon: 22,
+  bamboo: 22,
+  wool: 24,
+  cupro: 24,
+  cotton: 30,
+  acetate: 32,
+  spandex: 60,
+  elastane: 60,
+  leather: 65,
+  nylon: 68,
+  polyester: 70,
+  acrylic: 74,
+  polyurethane: 75,
 };
+
+// Worst-offender lift constants (app scan_config.dart).
+const LAMBDA_MAX = 0.45;
+const TAU = 12.0;
+const HIGH_HAZARD_FIBER = 60;
 
 export function fiberKey(name: string): string {
   return name.toLowerCase().trim().replace(/\s+/g, "_");
@@ -65,10 +69,10 @@ export function normalizeFiber(name: string): string {
 export function fiberScore(name: string): number {
   const key = fiberKey(name);
   if (key in FABRIC_SCORES) return FABRIC_SCORES[key];
-  // Lenzing / Ecovero / Tencel branded fibers are the verified healthy versions,
-  // even when the name also contains "viscose" (e.g. "lenzing ecovero viscose").
-  // Check this BEFORE the generic keyword match so it doesn't fall back to viscose.
-  if (/lenzing|ecovero|tencel/.test(key)) return 18;
+  // Branded cellulosics: Tencel/lyocell are cleanest (12); Lenzing ECOVERO
+  // viscose is 18 — checked before the generic keyword match.
+  if (/tencel|lyocell/.test(key)) return 12;
+  if (/ecovero|lenzing/.test(key)) return 18;
   // Otherwise: the longest known fiber word contained in the name wins, so
   // "european_linen" -> linen, "organic_cotton_blend" -> organic_cotton.
   let best: number | null = null;
@@ -82,10 +86,11 @@ export function fiberScore(name: string): number {
   return best ?? 50;
 }
 
-// Same thresholds as the risk_level chip on the product detail page.
+// App hazard-level thresholds (hazard_calculator_service.dart): low 0-36,
+// moderate 37-60, high 61-100.
 export function hazardColor(score: number): string {
-  if (score <= 33) return "var(--risk-low)";
-  if (score <= 66) return "var(--orange)";
+  if (score <= 36) return "var(--risk-low)";
+  if (score <= 60) return "var(--orange)";
   return "var(--red)";
 }
 
@@ -93,29 +98,39 @@ export function fiberHazardColor(name: string): string {
   return hazardColor(fiberScore(name));
 }
 
-// Overall product score from a {fiber: fraction|percent} map. Mirrors
-// calcToxomeScore in scripts/fabricScores.js — used by the admin API when an
-// edit changes a product's fabric_composition.
+// Overall product score from a {fiber: fraction|percent} map. Mirrors the app:
+// weighted average lifted toward the worst fiber so a small % of a high-hazard
+// fiber can't read as clean. Keep in lockstep with scripts/fabricScores.js.
 export function calcToxomeScore(
   composition: Record<string, number> | null | undefined
 ): number | null {
   if (!composition || Object.keys(composition).length === 0) return null;
-  let weighted = 0;
-  let total = 0;
-  for (const [fiber, pct] of Object.entries(composition)) {
-    weighted += fiberScore(fiber) * Number(pct);
-    total += Number(pct);
-  }
+  const entries = Object.entries(composition)
+    .map(([f, v]) => [fiberScore(f), Number(v)] as const)
+    .filter(([, v]) => Number.isFinite(v) && v > 0);
+  if (entries.length === 0) return null;
+  const total = entries.reduce((s, [, v]) => s + v, 0);
   if (total === 0) return null;
-  return Math.min(100, Math.max(0, Math.round(weighted / total)));
+
+  const weighted = entries.reduce((s, [score, v]) => s + score * v, 0) / total;
+  const worst = Math.max(...entries.map(([score]) => score));
+  const synthPct =
+    (entries
+      .filter(([score]) => score >= HIGH_HAZARD_FIBER)
+      .reduce((s, [, v]) => s + v, 0) /
+      total) *
+    100;
+  const lambda = LAMBDA_MAX * (1 - Math.exp(-synthPct / TAU));
+  const score = weighted + lambda * (worst - weighted);
+  return Math.min(100, Math.max(0, Math.round(score)));
 }
 
 export function scoreToRiskLevel(
   score: number | null
 ): "low" | "moderate" | "high" | null {
   if (score == null) return null;
-  if (score <= 33) return "low";
-  if (score <= 66) return "moderate";
+  if (score <= 36) return "low";
+  if (score <= 60) return "moderate";
   return "high";
 }
 
@@ -137,6 +152,12 @@ const FIBER_LABELS: Record<string, string> = {
   merino: "Merino wool",
   alpaca: "Alpaca",
   cashmere: "Cashmere",
+  mohair: "Mohair",
+  cupro: "Cupro",
+  ramie: "Ramie",
+  acetate: "Acetate",
+  leather: "Leather",
+  polyurethane: "Polyurethane",
   silk: "Silk",
   recycled_polyester: "Recycled polyester",
   polyester: "Polyester",

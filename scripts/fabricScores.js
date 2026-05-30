@@ -1,59 +1,63 @@
 /**
- * Single source of truth for fabric hazard scoring used by the Node scripts
- * (agent.js, enrich-products.js, recompute-scores.js).
+ * Single source of truth for fabric hazard scoring — MIRRORS THE TOXOME APP.
+ * Ported from the app's assets/data/fiber_database.json + hazard_calculator_service.dart
+ * + config/scan_config.dart (SCORING_RUBRIC.md). Keep lib/fabricScores.ts in lockstep.
  *
- * Keep lib/fabricScores.ts (the website's TypeScript copy, used for per-fiber
- * bar colors) in lockstep with this file.
- *
- * Score: 0 = clean, 100 = high concern.  Tiers: <=33 low, 34-66 moderate, >66 high.
+ * Score = WEARER health only (0-100, lower = safer). Worker-health and
+ * environment are informational in the app and never affect the number.
+ * Levels: low 0-36, moderate 37-60, high 61-100.
  */
 
+// Per-fiber wearer hazard scores (app fiber_database.json).
 const FABRIC_SCORES = {
-  organic_cotton: 5,
-  hemp: 6,
-  linen: 8,
-  alpaca: 12,
-  silk: 12,
-  cashmere: 14,
-  wool: 15,
-  merino: 15,
-  // Lenzing-branded cellulosics (TENCEL Lyocell/Modal, LENZING ECOVERO viscose)
-  // are the certified, closed-loop, traceable versions — healthy. Generic /
-  // unverified viscose, rayon, bamboo and modal are moderate (same process).
-  tencel: 18,
-  lyocell: 18,
+  hemp: 8,
+  organic_cotton: 10,
+  linen: 10,
+  ramie: 14,
+  tencel: 12,
+  tencel_lyocell: 12,
+  lyocell: 12,
+  silk: 15,
+  alpaca: 16,
+  cashmere: 16,
+  merino: 18,
+  merino_wool: 18,
   ecovero: 18,
-  lenzing_viscose: 18,
   lenzing_ecovero: 18,
-  tencel_lyocell: 18,
-  tencel_modal: 18,
-  cotton: 20,
-  modal: 40,
-  bamboo: 40,
-  viscose: 40,
-  rayon: 40,
-  spandex: 55,
-  elastane: 55,
-  fleece: 60,
-  // Recycled synthetics are still plastic — high hazard, same as virgin.
-  recycled_polyester: 70,
-  recycled_nylon: 70,
-  microfiber: 70,
-  nylon: 70,
-  polyester: 72,
-  acrylic: 78,
+  lenzing_viscose: 18,
+  mohair: 20,
+  modal: 20,
+  viscose: 22, // clean to wear — CS2 harm is occupational, not in finished fiber
+  rayon: 22,
+  bamboo: 22,
+  wool: 24,
+  cupro: 24,
+  cotton: 30,
+  acetate: 32,
+  spandex: 60,
+  elastane: 60,
+  leather: 65,
+  nylon: 68,
+  polyester: 70,
+  acrylic: 74,
+  polyurethane: 75,
 };
 
-/** Resolve a (possibly compound / branded) fabric name to a hazard score. */
+// Worst-offender lift constants (app scan_config.dart, "balanced").
+const LAMBDA_MAX = 0.45;
+const TAU = 12.0;
+const HIGH_HAZARD_FIBER = 60; // fibers at/above this count as "worst offenders"
+
+/** Resolve a (possibly compound / branded) fabric name to a wearer hazard score. */
 function fabricScore(fabric) {
   const key = String(fabric).toLowerCase().trim().replace(/\s+/g, "_");
   if (key in FABRIC_SCORES) return FABRIC_SCORES[key];
-  // Lenzing / Ecovero / Tencel branded fibers are the verified healthy versions,
-  // even when the name also contains "viscose" (e.g. "lenzing ecovero viscose").
-  // Checked BEFORE the generic match so it never falls back to plain viscose.
-  if (/lenzing|ecovero|tencel/.test(key)) return 18;
-  // Otherwise the longest known fiber word contained in the name wins, so
-  // "european_linen" -> linen, "organic_cotton_blend" -> organic_cotton.
+  // Branded cellulosics: Tencel/lyocell are the cleanest (12); Lenzing ECOVERO
+  // viscose is 18 — both checked before the generic keyword match.
+  if (/tencel|lyocell/.test(key)) return 12;
+  if (/ecovero|lenzing/.test(key)) return 18;
+  // Longest known fiber word contained in the name wins, so "european_linen"
+  // -> linen, "recycled_polyester" -> polyester, "mulberry_silk" -> silk.
   let best = null;
   let bestLen = 0;
   for (const known of Object.keys(FABRIC_SCORES)) {
@@ -62,26 +66,42 @@ function fabricScore(fabric) {
       bestLen = known.length;
     }
   }
-  return best ?? 50;
+  return best ?? 50; // unknown fiber -> neutral
 }
 
+/**
+ * Combine a {fiber: fraction|percent} map into one wearer score, exactly like
+ * the app: weighted average, then lifted toward the worst fiber so a small % of
+ * a high-hazard fiber can't read as clean.
+ *   lambda = LAMBDA_MAX * (1 - e^(-synthPct/TAU)); synthPct = % of fibers >= 60
+ *   score  = weightedAvg + lambda * (worst - weightedAvg)
+ */
 function calcToxomeScore(fabricComposition) {
   if (!fabricComposition || Object.keys(fabricComposition).length === 0)
     return null;
-  let weighted = 0;
-  let total = 0;
-  for (const [fabric, pct] of Object.entries(fabricComposition)) {
-    weighted += fabricScore(fabric) * Number(pct);
-    total += Number(pct);
-  }
+  const entries = Object.entries(fabricComposition)
+    .map(([f, v]) => [fabricScore(f), Number(v)])
+    .filter(([, v]) => Number.isFinite(v) && v > 0);
+  if (entries.length === 0) return null;
+  const total = entries.reduce((s, [, v]) => s + v, 0);
   if (total === 0) return null;
-  return Math.min(100, Math.max(0, Math.round(weighted / total)));
+
+  const weighted = entries.reduce((s, [score, v]) => s + score * v, 0) / total;
+  const worst = Math.max(...entries.map(([score]) => score));
+  const synthPct =
+    (entries.filter(([score]) => score >= HIGH_HAZARD_FIBER).reduce((s, [, v]) => s + v, 0) /
+      total) *
+    100;
+  const lambda = LAMBDA_MAX * (1 - Math.exp(-synthPct / TAU));
+  const score = weighted + lambda * (worst - weighted);
+  return Math.min(100, Math.max(0, Math.round(score)));
 }
 
+// App thresholds (hazard_calculator_service.dart _getHazardLevel).
 function scoreToRiskLevel(score) {
   if (score == null) return null;
-  if (score <= 33) return "low";
-  if (score <= 66) return "moderate";
+  if (score <= 36) return "low";
+  if (score <= 60) return "moderate";
   return "high";
 }
 
