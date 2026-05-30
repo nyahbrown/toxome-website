@@ -178,6 +178,69 @@ function harvestImages(
   return out;
 }
 
+// ---------------------------------------------------------------------------
+// Product-page + image-render guarantees (mirror of scripts/scrape.js)
+// ---------------------------------------------------------------------------
+const REFERER = "https://toxome.app/";
+
+/** The real test of whether the grid / review card will render an image. */
+async function imageLoads(url: string): Promise<boolean> {
+  try {
+    const res = await fetch(url, {
+      headers: { "User-Agent": UA, Referer: REFERER, Accept: "image/*" },
+      redirect: "follow",
+      signal: AbortSignal.timeout(15000),
+    });
+    if (!res.ok) return false;
+    const ct = (res.headers.get("content-type") || "").toLowerCase();
+    return ct.startsWith("image");
+  } catch {
+    return false;
+  }
+}
+
+function ogTypeIsProduct(html: string): boolean {
+  if (!html) return false;
+  const m = html.match(
+    /<meta[^>]+property=["']og:type["'][^>]+content=["']([^"']+)["']/i
+  );
+  return !!m && /product/i.test(m[1]);
+}
+
+function pathLooksLikeProduct(pathname: string): boolean {
+  return /\/(products?|p|item|dp)\//i.test(pathname);
+}
+
+function pathLooksLikeNonProduct(pathname: string): boolean {
+  const p = pathname || "/";
+  if (p === "/" || p === "") return true;
+  if (/\/(collections|category)\//i.test(p)) return true;
+  if (/\/search(\/|$|\?)/i.test(p) && !pathLooksLikeProduct(p)) return true;
+  return false;
+}
+
+function isProductPage(
+  finalUrl: string,
+  html: string,
+  shopify: ShopifyProduct | null,
+  prodLd: ProductLd | undefined
+): boolean {
+  let finalPath = "/";
+  try {
+    finalPath = new URL(finalUrl).pathname;
+  } catch {
+    /* keep default */
+  }
+  const isPathProduct = pathLooksLikeProduct(finalPath);
+  if (pathLooksLikeNonProduct(finalPath) && !isPathProduct) return false;
+  const isShopifyProduct =
+    !!shopify &&
+    (typeof (shopify as { id?: unknown }).id !== "undefined" ||
+      !!(shopify as { title?: unknown }).title ||
+      !!(shopify as { handle?: unknown }).handle);
+  return isShopifyProduct || !!prodLd || ogTypeIsProduct(html) || isPathProduct;
+}
+
 function cleanText(html: string): string {
   return html
     .replace(/<script[\s\S]*?<\/script>/gi, " ")
@@ -344,8 +407,14 @@ export async function extractProductFromUrl(
   if (!page.html)
     return { ok: false, error: "The page returned no content" };
 
-  const shopify = await shopifyProduct(url);
+  const finalUrl = page.finalUrl || url;
+  const shopify = await shopifyProduct(finalUrl);
   const prodLd = findProductLd(extractJsonLd(page.html));
+
+  // Guarantee a specific product page (not a homepage / collection / category).
+  if (!isProductPage(finalUrl, page.html, shopify, prodLd)) {
+    return { ok: false, error: "Not a specific product page" };
+  }
 
   let fields: ExtractedFields | null;
   try {
@@ -362,7 +431,17 @@ export async function extractProductFromUrl(
     };
   }
 
-  const images = harvestImages(page, shopify, prodLd, url);
+  // Harvest candidate images, then keep only the ones that actually render.
+  const candidateImages = harvestImages(page, shopify, prodLd, finalUrl);
+  const images: string[] = [];
+  for (const img of candidateImages) {
+    if (await imageLoads(img)) images.push(img);
+    if (images.length >= MAX_IMAGES) break;
+  }
+  if (images.length < 1) {
+    return { ok: false, error: "No working product image found" };
+  }
+
   const composition = toFractions(fields.fabric_composition);
   const score = calcToxomeScore(composition);
   const price =
@@ -388,7 +467,7 @@ export async function extractProductFromUrl(
     gender,
     item_image: images[0] ?? null,
     images,
-    item_url: url,
+    item_url: finalUrl,
     fabric_composition: composition,
     materials_text: fields.materials_text || null,
     description: fields.description || null,

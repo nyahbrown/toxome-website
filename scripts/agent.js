@@ -27,6 +27,7 @@
 
 const Anthropic = require("@anthropic-ai/sdk");
 const { createClient } = require("@supabase/supabase-js");
+const { getValidatedProduct } = require("./scrape");
 
 const SUPABASE_URL = "https://xclvodbmllglmharezqa.supabase.co";
 const MODEL = "claude-sonnet-4-6";
@@ -238,7 +239,14 @@ async function run() {
       "\n"
   );
 
-  const stats = { found: 0, tooSynthetic: 0, duplicate: 0, inserted: 0 };
+  const stats = {
+    found: 0,
+    tooSynthetic: 0,
+    duplicate: 0,
+    invalidPage: 0,
+    noImage: 0,
+    inserted: 0,
+  };
 
   for (const b of suggested) {
     const brand = b.brand;
@@ -263,6 +271,24 @@ async function run() {
         );
         continue;
       }
+      // Guarantee an exact product-page URL and a main image that renders.
+      // This adds one page fetch + a few image checks per product — expected.
+      if (!item.item_url) {
+        stats.invalidPage++;
+        console.log(`  ✗ ${item.item_name} — no item_url`);
+        continue;
+      }
+      const validated = await getValidatedProduct(item.item_url);
+      if (!validated.ok) {
+        const reason = validated.reason || "invalid";
+        if (/image/i.test(reason)) stats.noImage++;
+        else stats.invalidPage++;
+        console.log(`  ✗ ${item.item_name} — ${reason}`);
+        continue;
+      }
+      item.item_url = validated.finalUrl;
+      item.item_image = validated.images[0];
+
       const certs =
         Array.isArray(item.certifications) && item.certifications.length
           ? item.certifications
@@ -276,8 +302,9 @@ async function run() {
         budget: item.budget ?? null,
         category: item.category ?? null,
         gender: item.gender ?? null,
-        item_image: item.item_image ?? null,
-        item_url: item.item_url ?? null,
+        item_image: item.item_image,
+        item_url: item.item_url,
+        images: validated.images,
         affiliate_url: null,
         fabric_composition: item.fabric_composition ?? null,
         certifications: certs,
