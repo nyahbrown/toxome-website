@@ -52,6 +52,9 @@ function ProductCard({
   );
   const [imgIdx, setImgIdx] = useState(0);
   const imgSrc = imgCandidates[imgIdx];
+  // Second photo shown on hover (first candidate that differs from the primary).
+  const [hoverErr, setHoverErr] = useState(false);
+  const hoverSrc = imgCandidates.find((u) => u !== imgSrc);
 
   return (
     <Link
@@ -73,21 +76,43 @@ function ProductCard({
         }}
       >
         {imgSrc ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={imgSrc}
-            alt={p.item_name}
-            onError={() => setImgIdx((i) => i + 1)}
-            style={{
-              position: "absolute",
-              inset: 0,
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              transition: "transform 400ms ease",
-              transform: hovered ? "scale(1.03)" : "scale(1)",
-            }}
-          />
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={imgSrc}
+              alt={p.item_name}
+              onError={() => setImgIdx((i) => i + 1)}
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                transition: "transform 400ms ease",
+                transform: hovered ? "scale(1.03)" : "scale(1)",
+              }}
+            />
+            {hoverSrc && !hoverErr && (
+              // Second photo, cross-faded in on hover.
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={hoverSrc}
+                alt=""
+                aria-hidden="true"
+                onError={() => setHoverErr(true)}
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  opacity: hovered ? 1 : 0,
+                  transition: "opacity 300ms ease, transform 400ms ease",
+                  transform: hovered ? "scale(1.03)" : "scale(1)",
+                }}
+              />
+            )}
+          </>
         ) : (
           <div
             style={{
