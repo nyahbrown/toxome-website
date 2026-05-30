@@ -8,29 +8,57 @@ export const FABRIC_SCORES: Record<string, number> = {
   hemp: 6,
   tencel: 18,
   lyocell: 18,
-  modal: 22,
-  bamboo: 25,
   wool: 15,
   merino: 15,
+  alpaca: 12,
+  cashmere: 14,
   silk: 12,
-  recycled_polyester: 45,
-  polyester: 65,
-  nylon: 62,
-  acrylic: 78,
-  spandex: 55,
-  elastane: 55,
+  // Lenzing-branded cellulosics (TENCEL™ Lyocell/Modal, LENZING™ ECOVERO™
+  // viscose) are the certified, closed-loop, traceable versions — healthy.
+  // Generic/unverified `viscose` and `rayon` stay moderate.
+  ecovero: 18,
+  lenzing_viscose: 18,
+  lenzing_ecovero: 18,
+  tencel_lyocell: 18,
+  tencel_modal: 18,
+  // Generic / unverified cellulosics — same viscose process, moderate concern.
+  modal: 40,
+  bamboo: 40,
   viscose: 40,
   rayon: 40,
-  microfiber: 70,
+  recycled_polyester: 45,
+  spandex: 55,
+  elastane: 55,
   fleece: 60,
+  // Virgin plastics — high concern.
+  microfiber: 70,
+  nylon: 70,
+  polyester: 72,
+  acrylic: 78,
 };
 
 export function fiberKey(name: string): string {
-  return name.toLowerCase().replace(/\s+/g, "_");
+  return name.toLowerCase().trim().replace(/\s+/g, "_");
 }
 
 export function fiberScore(name: string): number {
-  return FABRIC_SCORES[fiberKey(name)] ?? 50;
+  const key = fiberKey(name);
+  if (key in FABRIC_SCORES) return FABRIC_SCORES[key];
+  // Lenzing / Ecovero / Tencel branded fibers are the verified healthy versions,
+  // even when the name also contains "viscose" (e.g. "lenzing ecovero viscose").
+  // Check this BEFORE the generic keyword match so it doesn't fall back to viscose.
+  if (/lenzing|ecovero|tencel/.test(key)) return 18;
+  // Otherwise: the longest known fiber word contained in the name wins, so
+  // "european_linen" -> linen, "organic_cotton_blend" -> organic_cotton.
+  let best: number | null = null;
+  let bestLen = 0;
+  for (const known of Object.keys(FABRIC_SCORES)) {
+    if (key.includes(known) && known.length > bestLen) {
+      best = FABRIC_SCORES[known];
+      bestLen = known.length;
+    }
+  }
+  return best ?? 50;
 }
 
 // Same thresholds as the risk_level chip on the product detail page.
@@ -51,10 +79,17 @@ const FIBER_LABELS: Record<string, string> = {
   hemp: "Hemp",
   tencel: "Tencel",
   lyocell: "Lyocell",
+  tencel_lyocell: "Tencel Lyocell",
+  tencel_modal: "Tencel Modal",
+  ecovero: "LENZING ECOVERO™",
+  lenzing_viscose: "LENZING™ Viscose",
+  lenzing_ecovero: "LENZING ECOVERO™",
   modal: "Modal",
   bamboo: "Bamboo",
   wool: "Wool",
   merino: "Merino wool",
+  alpaca: "Alpaca",
+  cashmere: "Cashmere",
   silk: "Silk",
   recycled_polyester: "Recycled polyester",
   polyester: "Polyester",

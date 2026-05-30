@@ -43,6 +43,15 @@ function ProductCard({
   const isWishlisted = wishlist.has(p.id);
   const isNew = p.tags?.some((t) => t.toLowerCase() === "new") ?? false;
 
+  // Resilient image: try item_image, then each gallery image, then a placeholder.
+  // Some retailers 404 or hotlink-block their main image; the gallery images are
+  // mostly canonical CDN URLs that load reliably.
+  const imgCandidates = [p.item_image, ...(p.images ?? [])].filter(
+    (u): u is string => !!u
+  );
+  const [imgIdx, setImgIdx] = useState(0);
+  const imgSrc = imgCandidates[imgIdx];
+
   return (
     <Link
       href={`/shop/${p.id}`}
@@ -62,11 +71,12 @@ function ProductCard({
           transform: hovered ? "translateY(-2px)" : "none",
         }}
       >
-        {p.item_image ? (
+        {imgSrc ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={p.item_image}
+            src={imgSrc}
             alt={p.item_name}
+            onError={() => setImgIdx((i) => i + 1)}
             style={{
               position: "absolute",
               inset: 0,
