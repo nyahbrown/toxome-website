@@ -26,11 +26,13 @@ export const FABRIC_SCORES: Record<string, number> = {
   bamboo: 40,
   viscose: 40,
   rayon: 40,
-  recycled_polyester: 45,
   spandex: 55,
   elastane: 55,
   fleece: 60,
-  // Virgin plastics — high concern.
+  // Plastics — high concern. Recycled synthetics are still plastic, so they
+  // stay red, same as virgin.
+  recycled_polyester: 70,
+  recycled_nylon: 70,
   microfiber: 70,
   nylon: 70,
   polyester: 72,
@@ -70,6 +72,32 @@ export function hazardColor(score: number): string {
 
 export function fiberHazardColor(name: string): string {
   return hazardColor(fiberScore(name));
+}
+
+// Overall product score from a {fiber: fraction|percent} map. Mirrors
+// calcToxomeScore in scripts/fabricScores.js — used by the admin API when an
+// edit changes a product's fabric_composition.
+export function calcToxomeScore(
+  composition: Record<string, number> | null | undefined
+): number | null {
+  if (!composition || Object.keys(composition).length === 0) return null;
+  let weighted = 0;
+  let total = 0;
+  for (const [fiber, pct] of Object.entries(composition)) {
+    weighted += fiberScore(fiber) * Number(pct);
+    total += Number(pct);
+  }
+  if (total === 0) return null;
+  return Math.min(100, Math.max(0, Math.round(weighted / total)));
+}
+
+export function scoreToRiskLevel(
+  score: number | null
+): "low" | "moderate" | "high" | null {
+  if (score == null) return null;
+  if (score <= 33) return "low";
+  if (score <= 66) return "moderate";
+  return "high";
 }
 
 const FIBER_LABELS: Record<string, string> = {

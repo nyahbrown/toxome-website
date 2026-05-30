@@ -399,16 +399,17 @@ async function run() {
     // --- unpublish dead / sold out -----------------------------------------
     if (check.state === "dead" || check.state === "out_of_stock") {
       const key = check.state === "dead" ? "unpublishedDead" : "unpublishedSoldOut";
+      const reason = check.state === "dead" ? "dead" : "sold_out";
       stats[key]++;
       console.log(`⊘ ${label}: ${check.state} (${check.reason}) → unpublish`);
       if (FLAGS.emitSql)
         SQL_OUT.push(
-          `UPDATE products SET published=false WHERE id='${p.id}'; -- ${check.state}: ${label}`
+          `UPDATE products SET published=false, unpublish_reason='${reason}' WHERE id='${p.id}'; -- ${check.state}: ${label}`
         );
       if (!FLAGS.dryRun) {
         const { error: uerr } = await supabase
           .from("products")
-          .update({ published: false })
+          .update({ published: false, unpublish_reason: reason })
           .eq("id", p.id);
         if (uerr) console.log(`   ! update failed: ${uerr.message}`);
       }

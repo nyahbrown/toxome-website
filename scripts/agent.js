@@ -51,6 +51,16 @@ function intFlag(name) {
 // ---------------------------------------------------------------------------
 const { calcToxomeScore, scoreToRiskLevel } = require("./fabricScores");
 
+// Brands Toxome will never source (shared with the admin add-by-URL feature).
+const BRAND_BLACKLIST = require("../lib/brandBlacklist.json").map((b) =>
+  b.toLowerCase().trim()
+);
+function isBlacklisted(brand) {
+  if (!brand) return false;
+  const b = String(brand).toLowerCase().trim();
+  return BRAND_BLACKLIST.some((x) => b.includes(x));
+}
+
 // ---------------------------------------------------------------------------
 // Step 1 — suggest brands similar to the existing catalog
 // ---------------------------------------------------------------------------
@@ -65,7 +75,9 @@ async function suggestSimilarBrands(client, existingBrands, count) {
         role: "user",
         content: `These brands are ALREADY in our catalog:\n${existingBrands.join(
           ", "
-        )}\n\nSuggest ${count} DIFFERENT brands we do NOT already carry that fit the same world: natural / low-tox fibers, elevated-casual, comparable price and values. Strongly prioritize brands that hold recognized certifications (GOTS, OEKO-TEX, Fair Trade, bluesign, B Corp). Use web search to confirm each brand exists and sells natural-fiber clothing.\n\nReturn ONLY a JSON array, no markdown:\n[{"brand":"...","certifications":["GOTS"],"note":"why it fits"}]`,
+        )}\n\nNEVER suggest these blacklisted brands: ${
+          BRAND_BLACKLIST.join(", ") || "(none)"
+        }.\n\nSuggest ${count} DIFFERENT brands we do NOT already carry that fit the same world: natural / low-tox fibers, elevated-casual, comparable price and values. Strongly prioritize brands that hold recognized certifications (GOTS, OEKO-TEX, Fair Trade, bluesign, B Corp). Use web search to confirm each brand exists and sells natural-fiber clothing.\n\nReturn ONLY a JSON array, no markdown:\n[{"brand":"...","certifications":["GOTS"],"note":"why it fits"}]`,
       },
     ],
   });
@@ -77,7 +89,13 @@ async function suggestSimilarBrands(client, existingBrands, count) {
     const arr = JSON.parse(match[0]);
     const existingLower = new Set(existingBrands.map((b) => b.toLowerCase().trim()));
     return Array.isArray(arr)
-      ? arr.filter((b) => b && b.brand && !existingLower.has(b.brand.toLowerCase().trim()))
+      ? arr.filter(
+          (b) =>
+            b &&
+            b.brand &&
+            !existingLower.has(b.brand.toLowerCase().trim()) &&
+            !isBlacklisted(b.brand)
+        )
       : [];
   } catch {
     return [];
@@ -196,6 +214,7 @@ async function run() {
     const toInsert = [];
     for (const item of rawItems) {
       if (!item.item_name || !item.brand) continue;
+      if (isBlacklisted(item.brand)) continue;
       stats.found++;
       if (item.item_url && existingUrls.has(item.item_url)) {
         stats.duplicate++;

@@ -32,10 +32,12 @@ const FABRIC_SCORES = {
   bamboo: 40,
   viscose: 40,
   rayon: 40,
-  recycled_polyester: 45,
   spandex: 55,
   elastane: 55,
   fleece: 60,
+  // Recycled synthetics are still plastic — high hazard, same as virgin.
+  recycled_polyester: 70,
+  recycled_nylon: 70,
   microfiber: 70,
   nylon: 70,
   polyester: 72,
