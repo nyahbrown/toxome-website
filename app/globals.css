@@ -426,36 +426,53 @@ button { font-family: inherit; }
   .j-headline-link:hover :is(h1, h2) { color: var(--ink-2); }
 }
 
-/* "Up next" editorial list */
-.j-upnext { display: flex; flex-direction: column; }
-.j-upnext__row {
-  display: flex;
-  align-items: baseline;
-  gap: 20px;
-  padding: 22px 0;
-  border-top: 1px solid var(--hairline);
+/* Photo-card grid (Goop-style editorial index) */
+.j-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: 28px;
+  row-gap: 48px;
 }
-.j-upnext__row:last-child { border-bottom: 1px solid var(--hairline); }
-.j-upnext__row--link {
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0;
-  text-decoration: none;
-  transition: opacity 200ms var(--ease);
+@media (max-width: 900px) { .j-grid { grid-template-columns: repeat(2, 1fr); row-gap: 40px; } }
+@media (max-width: 560px) { .j-grid { grid-template-columns: 1fr; row-gap: 36px; } }
+
+.j-card { display: block; text-decoration: none; }
+.j-card__media {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--tan);
+}
+.j-card__media img {
+  object-fit: cover;
+  transform: scale(1.001); /* hide sub-pixel edge during zoom */
+  transition: transform 800ms var(--ease-out-strong);
 }
 @media (hover: hover) and (pointer: fine) {
-  .j-upnext__row--link:hover { opacity: 0.62; }
+  .j-card:hover .j-card__media img { transform: scale(1.045); }
 }
-.j-upnext__num {
+.j-card__kicker {
   font-family: var(--mono);
-  font-size: 12px;
-  letter-spacing: 0.1em;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   color: var(--ink-3);
-  flex-shrink: 0;
-  width: 28px;
+  margin: 16px 0 6px;
 }
-@media (max-width: 560px) {
-  .j-upnext__row { flex-direction: column; gap: 4px; padding: 18px 0; }
+.j-card__title {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(19px, 1.9vw, 24px);
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  text-transform: lowercase; /* lowercase on the index; normal case on the article */
+  color: var(--ink);
+  margin: 0;
+  transition: color 200ms var(--ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  .j-card:hover .j-card__title { color: var(--ink-2); }
 }
 
 /* Article reading column (width container only) */

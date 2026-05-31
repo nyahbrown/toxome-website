@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
@@ -18,8 +19,8 @@ export const metadata: Metadata = {
 export default async function JournalPage() {
   const taxonomy = await getShopTaxonomy();
   const articles = getAllArticles();
-  // The pinned piece stays the standing cover; everything else flows into Latest
-  // (newest first). Falls back to the newest article if nothing is pinned.
+  // The pinned piece stays the standing cover; everything else flows into the
+  // grid (newest first). Falls back to the newest article if nothing is pinned.
   const featured = articles.find((a) => a.pinned) ?? articles[0];
   const rest = articles.filter((a) => a.slug !== featured?.slug);
 
@@ -58,9 +59,9 @@ export default async function JournalPage() {
         <hr className="soft-divider" style={{ margin: "28px 0 0" }} />
       </div>
 
-      {/* Featured editorial — text-led cover */}
-      {featured ? (
-        <section className="shell" style={{ paddingTop: 72, paddingBottom: rest.length ? 64 : 120 }}>
+      {/* Featured editorial — text-led cover (title lowercased on the index) */}
+      {featured && (
+        <section className="shell" style={{ paddingTop: 72, paddingBottom: rest.length ? 72 : 120 }}>
           <article style={{ maxWidth: 760, margin: "0 auto", textAlign: "center" }}>
             <p className="eyebrow j-rise" style={{ margin: "0 0 20px" }}>
               {featured.pillar}
@@ -78,6 +79,7 @@ export default async function JournalPage() {
                   fontSize: "clamp(32px, 4.2vw, 54px)",
                   lineHeight: 1.08,
                   letterSpacing: "-0.025em",
+                  textTransform: "lowercase",
                   color: "var(--ink)",
                   margin: 0,
                 }}
@@ -127,7 +129,6 @@ export default async function JournalPage() {
                   color: "var(--ink-3)",
                 }}
               >
-                {featured.pillar === "The Manifesto" ? "Essay" : featured.pillar} ·{" "}
                 {featured.readingTime}
               </span>
             </div>
@@ -150,56 +151,39 @@ export default async function JournalPage() {
             </div>
           </article>
         </section>
-      ) : (
-        <section className="shell" style={{ paddingTop: 72, paddingBottom: 130 }}>
-          <p style={{ fontSize: 16, color: "var(--ink-3)", maxWidth: 420, lineHeight: 1.6 }}>
-            The first pieces are on their way. Check back shortly.
-          </p>
-        </section>
       )}
 
-      {/* Latest — appears once there is more than one article */}
+      {/* Photo grid — the rest of the Journal */}
       {rest.length > 0 && (
-        <section className="shell" style={{ paddingBottom: 130 }}>
-          <p className="eyebrow" style={{ marginBottom: 24 }}>
-            Latest
-          </p>
-          <div className="j-upnext">
+        <section className="shell" style={{ paddingTop: 8, paddingBottom: 130 }}>
+          <hr className="soft-divider" style={{ margin: "0 0 40px" }} />
+          <div className="j-grid">
             {rest.map((a) => (
-              <Link
-                key={a.slug}
-                href={`/journal/${a.slug}`}
-                className="j-upnext__row j-upnext__row--link"
-              >
-                <p
-                  style={{
-                    fontFamily: "var(--mono)",
-                    fontSize: 10.5,
-                    letterSpacing: "0.14em",
-                    textTransform: "uppercase",
-                    color: "var(--ink-3)",
-                    margin: "0 0 6px",
-                  }}
-                >
+              <Link key={a.slug} href={`/journal/${a.slug}`} className="j-card">
+                <div className="j-card__media">
+                  <Image
+                    src={a.hero}
+                    alt={a.title}
+                    fill
+                    sizes="(max-width: 560px) 100vw, (max-width: 900px) 50vw, 33vw"
+                  />
+                </div>
+                <p className="j-card__kicker">
                   {a.pillar} · {formatDate(a.date)}
                 </p>
-                <h2
-                  style={{
-                    fontFamily: "var(--serif)",
-                    fontWeight: 400,
-                    fontSize: "clamp(20px, 2.4vw, 27px)",
-                    lineHeight: 1.18,
-                    letterSpacing: "-0.02em",
-                    color: "var(--ink)",
-                    margin: 0,
-                  }}
-                >
-                  {a.title}
-                </h2>
+                <h2 className="j-card__title">{a.title}</h2>
               </Link>
             ))}
           </div>
         </section>
+      )}
+
+      {!featured && (
+        <div className="shell" style={{ paddingTop: 72, paddingBottom: 130 }}>
+          <p style={{ fontSize: 16, color: "var(--ink-3)", maxWidth: 420, lineHeight: 1.6 }}>
+            The first pieces are on their way. Check back shortly.
+          </p>
+        </div>
       )}
 
       <Footer />

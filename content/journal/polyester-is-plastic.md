@@ -4,6 +4,13 @@ dek: "Your gym top and a soda bottle start in nearly the same place. Here is wha
 date: "2026-06-01"
 pillar: "Fabric Science"
 mode: "educational"
+hero: "/fibers/wool.jpg"
+keywords:
+  - "is polyester bad for you"
+  - "polyester is plastic"
+  - "microplastics from clothing"
+  - "synthetic fabric on skin"
+  - "polyester health risks"
 sources:
   - label: "Textile Exchange. (2025). Materials Market Report 2025. (Polyester = 59% of global fiber production; ~88% fossil-based.)"
     href: "https://textileexchange.org/knowledge-center/reports/materials-market-report-2025/"

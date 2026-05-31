@@ -5,6 +5,13 @@ date: "2026-06-01"
 pillar: "The Manifesto"
 mode: "educational"
 pinned: true
+hero: "/fibers/linen.jpg"
+keywords:
+  - "fashion wellness"
+  - "what you wear is a health choice"
+  - "clean clothing"
+  - "non-toxic fashion"
+  - "clothing and health"
 sources:
   - label: "Jurikova, M., et al. (2024). Bisphenols in daily clothes from conventional and recycled material. Environmental Science and Pollution Research International."
     href: "https://pmc.ncbi.nlm.nih.gov/articles/PMC11415442/"

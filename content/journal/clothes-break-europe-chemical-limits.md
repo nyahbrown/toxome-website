@@ -4,6 +4,13 @@ dek: "Scientists tested 111 everyday pieces of clothing. What they found, and wh
 date: "2026-06-01"
 pillar: "In the News"
 mode: "news"
+hero: "/fibers/cotton.jpg"
+keywords:
+  - "chemicals in clothing"
+  - "bisphenol in clothes"
+  - "are my clothes toxic"
+  - "endocrine disruptors clothing"
+  - "BPA fabric"
 sources:
   - label: "Lavalle, R., Agnello, M., Mua, R., et al. (2025). Unveiling the Chemical Safety of Clothing Articles, Textiles and Footwear With Regard to the Presence of CMR Substances, Endocrine Disruptors and Skin Sensitizers Under EU Regulatory Restrictions. Contact Dermatitis, 93(6), 477–489."
     href: "https://doi.org/10.1111/cod.70026"

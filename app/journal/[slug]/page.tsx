@@ -25,13 +25,24 @@ export async function generateMetadata({
   return {
     title: `${article.title} | Toxome`,
     description: article.dek,
+    keywords: article.keywords.length ? article.keywords : undefined,
+    authors: [{ name: "Toxome Editors" }],
     alternates: { canonical: `/journal/${slug}` },
     openGraph: {
       type: "article",
       title: article.title,
       description: article.dek,
       url: `/journal/${slug}`,
+      siteName: "Toxome",
       publishedTime: article.date,
+      modifiedTime: article.date,
+      section: article.pillar,
+      tags: article.keywords,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: article.title,
+      description: article.dek,
     },
   };
 }
@@ -54,8 +65,13 @@ export default async function ArticlePage({
     "@type": "Article",
     headline: article.title,
     description: article.dek,
+    image: shareImage,
     datePublished: article.date,
-    author: { "@type": "Organization", name: "Toxome" },
+    dateModified: article.date,
+    articleSection: article.pillar,
+    inLanguage: "en-US",
+    keywords: article.keywords.join(", "),
+    author: { "@type": "Organization", name: "Toxome", url: SITE },
     publisher: {
       "@type": "Organization",
       name: "Toxome",
@@ -64,9 +80,20 @@ export default async function ArticlePage({
     mainEntityOfPage: shareUrl,
   };
 
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE },
+      { "@type": "ListItem", position: 2, name: "Journal", item: `${SITE}/journal` },
+      { "@type": "ListItem", position: 3, name: article.title, item: shareUrl },
+    ],
+  };
+
   return (
     <main style={{ background: "var(--bg)", minHeight: "100vh" }}>
       <JsonLd data={articleSchema} />
+      <JsonLd data={breadcrumbSchema} />
       <Nav taxonomy={taxonomy} />
 
       {/* Header */}
