@@ -168,9 +168,35 @@ export default function HomeClient({
       {/* Browse by fiber — 50px gap below hero, matching Figma y=720 */}
       <section style={{ paddingTop: 50, paddingBottom: 96 }}>
         <div className="shell">
-          <div className="eyebrow" style={{ marginBottom: 24 }}>
+          <div className="eyebrow" style={{ marginBottom: 14 }}>
             Browse by fiber
           </div>
+          <h2
+            style={{
+              fontFamily: "var(--serif)",
+              fontWeight: 400,
+              fontSize: "clamp(24px, 3vw, 36px)",
+              lineHeight: 1.15,
+              letterSpacing: "-0.018em",
+              color: "var(--ink)",
+              margin: "0 0 12px",
+              maxWidth: 620,
+            }}
+          >
+            What your clothes are made of changes how they feel on your skin.
+          </h2>
+          <p
+            style={{
+              fontSize: 16,
+              lineHeight: 1.6,
+              color: "var(--ink-2)",
+              margin: "0 0 28px",
+              maxWidth: 560,
+            }}
+          >
+            Toxome scores every fiber for what it does to your body and the
+            planet. Start with one to see the cleaner options and what to avoid.
+          </p>
           <div className="fiber-grid">
             {FIBERS.map((f) => (
               <FiberTile key={f.name} name={f.name} image={f.image} />

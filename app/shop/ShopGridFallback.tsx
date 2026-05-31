@@ -9,7 +9,36 @@ import type { Product } from "@/lib/supabase";
 // and replaces this with the interactive, filterable grid.
 export default function ShopGridFallback({ products }: { products: Product[] }) {
   return (
-    <div className="product-grid">
+    <div className="shell" style={{ paddingTop: 24, paddingBottom: 64 }}>
+      {/* Crawlable heading + intro (client ShopClient replaces this on hydration). */}
+      <header style={{ maxWidth: 640, marginBottom: 32 }}>
+        <h1
+          style={{
+            fontFamily: "var(--serif)",
+            fontWeight: 400,
+            fontSize: "clamp(26px, 3vw, 38px)",
+            lineHeight: 1.15,
+            letterSpacing: "-0.018em",
+            color: "var(--ink)",
+            margin: "0 0 14px",
+          }}
+        >
+          Shop non-toxic clothing by fiber
+        </h1>
+        <p
+          style={{
+            fontSize: 16,
+            lineHeight: 1.6,
+            color: "var(--ink-2)",
+            margin: 0,
+          }}
+        >
+          Every piece is hand-curated by Toxome and made from cleaner, lower-toxin
+          natural fibers. Browse by fiber to find clothing that is kinder to your
+          skin and the planet.
+        </p>
+      </header>
+      <div className="product-grid">
       {products.map((p) => {
         const img = p.item_image || p.images?.[0] || null;
         return (
@@ -67,6 +96,7 @@ export default function ShopGridFallback({ products }: { products: Product[] }) 
           </Link>
         );
       })}
+      </div>
     </div>
   );
 }
