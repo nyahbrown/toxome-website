@@ -117,6 +117,21 @@ button { font-family: inherit; }
 
 @keyframes pulse { 0%, 100% { opacity: 1 } 50% { opacity: .35 } }
 
+/* Fabric guide — fiber cards */
+.guide-card {
+  background: var(--white);
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  padding: 22px;
+  transition: transform 200ms var(--ease), box-shadow 200ms var(--ease),
+    border-color 200ms var(--ease);
+}
+.guide-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--hairline-strong);
+  box-shadow: 0 10px 28px -12px rgba(59, 60, 58, 0.16);
+}
+
 /* Fiber grid — home + shop */
 .fiber-grid {
   display: grid;
@@ -164,13 +179,15 @@ button { font-family: inherit; }
 /* Footer grid */
 .footer-grid {
   display: grid;
-  grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1.6fr 1fr 1fr;
   gap: 48px;
-  margin-bottom: 80px;
+  margin-bottom: 64px;
 }
 @media (max-width: 900px) { .footer-grid { grid-template-columns: 1fr 1fr 1fr; gap: 32px; } }
 @media (max-width: 560px) { .footer-grid { grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 48px; } }
 @media (max-width: 380px) { .footer-grid { grid-template-columns: 1fr; } }
+.footer-social { transition: color 0.15s ease; }
+.footer-social:hover { color: var(--ink); }
 
 /* Nav: hide the search field + download pill on phones (the bar would overflow). */
 @media (max-width: 768px) {

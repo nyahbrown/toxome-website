@@ -23,6 +23,9 @@ export const metadata: Metadata = {
   title: "Toxome | Know what's in your clothes",
   description:
     "Photograph the composition tag on any garment. Toxome reads the fibers and tells you exactly what they do to your body — and to the world.",
+  verification: {
+    google: "5V6smK6H9R1nC5Vu9Wop36OxW6P8jwV31KSePfSdWX8",
+  },
   // Native iOS Safari "Smart App Banner" — shown automatically at the top
   // of the page on iPhone/iPad. Links to the App Store listing for the
   // Toxome iOS app.

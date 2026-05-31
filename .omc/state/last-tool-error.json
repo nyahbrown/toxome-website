@@ -1,7 +1,0 @@
-{
-  "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"P=/Users/nyahbrown/TOXOME/toxome-website\\nnode -c $P/scripts/add-product.js && node --env-file=$P/.env.local $P/scripts/add-product.js \\\"https://www.thereformation.com/products/caila-silk-...",
-  "error": "Exit code 1\nValidating product page + image...\n✗ Rejected: no working product image found",
-  "timestamp": "2026-05-30T12:18:12.320Z",
-  "retry_count": 1
-}

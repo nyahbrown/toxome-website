@@ -134,6 +134,30 @@ export default function Nav({
               columns={buildJournalColumns()}
               panelWidth={240}
             />
+            <Link
+              href="/guide"
+              style={{
+                fontSize: 14,
+                fontWeight: 400,
+                letterSpacing: "-0.005em",
+                color: transparent
+                  ? "rgba(255,255,255,0.92)"
+                  : pathname === "/guide" || pathname.startsWith("/guide/")
+                  ? "var(--ink)"
+                  : "var(--ink-2)",
+                textDecoration:
+                  !transparent &&
+                  (pathname === "/guide" || pathname.startsWith("/guide/"))
+                    ? "underline"
+                    : "none",
+                textUnderlineOffset: 5,
+                textDecorationThickness: 1,
+                transition: "color 300ms ease",
+                padding: "8px 0",
+              }}
+            >
+              guide
+            </Link>
           </div>
         </div>
 

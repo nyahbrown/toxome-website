@@ -22,6 +22,10 @@ import { getCleanerAlternatives, type Product } from "@/lib/supabase";
 import { hazardColor, prettyFiber } from "@/lib/fabricScores";
 import WishlistHeart from "@/components/WishlistHeart";
 
+// Accounts comped to Premium on the web — full closet access regardless of
+// any App Store subscription. The founder / admin account.
+const COMPED_PREMIUM_EMAILS = ["nyah@toxome.app"];
+
 const DEV_PROFILE: UserProfile = {
   uid: "dev-preview",
   email: "preview@toxome.app",
@@ -258,12 +262,31 @@ export default function AccountClient() {
         getWishlist(user.uid).catch(() => []),
       ]);
       if (cancelled) return;
-      setProfile(p);
+
+      // Comp the founder / admin account to Premium on the web so the closet
+      // is never gated for them, even without an App Store subscription. Works
+      // whether or not a users/{uid} profile doc exists yet.
+      const comped =
+        !!user.email &&
+        COMPED_PREMIUM_EMAILS.includes(user.email.toLowerCase());
+      const effProfile: UserProfile | null = comped
+        ? {
+            uid: user.uid,
+            email: user.email ?? p?.email ?? null,
+            displayName: user.displayName ?? p?.displayName ?? null,
+            photoUrl: p?.photoUrl ?? null,
+            isPremium: true,
+            subscriptionStatus: p?.isPremium ? p.subscriptionStatus : "annual",
+            scanCount: p?.scanCount ?? 0,
+          }
+        : p;
+
+      setProfile(effProfile);
       setWishlist(w);
 
       // Only pull closet data if the user is premium — Firestore reads
       // for a free user would just be wasted work since we gate the UI.
-      const isPremium = p?.isPremium === true;
+      const isPremium = effProfile?.isPremium === true;
       const s = isPremium
         ? await getClosetScans(user.uid).catch(() => [])
         : [];

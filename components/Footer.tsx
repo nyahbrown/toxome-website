@@ -3,44 +3,85 @@ import Image from "next/image";
 type FooterLink = { label: string; href: string };
 type FooterCol = { h: string; items: FooterLink[] };
 
+// Social accounts. Update the href values with the real handles — the icons
+// render in the footer's bottom-left corner.
+type Social = { label: string; href: string; icon: React.ReactNode };
+
+const socials: Social[] = [
+  {
+    label: "Instagram",
+    href: "https://www.instagram.com/toxome_app/",
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <rect x="2.5" y="2.5" width="19" height="19" rx="5" stroke="currentColor" strokeWidth="1.6" />
+        <circle cx="12" cy="12" r="4.2" stroke="currentColor" strokeWidth="1.6" />
+        <circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" />
+      </svg>
+    ),
+  },
+  {
+    label: "Pinterest",
+    href: "https://www.pinterest.com/toxomeApp/",
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="9.2" stroke="currentColor" strokeWidth="1.6" />
+        <path
+          d="M11.1 16.7c-.3 1.2-.7 2.4-1.4 3.3M11 8.8c-.3.6-.3 1.4-.1 2.1.5 1.9.9 3.6.9 3.6.4 1 1.4 1.4 2.4 1.1 1.6-.5 2.4-2.4 2-4.4-.4-2-2.2-3.4-4.2-3-1.7.3-2.9 1.7-2.9 3.3 0 .8.3 1.5.8 1.9"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    ),
+  },
+  {
+    label: "TikTok",
+    href: "https://www.tiktok.com/@toxome",
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path
+          d="M13.2 3.5v10.9a3.1 3.1 0 1 1-2.6-3.05"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M13.2 3.5c.4 2.4 1.9 4 4.3 4.3"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    ),
+  },
+];
+
 const cols: FooterCol[] = [
   {
-    h: "Toxome",
+    h: "Explore",
     items: [
+      { label: "Shop", href: "/shop" },
+      { label: "Fabric guide", href: "/guide" },
+      { label: "Journal", href: "/journal" },
       { label: "Get the app", href: "https://apps.apple.com/us/app/toxome/id6748622034" },
-      { label: "What's new", href: "#" },
-      { label: "Pricing", href: "#" },
     ],
   },
   {
-    h: "The science",
+    h: "More",
     items: [
-      { label: "Methodology", href: "#" },
-      { label: "Fiber dossier", href: "#" },
-      { label: "Sources", href: "#" },
-    ],
-  },
-  {
-    h: "Company",
-    items: [
-      { label: "Mission", href: "#" },
-      { label: "Press kit", href: "#" },
       { label: "Contact", href: "mailto:nyah@toxome.app" },
-    ],
-  },
-  {
-    h: "Legal",
-    items: [
       { label: "Privacy", href: "/privacy" },
       { label: "Terms", href: "/terms" },
-      { label: "Data deletion", href: "/privacy#your-rights" },
     ],
   },
 ];
 
 export default function Footer() {
   return (
-    <footer style={{ background: "var(--bg)", borderTop: "1px solid var(--hairline)", padding: "80px 0 40px" }}>
+    <footer style={{ background: "var(--bg)", borderTop: "1px solid var(--hairline)", padding: "72px 0 36px" }}>
       <div className="shell">
         <div className="footer-grid">
           <div>
@@ -74,13 +115,28 @@ export default function Footer() {
         </div>
 
         <div style={{
-          display: "flex", justifyContent: "space-between",
           paddingTop: 24, borderTop: "1px solid var(--hairline)",
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          gap: 16, flexWrap: "wrap",
           fontFamily: "var(--mono)", fontSize: 11, letterSpacing: ".06em",
           textTransform: "uppercase", color: "var(--ink-3)",
         }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            {socials.map((s) => (
+              <a
+                key={s.label}
+                href={s.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={s.label}
+                className="footer-social"
+                style={{ display: "inline-flex", color: "var(--ink-3)" }}
+              >
+                {s.icon}
+              </a>
+            ))}
+          </div>
           <span>© 2026 Toxome LLC</span>
-          <span>v0.6.2 · Indexed 4,212 fibers</span>
         </div>
       </div>
     </footer>
