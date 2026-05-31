@@ -172,6 +172,7 @@ export default async function JournalPage() {
                   {a.pillar} · {formatDate(a.date)}
                 </p>
                 <h2 className="j-card__title">{a.title}</h2>
+                <p className="j-card__sub">{a.dek}</p>
               </Link>
             ))}
           </div>
