@@ -3,11 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
-import ShareBar from "@/components/ShareBar";
 import { getShopTaxonomy } from "@/lib/supabase";
 import { getAllArticles, formatDate } from "@/lib/journal";
-
-const SITE = "https://toxome.app";
 
 export const metadata: Metadata = {
   title: "Toxome | Journal",
@@ -28,40 +25,12 @@ export default async function JournalPage() {
     <main style={{ background: "var(--bg)", minHeight: "100vh" }}>
       <Nav taxonomy={taxonomy} />
 
-      {/* Masthead */}
-      <div className="shell" style={{ paddingTop: 120 }}>
-        <div
-          className="j-rise"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: 16,
-          }}
-        >
-          <p className="eyebrow" style={{ margin: 0 }}>
-            Toxome Journal
-          </p>
-          <p
-            style={{
-              fontFamily: "var(--mono)",
-              fontSize: 11,
-              letterSpacing: "0.14em",
-              textTransform: "uppercase",
-              color: "var(--ink-3)",
-              margin: 0,
-            }}
-          >
-            Fiber science, plain English
-          </p>
-        </div>
-        <hr className="soft-divider" style={{ margin: "28px 0 0" }} />
-      </div>
-
       {/* Featured editorial — text-led cover (title lowercased on the index) */}
       {featured && (
-        <section className="shell" style={{ paddingTop: 72, paddingBottom: rest.length ? 72 : 120 }}>
+        <section
+          className="shell"
+          style={{ paddingTop: 132, paddingBottom: rest.length ? 80 : 130 }}
+        >
           <article style={{ maxWidth: 760, margin: "0 auto", textAlign: "center" }}>
             <p className="eyebrow j-rise" style={{ margin: "0 0 20px" }}>
               {featured.pillar}
@@ -132,31 +101,13 @@ export default async function JournalPage() {
                 {featured.readingTime}
               </span>
             </div>
-
-            <div
-              className="j-rise"
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                marginTop: 40,
-                animationDelay: "300ms",
-              }}
-            >
-              <ShareBar
-                url={`${SITE}/journal/${featured.slug}`}
-                title={featured.title}
-                description={featured.dek}
-                image={`${SITE}/journal/${featured.slug}/opengraph-image`}
-              />
-            </div>
           </article>
         </section>
       )}
 
       {/* Photo grid — the rest of the Journal */}
       {rest.length > 0 && (
-        <section className="shell" style={{ paddingTop: 8, paddingBottom: 130 }}>
-          <hr className="soft-divider" style={{ margin: "0 0 40px" }} />
+        <section className="shell" style={{ paddingBottom: 130 }}>
           <div className="j-grid">
             {rest.map((a) => (
               <Link key={a.slug} href={`/journal/${a.slug}`} className="j-card">
@@ -180,7 +131,7 @@ export default async function JournalPage() {
       )}
 
       {!featured && (
-        <div className="shell" style={{ paddingTop: 72, paddingBottom: 130 }}>
+        <div className="shell" style={{ paddingTop: 132, paddingBottom: 130 }}>
           <p style={{ fontSize: 16, color: "var(--ink-3)", maxWidth: 420, lineHeight: 1.6 }}>
             The first pieces are on their way. Check back shortly.
           </p>
