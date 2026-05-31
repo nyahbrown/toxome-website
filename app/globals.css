@@ -176,3 +176,22 @@ button { font-family: inherit; }
 @media (max-width: 768px) {
   .nav-desktop-only { display: none !important; }
 }
+
+/* Product image skeleton — branded shimmer shown until the image decodes. */
+@keyframes skeleton-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.skeleton-shimmer {
+  background-image: linear-gradient(
+    90deg,
+    var(--tan) 25%,
+    rgba(252, 251, 247, 0.65) 50%,
+    var(--tan) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer { animation: none; background: var(--tan); }
+}

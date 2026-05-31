@@ -65,6 +65,12 @@ function ProductCard({
   // Second photo shown on hover (first candidate that differs from the primary).
   const [hoverErr, setHoverErr] = useState(false);
   const hoverSrc = imgCandidates.find((u) => u !== imgSrc);
+  // Skeleton shimmer until the primary image decodes; reset if the src changes
+  // (e.g. an onError fallback advances to the next candidate).
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => {
+    setLoaded(false);
+  }, [imgSrc]);
 
   return (
     <Link
@@ -91,6 +97,11 @@ function ProductCard({
             <img
               src={imgSrc}
               alt={p.item_name}
+              ref={(node) => {
+                // Cached images can be complete before onLoad attaches.
+                if (node && node.complete && node.naturalWidth > 0) setLoaded(true);
+              }}
+              onLoad={() => setLoaded(true)}
               onError={() => setImgIdx((i) => i + 1)}
               style={{
                 position: "absolute",
@@ -98,7 +109,8 @@ function ProductCard({
                 width: "100%",
                 height: "100%",
                 objectFit: "cover",
-                transition: "transform 400ms ease",
+                opacity: loaded ? 1 : 0,
+                transition: "opacity 400ms ease, transform 400ms ease",
                 transform: hovered ? "scale(1.03)" : "scale(1)",
               }}
             />
@@ -122,6 +134,18 @@ function ProductCard({
                 }}
               />
             )}
+            {/* Skeleton shimmer over the image until it decodes */}
+            <div
+              className="skeleton-shimmer"
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                inset: 0,
+                opacity: loaded ? 0 : 1,
+                transition: "opacity 300ms ease",
+                pointerEvents: "none",
+              }}
+            />
           </>
         ) : (
           <div
