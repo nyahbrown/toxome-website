@@ -4,7 +4,7 @@ import Link from "next/link";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { getShopTaxonomy } from "@/lib/supabase";
-import { getAllArticles, formatDate } from "@/lib/journal";
+import { getAllArticles } from "@/lib/journal";
 
 export const metadata: Metadata = {
   title: "Toxome | Journal",
@@ -119,9 +119,7 @@ export default async function JournalPage() {
                     sizes="(max-width: 560px) 100vw, (max-width: 900px) 50vw, 33vw"
                   />
                 </div>
-                <p className="j-card__kicker">
-                  {a.pillar} · {formatDate(a.date)}
-                </p>
+                <p className="j-card__kicker">{a.pillar}</p>
                 <h2 className="j-card__title">{a.title}</h2>
                 <p className="j-card__sub">{a.dek}</p>
               </Link>
