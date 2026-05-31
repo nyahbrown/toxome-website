@@ -63,6 +63,39 @@ function findProductLd(ldArr) {
   });
 }
 
+/**
+ * Pull authoritative price + stock from the product's offers.
+ * Salesforce Commerce Cloud sites (Reformation, etc.) expose per-size offers
+ * in JSON-LD with priceCurrency / price / availability; Shopify exposes
+ * price (cents) + available on /products/{handle}.js.
+ *
+ * IMPORTANT (US-only sourcing): JSON-LD price is only trusted when the
+ * currency is USD — this env/cron can geo-resolve to a EUR/GBP storefront,
+ * and recording that price would be wrong. inStock is always returned.
+ */
+function extractOffer(prodLd, shopify) {
+  if (shopify && typeof shopify.price !== "undefined") {
+    const cents = Number(shopify.price);
+    return {
+      price: Number.isFinite(cents) ? Math.round(cents / 100) : null,
+      currency: shopify.currency || null,
+      inStock: typeof shopify.available === "boolean" ? shopify.available : null,
+    };
+  }
+  if (prodLd && prodLd.offers) {
+    const offers = Array.isArray(prodLd.offers) ? prodLd.offers : [prodLd.offers];
+    if (!offers.length) return { price: null, currency: null, inStock: null };
+    const currency = offers[0].priceCurrency || null;
+    const prices = offers.map((o) => Number(o.price)).filter(Number.isFinite);
+    const price = prices.length ? Math.min(...prices) : null;
+    const inStock = offers.some((o) =>
+      /InStock/i.test(String(o.availability || ""))
+    );
+    return { price: currency === "USD" ? price : null, currency, inStock };
+  }
+  return { price: null, currency: null, inStock: null };
+}
+
 /** Shopify exposes /products/{handle}.js — the most reliable source when present. */
 async function shopifyProduct(url) {
   try {
@@ -230,7 +263,15 @@ async function getValidatedProduct(url) {
     return { ok: false, reason: "no working product image found" };
   }
 
-  return { ok: true, finalUrl, images };
+  const offer = extractOffer(prodLd, shopify);
+  return {
+    ok: true,
+    finalUrl,
+    images,
+    price: offer.price, // USD only (null if non-USD or unknown)
+    currency: offer.currency,
+    inStock: offer.inStock, // true/false/null
+  };
 }
 
 module.exports = {
@@ -238,6 +279,7 @@ module.exports = {
   shopifyProduct,
   extractJsonLd,
   findProductLd,
+  extractOffer,
   harvestImages,
   imageLoads,
   getValidatedProduct,

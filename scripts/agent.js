@@ -198,6 +198,8 @@ For each product extract:
 
 Only include products that are currently available for purchase and made primarily from natural/low-tox fibers.
 
+Always use the brand's US (.com) storefront and USD pricing. Prefer items that are in stock across multiple sizes; do not surface sold-out or final-sale products.
+
 PRICE PRIORITY: Strongly prioritize mid-range prices — roughly $50–$150, with the sweet spot around $100 (this reflects where Toxome's catalog and customers sit). De-prioritize ultra-cheap basics under ~$40 and luxury outliers over ~$200; only include those if they are exceptional. When a brand spans many prices, pick the mid-range pieces.
 
 Return ONLY a valid JSON array, no markdown.`;
@@ -314,6 +316,7 @@ async function run() {
     duplicate: 0,
     invalidPage: 0,
     noImage: 0,
+    soldOut: 0,
     inserted: 0,
   };
 
@@ -361,8 +364,17 @@ async function run() {
         console.log(`  ✗ ${item.item_name} — ${reason}`);
         continue;
       }
+      // Stock gate: skip anything the product page reports as out of stock
+      // (authoritative offers from Shopify .js / JSON-LD). inStock null = unknown → keep.
+      if (validated.inStock === false) {
+        stats.soldOut++;
+        console.log(`  ✗ ${item.item_name} — sold out, skip`);
+        continue;
+      }
       item.item_url = validated.finalUrl;
       item.item_image = validated.images[0];
+      // Prefer the authoritative USD price scraped from the page over the LLM's.
+      if (validated.price != null) item.item_price = validated.price;
 
       const certs =
         Array.isArray(item.certifications) && item.certifications.length
