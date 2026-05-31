@@ -56,6 +56,10 @@ button { font-family: inherit; }
 }
 @media (max-width: 700px) { .shell { padding: 0 20px; } }
 
+/* Tighter side gutters for the photo grid (half the standard shell). */
+.shell--grid { padding: 0 16px; }
+@media (max-width: 700px) { .shell--grid { padding: 0 10px; } }
+
 .eyebrow {
   font-family: var(--mono);
   font-size: 11px;

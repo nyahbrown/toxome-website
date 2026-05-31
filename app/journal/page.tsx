@@ -107,7 +107,7 @@ export default async function JournalPage() {
 
       {/* Photo grid — the rest of the Journal */}
       {rest.length > 0 && (
-        <section className="shell" style={{ paddingBottom: 130 }}>
+        <section className="shell shell--grid" style={{ paddingBottom: 130 }}>
           <div className="j-grid">
             {rest.map((a) => (
               <Link key={a.slug} href={`/journal/${a.slug}`} className="j-card">
