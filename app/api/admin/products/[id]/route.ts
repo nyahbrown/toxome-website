@@ -32,6 +32,7 @@ const EDITABLE_FIELDS = [
   "description",
   "certifications",
   "tags",
+  "occasion",
 ] as const;
 
 export async function PATCH(

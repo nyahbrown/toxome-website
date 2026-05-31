@@ -1694,6 +1694,17 @@ const reviewEmptyStyle: React.CSSProperties = {
 };
 
 // ---- Edit panel ------------------------------------------------------
+// Fixed option sets for the edit form dropdowns (mirror the DB values).
+const CATEGORY_OPTIONS = [
+  "Tops", "Bottoms", "Dresses", "Outerwear", "Sweaters", "Activewear",
+  "Loungewear", "Pajamas", "Intimates", "Undergarments", "Footwear",
+  "Accessories", "Other",
+];
+const GENDER_OPTIONS = ["Women", "Men", "Unisex"];
+const OCCASION_OPTIONS = [
+  "Everyday", "Workwear", "Evening", "Special Occasion", "Vacation/Resort",
+];
+
 function EditPanel({
   p,
   busy,
@@ -1708,6 +1719,7 @@ function EditPanel({
   const [price, setPrice] = useState(p.item_price != null ? String(p.item_price) : "");
   const [category, setCategory] = useState(p.category ?? "");
   const [gender, setGender] = useState(p.gender ?? "");
+  const [occasion, setOccasion] = useState<string[]>(p.occasion ?? []);
   const [itemImage, setItemImage] = useState(p.item_image ?? "");
   const [description, setDescription] = useState(p.description ?? "");
   const [certs, setCerts] = useState((p.certifications ?? []).join(", "));
@@ -1747,6 +1759,7 @@ function EditPanel({
       item_price: price.trim() === "" ? null : Number(price),
       category: category || null,
       gender: gender || null,
+      occasion: occasion.length ? occasion : null,
       item_image: itemImage || null,
       description: description || null,
       certifications: certs
@@ -1784,10 +1797,20 @@ function EditPanel({
           <input style={editInputStyle} value={price} onChange={(e) => setPrice(e.target.value)} />
         </Field>
         <Field label="Category">
-          <input style={editInputStyle} value={category} onChange={(e) => setCategory(e.target.value)} />
+          <select style={editInputStyle} value={category} onChange={(e) => setCategory(e.target.value)}>
+            <option value="">—</option>
+            {CATEGORY_OPTIONS.map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
         </Field>
         <Field label="Gender">
-          <input style={editInputStyle} value={gender} onChange={(e) => setGender(e.target.value)} />
+          <select style={editInputStyle} value={gender} onChange={(e) => setGender(e.target.value)}>
+            <option value="">—</option>
+            {GENDER_OPTIONS.map((g) => (
+              <option key={g} value={g}>{g}</option>
+            ))}
+          </select>
         </Field>
         <Field label="Image URL">
           <input style={editInputStyle} value={itemImage} onChange={(e) => setItemImage(e.target.value)} />
@@ -1804,6 +1827,42 @@ function EditPanel({
         <div style={{ gridColumn: "1 / -1" }}>
           <Field label="Certifications (comma-separated)">
             <input style={editInputStyle} value={certs} onChange={(e) => setCerts(e.target.value)} />
+          </Field>
+        </div>
+        <div style={{ gridColumn: "1 / -1" }}>
+          <Field label="Occasion (tap to toggle)">
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+              {OCCASION_OPTIONS.map((o) => {
+                const on = occasion.includes(o);
+                return (
+                  <button
+                    key={o}
+                    type="button"
+                    onClick={() =>
+                      setOccasion((cur) =>
+                        cur.includes(o)
+                          ? cur.filter((x) => x !== o)
+                          : [...cur, o]
+                      )
+                    }
+                    style={{
+                      fontFamily: "var(--sans)",
+                      fontSize: 13,
+                      padding: "6px 12px",
+                      borderRadius: 999,
+                      cursor: "pointer",
+                      border: on
+                        ? "1px solid var(--ink)"
+                        : "1px solid var(--hairline-strong)",
+                      background: on ? "var(--ink)" : "transparent",
+                      color: on ? "var(--cream)" : "var(--ink-2)",
+                    }}
+                  >
+                    {o}
+                  </button>
+                );
+              })}
+            </div>
           </Field>
         </div>
         <div style={{ gridColumn: "1 / -1" }}>
