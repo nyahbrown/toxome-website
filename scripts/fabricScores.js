@@ -8,46 +8,17 @@
  * Levels: low 0-36, moderate 37-60, high 61-100.
  */
 
-// Per-fiber wearer hazard scores (app fiber_database.json).
-const FABRIC_SCORES = {
-  hemp: 8,
-  organic_cotton: 10,
-  linen: 10,
-  ramie: 14,
-  tencel: 12,
-  tencel_lyocell: 12,
-  lyocell: 12,
-  saxcell: 12, // regenerated lyocell-grade cellulose from recycled cotton — clean to wear
-  silk: 15,
-  alpaca: 16,
-  cashmere: 16,
-  merino: 18,
-  merino_wool: 18,
-  ecovero: 18,
-  lenzing_ecovero: 18,
-  lenzing_viscose: 18,
-  mohair: 20,
-  modal: 20,
-  viscose: 22, // clean to wear — CS2 harm is occupational, not in finished fiber
-  rayon: 22,
-  bamboo: 22,
-  wool: 24,
-  cupro: 24,
-  cotton: 30,
-  acetate: 32,
-  spandex: 60,
-  elastane: 60,
-  leather: 65,
-  nylon: 68,
-  polyester: 70,
-  acrylic: 74,
-  polyurethane: 75,
-};
-
-// Worst-offender lift constants (app scan_config.dart, "balanced").
-const LAMBDA_MAX = 0.45;
-const TAU = 12.0;
-const HIGH_HAZARD_FIBER = 60; // fibers at/above this count as "worst offenders"
+// Per-fiber wearer hazard scores + formula constants + thresholds come from the
+// single canonical data file (lib/fiber-scores.json), shared with
+// lib/fabricScores.ts so the two can't drift. Verified against the app by
+// scripts/sync-fiber-scores.js.
+const FIBER_DATA = require("../lib/fiber-scores.json");
+const FABRIC_SCORES = FIBER_DATA.scores;
+const LAMBDA_MAX = FIBER_DATA.constants.lambdaMax;
+const TAU = FIBER_DATA.constants.tau;
+const HIGH_HAZARD_FIBER = FIBER_DATA.constants.highHazardFiber; // worst-offender cutoff
+const LOW_MAX = FIBER_DATA.thresholds.lowMax;
+const MODERATE_MAX = FIBER_DATA.thresholds.moderateMax;
 
 /** Resolve a (possibly compound / branded) fabric name to a wearer hazard score. */
 function fabricScore(fabric) {
@@ -101,8 +72,8 @@ function calcToxomeScore(fabricComposition) {
 // App thresholds (hazard_calculator_service.dart _getHazardLevel).
 function scoreToRiskLevel(score) {
   if (score == null) return null;
-  if (score <= 36) return "low";
-  if (score <= 60) return "moderate";
+  if (score <= LOW_MAX) return "low";
+  if (score <= MODERATE_MAX) return "moderate";
   return "high";
 }
 

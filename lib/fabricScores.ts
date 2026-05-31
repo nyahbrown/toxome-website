@@ -1,48 +1,17 @@
-// Per-fiber WEARER hazard scores (0 = clean, 100 = high concern).
-// MIRRORS THE TOXOME APP (assets/data/fiber_database.json / SCORING_RUBRIC.md).
-// Keep scripts/fabricScores.js in lockstep. Worker-health + environment are
-// informational in the app and never affect this number.
-export const FABRIC_SCORES: Record<string, number> = {
-  hemp: 8,
-  organic_cotton: 10,
-  linen: 10,
-  ramie: 14,
-  tencel: 12,
-  tencel_lyocell: 12,
-  lyocell: 12,
-  saxcell: 12, // regenerated lyocell-grade cellulose from recycled cotton — clean to wear
-  silk: 15,
-  alpaca: 16,
-  cashmere: 16,
-  merino: 18,
-  merino_wool: 18,
-  ecovero: 18,
-  lenzing_ecovero: 18,
-  lenzing_viscose: 18,
-  mohair: 20,
-  modal: 20,
-  // Viscose / rayon / bamboo are CLEAN TO WEAR (the CS2 process harm is
-  // occupational, not in the finished fiber) — low, per the app rubric.
-  viscose: 22,
-  rayon: 22,
-  bamboo: 22,
-  wool: 24,
-  cupro: 24,
-  cotton: 30,
-  acetate: 32,
-  spandex: 60,
-  elastane: 60,
-  leather: 65,
-  nylon: 68,
-  polyester: 70,
-  acrylic: 74,
-  polyurethane: 75,
-};
+// Per-fiber WEARER hazard scores + formula constants + thresholds all come from
+// the single canonical data file (lib/fiber-scores.json), which mirrors the
+// Toxome APP and is verified against it by scripts/sync-fiber-scores.js. This
+// file holds only LOGIC — no hand-maintained numbers — so it can't drift from
+// scripts/fabricScores.js (which reads the same JSON).
+import FIBER_DATA from "./fiber-scores.json";
 
-// Worst-offender lift constants (app scan_config.dart).
-const LAMBDA_MAX = 0.45;
-const TAU = 12.0;
-const HIGH_HAZARD_FIBER = 60;
+export const FABRIC_SCORES: Record<string, number> = FIBER_DATA.scores;
+
+const LAMBDA_MAX = FIBER_DATA.constants.lambdaMax;
+const TAU = FIBER_DATA.constants.tau;
+const HIGH_HAZARD_FIBER = FIBER_DATA.constants.highHazardFiber;
+const LOW_MAX = FIBER_DATA.thresholds.lowMax;
+const MODERATE_MAX = FIBER_DATA.thresholds.moderateMax;
 
 export function fiberKey(name: string): string {
   return name.toLowerCase().trim().replace(/\s+/g, "_");
@@ -90,8 +59,8 @@ export function fiberScore(name: string): number {
 // App hazard-level thresholds (hazard_calculator_service.dart): low 0-36,
 // moderate 37-60, high 61-100.
 export function hazardColor(score: number): string {
-  if (score <= 36) return "var(--risk-low)";
-  if (score <= 60) return "var(--orange)";
+  if (score <= LOW_MAX) return "var(--risk-low)";
+  if (score <= MODERATE_MAX) return "var(--orange)";
   return "var(--red)";
 }
 
@@ -130,8 +99,8 @@ export function scoreToRiskLevel(
   score: number | null
 ): "low" | "moderate" | "high" | null {
   if (score == null) return null;
-  if (score <= 36) return "low";
-  if (score <= 60) return "moderate";
+  if (score <= LOW_MAX) return "low";
+  if (score <= MODERATE_MAX) return "moderate";
   return "high";
 }
 
