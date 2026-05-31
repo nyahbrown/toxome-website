@@ -32,6 +32,15 @@ const FIBERS: { name: string; image: string }[] = [
   { name: "linen",  image: "/fibers/linen.jpg" },
 ];
 
+// Lifestyle-5 occasion taxonomy — mirrors the `occasion` column values.
+const OCCASIONS = [
+  "Everyday",
+  "Workwear",
+  "Evening",
+  "Special Occasion",
+  "Vacation/Resort",
+];
+
 function ProductCard({
   p,
   wishlist,
@@ -320,6 +329,12 @@ export default function ShopClient({
 
   // Read filters from URL (case-insensitive match against actual values).
   const fiberFilter = searchParams.get("fiber") || null;
+  const occasionRaw = searchParams.get("occasion");
+  const occasionFilter =
+    occasionRaw &&
+    OCCASIONS.some((o) => o.toLowerCase() === occasionRaw.toLowerCase())
+      ? OCCASIONS.find((o) => o.toLowerCase() === occasionRaw.toLowerCase())!
+      : null;
   const query = (searchParams.get("q") || "").trim();
 
   // Record committed searches (debounced so we log the settled term, not every
@@ -383,6 +398,8 @@ export default function ShopClient({
         if (!fibers.includes(target)) return false;
       }
       if (category !== "All" && p.category !== category) return false;
+      if (occasionFilter && !(p.occasion ?? []).includes(occasionFilter))
+        return false;
       if (q) {
         const haystack = [p.item_name, p.brand, p.category, p.gender]
           .filter(Boolean)
@@ -441,13 +458,14 @@ export default function ShopClient({
     sectionGender,
     sectionCategoryConstraint,
     fiberFilter,
+    occasionFilter,
     category,
     query,
     sort,
   ]);
 
   const hasUserFilters =
-    !!fiberFilter || category !== "All" || query.length > 0;
+    !!fiberFilter || !!occasionFilter || category !== "All" || query.length > 0;
 
   // Auto-load pagination — reveal a fresh PAGE_SIZE every time the
   // sentinel below the grid scrolls into view. Reset to first page
@@ -455,7 +473,7 @@ export default function ShopClient({
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
-  }, [section, fiberFilter, category, query, sort]);
+  }, [section, fiberFilter, occasionFilter, category, query, sort]);
   const visible = filtered.slice(0, visibleCount);
   const hiddenCount = Math.max(0, filtered.length - visibleCount);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
@@ -643,6 +661,12 @@ export default function ShopClient({
                 onChange={(v) => updateParams({ category: v })}
               />
             )}
+            <FrostedSelect
+              label="Occasion"
+              options={OCCASIONS}
+              value={occasionFilter ?? "All"}
+              onChange={(v) => updateParams({ occasion: v })}
+            />
           </div>
           <FrostedSelect
             label="Sort By"
@@ -700,6 +724,12 @@ export default function ShopClient({
               onRemove={() => updateParams({ fiber: null })}
             />
           )}
+          {occasionFilter && (
+            <FilterChip
+              label={occasionFilter}
+              onRemove={() => updateParams({ occasion: null })}
+            />
+          )}
           {query && (
             <FilterChip
               label={`"${query}"`}
@@ -712,6 +742,7 @@ export default function ShopClient({
                 updateParams({
                   category: null,
                   fiber: null,
+                  occasion: null,
                   q: null,
                 })
               }
@@ -739,7 +770,12 @@ export default function ShopClient({
             <SmartEmpty
               hasUserFilters={hasUserFilters}
               onClear={() =>
-                updateParams({ category: null, fiber: null, q: null })
+                updateParams({
+                  category: null,
+                  fiber: null,
+                  occasion: null,
+                  q: null,
+                })
               }
             />
           ) : (

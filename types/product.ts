@@ -28,4 +28,5 @@ export interface Product {
   description: string | null;
   materials_text: string | null;
   certifications: string[] | null;
+  occasion?: string[] | null;
 }
