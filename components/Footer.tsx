@@ -115,7 +115,7 @@ export default function Footer() {
         </div>
 
         <div style={{
-          paddingTop: 24, borderTop: "1px solid var(--hairline)",
+          paddingTop: 40,
           display: "flex", alignItems: "center", justifyContent: "space-between",
           gap: 16, flexWrap: "wrap",
           fontFamily: "var(--mono)", fontSize: 11, letterSpacing: ".06em",
