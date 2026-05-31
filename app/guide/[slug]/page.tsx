@@ -28,9 +28,12 @@ export async function generateMetadata({
   const fiber = getFiber(slug);
   if (!fiber) return { title: "Toxome | Fabric Guide" };
   const desc = fiber.whatItIs.replace(/\*/g, "").slice(0, 155);
+  const title = `Toxome | ${fiber.name}`;
   return {
-    title: `Toxome | ${fiber.name}`,
+    title,
     description: desc,
+    alternates: { canonical: `/guide/${slug}` },
+    openGraph: { title, description: desc, url: `/guide/${slug}` },
   };
 }
 

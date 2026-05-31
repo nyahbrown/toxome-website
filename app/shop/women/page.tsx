@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   title: "Toxome | Women's",
   description:
     "Non-plastic women's clothing, hand-curated by Toxome. Every item is low-toxin, made from cleaner natural fibers.",
+  alternates: { canonical: "/shop/women" },
 };
 
 export default async function WomenShopPage() {

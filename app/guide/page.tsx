@@ -1,14 +1,11 @@
+import fs from "node:fs";
+import path from "node:path";
 import type { Metadata } from "next";
 import Link from "next/link";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { getShopTaxonomy } from "@/lib/supabase";
-import {
-  fibersByBand,
-  BAND_META,
-  KIND_LABEL,
-  type GuideFiber,
-} from "@/lib/fiberGuide";
+import { FIBER_GUIDE, withScore, KIND_LABEL, type GuideFiber } from "@/lib/fiberGuide";
 
 export const revalidate = 86400;
 
@@ -16,91 +13,101 @@ export const metadata: Metadata = {
   title: "Toxome | Fabric Guide",
   description:
     "A plain-spoken guide to what your clothes are made of and how each fiber affects your health. Every fiber, scored, sourced, and ranked from safest to avoid.",
+  alternates: { canonical: "/guide" },
 };
 
-function teaser(text: string): string {
-  const clean = text.replace(/\*/g, "");
-  const firstSentence = clean.split(/\.\s/)[0];
-  const base = firstSentence.length > 116 ? clean.slice(0, 116) : firstSentence;
-  return base.replace(/[.,;:\s]+$/, "") + ".";
+// Which fibers have a real photo in /public/fibers (checked at build time so the
+// tiles stay pure server-rendered CSS with no client-side onError fallback).
+function availableImages(): Set<string> {
+  try {
+    const dir = path.join(process.cwd(), "public", "fibers", "guide");
+    const set = new Set<string>();
+    for (const f of fs.readdirSync(dir)) {
+      const m = f.match(/^(.+)\.(jpg|jpeg|png|webp|avif)$/i);
+      if (m) set.add(m[1].toLowerCase());
+    }
+    return set;
+  } catch {
+    return new Set();
+  }
 }
 
-function FiberCard({ fiber }: { fiber: GuideFiber }) {
+// One concise line for the hover reveal — the first sentence of the researched
+// "what it is" copy, with emphasis asterisks stripped and length capped.
+function teaser(text: string): string {
+  const clean = text.replace(/\*/g, "").trim();
+  let s = clean.split(/\.\s/)[0]; // first sentence
+  if (s.length > 78) {
+    // Prefer a clean cut at the first clause; otherwise truncate on a word.
+    const comma = s.indexOf(", ");
+    if (comma > 36 && comma <= 92) {
+      s = s.slice(0, comma);
+    } else {
+      s = s.slice(0, 78);
+      s = s.slice(0, s.lastIndexOf(" "));
+    }
+  }
+  return s.replace(/[.,;:\s]+$/, "") + ".";
+}
+
+function ArrowIcon() {
   return (
-    <Link
-      href={`/guide/${fiber.slug}`}
-      className="guide-card"
-      style={{ textDecoration: "none", display: "block" }}
-    >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: 16,
-        }}
-      >
-        <span
-          style={{
-            fontFamily: "var(--mono)",
-            fontSize: 10,
-            letterSpacing: ".12em",
-            textTransform: "uppercase",
-            color: "var(--ink-3)",
-          }}
-        >
-          {KIND_LABEL[fiber.kind]}
-        </span>
-        <span
-          aria-hidden="true"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: 40,
-            height: 40,
-            borderRadius: 999,
-            border: `2px solid ${fiber.color}`,
-            fontFamily: "var(--sans)",
-            fontSize: 15,
-            fontWeight: 600,
-            color: "var(--ink)",
-          }}
-        >
-          {fiber.score}
-        </span>
+    <svg width="36" height="8" viewBox="0 0 36 8" fill="none" aria-hidden="true">
+      <path
+        d="M0 4h33.5M30.5 1 34 4l-3.5 3"
+        stroke="currentColor"
+        strokeWidth="1"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function FiberTile({ fiber, hasImage }: { fiber: GuideFiber; hasImage: boolean }) {
+  return (
+    <Link href={`/guide/${fiber.slug}`} className="fiber-tile">
+      <div className="fiber-tile__media">
+        {hasImage ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            className="fiber-tile__img"
+            src={`/fibers/guide/${fiber.slug}.jpg`}
+            alt={`${fiber.name} fabric`}
+            loading="lazy"
+          />
+        ) : (
+          <div className="fiber-tile__fallback" />
+        )}
+        <div className="fiber-tile__scrim" />
+        <div className="fiber-tile__veil" />
       </div>
-      <h3
-        style={{
-          fontFamily: "var(--serif)",
-          fontSize: 23,
-          fontWeight: 500,
-          lineHeight: 1.15,
-          letterSpacing: "-0.015em",
-          color: "var(--ink)",
-          margin: "0 0 8px",
-        }}
-      >
-        {fiber.name}
-      </h3>
-      <p
-        style={{
-          fontSize: 14,
-          lineHeight: 1.5,
-          letterSpacing: "-0.005em",
-          color: "var(--ink-2)",
-          margin: 0,
-        }}
-      >
-        {teaser(fiber.whatItIs)}
-      </p>
+      <div className="fiber-tile__content">
+        <div className="fiber-tile__top">
+          <span className="fiber-tile__kind">{KIND_LABEL[fiber.kind]}</span>
+          <span className="fiber-tile__score" style={{ color: fiber.color }}>
+            <b>{fiber.score}</b>
+          </span>
+        </div>
+        <div className="fiber-tile__namewrap">
+          <h3 className="fiber-tile__name">{fiber.name}</h3>
+        </div>
+        <div className="fiber-tile__reveal">
+          <p className="fiber-tile__desc">{teaser(fiber.whatItIs)}</p>
+          <span className="fiber-tile__arrow">
+            <ArrowIcon />
+          </span>
+        </div>
+      </div>
     </Link>
   );
 }
 
 export default async function GuidePage() {
   const taxonomy = await getShopTaxonomy();
-  const groups = fibersByBand();
+  const images = availableImages();
+  // Flat gallery, safest first so the ranking is still implied by position.
+  const fibers = FIBER_GUIDE.map(withScore).sort((a, b) => a.score - b.score);
 
   return (
     <>
@@ -116,7 +123,7 @@ export default async function GuidePage() {
         {/* Header */}
         <div
           className="shell"
-          style={{ textAlign: "center", paddingTop: 56, paddingBottom: 12 }}
+          style={{ textAlign: "center", paddingTop: 56, paddingBottom: 36 }}
         >
           <div
             className="eyebrow"
@@ -143,101 +150,45 @@ export default async function GuidePage() {
               fontSize: 16,
               lineHeight: 1.6,
               color: "var(--ink-2)",
-              margin: "0 auto",
+              margin: "0 auto 28px",
               maxWidth: 560,
             }}
           >
             Every fiber, scored from <em>0 (clean)</em> to <em>100 (high
-            concern)</em> on what it means for your health, not the planet alone.
-            The fiber is rarely the whole story. The dyes and finishes are. Start
-            here.
+            concern)</em> on what it means for your health. The fiber is rarely
+            the whole story. The dyes and finishes are.
           </p>
+          <div className="guide-legend">
+            <span>
+              <i style={{ background: "var(--risk-low)" }} />
+              Safest
+            </span>
+            <span>
+              <i style={{ background: "var(--orange)" }} />
+              Moderate
+            </span>
+            <span>
+              <i style={{ background: "var(--red)" }} />
+              Avoid
+            </span>
+          </div>
         </div>
 
-        {/* Bands */}
-        <div className="shell" style={{ paddingTop: 40 }}>
-          {groups.map(({ band, fibers }) => {
-            const meta = BAND_META[band];
-            return (
-              <section key={band} style={{ marginBottom: 64 }}>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "baseline",
-                    gap: 12,
-                    flexWrap: "wrap",
-                    paddingBottom: 8,
-                  }}
-                >
-                  <span
-                    aria-hidden="true"
-                    style={{
-                      width: 10,
-                      height: 10,
-                      borderRadius: 999,
-                      background:
-                        band === "low"
-                          ? "var(--risk-low)"
-                          : band === "moderate"
-                          ? "var(--orange)"
-                          : "var(--red)",
-                      display: "inline-block",
-                      transform: "translateY(-1px)",
-                    }}
-                  />
-                  <h2
-                    style={{
-                      fontFamily: "var(--serif)",
-                      fontWeight: 400,
-                      fontSize: "clamp(22px, 2.6vw, 30px)",
-                      letterSpacing: "-0.018em",
-                      color: "var(--ink)",
-                      margin: 0,
-                    }}
-                  >
-                    {meta.label}
-                  </h2>
-                  <span
-                    style={{
-                      fontFamily: "var(--mono)",
-                      fontSize: 11,
-                      letterSpacing: ".08em",
-                      color: "var(--ink-3)",
-                    }}
-                  >
-                    Score {meta.rangeLabel}
-                  </span>
-                </div>
-                <p
-                  style={{
-                    fontSize: 15,
-                    lineHeight: 1.6,
-                    color: "var(--ink-2)",
-                    margin: "0 0 24px",
-                    maxWidth: 640,
-                  }}
-                >
-                  {meta.blurb}
-                </p>
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns:
-                      "repeat(auto-fill, minmax(240px, 1fr))",
-                    gap: 16,
-                  }}
-                >
-                  {fibers.map((f) => (
-                    <FiberCard key={f.slug} fiber={f} />
-                  ))}
-                </div>
-              </section>
-            );
-          })}
+        {/* Flat gallery */}
+        <div className="shell">
+          <div className="guide-grid">
+            {fibers.map((f) => (
+              <FiberTile
+                key={f.slug}
+                fiber={f}
+                hasImage={images.has(f.slug.toLowerCase())}
+              />
+            ))}
+          </div>
 
           <p
             style={{
-              marginTop: 16,
+              marginTop: 40,
               fontSize: 11,
               color: "var(--ink-3)",
               fontFamily: "var(--mono)",
@@ -248,7 +199,7 @@ export default async function GuidePage() {
           >
             Scores reflect wearer health only and mirror the Toxome app. Each
             fiber page lists its sources. This guide is educational and is not
-            medical advice.
+            medical advice. Fabric imagery via Unsplash.
           </p>
         </div>
       </main>

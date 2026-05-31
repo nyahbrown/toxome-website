@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   title: "Toxome | Privacy",
   description:
     "How Toxome collects, uses, and protects your data — across the website and the iOS app.",
+  alternates: { canonical: "/privacy" },
 };
 
 const LAST_UPDATED = "May 28, 2026";

@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   title: "Toxome | Home",
   description:
     "Clean home goods, hand-curated by Toxome. Low-toxin textiles for the spaces you live in.",
+  alternates: { canonical: "/shop/home" },
 };
 
 export default async function HomeShopPage() {

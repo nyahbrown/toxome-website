@@ -24,10 +24,14 @@ export async function generateMetadata({
   return {
     title,
     description: desc,
+    alternates: { canonical: `/shop/${id}` },
     openGraph: {
       title,
       description: desc,
-      images: product.item_image ? [product.item_image] : [],
+      url: `/shop/${id}`,
+      // Fall back to the site-wide og image (app/opengraph-image.tsx) when the
+      // product has no image, rather than emitting an empty image list.
+      images: product.item_image ? [product.item_image] : undefined,
     },
   };
 }

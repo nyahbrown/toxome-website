@@ -19,10 +19,33 @@ const inter = Inter({
   display: "swap",
 });
 
+const SITE_DESCRIPTION =
+  "Photograph the composition tag on any garment. Toxome reads the fibers and tells you exactly what they do to your body — and to the world.";
+
 export const metadata: Metadata = {
+  // Resolves all relative canonical / OpenGraph URLs to absolute ones.
+  metadataBase: new URL("https://toxome.app"),
   title: "Toxome | Know what's in your clothes",
-  description:
-    "Photograph the composition tag on any garment. Toxome reads the fibers and tells you exactly what they do to your body — and to the world.",
+  description: SITE_DESCRIPTION,
+  // Self-referencing canonical for the homepage. Every other route overrides
+  // this with its own path.
+  alternates: {
+    canonical: "/",
+  },
+  // Site-wide social defaults. The og:image / twitter:image come automatically
+  // from app/opengraph-image.tsx (Next.js file convention) on every route.
+  openGraph: {
+    type: "website",
+    siteName: "Toxome",
+    url: "/",
+    title: "Toxome | Know what's in your clothes",
+    description: SITE_DESCRIPTION,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Toxome | Know what's in your clothes",
+    description: SITE_DESCRIPTION,
+  },
   verification: {
     google: "5V6smK6H9R1nC5Vu9Wop36OxW6P8jwV31KSePfSdWX8",
   },

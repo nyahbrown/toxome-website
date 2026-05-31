@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   title: "Toxome | Terms of Use",
   description:
     "The rules that apply when you use the Toxome website or iOS app — written in plain English.",
+  alternates: { canonical: "/terms" },
 };
 
 const LAST_UPDATED = "May 28, 2026";

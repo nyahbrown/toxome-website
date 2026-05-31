@@ -91,19 +91,24 @@ export default function HomeClient({
           background: "var(--espresso)",
         }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/hero-bg.png"
-          alt=""
-          style={{
-            position: "absolute",
-            inset: 0,
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            objectPosition: "center",
-          }}
-        />
+        <picture>
+          <source srcSet="/hero-bg.avif" type="image/avif" />
+          <source srcSet="/hero-bg.webp" type="image/webp" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/hero-bg.png"
+            alt=""
+            fetchPriority="high"
+            style={{
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              objectPosition: "center",
+            }}
+          />
+        </picture>
         {/* Subtle overlay so white text stays legible */}
         <div
           style={{
@@ -119,7 +124,7 @@ export default function HomeClient({
             loop
             playsInline
             preload="none"
-            poster="/hero-bg.png"
+            poster="/hero-bg.webp"
             style={{
               position: "absolute",
               inset: 0,
