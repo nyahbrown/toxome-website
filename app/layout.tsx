@@ -3,7 +3,25 @@ import { Source_Serif_4, Inter } from "next/font/google";
 import "./globals.css";
 import AnimationProvider from "@/components/AnimationProvider";
 import CookieBanner from "@/components/CookieBanner";
+import JsonLd from "@/components/JsonLd";
 import { AuthProvider } from "@/contexts/AuthContext";
+
+// Site-wide Organization schema — establishes Toxome as an entity and links
+// the verified social profiles (helps with brand knowledge panels).
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Toxome",
+  url: "https://toxome.app",
+  logo: "https://toxome.app/icon.png",
+  description:
+    "Toxome reads the fibers in your clothes and tells you what they do to your body and the planet.",
+  sameAs: [
+    "https://www.instagram.com/toxome_app/",
+    "https://www.pinterest.com/toxomeApp/",
+    "https://www.tiktok.com/@toxome",
+  ],
+};
 
 const sourceSerif = Source_Serif_4({
   subsets: ["latin"],
@@ -63,6 +81,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${sourceSerif.variable} ${inter.variable}`}>
       <body>
+        <JsonLd data={organizationSchema} />
         <AnimationProvider />
         <AuthProvider>{children}</AuthProvider>
         <CookieBanner />
