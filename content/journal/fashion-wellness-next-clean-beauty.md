@@ -4,6 +4,7 @@ dek: "First we started reading the labels on our food. Then our skincare. Our cl
 date: "2026-06-01"
 pillar: "The Manifesto"
 mode: "educational"
+pinned: true
 sources:
   - label: "Jurikova, M., et al. (2024). Bisphenols in daily clothes from conventional and recycled material. Environmental Science and Pollution Research International."
     href: "https://pmc.ncbi.nlm.nih.gov/articles/PMC11415442/"

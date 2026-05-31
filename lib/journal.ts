@@ -17,6 +17,7 @@ export type ArticleMeta = {
   date: string; // ISO (YYYY-MM-DD)
   pillar: string;
   mode?: string;
+  pinned: boolean; // featured as the standing Journal cover
   readingTime: string;
   sources: Source[];
 };
@@ -54,6 +55,7 @@ function readArticle(slug: string): Article | null {
     date: String(data.date ?? ""),
     pillar: String(data.pillar ?? "Journal"),
     mode: data.mode ? String(data.mode) : undefined,
+    pinned: data.pinned === true,
     readingTime: `${minutes} min read`,
     sources: normalizeSources(data.sources),
     html,

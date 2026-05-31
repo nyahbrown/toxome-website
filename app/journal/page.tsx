@@ -18,8 +18,10 @@ export const metadata: Metadata = {
 export default async function JournalPage() {
   const taxonomy = await getShopTaxonomy();
   const articles = getAllArticles();
-  const featured = articles[0];
-  const rest = articles.slice(1);
+  // The pinned piece stays the standing cover; everything else flows into Latest
+  // (newest first). Falls back to the newest article if nothing is pinned.
+  const featured = articles.find((a) => a.pinned) ?? articles[0];
+  const rest = articles.filter((a) => a.slug !== featured?.slug);
 
   return (
     <main style={{ background: "var(--bg)", minHeight: "100vh" }}>
