@@ -270,6 +270,35 @@ button { font-family: inherit; }
   .fiber-tile:hover .fiber-tile__arrow svg { transform: translateX(4px); }
 }
 
+/* Guide detail — four content sections as a balanced 2-column grid.
+   column-count keeps two columns even on phones and balances card heights,
+   while break-inside:avoid stops a card from splitting across columns. */
+.guide-detail-grid {
+  margin-top: 32px;
+  column-count: 2;
+  column-gap: 14px;
+}
+.guide-detail-card {
+  break-inside: avoid;
+  margin: 0 0 14px;
+  padding: 18px;
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  background: var(--white);
+}
+.guide-detail-card__body {
+  font-size: 15px;
+  line-height: 1.6;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+  margin: 0;
+}
+@media (max-width: 700px) {
+  .guide-detail-grid { column-gap: 10px; }
+  .guide-detail-card { padding: 14px; margin-bottom: 10px; }
+  .guide-detail-card__body { font-size: 13px; line-height: 1.55; }
+}
+
 /* Guide index legend */
 .guide-legend {
   display: flex;
@@ -373,4 +402,172 @@ button { font-family: inherit; }
 }
 @media (prefers-reduced-motion: reduce) {
   .skeleton-shimmer { animation: none; background: var(--tan); }
+}
+
+/* ── Journal: pinned editorial feature ────────────────────────────────── */
+
+/* Pure-CSS entrance (independent of the IntersectionObserver reveal, which
+   only binds once on first mount and would miss client-side nav into /journal). */
+@keyframes j-rise {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: none; }
+}
+.j-rise {
+  opacity: 0;
+  animation: j-rise 850ms var(--ease-out-strong) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .j-rise { animation: none; opacity: 1; transform: none; }
+}
+
+.j-headline-link { display: inline-block; }
+.j-headline-link :is(h1, h2) { transition: color 240ms var(--ease); }
+@media (hover: hover) and (pointer: fine) {
+  .j-headline-link:hover :is(h1, h2) { color: var(--ink-2); }
+}
+
+/* "Up next" editorial list */
+.j-upnext { display: flex; flex-direction: column; }
+.j-upnext__row {
+  display: flex;
+  align-items: baseline;
+  gap: 20px;
+  padding: 22px 0;
+  border-top: 1px solid var(--hairline);
+}
+.j-upnext__row:last-child { border-bottom: 1px solid var(--hairline); }
+.j-upnext__row--link {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  text-decoration: none;
+  transition: opacity 200ms var(--ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  .j-upnext__row--link:hover { opacity: 0.62; }
+}
+.j-upnext__num {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  color: var(--ink-3);
+  flex-shrink: 0;
+  width: 28px;
+}
+@media (max-width: 560px) {
+  .j-upnext__row { flex-direction: column; gap: 4px; padding: 18px 0; }
+}
+
+/* Article reading column (width container only) */
+.j-article { max-width: 680px; margin: 0 auto; }
+
+/* Prose styling — applied only to the article body, never the header */
+.j-prose p {
+  font-size: 19px;
+  line-height: 1.72;
+  letter-spacing: -0.003em;
+  color: var(--ink);
+  margin: 0 0 26px;
+}
+.j-prose > p:first-of-type::first-letter {
+  font-family: var(--serif);
+  float: left;
+  font-size: 64px;
+  line-height: 0.82;
+  padding: 8px 12px 0 0;
+  color: var(--ink);
+}
+.j-prose h3 {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(24px, 3vw, 32px);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--ink);
+  margin: 48px 0 18px;
+}
+.j-prose .j-pull {
+  font-family: var(--serif);
+  font-size: clamp(24px, 3.2vw, 34px);
+  line-height: 1.32;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  margin: 44px 0;
+  padding-left: 24px;
+  border-left: 2px solid var(--honey);
+}
+.j-prose em { font-style: italic; }
+/* Markdown blockquote renders as the editorial pull-quote */
+.j-prose blockquote {
+  margin: 44px 0;
+  padding-left: 24px;
+  border-left: 2px solid var(--honey);
+}
+.j-prose blockquote p {
+  font-family: var(--serif);
+  font-size: clamp(24px, 3.2vw, 34px);
+  line-height: 1.32;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  margin: 0;
+}
+.j-prose a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--hairline-strong);
+  transition: text-decoration-color 200ms var(--ease);
+}
+.j-prose a:hover { text-decoration-color: var(--honey); }
+@media (max-width: 700px) {
+  .j-prose p { font-size: 17px; line-height: 1.68; }
+}
+
+/* ── Share bar ────────────────────────────────────────────────────────── */
+.share-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.share-bar__label {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-right: 2px;
+}
+.share-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-2);
+  border: 1px solid var(--hairline-strong);
+  cursor: pointer;
+  padding: 0;
+  transition: transform 200ms var(--ease), background 200ms var(--ease),
+    color 200ms var(--ease), border-color 200ms var(--ease);
+}
+.share-btn:hover {
+  transform: translateY(-2px);
+  background: rgba(201, 169, 110, 0.12);
+  color: var(--ink);
+  border-color: rgba(201, 169, 110, 0.5);
+}
+.share-btn:active { transform: translateY(0) scale(0.96); }
+.share-btn svg { width: 16px; height: 16px; }
+.share-btn__copied {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--risk-low);
+}
+@media (prefers-reduced-motion: reduce) {
+  .share-btn, .share-btn:hover, .share-btn:active { transition: none; transform: none; }
 }
