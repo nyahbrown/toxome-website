@@ -4,16 +4,24 @@ import { notFound } from "next/navigation";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import RichText from "@/components/RichText";
+import JsonLd from "@/components/JsonLd";
 import { getShopTaxonomy } from "@/lib/supabase";
 import {
   getFiber,
   allFiberSlugs,
+  FIBER_GUIDE,
+  withScore,
   KIND_LABEL,
   type FiberBand,
   type GuideFiber,
 } from "@/lib/fiberGuide";
 
 export const revalidate = 86400;
+
+const SITE = "https://toxome.app";
+
+// Strip the *emphasis* asterisks from editorial prose for plain-text schema.
+const plain = (s: string) => s.replace(/\*/g, "").trim();
 
 export function generateStaticParams() {
   return allFiberSlugs().map((slug) => ({ slug }));
@@ -89,8 +97,72 @@ export default async function FiberGuidePage({
     ? { href: "/shop", label: "Browse the shop", ghost: true }
     : { href: "/shop", label: "Browse cleaner fibers", ghost: true };
 
+  // Up to 4 cleaner sibling fibers (lowest score first) for internal linking.
+  const related = FIBER_GUIDE.map(withScore)
+    .filter((x) => x.slug !== f.slug)
+    .sort((a, b) => a.score - b.score)
+    .slice(0, 4);
+
+  const pageUrl = `${SITE}/guide/${slug}`;
+  const lower = f.name.toLowerCase();
+  const schema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: SITE },
+          { "@type": "ListItem", position: 2, name: "Fabric Guide", item: `${SITE}/guide` },
+          { "@type": "ListItem", position: 3, name: f.name, item: pageUrl },
+        ],
+      },
+      {
+        "@type": "Article",
+        headline: `${f.name}: fiber safety and health score`,
+        description: plain(f.whatItIs).slice(0, 200),
+        about: f.name,
+        inLanguage: "en",
+        mainEntityOfPage: pageUrl,
+        author: { "@type": "Organization", name: "Toxome", url: SITE },
+        publisher: {
+          "@type": "Organization",
+          name: "Toxome",
+          url: SITE,
+          logo: { "@type": "ImageObject", url: `${SITE}/icon.png` },
+        },
+        citation: f.sources.map((s) => ({
+          "@type": "CreativeWork",
+          name: s.title,
+          url: s.url,
+        })),
+      },
+      {
+        // Answers are the section prose rendered visibly below.
+        "@type": "FAQPage",
+        mainEntity: [
+          {
+            "@type": "Question",
+            name: `Is ${lower} safe to wear?`,
+            acceptedAnswer: { "@type": "Answer", text: plain(f.healthStory) },
+          },
+          {
+            "@type": "Question",
+            name: `What should you look for when buying ${lower}?`,
+            acceptedAnswer: { "@type": "Answer", text: plain(f.whatToLookFor) },
+          },
+          {
+            "@type": "Question",
+            name: `Is ${lower} better for the environment?`,
+            acceptedAnswer: { "@type": "Answer", text: plain(f.environment) },
+          },
+        ],
+      },
+    ],
+  };
+
   return (
     <>
+      <JsonLd data={schema} />
       <Nav taxonomy={taxonomy} />
       <main
         style={{
@@ -293,6 +365,60 @@ export default async function FiberGuidePage({
               Toxome app. This guide is educational and is not medical advice.
             </p>
           </div>
+
+          {/* Related fibers — internal linking + crawl paths */}
+          {related.length > 0 && (
+            <div
+              style={{
+                marginTop: 40,
+                paddingTop: 24,
+                borderTop: "1px solid var(--hairline)",
+              }}
+            >
+              <div
+                style={{
+                  fontFamily: "var(--mono)",
+                  fontSize: 10,
+                  letterSpacing: ".12em",
+                  textTransform: "uppercase",
+                  color: "var(--ink-3)",
+                  marginBottom: 14,
+                }}
+              >
+                Compare cleaner fibers
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+                {related.map((r) => (
+                  <Link
+                    key={r.slug}
+                    href={`/guide/${r.slug}`}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 8,
+                      padding: "8px 14px",
+                      borderRadius: 999,
+                      border: "1px solid var(--hairline-strong)",
+                      fontSize: 13,
+                      color: "var(--ink-2)",
+                      textDecoration: "none",
+                    }}
+                  >
+                    <span
+                      aria-hidden="true"
+                      style={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: 999,
+                        background: r.color,
+                      }}
+                    />
+                    {r.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
         </article>
       </main>
       <Footer />
