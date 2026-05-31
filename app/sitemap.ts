@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { allFiberSlugs } from "@/lib/fiberGuide";
+import { COMPARE_PAIRS, compareSlug } from "@/lib/comparisons";
 import { getPublishedProducts } from "@/lib/supabase";
 
 const BASE_URL = "https://toxome.app";
@@ -18,6 +19,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/shop/men`, lastModified: now, changeFrequency: "daily", priority: 0.8 },
     { url: `${BASE_URL}/shop/home`, lastModified: now, changeFrequency: "daily", priority: 0.7 },
     { url: `${BASE_URL}/guide`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${BASE_URL}/compare`, lastModified: now, changeFrequency: "weekly", priority: 0.7 },
     { url: `${BASE_URL}/journal`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
     { url: `${BASE_URL}/privacy`, lastModified: now, changeFrequency: "yearly", priority: 0.2 },
     { url: `${BASE_URL}/terms`, lastModified: now, changeFrequency: "yearly", priority: 0.2 },
@@ -29,6 +31,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: now,
     changeFrequency: "monthly",
     priority: 0.7,
+  }));
+
+  // Fiber comparison pages.
+  const compareRoutes: MetadataRoute.Sitemap = COMPARE_PAIRS.map(([a, b]) => ({
+    url: `${BASE_URL}/compare/${compareSlug(a, b)}`,
+    lastModified: now,
+    changeFrequency: "monthly",
+    priority: 0.6,
   }));
 
   // Product detail pages. Tolerate a data-source failure so the sitemap still
@@ -46,5 +56,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error("sitemap: failed to load products", err);
   }
 
-  return [...staticRoutes, ...fiberRoutes, ...productRoutes];
+  return [...staticRoutes, ...fiberRoutes, ...compareRoutes, ...productRoutes];
 }
