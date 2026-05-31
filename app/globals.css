@@ -540,6 +540,43 @@ button { font-family: inherit; }
   .j-prose p { font-size: 17px; line-height: 1.68; }
 }
 
+/* ── End-of-article CTA card ──────────────────────────────────────────── */
+.article-cta {
+  margin: 48px 0 8px;
+  padding: 40px 36px;
+  border-radius: 18px;
+  background: var(--tan);
+  text-align: center;
+}
+.article-cta__eyebrow {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin: 0 0 14px;
+}
+.article-cta__headline {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(24px, 3vw, 32px);
+  line-height: 1.18;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin: 0 auto 12px;
+  max-width: 480px;
+}
+.article-cta__body {
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--ink-2);
+  margin: 0 auto 26px;
+  max-width: 460px;
+}
+@media (max-width: 560px) {
+  .article-cta { padding: 32px 22px; }
+}
+
 /* ── Share bar ────────────────────────────────────────────────────────── */
 .share-bar {
   display: flex;

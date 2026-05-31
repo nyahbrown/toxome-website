@@ -5,6 +5,7 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import JsonLd from "@/components/JsonLd";
 import ShareBar from "@/components/ShareBar";
+import ArticleCta, { type CtaVariant } from "@/components/ArticleCta";
 import { getShopTaxonomy } from "@/lib/supabase";
 import { getAllSlugs, getArticle, formatDate } from "@/lib/journal";
 
@@ -165,6 +166,9 @@ export default async function ArticlePage({
           className="j-article j-prose"
           dangerouslySetInnerHTML={{ __html: article.html }}
         />
+        <div className="j-article">
+          <ArticleCta variant={(article.cta as CtaVariant) || "app"} />
+        </div>
       </article>
 
       {/* Sources + share + back */}
