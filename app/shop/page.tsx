@@ -4,6 +4,7 @@ import { getPublishedProducts, getShopTaxonomy } from "@/lib/supabase";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import ShopClient from "./ShopClient";
+import ShopGridFallback from "./ShopGridFallback";
 
 export const revalidate = 3600;
 
@@ -22,7 +23,7 @@ export default async function ShopPage() {
   return (
     <>
       <Nav taxonomy={taxonomy} />
-      <Suspense fallback={null}>
+      <Suspense fallback={<ShopGridFallback products={products} />}>
         <ShopClient products={products} taxonomy={taxonomy} section={null} />
       </Suspense>
       <Footer />

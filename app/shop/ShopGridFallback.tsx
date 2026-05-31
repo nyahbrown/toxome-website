@@ -1,0 +1,72 @@
+import Link from "next/link";
+import type { Product } from "@/lib/supabase";
+
+// Server-rendered product grid used as the <Suspense> fallback for the
+// client-only ShopClient (which de-opts to client rendering via
+// useSearchParams). This guarantees real, crawlable <a href="/shop/{id}">
+// links land in the static HTML so products are never orphaned — Google can
+// discover and pass link equity to them. On the client, ShopClient hydrates
+// and replaces this with the interactive, filterable grid.
+export default function ShopGridFallback({ products }: { products: Product[] }) {
+  return (
+    <div className="product-grid">
+      {products.map((p) => {
+        const img = p.item_image || p.images?.[0] || null;
+        return (
+          <Link
+            key={p.id}
+            href={`/shop/${p.id}`}
+            style={{ textDecoration: "none", display: "block" }}
+          >
+            <div
+              style={{
+                position: "relative",
+                paddingBottom: "125.56%",
+                background: "var(--tan)",
+                borderRadius: 10,
+                overflow: "hidden",
+              }}
+            >
+              {img && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={img}
+                  alt={p.item_name}
+                  loading="lazy"
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                />
+              )}
+            </div>
+            <div style={{ paddingTop: 20 }}>
+              <div
+                style={{
+                  fontFamily: "var(--serif)",
+                  fontSize: 20,
+                  lineHeight: 1.2,
+                  color: "var(--ink)",
+                }}
+              >
+                {p.item_name}
+              </div>
+              <div style={{ fontSize: 14, color: "var(--ink-2)", marginTop: 4 }}>
+                {p.brand}
+                {p.item_price != null && (
+                  <>
+                    <span style={{ color: "var(--ink-3)", margin: "0 6px" }}>·</span>
+                    ${p.item_price.toLocaleString()}
+                  </>
+                )}
+              </div>
+            </div>
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
