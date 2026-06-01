@@ -32,7 +32,10 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+/* No global smooth scroll: Next.js resets scroll to top on navigation, and a
+   global `scroll-behavior: smooth` turns that reset into an animated scroll-up
+   on every page change. Smooth scrolling for in-page scrollers (e.g. the fiber
+   rail) is set on those containers / via JS scrollTo instead. */
 html, body { margin: 0; padding: 0; }
 
 body {

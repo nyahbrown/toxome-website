@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Product } from "@/types/product";
 import { useAuth } from "@/contexts/AuthContext";
-import WishlistHeart from "@/components/WishlistHeart";
+import { HeartFilled, HeartOutline } from "@/components/icons";
 // Single source of truth for fiber hazard colors + labels — keeps the product
 // page bars in sync with the score table (alpaca/cashmere green, Lenzing green,
 // recycled synthetics red, "european linen" -> linen via keyword fallback, etc.)
@@ -174,10 +174,6 @@ export default function ProductDetailClient({ product }: { product: Product }) {
               }}
             >
               No image
-              <WishlistHeart
-                isWishlisted={isWishlisted}
-                onClick={handleWishlist}
-              />
             </div>
           ) : (
             images.map((src, i) =>
@@ -207,12 +203,6 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                       objectFit: "cover",
                     }}
                   />
-                  {i === 0 && (
-                    <WishlistHeart
-                      isWishlisted={isWishlisted}
-                      onClick={handleWishlist}
-                    />
-                  )}
                 </div>
               )
             )
@@ -223,29 +213,56 @@ export default function ProductDetailClient({ product }: { product: Product }) {
         <div className="product-detail-info">
           <div
             style={{
-              fontFamily: "var(--mono)",
-              fontSize: 11,
-              fontWeight: 500,
-              letterSpacing: "0.14em",
-              textTransform: "uppercase",
-              color: "var(--ink-3)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 12,
               marginBottom: 18,
             }}
           >
-            <Link href="/shop" style={{ color: "inherit" }}>
-              Shop
-            </Link>
-            {product.category && (
-              <>
-                {" / "}
-                <Link
-                  href={`/shop?category=${encodeURIComponent(product.category)}`}
-                  style={{ color: "inherit" }}
-                >
-                  {product.category}
-                </Link>
-              </>
-            )}
+            <div
+              style={{
+                fontFamily: "var(--mono)",
+                fontSize: 11,
+                fontWeight: 500,
+                letterSpacing: "0.14em",
+                textTransform: "uppercase",
+                color: "var(--ink-3)",
+              }}
+            >
+              <Link href="/shop" style={{ color: "inherit" }}>
+                Shop
+              </Link>
+              {product.category && (
+                <>
+                  {" / "}
+                  <Link
+                    href={`/shop?category=${encodeURIComponent(product.category)}`}
+                    style={{ color: "inherit" }}
+                  >
+                    {product.category}
+                  </Link>
+                </>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={handleWishlist}
+              aria-label={isWishlisted ? "Remove from saved" : "Save item"}
+              style={{
+                flexShrink: 0,
+                background: "transparent",
+                border: "none",
+                padding: 0,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                color: isWishlisted ? "var(--ink)" : "var(--ink-2)",
+                transition: "color 180ms ease",
+              }}
+            >
+              {isWishlisted ? <HeartFilled /> : <HeartOutline />}
+            </button>
           </div>
 
           <h1
