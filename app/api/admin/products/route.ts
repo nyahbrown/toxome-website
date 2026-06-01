@@ -30,7 +30,6 @@ export async function GET(req: Request) {
   switch (status) {
     case "pending":
       query = query
-        .eq("added_by", "agent")
         .eq("published", false)
         .eq("rejected", false)
         .is("unpublish_reason", null);

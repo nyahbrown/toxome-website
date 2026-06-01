@@ -17,7 +17,6 @@ export async function GET(req: Request) {
   const [liveR, pendingR, rejectedR, removedR, totalR] = await Promise.all([
     head().eq("published", true),
     head()
-      .eq("added_by", "agent")
       .eq("published", false)
       .eq("rejected", false)
       .is("unpublish_reason", null),

@@ -186,7 +186,7 @@ export default function TrendChart({
                   x={PAD.l - 8}
                   y={y + 3}
                   textAnchor="end"
-                  style={{ fontFamily: "var(--mono)", fontSize: 9, fill: "var(--ink-3)" }}
+                  style={{ fontFamily: "var(--sans)", fontSize: 9, fill: "var(--ink-3)" }}
                 >
                   {Math.round(v)}
                 </text>
@@ -231,7 +231,7 @@ export default function TrendChart({
                 x={xFor(i)}
                 y={H - 8}
                 textAnchor="middle"
-                style={{ fontFamily: "var(--mono)", fontSize: 9, fill: "var(--ink-3)" }}
+                style={{ fontFamily: "var(--sans)", fontSize: 9, fill: "var(--ink-3)" }}
               >
                 {fmtDay(p.day)}
               </text>
@@ -285,7 +285,7 @@ export default function TrendChart({
           >
             <div
               style={{
-                fontFamily: "var(--mono)",
+                fontFamily: "var(--sans)",
                 fontSize: 10,
                 letterSpacing: "0.08em",
                 textTransform: "uppercase",

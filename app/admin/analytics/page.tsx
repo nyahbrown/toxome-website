@@ -56,7 +56,7 @@ export default function AdminAnalyticsPage() {
         <div style={{ textAlign: "center", maxWidth: 380 }}>
           <div
             style={{
-              fontFamily: "var(--mono)",
+              fontFamily: "var(--sans)",
               fontSize: 10,
               letterSpacing: ".14em",
               textTransform: "uppercase",
@@ -68,7 +68,7 @@ export default function AdminAnalyticsPage() {
           </div>
           <h1
             style={{
-              fontFamily: "var(--serif)",
+              fontFamily: "var(--sans)",
               fontSize: 28,
               color: "var(--ink)",
               letterSpacing: "-0.02em",
@@ -132,7 +132,7 @@ export default function AdminAnalyticsPage() {
           </span>
           <span
             style={{
-              fontFamily: "var(--mono)",
+              fontFamily: "var(--sans)",
               fontSize: 10,
               letterSpacing: ".14em",
               textTransform: "uppercase",

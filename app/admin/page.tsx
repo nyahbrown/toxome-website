@@ -271,7 +271,7 @@ export default function AdminPage() {
       <Centered>
         <span
           style={{
-            fontFamily: "var(--mono)",
+            fontFamily: "var(--sans)",
             fontSize: 11,
             letterSpacing: ".14em",
             textTransform: "uppercase",
@@ -382,7 +382,7 @@ export default function AdminPage() {
           <span style={{ fontSize: 18, fontWeight: 600, letterSpacing: "-0.025em" }}>Toxome</span>
           <span
             style={{
-              fontFamily: "var(--mono)",
+              fontFamily: "var(--sans)",
               fontSize: 10,
               letterSpacing: ".14em",
               textTransform: "uppercase",
@@ -429,7 +429,7 @@ export default function AdminPage() {
         >
           <div
             style={{
-              fontFamily: "var(--mono)",
+              fontFamily: "var(--sans)",
               fontSize: 10,
               letterSpacing: ".12em",
               textTransform: "uppercase",
@@ -852,7 +852,7 @@ function ProductRow({
               borderRadius: 999,
               background: badge.bg,
               color: badge.fg,
-              fontFamily: "var(--mono)",
+              fontFamily: "var(--sans)",
               fontSize: 10,
               letterSpacing: ".08em",
               textTransform: "uppercase",
@@ -1007,7 +1007,7 @@ function ReviewFlow({
       <div style={{ ...reviewShellStyle, ...reviewEmptyStyle }}>
         <span
           style={{
-            fontFamily: "var(--mono)",
+            fontFamily: "var(--sans)",
             fontSize: 11,
             letterSpacing: ".14em",
             textTransform: "uppercase",
@@ -1026,7 +1026,7 @@ function ReviewFlow({
       <div style={{ ...reviewShellStyle, ...reviewEmptyStyle }}>
         <div
           style={{
-            fontFamily: "var(--serif)",
+            fontFamily: "var(--sans)",
             fontSize: 40,
             letterSpacing: "-0.03em",
             color: "var(--ink)",
@@ -1085,7 +1085,7 @@ function ReviewFlow({
           >
             <span
               style={{
-                fontFamily: "var(--mono)",
+                fontFamily: "var(--sans)",
                 fontSize: 10,
                 letterSpacing: ".12em",
                 textTransform: "uppercase",
@@ -1097,7 +1097,7 @@ function ReviewFlow({
             </span>
             <span
               style={{
-                fontFamily: "var(--mono)",
+                fontFamily: "var(--sans)",
                 fontSize: 10,
                 letterSpacing: ".12em",
                 textTransform: "uppercase",
@@ -1168,10 +1168,10 @@ function TallyChip({
         border: `1px solid ${color}`,
       }}
     >
-      <span style={{ fontFamily: "var(--serif)", fontSize: 18, color, lineHeight: 1 }}>{value}</span>
+      <span style={{ fontFamily: "var(--sans)", fontSize: 18, color, lineHeight: 1 }}>{value}</span>
       <span
         style={{
-          fontFamily: "var(--mono)",
+          fontFamily: "var(--sans)",
           fontSize: 9,
           letterSpacing: ".1em",
           textTransform: "uppercase",
@@ -1281,7 +1281,7 @@ function ReviewCard({
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontFamily: "var(--mono)",
+                  fontFamily: "var(--sans)",
                   fontSize: 10,
                   letterSpacing: ".1em",
                   textTransform: "uppercase",
@@ -1330,7 +1330,7 @@ function ReviewCard({
         <div style={{ padding: "28px 30px" }}>
           <h2
             style={{
-              fontFamily: "var(--serif)",
+              fontFamily: "var(--sans)",
               fontSize: "clamp(24px, 2.4vw, 32px)",
               fontWeight: 500,
               lineHeight: 1.1,
@@ -1400,7 +1400,7 @@ function ReviewCard({
               {risk && riskMap[risk] && (
                 <span
                   style={{
-                    fontFamily: "var(--mono)",
+                    fontFamily: "var(--sans)",
                     fontSize: 10,
                     fontWeight: 500,
                     letterSpacing: ".08em",
@@ -1525,7 +1525,7 @@ function ReviewCard({
                   <span
                     key={c}
                     style={{
-                      fontFamily: "var(--mono)",
+                      fontFamily: "var(--sans)",
                       fontSize: 11,
                       letterSpacing: ".06em",
                       textTransform: "uppercase",
@@ -1653,7 +1653,7 @@ function ReviewSectionHeading({ children }: { children: React.ReactNode }) {
   return (
     <h3
       style={{
-        fontFamily: "var(--mono)",
+        fontFamily: "var(--sans)",
         fontSize: 10,
         fontWeight: 500,
         letterSpacing: ".14em",
@@ -1668,7 +1668,7 @@ function ReviewSectionHeading({ children }: { children: React.ReactNode }) {
 }
 
 const kbdStyle: React.CSSProperties = {
-  fontFamily: "var(--mono)",
+  fontFamily: "var(--sans)",
   fontSize: 10,
   lineHeight: 1,
   padding: "3px 6px",
@@ -1872,7 +1872,7 @@ function EditPanel({
                 ...editInputStyle,
                 minHeight: 90,
                 resize: "vertical",
-                fontFamily: "var(--mono)",
+                fontFamily: "var(--sans)",
                 fontSize: 12,
               }}
               value={compJson}
@@ -1909,7 +1909,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       <span
         style={{
           display: "block",
-          fontFamily: "var(--mono)",
+          fontFamily: "var(--sans)",
           fontSize: 10,
           letterSpacing: ".1em",
           textTransform: "uppercase",
@@ -1987,7 +1987,7 @@ function StatCard({
     >
       <div
         style={{
-          fontFamily: "var(--mono)",
+          fontFamily: "var(--sans)",
           fontSize: 10,
           letterSpacing: ".12em",
           textTransform: "uppercase",
@@ -1999,7 +1999,7 @@ function StatCard({
       </div>
       <div
         style={{
-          fontFamily: "var(--serif)",
+          fontFamily: "var(--sans)",
           fontSize: 30,
           fontWeight: 300,
           letterSpacing: "-0.02em",
@@ -2033,7 +2033,7 @@ function Eyebrow({ children }: { children: React.ReactNode }) {
   return (
     <div
       style={{
-        fontFamily: "var(--mono)",
+        fontFamily: "var(--sans)",
         fontSize: 11,
         letterSpacing: ".14em",
         textTransform: "uppercase",
@@ -2047,7 +2047,7 @@ function Eyebrow({ children }: { children: React.ReactNode }) {
 }
 
 const headingStyle: React.CSSProperties = {
-  fontFamily: "var(--serif)",
+  fontFamily: "var(--sans)",
   fontWeight: 300,
   fontSize: 28,
   letterSpacing: "-0.025em",
@@ -2116,7 +2116,7 @@ const listHeaderStyle: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
   padding: "11px 18px",
-  fontFamily: "var(--mono)",
+  fontFamily: "var(--sans)",
   fontSize: 10,
   letterSpacing: ".1em",
   textTransform: "uppercase",

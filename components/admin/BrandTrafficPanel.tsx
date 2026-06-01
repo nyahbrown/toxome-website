@@ -58,7 +58,7 @@ const card: React.CSSProperties = {
   marginBottom: 20,
 };
 const sectionLabel: React.CSSProperties = {
-  fontFamily: "var(--mono)",
+  fontFamily: "var(--sans)",
   fontSize: 11,
   fontWeight: 500,
   letterSpacing: "0.14em",
@@ -78,7 +78,7 @@ const cell: React.CSSProperties = {
 const headCell: React.CSSProperties = {
   ...cell,
   color: "var(--ink-3)",
-  fontFamily: "var(--mono)",
+  fontFamily: "var(--sans)",
   fontSize: 11,
   letterSpacing: "0.08em",
   textTransform: "uppercase",
@@ -127,7 +127,7 @@ function KpiCard({
       <div style={sectionLabel}>{label}</div>
       <div
         style={{
-          fontFamily: "var(--serif)",
+          fontFamily: "var(--sans)",
           fontSize: 26,
           color: "var(--ink)",
           letterSpacing: "-0.02em",
