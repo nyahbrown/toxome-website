@@ -96,7 +96,7 @@ Two families only. No system monospace.
 
 **Rule:** Cormorant carries emotion and authority. Inter carries everything functional — reading, acting, labeling. Never mix roles.
 
-**Case rule:** All text renders lowercase site-wide (`text-transform: lowercase` on `body`). Exception: `.j-prose` (article reading body only) — `text-transform: none` restores natural sentence case so the author's capitalization is preserved. The article grid/index cards are lowercase (intended). All `text-transform: uppercase` instances in the codebase should be written as `text-transform: lowercase` — the eyebrow "label" look is achieved through weight (600), tracking (0.13em), and size (10–11px), not ALL CAPS.
+**Case rule:** Body text renders lowercase site-wide (`text-transform: lowercase` on `body`). Exceptions: (1) `.j-prose` (article reading body only) — `text-transform: none` restores natural sentence case so the author's capitalization is preserved; the article grid/index cards stay lowercase (intended). (2) **Eyebrows / section labels = ALL CAPS** — the `.eyebrow` class is `text-transform: uppercase` (weight 600, 0.13em tracking, 10–11px). Every section label renders in caps (A NEW CATEGORY, BROWSE BY FIBER, EDITOR'S PICKS, THE JOURNAL, THE FASHION WELLNESS LETTER, etc.). Do not revert eyebrows to lowercase.
 
 ---
 
