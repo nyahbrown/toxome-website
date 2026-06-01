@@ -307,95 +307,8 @@ function EditorsPicksSection({ products }: { products: Product[] }) {
   );
 }
 
-/* § State of Fashion Wellness — the one dark band. Authority by declaration. */
-function ReportSection() {
-  return (
-    <section
-      style={{ position: "relative", overflow: "hidden", background: "var(--ink)" }}
-    >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src="/report-bg.jpg"
-        alt=""
-        loading="lazy"
-        style={{
-          position: "absolute",
-          inset: 0,
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-          objectPosition: "center",
-        }}
-      />
-      {/* Dark overlay so the cream text + honey hairline stay legible */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          background: "rgba(10, 6, 2, 0.58)",
-        }}
-      />
-      <div
-        className="shell"
-        style={{ position: "relative", paddingTop: 120, paddingBottom: 120 }}
-      >
-        <div style={{ maxWidth: 720, margin: "0 auto", textAlign: "center" }}>
-          <h2
-            style={{
-              fontFamily: "var(--sans)",
-              fontWeight: 400,
-              fontSize: "clamp(28px, 3.4vw, 46px)",
-              lineHeight: 1.14,
-              letterSpacing: "-0.022em",
-              color: "var(--cream)",
-              margin: 0,
-            }}
-          >
-            our annual report on the state of fashion wellness.
-          </h2>
-          <p
-            style={{
-              fontSize: 16,
-              lineHeight: 1.75,
-              color: "rgba(255,255,255,0.78)",
-              maxWidth: 560,
-              margin: "24px auto 0",
-            }}
-          >
-            124 million tonnes of fiber made last year. 60% of it, plastic. Once
-            a year, Toxome publishes the cleanest brands, the worst offenders,
-            and what&apos;s changing.
-          </p>
-          <div style={{ marginTop: 36 }}>
-            <Link
-              href="#newsletter"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                height: 48,
-                padding: "0 30px",
-                borderRadius: 999,
-                background: "var(--cream)",
-                color: "var(--ink)",
-                fontFamily: "var(--sans)",
-                fontSize: 15,
-                fontWeight: 500,
-                letterSpacing: "-0.005em",
-                textDecoration: "none",
-              }}
-            >
-              Get early access
-            </Link>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* § The Fashion Wellness Letter — email capture, the growth engine. */
-function NewsletterInline() {
+/* § Newsletter — photo banner + email capture (merged report band + letter). */
+function NewsletterSection() {
   const [email, setEmail] = useState("");
   const [state, setState] = useState<
     "idle" | "submitting" | "success" | "error"
@@ -413,7 +326,7 @@ function NewsletterInline() {
       const { supabase } = await import("@/lib/supabase");
       const { error } = await supabase
         .from("newsletter_signups")
-        .insert({ email: trimmed, source: "homepage_inline" });
+        .insert({ email: trimmed, source: "homepage_newsletter" });
       if (error) {
         // Duplicate = already subscribed; honor it as success.
         if (error.code === "23505") {
@@ -432,36 +345,67 @@ function NewsletterInline() {
   }
 
   return (
-    <section id="newsletter" style={{ background: "var(--bg)" }}>
-      <div className="shell" style={{ paddingTop: 104, paddingBottom: 120 }}>
-        <div style={{ maxWidth: 540, margin: "0 auto", textAlign: "center" }}>
-          <div className="eyebrow" style={{ marginBottom: 16 }}>
-            The Fashion Wellness Letter
+    <section
+      id="newsletter"
+      style={{ position: "relative", overflow: "hidden", background: "var(--ink)" }}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/report-bg.jpg"
+        alt=""
+        loading="lazy"
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          objectPosition: "center",
+        }}
+      />
+      {/* Dark overlay so the reversed-out text + form stay legible */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "rgba(10, 6, 2, 0.58)",
+        }}
+      />
+      <div
+        className="shell"
+        style={{ position: "relative", paddingTop: 120, paddingBottom: 120 }}
+      >
+        <div style={{ maxWidth: 620, margin: "0 auto", textAlign: "center" }}>
+          <div
+            className="eyebrow"
+            style={{ color: "rgba(255,255,255,0.6)", marginBottom: 18 }}
+          >
+            Newsletter
           </div>
           <h2
             style={{
               fontFamily: "var(--sans)",
-              fontWeight: 500,
-              fontSize: "clamp(26px, 3vw, 40px)",
+              fontWeight: 400,
+              fontSize: "clamp(28px, 3.4vw, 46px)",
               lineHeight: 1.14,
-              letterSpacing: "-0.02em",
-              color: "var(--ink)",
+              letterSpacing: "-0.022em",
+              color: "var(--cream)",
               margin: 0,
             }}
           >
-            a sunday letter on what you&apos;re wearing.
+            our weekly report on the state of fashion wellness
           </h2>
           {state === "success" ? (
             <p
               style={{
                 fontSize: 16,
                 lineHeight: 1.6,
-                color: "var(--ink-2)",
+                color: "rgba(255,255,255,0.85)",
                 margin: "20px auto 0",
-                maxWidth: 460,
+                maxWidth: 480,
               }}
             >
-              You&apos;re in. Look for the first letter this Sunday.
+              You&apos;re in. Look for the next one this week.
             </p>
           ) : (
             <>
@@ -469,20 +413,19 @@ function NewsletterInline() {
                 style={{
                   fontSize: 16,
                   lineHeight: 1.6,
-                  color: "var(--ink-2)",
-                  margin: "16px auto 24px",
-                  maxWidth: 460,
+                  color: "rgba(255,255,255,0.8)",
+                  margin: "16px auto 28px",
+                  maxWidth: 520,
                 }}
               >
-                Fibers, dyes, and the science underneath wellness fashion. No
-                spam.
+                Stay up to date on science, trends, and clean brands.
               </p>
               <form
                 onSubmit={handleSubmit}
                 style={{
                   display: "flex",
                   gap: 10,
-                  maxWidth: 440,
+                  maxWidth: 460,
                   margin: "0 auto",
                   flexWrap: "wrap",
                   justifyContent: "center",
@@ -500,9 +443,9 @@ function NewsletterInline() {
                     minWidth: 220,
                     height: 48,
                     padding: "0 18px",
-                    border: "1px solid var(--hairline-strong)",
+                    border: "1px solid rgba(255,255,255,0.5)",
                     borderRadius: 999,
-                    background: "var(--white)",
+                    background: "rgba(255,255,255,0.95)",
                     color: "var(--ink)",
                     fontFamily: "var(--sans)",
                     fontSize: 15,
@@ -517,9 +460,9 @@ function NewsletterInline() {
                     height: 48,
                     padding: "0 28px",
                     borderRadius: 999,
-                    border: "1px solid var(--ink)",
-                    background: "var(--ink)",
-                    color: "var(--white)",
+                    border: "none",
+                    background: "var(--cream)",
+                    color: "var(--ink)",
                     fontFamily: "var(--sans)",
                     fontSize: 15,
                     fontWeight: 500,
@@ -532,7 +475,7 @@ function NewsletterInline() {
                 </button>
               </form>
               {state === "error" && errorMessage && (
-                <p style={{ fontSize: 12, color: "var(--red)", margin: "10px 0 0" }}>
+                <p style={{ fontSize: 12, color: "var(--cream)", margin: "10px 0 0" }}>
                   {errorMessage}
                 </p>
               )}
@@ -719,8 +662,7 @@ export default function HomeClient({
 
       <EditorsPicksSection products={products} />
       <JournalSection articles={articles} />
-      <ReportSection />
-      <NewsletterInline />
+      <NewsletterSection />
 
       <NewsletterPopup />
       <Footer />
