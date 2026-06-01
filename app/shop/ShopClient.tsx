@@ -639,8 +639,6 @@ export default function ShopClient({
       {/* Filter bar */}
       <div
         style={{
-          borderTop: "1px solid var(--hairline)",
-          borderBottom: "1px solid var(--hairline)",
           padding: "14px 0",
           marginBottom: 32,
         }}
