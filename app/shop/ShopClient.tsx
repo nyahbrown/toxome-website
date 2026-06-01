@@ -247,7 +247,7 @@ function FilterChip({
         alignItems: "center",
         gap: 7,
         fontFamily: "var(--sans)",
-        fontSize: 16,
+        fontSize: 14,
         letterSpacing: "-0.005em",
         color: "var(--ink)",
         background: "transparent",
@@ -258,7 +258,7 @@ function FilterChip({
       }}
       aria-label={`Remove ${label} filter`}
     >
-      <span style={{ fontSize: 16, lineHeight: 1, color: "var(--ink)" }}>×</span>
+      <span style={{ fontSize: 14, lineHeight: 1, color: "var(--ink)" }}>×</span>
       {label}
     </button>
   );
@@ -545,7 +545,7 @@ export default function ShopClient({
               ? {
                   fontFamily: "var(--sans)",
                   fontWeight: 500,
-                  fontSize: 20,
+                  fontSize: 22,
                   lineHeight: 1.2,
                   letterSpacing: "-0.015em",
                   color: "var(--ink)",
