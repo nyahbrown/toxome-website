@@ -71,7 +71,7 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   aria-label={s.label}
                   className="footer-social"
-                  style={{ display: "inline-flex", color: "var(--ink-3)" }}
+                  style={{ display: "inline-flex", color: "var(--ink)" }}
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <path d={s.path} />
@@ -103,9 +103,39 @@ export default function Footer() {
 
         <div style={{
           paddingTop: 28,
-          fontSize: 11, letterSpacing: ".06em", color: "var(--ink-3)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 20,
+          flexWrap: "wrap",
         }}>
-          <span>© 2026 Toxome LLC</span>
+          <span style={{ fontSize: 11, letterSpacing: ".06em", color: "var(--ink-3)" }}>
+            © 2026 Toxome LLC
+          </span>
+          <a
+            href="https://apps.apple.com/us/app/toxome/id6748622034"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Download Toxome on the App Store"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 9,
+              background: "var(--ink)",
+              color: "var(--cream)",
+              borderRadius: 9,
+              padding: "8px 16px",
+              textDecoration: "none",
+            }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M17.05 12.04c-.03-2.4 1.96-3.55 2.05-3.6-1.12-1.63-2.86-1.86-3.48-1.88-1.48-.15-2.89.87-3.64.87-.75 0-1.91-.85-3.14-.83-1.61.02-3.1.94-3.93 2.39-1.68 2.91-.43 7.22 1.2 9.58.8 1.16 1.75 2.46 3 2.41 1.21-.05 1.67-.78 3.13-.78 1.46 0 1.87.78 3.14.76 1.3-.02 2.12-1.18 2.91-2.34.92-1.34 1.3-2.64 1.32-2.71-.03-.01-2.53-.97-2.56-3.84zM14.63 5.09c.66-.8 1.11-1.91.99-3.02-.96.04-2.12.64-2.8 1.44-.61.71-1.15 1.84-1 2.93 1.07.08 2.16-.55 2.81-1.35z" />
+            </svg>
+            <span style={{ display: "flex", flexDirection: "column", lineHeight: 1.05, fontFamily: "var(--sans)" }}>
+              <span style={{ fontSize: 9, letterSpacing: "0.02em", opacity: 0.85 }}>Download on the</span>
+              <span style={{ fontSize: 15, fontWeight: 600, letterSpacing: "-0.01em" }}>App Store</span>
+            </span>
+          </a>
         </div>
       </div>
     </footer>

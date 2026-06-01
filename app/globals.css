@@ -457,11 +457,11 @@ button { font-family: inherit; }
 /* Footer grid */
 .footer-grid {
   display: grid;
-  grid-template-columns: 1fr auto auto;
-  gap: 80px;
-  margin-bottom: 64px;
+  grid-template-columns: 1.6fr 1fr 1fr;
+  gap: 48px;
+  margin-bottom: 56px;
 }
-@media (max-width: 900px) { .footer-grid { gap: 48px; } }
+@media (max-width: 900px) { .footer-grid { gap: 40px; } }
 @media (max-width: 560px) { .footer-grid { grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 48px; } }
 @media (max-width: 380px) { .footer-grid { grid-template-columns: 1fr; } }
 .footer-social { transition: color 0.15s ease; }
