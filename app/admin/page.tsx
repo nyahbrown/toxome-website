@@ -378,8 +378,13 @@ export default function AdminPage() {
           zIndex: 5,
         }}
       >
-        <div style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
-          <span style={{ fontSize: 18, fontWeight: 600, letterSpacing: "-0.025em" }}>Toxome</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <img
+            src="/toxome-logo.png"
+            alt="Toxome"
+            style={{ height: 22, width: "auto", display: "block" }}
+          />
+          <span style={{ fontSize: 18, fontWeight: 600, letterSpacing: "-0.025em", textTransform: "none" }}>Toxome</span>
           <span
             style={{
               fontFamily: "var(--sans)",
