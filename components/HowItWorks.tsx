@@ -114,7 +114,7 @@ export default function HowItWorks() {
           <div>
             <div className="eyebrow">How it works</div>
             <h2 style={{
-              fontFamily: "var(--serif)", fontWeight: 400, fontSize: "clamp(36px, 4.5vw, 52px)",
+              fontFamily: "var(--serif)", fontWeight: 300, fontSize: "clamp(36px, 4.5vw, 52px)",
               lineHeight: 1.06, letterSpacing: "-0.02em", margin: "20px 0 0", textWrap: "balance",
             } as React.CSSProperties}>
               From a photograph to a{" "}
@@ -140,7 +140,7 @@ export default function HowItWorks() {
               {step.n} / 03
             </div>
             <div>
-              <h3 style={{ fontFamily: "var(--serif)", fontWeight: 400, fontSize: 36, lineHeight: 1.1, letterSpacing: "-0.01em", margin: "0 0 16px" }}>
+              <h3 style={{ fontFamily: "var(--serif)", fontWeight: 300, fontSize: 36, lineHeight: 1.1, letterSpacing: "-0.01em", margin: "0 0 16px" }}>
                 {step.title}
               </h3>
               <p style={{ fontSize: 16, lineHeight: 1.55, color: "var(--ink-2)", margin: 0, maxWidth: 380 }}>

@@ -58,7 +58,7 @@ export default function Faq() {
           <div style={{ position: "sticky", top: 100 }}>
             <div className="eyebrow">FAQ</div>
             <h2 style={{
-              fontFamily: "var(--serif)", fontWeight: 400,
+              fontFamily: "var(--serif)", fontWeight: 300,
               fontSize: "clamp(32px, 4vw, 52px)",
               lineHeight: 1.02, letterSpacing: "-0.025em", margin: "20px 0 16px",
             } as React.CSSProperties}>

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Source_Serif_4, Inter } from "next/font/google";
+import { Cormorant, Inter } from "next/font/google";
 import "./globals.css";
 import AnimationProvider from "@/components/AnimationProvider";
 import CookieBanner from "@/components/CookieBanner";
@@ -23,9 +23,11 @@ const organizationSchema = {
   ],
 };
 
-const sourceSerif = Source_Serif_4({
+// Cormorant — high-contrast editorial serif. Loaded as a variable font so the
+// full 300–700 weight axis is available; headlines run Light (300). Replaced
+// Source Serif 4.
+const cormorant = Cormorant({
   subsets: ["latin"],
-  weight: ["400"],
   style: ["normal", "italic"],
   variable: "--font-serif",
   display: "swap",
@@ -79,7 +81,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${sourceSerif.variable} ${inter.variable}`}>
+    <html lang="en" className={`${cormorant.variable} ${inter.variable}`}>
       <body>
         <JsonLd data={organizationSchema} />
         <AnimationProvider />

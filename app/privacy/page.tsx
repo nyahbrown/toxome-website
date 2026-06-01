@@ -293,7 +293,7 @@ function Title({ children }: { children: React.ReactNode }) {
     <h1
       style={{
         fontFamily: "var(--serif)",
-        fontWeight: 400,
+        fontWeight: 300,
         fontSize: "clamp(36px, 5vw, 56px)",
         lineHeight: 1.05,
         letterSpacing: "-0.025em",

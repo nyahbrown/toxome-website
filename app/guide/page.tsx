@@ -134,7 +134,7 @@ export default async function GuidePage() {
           <h1
             style={{
               fontFamily: "var(--serif)",
-              fontWeight: 400,
+              fontWeight: 300,
               fontSize: "clamp(28px, 4vw, 46px)",
               lineHeight: 1.12,
               letterSpacing: "-0.02em",

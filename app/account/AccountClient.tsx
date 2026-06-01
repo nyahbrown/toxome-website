@@ -362,7 +362,7 @@ export default function AccountClient() {
               <h1
                 style={{
                   fontFamily: "var(--serif)",
-                  fontWeight: 400,
+                  fontWeight: 300,
                   fontSize: "clamp(32px, 4.4vw, 48px)",
                   lineHeight: 1.05,
                   letterSpacing: "-0.025em",

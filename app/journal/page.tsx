@@ -44,7 +44,7 @@ export default async function JournalPage() {
               <h1
                 style={{
                   fontFamily: "var(--serif)",
-                  fontWeight: 400,
+                  fontWeight: 300,
                   fontSize: "clamp(32px, 4.2vw, 54px)",
                   lineHeight: 1.08,
                   letterSpacing: "-0.025em",

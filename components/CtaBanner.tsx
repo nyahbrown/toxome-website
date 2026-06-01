@@ -2,7 +2,7 @@ const APP_STORE_URL = "https://apps.apple.com/us/app/toxome/id6748622034";
 
 export default function CtaBanner() {
   return (
-    <section style={{ padding: "120px 0", background: "var(--espresso)" }}>
+    <section style={{ padding: "120px 0", background: "var(--ink)" }}>
       <div className="shell">
         <div style={{ maxWidth: 720, margin: "0 auto", textAlign: "center" }}>
           <div className="eyebrow" style={{ color: "rgba(255,255,255,0.45)" }}>
@@ -10,7 +10,7 @@ export default function CtaBanner() {
           </div>
           <h2 style={{
             fontFamily: "var(--serif)",
-            fontWeight: 400,
+            fontWeight: 300,
             fontSize: "clamp(36px, 5vw, 58px)",
             lineHeight: 1.06,
             letterSpacing: "-0.025em",

@@ -204,7 +204,7 @@ export default async function FiberGuidePage({
             <h1
               style={{
                 fontFamily: "var(--serif)",
-                fontWeight: 400,
+                fontWeight: 300,
                 fontSize: "clamp(32px, 5vw, 48px)",
                 lineHeight: 1.08,
                 letterSpacing: "-0.02em",

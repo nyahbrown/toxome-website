@@ -79,7 +79,7 @@ export default function Hero() {
           </div>
           <h1 className="reveal" data-reveal-delay="200" style={{
             fontFamily: "var(--serif)",
-            fontWeight: 400,
+            fontWeight: 300,
             fontSize: "clamp(44px, 5.5vw, 68px)",
             lineHeight: 1.04,
             letterSpacing: "-0.02em",

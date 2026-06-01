@@ -5,7 +5,6 @@
   --cream:    #FCFBF7;
   --tan:      #EDE9E0;
   --linen:    #FCFBF7;
-  --espresso: #2C2420;
   --honey:    #C9A96E;
   --purple:   #C9CDDA;
   --blue:     #A8BDD3;
@@ -49,8 +48,11 @@ body {
 a { color: inherit; text-decoration: none; }
 button { font-family: inherit; }
 
+/* Default container: full-width with the product-grid's 32px edge gutters, so
+   every section (browse-by-fiber, filter bar, grids, footer) lines up to the
+   same edges as the shop product grid. */
 .shell {
-  max-width: 1280px;
+  max-width: none;
   margin: 0 auto;
   padding: 0 32px;
 }
@@ -160,7 +162,7 @@ button { font-family: inherit; }
 .fiber-tile__fallback {
   position: absolute;
   inset: 0;
-  background: linear-gradient(150deg, #efe9df 0%, #d9cdbb 55%, var(--espresso) 140%);
+  background: linear-gradient(150deg, #efe9df 0%, #d9cdbb 55%, #a6957c 140%);
 }
 .fiber-tile__scrim {
   position: absolute;
@@ -233,7 +235,7 @@ button { font-family: inherit; }
 .fiber-tile__name {
   margin: 0;
   font-family: var(--serif);
-  font-weight: 400;
+  font-weight: 300;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   font-size: clamp(18px, 1.9vw, 27px);
@@ -335,6 +337,89 @@ button { font-family: inherit; }
 }
 @media (max-width: 640px) { .fiber-grid { grid-template-columns: repeat(3, 1fr); gap: 7px; } }
 @media (max-width: 380px) { .fiber-grid { grid-template-columns: repeat(2, 1fr); } }
+
+/* Shop — Browse by fiber: horizontal scrollable rail of landscape cards */
+.fiber-rail-wrap { position: relative; }
+.fiber-rail {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 3px;
+  margin: -3px;
+}
+.fiber-rail::-webkit-scrollbar { display: none; }
+.fiber-rail-item {
+  flex: 0 0 auto;
+  width: 300px;
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  scroll-snap-align: start;
+}
+.fiber-rail-img {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--tan);
+  border: 1px solid var(--line);
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  transition: outline-color 160ms var(--ease-out-strong);
+}
+.fiber-rail-item[data-active="true"] .fiber-rail-img { outline-color: var(--ink); }
+.fiber-rail-img img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 600ms var(--ease-out-strong);
+}
+.fiber-rail-tint { position: absolute; inset: 0; background: rgba(59, 60, 58, 0.12); }
+.fiber-rail-label {
+  margin-top: 12px;
+  font-family: var(--sans);
+  font-size: 14px;
+  letter-spacing: -0.005em;
+  color: var(--ink-2);
+  text-transform: capitalize;
+}
+.fiber-rail-item[data-active="true"] .fiber-rail-label { color: var(--ink); font-weight: 500; }
+@media (hover: hover) and (pointer: fine) {
+  .fiber-rail-item:hover .fiber-rail-img img { transform: scale(1.04); }
+}
+/* Carousel arrows are bare chevrons, never enclosed in a circle or button
+   shape. See DESIGN.md (Carousels & scroll affordances). */
+.fiber-rail-arrow {
+  position: absolute;
+  top: 112px; /* vertical center of the 300x225 landscape image */
+  transform: translateY(-50%);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 4px;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: color 160ms ease, transform 140ms var(--ease-out-strong);
+}
+.fiber-rail-arrow:hover { color: var(--ink); }
+.fiber-rail-arrow:active { transform: translateY(-50%) scale(0.86); }
+.fiber-rail-arrow.left { left: -24px; }
+.fiber-rail-arrow.right { right: -24px; }
+@media (max-width: 700px) {
+  .fiber-rail-item { width: 76vw; max-width: 320px; }
+  .fiber-rail-arrow { display: none; } /* swipe instead on touch */
+}
 
 /* Product grid — shop */
 .product-grid {
@@ -511,7 +596,7 @@ button { font-family: inherit; }
 }
 .j-prose h3 {
   font-family: var(--serif);
-  font-weight: 400;
+  font-weight: 300;
   font-size: clamp(24px, 3vw, 32px);
   letter-spacing: -0.02em;
   line-height: 1.2;
@@ -573,7 +658,7 @@ button { font-family: inherit; }
 }
 .article-cta__headline {
   font-family: var(--serif);
-  font-weight: 400;
+  font-weight: 300;
   font-size: clamp(24px, 3vw, 32px);
   line-height: 1.18;
   letter-spacing: -0.02em;

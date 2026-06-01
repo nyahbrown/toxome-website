@@ -251,7 +251,7 @@ function LoginContent() {
           <h1
             style={{
               fontFamily: "var(--serif)",
-              fontWeight: 400,
+              fontWeight: 300,
               fontSize: 29,
               letterSpacing: "-0.025em",
               color: "var(--ink)",

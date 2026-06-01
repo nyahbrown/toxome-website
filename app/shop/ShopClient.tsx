@@ -25,11 +25,14 @@ const SECTION_META: Record<
 };
 
 const FIBERS: { name: string; image: string }[] = [
-  { name: "organic cotton", image: "/fibers/cotton.jpg" },
-  { name: "silk",   image: "/fibers/silk.jpg" },
-  { name: "wool",   image: "/fibers/wool.jpg" },
-  { name: "hemp",   image: "/fibers/hemp.jpg" },
-  { name: "linen",  image: "/fibers/linen.jpg" },
+  { name: "organic cotton", image: "/fibers/guide/organic_cotton.jpg" },
+  { name: "silk", image: "/fibers/guide/silk.jpg" },
+  { name: "linen", image: "/fibers/guide/linen.jpg" },
+  { name: "hemp", image: "/fibers/guide/hemp.jpg" },
+  { name: "wool", image: "/fibers/guide/wool.jpg" },
+  { name: "alpaca", image: "/fibers/guide/alpaca.jpg" },
+  { name: "cashmere", image: "/fibers/guide/cashmere.jpg" },
+  { name: "ramie", image: "/fibers/guide/ramie.jpg" },
 ];
 
 // Lifestyle-5 occasion taxonomy — mirrors the `occasion` column values.
@@ -197,8 +200,9 @@ function ProductCard({
         <h3
           style={{
             fontFamily: "var(--serif)",
-            fontSize: 20,
-            fontWeight: 600,
+            fontSize: 18,
+            fontWeight: 400,
+            textTransform: "lowercase",
             lineHeight: 1.2,
             letterSpacing: "-0.015em",
             color: "var(--ink)",
@@ -326,6 +330,9 @@ export default function ShopClient({
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, wishlist, toggleWishlist } = useAuth();
+  const fiberRailRef = useRef<HTMLDivElement | null>(null);
+  const scrollRail = (dir: 1 | -1) =>
+    fiberRailRef.current?.scrollBy({ left: dir * 340, behavior: "smooth" });
 
   // Base path the section lives under — filter changes route here.
   const sectionPath =
@@ -548,7 +555,7 @@ export default function ShopClient({
             header
               ? {
                   fontFamily: "var(--serif)",
-                  fontWeight: 400,
+                  fontWeight: 300,
                   fontSize: "clamp(22px, 2.2vw, 30px)",
                   lineHeight: 1.2,
                   letterSpacing: "-0.015em",
@@ -557,7 +564,7 @@ export default function ShopClient({
                 }
               : {
                   fontFamily: "var(--serif)",
-                  fontWeight: 400,
+                  fontWeight: 300,
                   fontSize: "clamp(18px, 2.75vw, 34px)",
                   lineHeight: 1.25,
                   letterSpacing: "-0.018em",
@@ -574,81 +581,53 @@ export default function ShopClient({
         </h1>
       </div>
 
-      {/* Browse by fiber — only on the /shop default view */}
+      {/* Browse by fiber — horizontal scrollable rail, only on /shop default */}
       {!section && (
       <div className="shell" style={{ paddingBottom: 52 }}>
-        <div
-          className="eyebrow"
-          style={{ marginBottom: 20 }}
-        >
+        <div className="eyebrow" style={{ marginBottom: 20 }}>
           Browse by fiber
         </div>
-        <div className="fiber-grid" style={{ gap: 8 }}>
-          {FIBERS.map((fiber) => {
-            const active = fiberFilter === fiber.name;
-            return (
-              <button
-                key={fiber.name}
-                onClick={() =>
-                  updateParams({ fiber: active ? null : fiber.name })
-                }
-                style={{
-                  border: "none",
-                  background: "none",
-                  padding: 0,
-                  cursor: "pointer",
-                  textAlign: "left",
-                }}
-              >
-                <div
-                  style={{
-                    position: "relative",
-                    paddingBottom: "124.5%",
-                    overflow: "hidden",
-                    outline: active ? "2px solid var(--ink)" : "none",
-                    outlineOffset: 2,
-                  }}
+        <div className="fiber-rail-wrap">
+          <button
+            type="button"
+            className="fiber-rail-arrow left"
+            aria-label="Scroll fibers left"
+            onClick={() => scrollRail(-1)}
+          >
+            <svg width="9" height="15" viewBox="0 0 9 15" fill="none" aria-hidden="true">
+              <path d="M7.5 1 1.5 7.5l6 6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+          <div className="fiber-rail" ref={fiberRailRef}>
+            {FIBERS.map((fiber) => {
+              const active = fiberFilter === fiber.name;
+              return (
+                <button
+                  key={fiber.name}
+                  className="fiber-rail-item"
+                  data-active={active}
+                  onClick={() => updateParams({ fiber: active ? null : fiber.name })}
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={fiber.image}
-                    alt={fiber.name}
-                    style={{
-                      position: "absolute",
-                      inset: 0,
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                      opacity: active ? 1 : 0.88,
-                      transition: "opacity 160ms ease, transform 300ms ease",
-                      transform: active ? "scale(1.03)" : "scale(1)",
-                    }}
-                  />
-                  {active && (
-                    <div
-                      style={{
-                        position: "absolute",
-                        inset: 0,
-                        background: "rgba(59,60,58,.12)",
-                      }}
-                    />
-                  )}
-                </div>
-                <div
-                  style={{
-                    fontSize: 14,
-                    letterSpacing: "-0.005em",
-                    color: active ? "var(--ink)" : "var(--ink-2)",
-                    marginTop: 10,
-                    fontWeight: active ? 500 : 400,
-                    fontFamily: "var(--sans)",
-                  }}
-                >
-                  {fiber.name}
-                </div>
-              </button>
-            );
-          })}
+                  <div className="fiber-rail-img">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={fiber.image} alt={fiber.name} loading="lazy" />
+                    {active && <div className="fiber-rail-tint" />}
+                  </div>
+                  <div className="fiber-rail-label">{fiber.name}</div>
+                </button>
+              );
+            })}
+          </div>
+          <button
+            type="button"
+            className="fiber-rail-arrow right"
+            aria-label="Scroll fibers right"
+            onClick={() => scrollRail(1)}
+          >
+            <svg width="9" height="15" viewBox="0 0 9 15" fill="none" aria-hidden="true">
+              <path d="m1.5 1 6 6.5-6 6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
         </div>
       </div>
       )}
@@ -713,7 +692,7 @@ export default function ShopClient({
       </div>
 
       {/* Product grid */}
-      <div className="shell" style={{ maxWidth: "none", padding: "0 32px" }}>
+      <div className="shell">
         {/* Result count + active filter chips */}
         <div
           style={{

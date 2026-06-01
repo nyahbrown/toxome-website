@@ -81,7 +81,7 @@ function FiberColumn({ f }: { f: GuideFiber }) {
           <h2
             style={{
               fontFamily: "var(--serif)",
-              fontWeight: 400,
+              fontWeight: 300,
               fontSize: 24,
               lineHeight: 1.1,
               letterSpacing: "-0.015em",
@@ -195,7 +195,7 @@ export default async function ComparePage({
           <h1
             style={{
               fontFamily: "var(--serif)",
-              fontWeight: 400,
+              fontWeight: 300,
               fontSize: "clamp(30px, 5vw, 46px)",
               lineHeight: 1.08,
               letterSpacing: "-0.02em",

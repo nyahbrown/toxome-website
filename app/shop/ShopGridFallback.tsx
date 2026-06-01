@@ -15,7 +15,7 @@ export default function ShopGridFallback({ products }: { products: Product[] }) 
         <h1
           style={{
             fontFamily: "var(--serif)",
-            fontWeight: 400,
+            fontWeight: 300,
             fontSize: "clamp(26px, 3vw, 38px)",
             lineHeight: 1.15,
             letterSpacing: "-0.018em",

@@ -18,9 +18,10 @@ Toxome is a **Fashion Wellness** brand — "the goop of what you wear." The webs
 
 **Design direction:** Editorial, not tech. Wellness, not startup. Magazine, not dashboard.
 
-**Two locked rules every agent must know:**
+**Three locked rules every agent must know:**
 1. Background is `#FCFBF7` everywhere — page, nav, footer, all sections. Never deviate.
 2. No black — darkest allowed color is `--ink: #3B3C3A`. `#000000` and `#14181B` are retired.
+3. Carousel arrows are never in a circle/pill/button — always a bare thin chevron SVG on each side of the scroller. Editorial media cards in horizontal rails are square-cornered. See DESIGN.md §4.5.
 
 ---
 
@@ -37,7 +38,7 @@ Toxome is a **Fashion Wellness** brand — "the goop of what you wear." The webs
 app/
   page.tsx           — homepage shell (renders HomeClient)
   HomeClient.tsx     — editorial homepage: video hero + Browse by Fiber grid
-  layout.tsx         — root layout + fonts (Source Serif 4 + Inter)
+  layout.tsx         — root layout + fonts (Cormorant + Inter)
   globals.css        — global styles + brand tokens
   blog/page.tsx      — blog index (placeholder)
   shop/page.tsx      — shop shell
@@ -81,7 +82,7 @@ public/
 
 ## Typography
 
-- **Headlines / display:** Source Serif 4 (Google Fonts, `Source_Serif_4`) — replaced Instrument Serif. Regular 400, tight tracking (-0.02em to -0.04em).
+- **Headlines / display:** Cormorant (Google Fonts, `Cormorant`, loaded as a variable font 300–700 + italics) — replaced Source Serif 4. A high-contrast editorial serif set at **Light (300)** for headlines, with 500 reserved for italic emphasis. Tight tracking (-0.02em to -0.04em).
 - **Body / UI:** Inter — clean, legible. 14–18px, -0.011em tracking at body sizes.
 - **Eyebrows / labels:** System monospace — `ui-monospace, "SF Mono", Menlo, monospace`. 11px, uppercase, 0.14em tracking. Never the display font.
 
@@ -102,7 +103,6 @@ Use CSS variables — **never** hardcode hex values in components.
 | `--tan` | `#EDE9E0` | Secondary warm surface, card backgrounds, placeholders |
 | `--blue` | `#A8BDD3` | Slate blue — brand accent for CTAs, editorial highlights |
 | `--purple` | `#C9CDDA` | Logo element accent |
-| `--espresso` | `#2C2420` | Deep warm dark for editorial sections, hero overlays |
 | `--honey` | `#C9A96E` | Editorial premium accent — badges, newsletter highlights. Sparingly. |
 | `--hairline` | `rgba(59,60,58,0.08)` | Subtle borders, section edges |
 | `--hairline-strong` | `rgba(59,60,58,0.14)` | Stronger borders, dividers |

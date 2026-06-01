@@ -2001,7 +2001,7 @@ function StatCard({
         style={{
           fontFamily: "var(--serif)",
           fontSize: 30,
-          fontWeight: 400,
+          fontWeight: 300,
           letterSpacing: "-0.02em",
           color: highlight ? "var(--orange)" : "var(--ink)",
         }}
@@ -2048,7 +2048,7 @@ function Eyebrow({ children }: { children: React.ReactNode }) {
 
 const headingStyle: React.CSSProperties = {
   fontFamily: "var(--serif)",
-  fontWeight: 400,
+  fontWeight: 300,
   fontSize: 28,
   letterSpacing: "-0.025em",
   color: "var(--ink)",

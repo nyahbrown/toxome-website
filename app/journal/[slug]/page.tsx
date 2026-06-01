@@ -110,7 +110,7 @@ export default async function ArticlePage({
           <h1
             style={{
               fontFamily: "var(--serif)",
-              fontWeight: 400,
+              fontWeight: 300,
               fontSize: "clamp(32px, 4.4vw, 54px)",
               lineHeight: 1.1,
               letterSpacing: "-0.025em",

@@ -12,13 +12,29 @@ import WishlistHeart from "@/components/WishlistHeart";
 import { fiberHazardColor, prettyFiber } from "@/lib/fabricScores";
 import { track, withUtm } from "@/lib/track";
 
-function RiskChip({ level }: { level: "low" | "moderate" | "high" }) {
-  const map = {
-    low: { color: "var(--risk-low)", label: "Low risk" },
-    moderate: { color: "var(--orange)", label: "Moderate risk" },
-    high: { color: "var(--red)", label: "High risk" },
-  } as const;
-  const m = map[level];
+function RiskChip({
+  score,
+  level,
+}: {
+  score?: number | null;
+  level?: "low" | "moderate" | "high" | null;
+}) {
+  // Four-word verdict, matching the Toxome browser extension (lower = cleaner):
+  // <=15 Great, <=36 Good, <=60 Okay, else Bad. Color follows the 3-band ramp.
+  let m: { color: string; label: string };
+  if (score != null) {
+    m = {
+      label: score <= 15 ? "Great" : score <= 36 ? "Good" : score <= 60 ? "Okay" : "Bad",
+      color: score <= 36 ? "var(--risk-low)" : score <= 60 ? "var(--orange)" : "var(--red)",
+    };
+  } else {
+    const fallback = {
+      low: { color: "var(--risk-low)", label: "Good" },
+      moderate: { color: "var(--orange)", label: "Okay" },
+      high: { color: "var(--red)", label: "Bad" },
+    } as const;
+    m = fallback[level ?? "low"];
+  }
   return (
     <span
       style={{
@@ -262,24 +278,6 @@ export default function ProductDetailClient({ product }: { product: Product }) {
               }}
             >
               {product.brand}
-              {product.brand_verified && (
-                <span
-                  style={{
-                    marginLeft: 8,
-                    fontFamily: "var(--mono)",
-                    fontSize: 10,
-                    fontWeight: 600,
-                    letterSpacing: "0.08em",
-                    textTransform: "uppercase",
-                    background: "var(--ink)",
-                    color: "var(--white)",
-                    padding: "3px 9px",
-                    borderRadius: 999,
-                  }}
-                >
-                  Verified
-                </span>
-              )}
             </span>
             {product.item_price != null && (
               <span
@@ -315,7 +313,9 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                   {product.toxome_score} Toxome Score
                 </span>
               )}
-              {product.risk_level && <RiskChip level={product.risk_level} />}
+              {(product.toxome_score != null || product.risk_level) && (
+                <RiskChip score={product.toxome_score} level={product.risk_level} />
+              )}
             </div>
           )}
 

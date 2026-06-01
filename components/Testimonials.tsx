@@ -33,7 +33,7 @@ export default function Testimonials() {
           <div className="eyebrow">What people are saying</div>
           <h2 style={{
             fontFamily: "var(--serif)",
-            fontWeight: 400,
+            fontWeight: 300,
             fontSize: "clamp(32px, 4vw, 48px)",
             lineHeight: 1.1,
             letterSpacing: "-0.02em",
