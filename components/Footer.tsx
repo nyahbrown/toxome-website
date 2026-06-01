@@ -51,8 +51,8 @@ const cols: FooterCol[] = [
 
 export default function Footer() {
   return (
-    <footer style={{ background: "var(--bg)", borderTop: "1px solid var(--hairline)", padding: "72px 0 36px" }}>
-      <div className="shell">
+    <footer style={{ background: "var(--bg)", borderTop: "1px solid var(--hairline)", padding: "72px 0 36px", textTransform: "none" }}>
+      <div className="shell" style={{ padding: "0 16px" }}>
         <div className="footer-grid">
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
