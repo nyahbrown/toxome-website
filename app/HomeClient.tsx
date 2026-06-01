@@ -620,6 +620,8 @@ export default function HomeClient({
 
       <NamingSection />
 
+      <EditorsPicksSection products={products} />
+
       {/* Browse by fiber — 50px gap below hero, matching Figma y=720 */}
       <section style={{ paddingTop: 50, paddingBottom: 96 }}>
         <div className="shell">
@@ -660,7 +662,6 @@ export default function HomeClient({
         </div>
       </section>
 
-      <EditorsPicksSection products={products} />
       <JournalSection articles={articles} />
       <NewsletterSection />
 
