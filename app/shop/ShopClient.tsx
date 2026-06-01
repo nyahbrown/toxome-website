@@ -199,13 +199,13 @@ function ProductCard({
       <div style={{ paddingTop: 20 }}>
         <h2
           style={{
-            fontFamily: "var(--serif)",
-            fontSize: 20,
-            fontWeight: 400,
-            lineHeight: 1.2,
-            letterSpacing: "-0.015em",
+            fontFamily: "var(--sans)",
+            fontSize: 14,
+            fontWeight: 700,
+            lineHeight: 1.3,
+            letterSpacing: "-0.005em",
             color: "var(--ink)",
-            margin: "0 0 6px",
+            margin: "0 0 4px",
           }}
         >
           {p.item_name}

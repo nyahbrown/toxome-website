@@ -228,13 +228,12 @@ function MiniProductCard({ p }: { p: Product }) {
       <div style={{ paddingTop: 16 }}>
         <div
           style={{
-            fontFamily: "var(--serif)",
-            fontSize: 18,
-            fontWeight: 400,
-            lineHeight: 1.2,
-            letterSpacing: "-0.015em",
+            fontFamily: "var(--sans)",
+            fontSize: 14,
+            fontWeight: 700,
+            lineHeight: 1.3,
+            letterSpacing: "-0.005em",
             color: "var(--ink)",
-            textTransform: "lowercase",
           }}
         >
           {p.item_name}
