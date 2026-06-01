@@ -590,7 +590,7 @@ function DevBanner() {
         gap: 12,
         marginBottom: 24,
         padding: "10px 16px",
-        background: "var(--honey)",
+        background: "var(--blue)",
         borderRadius: 10,
         fontFamily: "var(--mono)",
         fontSize: 11,
@@ -690,7 +690,7 @@ function PlanChip({ profile }: { profile: UserProfile }) {
         letterSpacing: "0.12em",
         textTransform: "uppercase",
         color: profile.isPremium ? "var(--ink)" : "var(--ink-3)",
-        background: profile.isPremium ? "var(--honey)" : "var(--hairline)",
+        background: profile.isPremium ? "var(--blue)" : "var(--hairline)",
         padding: "5px 11px",
         borderRadius: 999,
       }}

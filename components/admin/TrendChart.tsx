@@ -14,7 +14,7 @@ type SeriesKey = "clicks" | "views" | "likes";
 const SERIES: { key: SeriesKey; label: string; color: string }[] = [
   { key: "clicks", label: "Clicks", color: "var(--ink)" },
   { key: "views", label: "Views", color: "var(--blue)" },
-  { key: "likes", label: "Likes", color: "var(--honey)" },
+  { key: "likes", label: "Likes", color: "var(--orange)" },
 ];
 
 const H = 240;
