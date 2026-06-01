@@ -435,9 +435,11 @@ export default function ShopClient({
         const va = a.brand_verified ? 1 : 0;
         const vb = b.brand_verified ? 1 : 0;
         if (vb !== va) return vb - va;
-        const sa = a.toxome_score ?? -Infinity;
-        const sb = b.toxome_score ?? -Infinity;
-        if (sb !== sa) return sb - sa;
+        // Lower Toxome Score = cleaner, so ascending surfaces the cleanest
+        // verified products first. Null scores sink to the bottom.
+        const sa = a.toxome_score ?? Infinity;
+        const sb = b.toxome_score ?? Infinity;
+        if (sa !== sb) return sa - sb;
         return (
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         );
