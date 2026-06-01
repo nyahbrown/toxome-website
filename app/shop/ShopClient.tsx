@@ -222,7 +222,7 @@ function ProductCard({
           {p.brand}
           {p.item_price != null && (
             <>
-              <span style={{ color: "var(--ink-3)", margin: "0 6px" }}>·</span>
+              <span style={{ margin: "0 6px" }}>·</span>
               ${p.item_price.toLocaleString()}
             </>
           )}
