@@ -320,7 +320,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                 marginBottom: 26,
               }}
             >
-              {product.toxome_score != null && (
+              {(product.toxome_score != null || product.risk_level) && (
                 <span
                   style={{
                     fontSize: 14,
@@ -328,7 +328,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                     letterSpacing: "-0.005em",
                   }}
                 >
-                  {product.toxome_score} Toxome Score
+                  Toxome Rating
                 </span>
               )}
               {(product.toxome_score != null || product.risk_level) && (
@@ -382,7 +382,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
               margin: "0 0 8px",
             }}
           >
-            Opens in a new tab · affiliate link
+            Opens in a new tab · may contain affiliate link
           </p>
 
           {product.description && (
