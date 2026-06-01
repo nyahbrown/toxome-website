@@ -13,7 +13,7 @@ export default async function Home() {
     "Erma Drop Waist Linen Dress",
     "Mai Cashmere Hoodie Pullover",
     "Niko Scoop Tank",
-    "Clementine Dress",
+    "The Bateau: White Pointelle",
   ];
   const editorsPicks = EDITORS_PICKS.map((name) =>
     products.find((p) => p.item_name === name)
