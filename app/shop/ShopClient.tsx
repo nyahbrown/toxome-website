@@ -553,8 +553,8 @@ export default function ShopClient({
           style={
             header
               ? {
-                  fontFamily: "var(--serif)",
-                  fontWeight: 300,
+                  fontFamily: "var(--sans)",
+                  fontWeight: 500,
                   fontSize: "clamp(22px, 2.2vw, 30px)",
                   lineHeight: 1.2,
                   letterSpacing: "-0.015em",
@@ -575,7 +575,9 @@ export default function ShopClient({
           }
         >
           {header
-            ? header.title
+            ? category !== "All"
+              ? `${header.title} ${category.toLowerCase()}`
+              : header.title
             : "There is no wellness without what touches the skin all day."}
         </h1>
       </div>
