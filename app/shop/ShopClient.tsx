@@ -555,7 +555,7 @@ export default function ShopClient({
               ? {
                   fontFamily: "var(--sans)",
                   fontWeight: 500,
-                  fontSize: 16,
+                  fontSize: 20,
                   lineHeight: 1.2,
                   letterSpacing: "-0.015em",
                   color: "var(--ink)",
