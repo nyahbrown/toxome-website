@@ -310,8 +310,35 @@ function CleanEditSection({ products }: { products: Product[] }) {
 /* § State of Fashion Wellness — the one dark band. Authority by declaration. */
 function ReportSection() {
   return (
-    <section style={{ background: "var(--ink)" }}>
-      <div className="shell" style={{ paddingTop: 120, paddingBottom: 120 }}>
+    <section
+      style={{ position: "relative", overflow: "hidden", background: "var(--ink)" }}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/report-bg.jpg"
+        alt=""
+        loading="lazy"
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          objectPosition: "center",
+        }}
+      />
+      {/* Dark overlay so the cream text + honey hairline stay legible */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "rgba(10, 6, 2, 0.58)",
+        }}
+      />
+      <div
+        className="shell"
+        style={{ position: "relative", paddingTop: 120, paddingBottom: 120 }}
+      >
         <div style={{ maxWidth: 720, margin: "0 auto", textAlign: "center" }}>
           <div
             style={{
@@ -329,8 +356,8 @@ function ReportSection() {
           </div>
           <h2
             style={{
-              fontFamily: "var(--serif)",
-              fontWeight: 300,
+              fontFamily: "var(--sans)",
+              fontWeight: 700,
               fontSize: "clamp(28px, 3.4vw, 46px)",
               lineHeight: 1.14,
               letterSpacing: "-0.022em",
