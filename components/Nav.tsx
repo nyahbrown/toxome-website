@@ -13,13 +13,6 @@ const FALLBACK_TAXONOMY: ShopTaxonomy = {
   home: ["Other"],
 };
 
-const JOURNAL_TOPICS = [
-  { label: "Fibers", topic: "fibers" },
-  { label: "Toxicology", topic: "toxicology" },
-  { label: "Wellness", topic: "wellness" },
-  { label: "Style", topic: "style" },
-];
-
 function buildShopColumns(taxonomy: ShopTaxonomy) {
   const makeGendered = (label: "Men" | "Women", categories: string[]) => {
     const slug = label.toLowerCase();
@@ -42,21 +35,6 @@ function buildShopColumns(taxonomy: ShopTaxonomy) {
     makeGendered("Women", taxonomy.women),
     makeGendered("Men", taxonomy.men),
     home,
-  ];
-}
-
-function buildJournalColumns() {
-  return [
-    {
-      heading: "Read",
-      items: [
-        { label: "All articles", href: "/journal", muted: true },
-        ...JOURNAL_TOPICS.map((t) => ({
-          label: t.label,
-          href: `/journal?topic=${t.topic}`,
-        })),
-      ],
-    },
   ];
 }
 
@@ -167,14 +145,30 @@ export default function Nav({
             >
               guide
             </Link>
-            <NavDropdown
-              label="journal"
+            <Link
               href="/journal"
-              transparent={transparent}
-              active={pathname === "/journal" || pathname.startsWith("/journal/")}
-              columns={buildJournalColumns()}
-              panelWidth={240}
-            />
+              style={{
+                fontSize: 14,
+                fontWeight: 400,
+                letterSpacing: "-0.005em",
+                color: transparent
+                  ? "rgba(255,255,255,0.92)"
+                  : pathname === "/journal" || pathname.startsWith("/journal/")
+                  ? "var(--ink)"
+                  : "var(--ink-2)",
+                textDecoration:
+                  !transparent &&
+                  (pathname === "/journal" || pathname.startsWith("/journal/"))
+                    ? "underline"
+                    : "none",
+                textUnderlineOffset: 5,
+                textDecorationThickness: 1,
+                transition: "color 300ms ease",
+                padding: "8px 0",
+              }}
+            >
+              journal
+            </Link>
           </div>
         </div>
 
