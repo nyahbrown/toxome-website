@@ -10,15 +10,26 @@ import type { ShopTaxonomy } from "@/lib/supabase";
 import type { Article } from "@/lib/journal";
 import type { Product } from "@/types/product";
 
+// `hover` is the second-view photo that crossfades in on hover.
+// To enable a swap for a fiber, drop a "<name>-2.jpg" into /public/fibers
+// and add a `hover` path here. Cards without `hover` keep the subtle zoom.
 const FIBERS = [
-  { name: "organic cotton", image: "/fibers/cotton.jpg" },
-  { name: "silk",   image: "/fibers/silk.jpg" },
-  { name: "wool",   image: "/fibers/wool.jpg" },
+  { name: "organic cotton", image: "/fibers/cotton-1.jpg" },
+  { name: "silk",   image: "/fibers/silk-1.jpg" },
+  { name: "wool",   image: "/fibers/wool-1.jpg", hover: "/fibers/wool-2.jpg" },
   { name: "hemp",   image: "/fibers/hemp.jpg" },
-  { name: "linen",  image: "/fibers/linen.jpg" },
+  { name: "linen",  image: "/fibers/linen-1.jpg" },
 ];
 
-function FiberTile({ name, image }: { name: string; image: string }) {
+function FiberTile({
+  name,
+  image,
+  hover,
+}: {
+  name: string;
+  image: string;
+  hover?: string;
+}) {
   const [hovered, setHovered] = useState(false);
   return (
     <Link href={`/shop?fiber=${name}`} style={{ textDecoration: "none" }}>
@@ -43,10 +54,28 @@ function FiberTile({ name, image }: { name: string; image: string }) {
               width: "100%",
               height: "100%",
               objectFit: "cover",
-              transition: "transform 400ms ease",
-              transform: hovered ? "scale(1.04)" : "scale(1)",
+              transition: "transform 600ms ease, opacity 500ms ease",
+              transform: hovered && !hover ? "scale(1.04)" : "scale(1)",
+              opacity: hover && hovered ? 0 : 1,
             }}
           />
+          {hover && (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              src={hover}
+              alt=""
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                transition: "opacity 500ms ease",
+                opacity: hovered ? 1 : 0,
+              }}
+            />
+          )}
         </div>
         <div
           style={{
