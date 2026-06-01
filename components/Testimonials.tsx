@@ -32,8 +32,8 @@ export default function Testimonials() {
         <div style={{ maxWidth: 560, marginBottom: 72 }}>
           <div className="eyebrow">What people are saying</div>
           <h2 style={{
-            fontFamily: "var(--serif)",
-            fontWeight: 300,
+            fontFamily: "var(--sans)",
+            fontWeight: 600,
             fontSize: "clamp(32px, 4vw, 48px)",
             lineHeight: 1.1,
             letterSpacing: "-0.02em",
@@ -58,7 +58,7 @@ export default function Testimonials() {
               }}
             >
               <p style={{
-                fontFamily: "var(--serif)",
+                fontFamily: "var(--sans)",
                 fontWeight: 400,
                 fontSize: 20,
                 lineHeight: 1.45,

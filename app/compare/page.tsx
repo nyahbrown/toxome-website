@@ -87,7 +87,8 @@ export default async function CompareIndexPage() {
               >
                 <span
                   style={{
-                    fontFamily: "var(--serif)",
+                    fontFamily: "var(--sans)",
+                    fontWeight: 500,
                     fontSize: 19,
                     color: "var(--ink)",
                     letterSpacing: "-0.01em",

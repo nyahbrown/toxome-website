@@ -78,8 +78,8 @@ export default function Hero() {
             Toxome · A scanner for what you wear
           </div>
           <h1 className="reveal" data-reveal-delay="200" style={{
-            fontFamily: "var(--serif)",
-            fontWeight: 300,
+            fontFamily: "var(--sans)",
+            fontWeight: 600,
             fontSize: "clamp(44px, 5.5vw, 68px)",
             lineHeight: 1.04,
             letterSpacing: "-0.02em",

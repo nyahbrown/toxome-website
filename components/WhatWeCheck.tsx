@@ -14,7 +14,7 @@ export default function WhatWeCheck() {
         <div style={{ maxWidth: 720, marginBottom: 64 }}>
           <div className="eyebrow">What we look for</div>
           <h2 style={{
-            fontFamily: "var(--serif)", fontWeight: 300,
+            fontFamily: "var(--sans)", fontWeight: 600,
             fontSize: "clamp(36px, 4.5vw, 56px)",
             lineHeight: 1.06, letterSpacing: "-0.02em",
             margin: "20px 0 24px",
@@ -38,7 +38,7 @@ export default function WhatWeCheck() {
               <div>
                 <div className="eyebrow" style={{ marginBottom: 16 }}>0{i + 1}</div>
                 <h3 style={{
-                  fontFamily: "var(--serif)", fontWeight: 300, fontSize: 28,
+                  fontFamily: "var(--sans)", fontWeight: 600, fontSize: 28,
                   lineHeight: 1.1, letterSpacing: "-0.01em", margin: "0 0 14px",
                 }}>{f.title}</h3>
                 <p style={{ fontSize: 14.5, lineHeight: 1.5, color: "var(--ink-2)", margin: 0 }}>

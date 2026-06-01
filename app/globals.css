@@ -235,8 +235,8 @@ button { font-family: inherit; }
 }
 .fiber-tile__name {
   margin: 0;
-  font-family: var(--serif);
-  font-weight: 300;
+  font-family: var(--sans);
+  font-weight: 400;
   text-transform: lowercase;
   letter-spacing: 0.1em;
   font-size: clamp(18px, 1.9vw, 27px);
@@ -552,8 +552,8 @@ button { font-family: inherit; }
   margin: 16px 0 6px;
 }
 .j-card__title {
-  font-family: var(--serif);
-  font-weight: 400;
+  font-family: var(--sans);
+  font-weight: 500;
   font-size: clamp(15px, 1.6vw, 19px); /* 5pt smaller than before */
   line-height: 1.2;
   letter-spacing: -0.015em;
@@ -596,7 +596,8 @@ button { font-family: inherit; }
   margin: 0 0 26px;
 }
 .j-prose > p:first-of-type::first-letter {
-  font-family: var(--serif);
+  font-family: var(--sans);
+  font-weight: 600;
   float: left;
   font-size: 64px;
   line-height: 0.82;
@@ -604,8 +605,8 @@ button { font-family: inherit; }
   color: var(--ink);
 }
 .j-prose h3 {
-  font-family: var(--serif);
-  font-weight: 300;
+  font-family: var(--sans);
+  font-weight: 600;
   font-size: clamp(24px, 3vw, 32px);
   letter-spacing: -0.02em;
   line-height: 1.2;
@@ -613,7 +614,8 @@ button { font-family: inherit; }
   margin: 48px 0 18px;
 }
 .j-prose .j-pull {
-  font-family: var(--serif);
+  font-family: var(--sans);
+  font-weight: 500;
   font-size: clamp(24px, 3.2vw, 34px);
   line-height: 1.32;
   letter-spacing: -0.015em;
@@ -630,7 +632,8 @@ button { font-family: inherit; }
   border-left: 2px solid var(--honey);
 }
 .j-prose blockquote p {
-  font-family: var(--serif);
+  font-family: var(--sans);
+  font-weight: 500;
   font-size: clamp(24px, 3.2vw, 34px);
   line-height: 1.32;
   letter-spacing: -0.015em;
@@ -667,8 +670,8 @@ button { font-family: inherit; }
   margin: 0 0 14px;
 }
 .article-cta__headline {
-  font-family: var(--serif);
-  font-weight: 300;
+  font-family: var(--sans);
+  font-weight: 500;
   font-size: clamp(24px, 3vw, 32px);
   line-height: 1.18;
   letter-spacing: -0.02em;

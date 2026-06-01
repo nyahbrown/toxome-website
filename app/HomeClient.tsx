@@ -90,8 +90,8 @@ function NamingSection() {
           </div>
           <h2
             style={{
-              fontFamily: "var(--serif)",
-              fontWeight: 300,
+              fontFamily: "var(--sans)",
+              fontWeight: 500,
               fontSize: "clamp(30px, 4vw, 52px)",
               lineHeight: 1.12,
               letterSpacing: "-0.025em",
@@ -155,8 +155,8 @@ function JournalSection({ articles }: { articles: Article[] }) {
           </div>
           <h2
             style={{
-              fontFamily: "var(--serif)",
-              fontWeight: 300,
+              fontFamily: "var(--sans)",
+              fontWeight: 500,
               fontSize: "clamp(26px, 3vw, 40px)",
               lineHeight: 1.12,
               letterSpacing: "-0.02em",
@@ -266,8 +266,8 @@ function CleanEditSection({ products }: { products: Product[] }) {
           </div>
           <h2
             style={{
-              fontFamily: "var(--serif)",
-              fontWeight: 300,
+              fontFamily: "var(--sans)",
+              fontWeight: 500,
               fontSize: "clamp(26px, 3vw, 40px)",
               lineHeight: 1.12,
               letterSpacing: "-0.02em",
@@ -279,8 +279,9 @@ function CleanEditSection({ products }: { products: Product[] }) {
           </h2>
           <p
             style={{
-              fontFamily: "var(--serif)",
+              fontFamily: "var(--sans)",
               fontStyle: "italic",
+              fontWeight: 400,
               fontSize: "clamp(16px, 1.8vw, 20px)",
               lineHeight: 1.5,
               color: "var(--ink-2)",
@@ -439,8 +440,8 @@ function NewsletterInline() {
           </div>
           <h2
             style={{
-              fontFamily: "var(--serif)",
-              fontWeight: 300,
+              fontFamily: "var(--sans)",
+              fontWeight: 500,
               fontSize: "clamp(26px, 3vw, 40px)",
               lineHeight: 1.14,
               letterSpacing: "-0.02em",
@@ -630,13 +631,13 @@ export default function HomeClient({
                   textWrap: "balance",
                 }}
               >
-                60% of the average closet is made from plastic.
+                The average closet is 60% plastic.
               </h1>
               <p
                 style={{
-                  fontFamily: "var(--serif)",
+                  fontFamily: "var(--sans)",
                   fontStyle: "italic",
-                  fontWeight: 300,
+                  fontWeight: 400,
                   fontSize: "clamp(18px, 2.4vw, 26px)",
                   color: "var(--white)",
                   opacity: 0.92,
@@ -646,7 +647,7 @@ export default function HomeClient({
                   margin: 0,
                 }}
               >
-                yours doesn&apos;t have to be.
+                You don&apos;t have to be average.
               </p>
             </div>
             <Link
@@ -684,8 +685,8 @@ export default function HomeClient({
           </div>
           <h2
             style={{
-              fontFamily: "var(--serif)",
-              fontWeight: 300,
+              fontFamily: "var(--sans)",
+              fontWeight: 500,
               fontSize: "clamp(24px, 3vw, 36px)",
               lineHeight: 1.15,
               letterSpacing: "-0.018em",

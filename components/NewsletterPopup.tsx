@@ -139,7 +139,7 @@ export default function NewsletterPopup() {
           </p>
           <p
             style={{
-              fontFamily: "var(--serif)",
+              fontFamily: "var(--sans)",
               fontSize: 22,
               lineHeight: 1.2,
               letterSpacing: "-0.015em",
@@ -178,7 +178,7 @@ export default function NewsletterPopup() {
           </p>
           <p
             style={{
-              fontFamily: "var(--serif)",
+              fontFamily: "var(--sans)",
               fontSize: 22,
               lineHeight: 1.2,
               letterSpacing: "-0.015em",

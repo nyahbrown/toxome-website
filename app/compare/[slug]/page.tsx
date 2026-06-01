@@ -80,8 +80,8 @@ function FiberColumn({ f }: { f: GuideFiber }) {
         <div>
           <h2
             style={{
-              fontFamily: "var(--serif)",
-              fontWeight: 300,
+              fontFamily: "var(--sans)",
+              fontWeight: 600,
               fontSize: 24,
               lineHeight: 1.1,
               letterSpacing: "-0.015em",

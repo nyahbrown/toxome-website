@@ -9,8 +9,8 @@ export default function CtaBanner() {
             The scanner
           </div>
           <h2 style={{
-            fontFamily: "var(--serif)",
-            fontWeight: 300,
+            fontFamily: "var(--sans)",
+            fontWeight: 600,
             fontSize: "clamp(36px, 5vw, 58px)",
             lineHeight: 1.06,
             letterSpacing: "-0.025em",

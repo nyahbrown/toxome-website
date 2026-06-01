@@ -26,8 +26,8 @@ export default function Features() {
         <div style={{ maxWidth: 560, marginBottom: 72 }}>
           <div className="eyebrow">What Toxome does</div>
           <h2 style={{
-            fontFamily: "var(--serif)",
-            fontWeight: 300,
+            fontFamily: "var(--sans)",
+            fontWeight: 600,
             fontSize: "clamp(36px, 4.5vw, 52px)",
             lineHeight: 1.08,
             letterSpacing: "-0.02em",
@@ -55,8 +55,8 @@ export default function Features() {
                 color: "var(--ink-3)",
               }}>{f.n}</div>
               <h3 style={{
-                fontFamily: "var(--serif)",
-                fontWeight: 300,
+                fontFamily: "var(--sans)",
+                fontWeight: 600,
                 fontSize: 26,
                 lineHeight: 1.15,
                 letterSpacing: "-0.01em",

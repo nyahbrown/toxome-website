@@ -122,8 +122,9 @@ export default async function ArticlePage({
           </h1>
           <p
             style={{
-              fontFamily: "var(--serif)",
+              fontFamily: "var(--sans)",
               fontStyle: "italic",
+              fontWeight: 400,
               fontSize: "clamp(18px, 2.4vw, 23px)",
               lineHeight: 1.5,
               color: "var(--ink-2)",

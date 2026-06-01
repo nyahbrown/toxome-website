@@ -356,8 +356,8 @@ function H2({ id, children }: { id?: string; children: React.ReactNode }) {
     <h2
       id={id}
       style={{
-        fontFamily: "var(--serif)",
-        fontWeight: 500,
+        fontFamily: "var(--sans)",
+        fontWeight: 600,
         fontSize: 26,
         lineHeight: 1.2,
         letterSpacing: "-0.015em",

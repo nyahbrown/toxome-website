@@ -60,8 +60,9 @@ export default async function JournalPage() {
             <p
               className="j-rise"
               style={{
-                fontFamily: "var(--serif)",
+                fontFamily: "var(--sans)",
                 fontStyle: "italic",
+                fontWeight: 400,
                 fontSize: "clamp(17px, 1.8vw, 20px)",
                 lineHeight: 1.55,
                 color: "var(--ink-2)",

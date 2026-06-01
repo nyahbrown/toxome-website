@@ -27,7 +27,7 @@ export default function ClosingCta() {
             <Image src="/toxome-logo.png" alt="" width={110} height={72} style={{ height: 72, width: "auto" }} />
           </div>
           <h2 style={{
-            fontFamily: "var(--serif)", fontWeight: 300,
+            fontFamily: "var(--sans)", fontWeight: 600,
             fontSize: "clamp(36px, 5vw, 56px)",
             lineHeight: 1.06, letterSpacing: "-0.02em", margin: "0 0 24px",
           } as React.CSSProperties}>

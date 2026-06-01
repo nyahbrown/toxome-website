@@ -14,8 +14,8 @@ export default function ShopGridFallback({ products }: { products: Product[] }) 
       <header style={{ maxWidth: 640, marginBottom: 32 }}>
         <h1
           style={{
-            fontFamily: "var(--serif)",
-            fontWeight: 300,
+            fontFamily: "var(--sans)",
+            fontWeight: 600,
             fontSize: "clamp(26px, 3vw, 38px)",
             lineHeight: 1.15,
             letterSpacing: "-0.018em",
@@ -75,7 +75,8 @@ export default function ShopGridFallback({ products }: { products: Product[] }) 
             <div style={{ paddingTop: 20 }}>
               <div
                 style={{
-                  fontFamily: "var(--serif)",
+                  fontFamily: "var(--sans)",
+                  fontWeight: 500,
                   fontSize: 20,
                   lineHeight: 1.2,
                   color: "var(--ink)",

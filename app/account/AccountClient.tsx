@@ -751,7 +751,8 @@ function ClosetSnapshot({ stats }: { stats: ClosetStats }) {
       >
         <div
           style={{
-            fontFamily: "var(--serif)",
+            fontFamily: "var(--sans)",
+            fontWeight: 600,
             fontSize: 64,
             lineHeight: 1,
             letterSpacing: "-0.03em",
@@ -1102,7 +1103,7 @@ function RecentScansLockedCTA() {
         </div>
         <p
           style={{
-            fontFamily: "var(--serif)",
+            fontFamily: "var(--sans)",
             fontSize: 20,
             letterSpacing: "-0.015em",
             color: "var(--ink)",
@@ -1180,7 +1181,7 @@ function AlternativesRow({ items }: { items: Product[] }) {
           </div>
           <div
             style={{
-              fontFamily: "var(--serif)",
+              fontFamily: "var(--sans)",
               fontSize: 15,
               fontWeight: 500,
               lineHeight: 1.25,
@@ -1261,7 +1262,7 @@ function WishlistRow({
             </div>
             <div
               style={{
-                fontFamily: "var(--serif)",
+                fontFamily: "var(--sans)",
                 fontSize: 14,
                 fontWeight: 500,
                 lineHeight: 1.25,
@@ -1289,7 +1290,7 @@ function EmptyClosetCTA() {
     <div>
       <p
         style={{
-          fontFamily: "var(--serif)",
+          fontFamily: "var(--sans)",
           fontSize: 22,
           letterSpacing: "-0.015em",
           color: "var(--ink)",
@@ -1405,7 +1406,7 @@ function FiberLockedCTA() {
         </div>
         <p
           style={{
-            fontFamily: "var(--serif)",
+            fontFamily: "var(--sans)",
             fontSize: 22,
             letterSpacing: "-0.015em",
             color: "var(--ink)",
@@ -1463,7 +1464,8 @@ function ClosetLockedCTA({ scanCount }: { scanCount: number }) {
       >
         <div
           style={{
-            fontFamily: "var(--serif)",
+            fontFamily: "var(--sans)",
+            fontWeight: 600,
             fontSize: 64,
             lineHeight: 1,
             letterSpacing: "-0.03em",
@@ -1498,7 +1500,7 @@ function ClosetLockedCTA({ scanCount }: { scanCount: number }) {
         </div>
         <p
           style={{
-            fontFamily: "var(--serif)",
+            fontFamily: "var(--sans)",
             fontSize: 24,
             letterSpacing: "-0.015em",
             color: "var(--ink)",
