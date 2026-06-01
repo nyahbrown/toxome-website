@@ -275,7 +275,7 @@ function EditorsPicksSection({ products }: { products: Product[] }) {
               margin: 0,
             }}
           >
-            clothes that earned their place.
+            the pieces we keep reaching for.
           </h2>
           <p
             style={{
@@ -297,8 +297,8 @@ function EditorsPicksSection({ products }: { products: Product[] }) {
           ))}
         </div>
         <div style={{ textAlign: "center", marginTop: 44 }}>
-          <Link href="/shop" className="pill-cta ghost">
-            Shop all
+          <Link href="/shop/women" className="pill-cta ghost">
+            Shop women&apos;s
             <ArrowIcon />
           </Link>
         </div>
