@@ -50,7 +50,7 @@ function FiberTile({ name, image }: { name: string; image: string }) {
         </div>
         <div
           style={{
-            fontSize: 18,
+            fontSize: 16,
             fontWeight: 400,
             letterSpacing: "-0.005em",
             color: "var(--ink)",
@@ -103,7 +103,7 @@ function NamingSection() {
           </h2>
           <p
             style={{
-              fontSize: 17,
+              fontSize: 16,
               lineHeight: 1.75,
               color: "var(--ink-2)",
               maxWidth: 580,
@@ -282,7 +282,7 @@ function CleanEditSection({ products }: { products: Product[] }) {
               fontFamily: "var(--sans)",
               fontStyle: "italic",
               fontWeight: 400,
-              fontSize: "clamp(16px, 1.8vw, 20px)",
+              fontSize: 16,
               lineHeight: 1.5,
               color: "var(--ink-2)",
               margin: "16px 0 0",
@@ -355,7 +355,7 @@ function ReportSection() {
           </h2>
           <p
             style={{
-              fontSize: 17,
+              fontSize: 16,
               lineHeight: 1.75,
               color: "rgba(255,255,255,0.78)",
               maxWidth: 560,

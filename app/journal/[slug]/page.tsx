@@ -124,8 +124,8 @@ export default async function ArticlePage({
             style={{
               fontFamily: "var(--sans)",
               fontStyle: "italic",
-              fontWeight: 400,
-              fontSize: "clamp(18px, 2.4vw, 23px)",
+              fontWeight: 600,
+              fontSize: 16,
               lineHeight: 1.5,
               color: "var(--ink-2)",
               margin: "0 auto 26px",

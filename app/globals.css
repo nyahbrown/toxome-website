@@ -239,7 +239,7 @@ button { font-family: inherit; }
   font-weight: 400;
   text-transform: lowercase;
   letter-spacing: 0.1em;
-  font-size: clamp(18px, 1.9vw, 27px);
+  font-size: 16px;
   line-height: 1.12;
   text-align: center;
   color: #fff;
@@ -589,7 +589,7 @@ button { font-family: inherit; }
 
 /* Prose styling — applied only to the article body, never the header */
 .j-prose p {
-  font-size: 19px;
+  font-size: 16px;
   line-height: 1.72;
   letter-spacing: -0.003em;
   color: var(--ink);
@@ -649,7 +649,7 @@ button { font-family: inherit; }
 }
 .j-prose a:hover { text-decoration-color: var(--honey); }
 @media (max-width: 700px) {
-  .j-prose p { font-size: 17px; line-height: 1.68; }
+  .j-prose p { font-size: 16px; line-height: 1.68; }
 }
 
 /* ── End-of-article CTA card ──────────────────────────────────────────── */

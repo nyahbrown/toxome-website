@@ -96,7 +96,7 @@ function FiberColumn({ f }: { f: GuideFiber }) {
           </div>
         </div>
       </div>
-      <p style={{ fontSize: 15, lineHeight: 1.6, color: "var(--ink)", margin: "0 0 16px" }}>
+      <p style={{ fontSize: 16, lineHeight: 1.6, color: "var(--ink)", margin: "0 0 16px" }}>
         <RichText text={f.healthStory} />
       </p>
       <Link
@@ -207,7 +207,7 @@ export default async function ComparePage({
           </h1>
           <p
             style={{
-              fontSize: 18,
+              fontSize: 16,
               lineHeight: 1.6,
               color: "var(--ink)",
               margin: "0 0 36px",

@@ -62,8 +62,8 @@ export default async function JournalPage() {
               style={{
                 fontFamily: "var(--sans)",
                 fontStyle: "italic",
-                fontWeight: 400,
-                fontSize: "clamp(17px, 1.8vw, 20px)",
+                fontWeight: 600,
+                fontSize: 16,
                 lineHeight: 1.55,
                 color: "var(--ink-2)",
                 maxWidth: 540,

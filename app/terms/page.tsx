@@ -339,7 +339,7 @@ function Intro({ children }: { children: React.ReactNode }) {
   return (
     <p
       style={{
-        fontSize: 18,
+        fontSize: 16,
         lineHeight: 1.6,
         color: "var(--ink)",
         letterSpacing: "-0.005em",
