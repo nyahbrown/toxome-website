@@ -70,7 +70,7 @@ export default async function PrivacyPage() {
           <P>
             On the <em>app</em>, when you scan a clothing label, we store
             the photo of the label, the fabric composition we extract from
-            it, the brand and category we identify, and the Toxome Score we
+            it, the brand and category we identify, and the Toxome Rating we
             calculate. If you save a scan to your closet, that scan stays
             in your account until you delete it.
           </P>

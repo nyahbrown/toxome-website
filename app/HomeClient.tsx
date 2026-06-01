@@ -288,7 +288,7 @@ function EditorsPicksSection({ products }: { products: Product[] }) {
               margin: "16px 0 0",
             }}
           >
-            every piece scored. every fiber accounted for.
+            every piece rated. every fiber accounted for.
           </p>
         </div>
         <div className="product-grid">

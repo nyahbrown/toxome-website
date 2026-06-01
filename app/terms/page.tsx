@@ -63,7 +63,7 @@ export default async function TermsPage() {
             cleaner-alternative recommendations).
           </P>
           <P>
-            The Toxome Score is <em>our informed opinion</em> based on
+            The Toxome Rating is <em>our informed opinion</em> based on
             published research about textile chemistry. It is not a medical
             diagnosis, not a verdict on whether something is safe for you
             personally, and not a substitute for advice from a doctor,
@@ -99,7 +99,7 @@ export default async function TermsPage() {
           <P>You can&apos;t:</P>
           <Ul>
             <li>
-              Scrape the catalog, the journal, or the Toxome Scores in bulk.
+              Scrape the catalog, the journal, or the Toxome Ratings in bulk.
               The data and scoring are ours and they took real work.
             </li>
             <li>
@@ -153,7 +153,7 @@ export default async function TermsPage() {
             Some links on the shop are affiliate links. If you click one
             and buy something, the brand pays us a small commission, at no
             extra cost to you. Commissions <em>do not</em> affect what
-            products we choose to include, what Toxome Score we give them,
+            products we choose to include, what Toxome Rating we give them,
             or how we rank them. We will always disclose affiliate links
             (look for the &ldquo;affiliate link&rdquo; disclosure near the
             Buy button).
@@ -205,7 +205,7 @@ export default async function TermsPage() {
           <P>
             Toxome is provided <em>as is</em>. We do our best, but we
             don&apos;t warrant that the service will be uninterrupted,
-            bug-free, or perfectly accurate. The Toxome Score is an
+            bug-free, or perfectly accurate. The Toxome Rating is an
             opinion, not a guarantee. Textile chemistry is complex, brand
             disclosures vary in quality, and a low score doesn&apos;t mean
             an item is risk-free; a high score doesn&apos;t mean it&apos;s
