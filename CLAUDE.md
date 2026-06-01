@@ -115,9 +115,9 @@ Use CSS variables — **never** hardcode hex values in components.
 | `--ink-2` | `#57636C` | Secondary text, nav links, body |
 | `--ink-3` | `#8A9199` | Tertiary text, captions, metadata |
 | `--tan` | `#EDE9E0` | Secondary warm surface, card backgrounds, placeholders |
-| `--blue` | `#A8BDD3` | Slate blue — brand accent for CTAs, editorial highlights |
+| `--blue` | `#A8BDD3` | Slate blue — **the editorial accent** (Editor's Pick badge, j-prose pull-quotes/blockquotes/link-hover, CTAs, highlights) |
 | `--purple` | `#C9CDDA` | Logo element accent |
-| `--honey` | `#C9A96E` | Editorial premium accent — badges, newsletter highlights. Sparingly. |
+| `--honey` | `#C9A96E` | Premium/gold indicator only (account Premium plan chip, admin chart). **No longer the editorial accent** — use `--blue`. |
 | `--hairline` | `rgba(59,60,58,0.08)` | Subtle borders, section edges |
 | `--hairline-strong` | `rgba(59,60,58,0.14)` | Stronger borders, dividers |
 | `--line` | `#E0E3E7` | Dividers where a solid line is needed instead of hairline |
