@@ -1,6 +1,7 @@
 import HomeClient from "./HomeClient";
 import { getShopTaxonomy, getPublishedProducts } from "@/lib/supabase";
 import { getAllArticles } from "@/lib/journal";
+import { EDITORS_PICKS } from "@/lib/editorsPicks";
 
 export default async function Home() {
   const [taxonomy, products] = await Promise.all([
@@ -8,13 +9,7 @@ export default async function Home() {
     getPublishedProducts(),
   ]);
 
-  // Editor's Picks — hand-selected, featured in this exact order.
-  const EDITORS_PICKS = [
-    "Erma Drop Waist Linen Dress",
-    "Mai Cashmere Hoodie Pullover",
-    "Niko Scoop Tank",
-    "The Bateau: White Pointelle",
-  ];
+  // Editor's Picks — hand-selected, featured in this exact order (lib/editorsPicks).
   const editorsPicks = EDITORS_PICKS.map((name) =>
     products.find((p) => p.item_name === name)
   ).filter((p): p is (typeof products)[number] => Boolean(p));

@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import FrostedSelect from "@/components/FrostedSelect";
 import WishlistHeart from "@/components/WishlistHeart";
 import { normalizeFiber } from "@/lib/fabricScores";
+import { EDITORS_PICKS, isEditorsPick } from "@/lib/editorsPicks";
 import { track } from "@/lib/track";
 
 export type ShopSection = "women" | "men" | "home" | null;
@@ -56,6 +57,7 @@ function ProductCard({
   const [hovered, setHovered] = useState(false);
   const isWishlisted = wishlist.has(p.id);
   const isNew = p.tags?.some((t) => t.toLowerCase() === "new") ?? false;
+  const editorsPick = isEditorsPick(p.item_name);
 
   // Resilient image: try item_image, then each gallery image, then a placeholder.
   // Some retailers 404 or hotlink-block their main image; the gallery images are
@@ -169,7 +171,25 @@ function ProductCard({
             No image
           </div>
         )}
-        {isNew && (
+        {editorsPick ? (
+          <span
+            style={{
+              position: "absolute",
+              top: 14,
+              left: 14,
+              background: "var(--honey)",
+              color: "var(--ink)",
+              fontFamily: "var(--sans)",
+              fontSize: 12,
+              fontWeight: 600,
+              letterSpacing: "-0.005em",
+              padding: "4px 12px",
+              borderRadius: 999,
+            }}
+          >
+            Editor&apos;s Pick
+          </span>
+        ) : isNew ? (
           <span
             style={{
               position: "absolute",
@@ -187,7 +207,7 @@ function ProductCard({
           >
             New
           </span>
-        )}
+        ) : null}
         <WishlistHeart
           isWishlisted={isWishlisted}
           onClick={() => onToggle(p)}
@@ -444,6 +464,21 @@ export default function ShopClient({
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         );
       });
+      // In women's, pin the hand-selected Editor's Picks to the very top in
+      // their curated order, ahead of the rest of the Featured sort.
+      if (section === "women") {
+        const picks: Product[] = [];
+        for (const name of EDITORS_PICKS) {
+          const found = result.find(
+            (p) => p.item_name.toLowerCase() === name.toLowerCase()
+          );
+          if (found) picks.push(found);
+        }
+        if (picks.length) {
+          const pickIds = new Set(picks.map((p) => p.id));
+          result = [...picks, ...result.filter((p) => !pickIds.has(p.id))];
+        }
+      }
     } else if (sort === "Newest") {
       result = [...result].sort(
         (a, b) =>
@@ -477,6 +512,7 @@ export default function ShopClient({
     return result;
   }, [
     products,
+    section,
     sectionGender,
     sectionCategoryConstraint,
     fiberFilter,
