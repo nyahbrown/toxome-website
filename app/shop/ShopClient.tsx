@@ -583,7 +583,10 @@ export default function ShopClient({
       {/* Browse by fiber — horizontal scrollable rail, only on /shop default */}
       {!section && (
       <div className="shell" style={{ paddingBottom: 52 }}>
-        <div className="eyebrow" style={{ marginBottom: 20 }}>
+        <div
+          className="eyebrow"
+          style={{ marginBottom: 20, textTransform: "uppercase" }}
+        >
           Browse by fiber
         </div>
         <div className="fiber-rail-wrap">
@@ -650,7 +653,7 @@ export default function ShopClient({
         >
           <span
             className="eyebrow"
-            style={{ flexShrink: 0, marginRight: 4 }}
+            style={{ flexShrink: 0, marginRight: 4, textTransform: "uppercase" }}
           >
             Filter by
           </span>
