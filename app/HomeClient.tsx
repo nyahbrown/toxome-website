@@ -608,7 +608,7 @@ export default function HomeClient({
               <h1
                 style={{
                   fontFamily: "var(--serif)",
-                  fontWeight: 300,
+                  fontWeight: 500,
                   fontSize: "clamp(27px, 4.2vw, 48px)",
                   color: "var(--white)",
                   textAlign: "center",
