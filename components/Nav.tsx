@@ -106,16 +106,33 @@ export default function Nav({
         }}
       >
         {/* Logo + links */}
-        <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
-          <Link href="/" aria-label="Toxome home">
+        <div style={{ display: "flex", alignItems: "center", gap: 36 }}>
+          <Link
+            href="/"
+            aria-label="Toxome home"
+            style={{ display: "flex", alignItems: "center", gap: 8 }}
+          >
             <Image
               src="/toxome-logo.png"
               alt=""
-              width={64}
-              height={42}
+              width={61}
+              height={40}
               priority
               style={{ display: "block" }}
             />
+            <span
+              style={{
+                fontFamily: "var(--sans)",
+                fontSize: 20,
+                fontWeight: 600,
+                letterSpacing: "-0.01em",
+                textTransform: "none",
+                color: transparent ? "rgba(255,255,255,0.95)" : "var(--ink)",
+                transition: "color 300ms ease",
+              }}
+            >
+              Toxome
+            </span>
           </Link>
           <div style={{ display: "flex", gap: 28, alignItems: "center" }}>
             <NavDropdown
@@ -125,14 +142,6 @@ export default function Nav({
               active={pathname === "/shop" || pathname.startsWith("/shop/")}
               columns={buildShopColumns(taxonomy)}
               topRow={{ label: "Shop all", href: "/shop", muted: true }}
-            />
-            <NavDropdown
-              label="journal"
-              href="/journal"
-              transparent={transparent}
-              active={pathname === "/journal" || pathname.startsWith("/journal/")}
-              columns={buildJournalColumns()}
-              panelWidth={240}
             />
             <Link
               href="/guide"
@@ -158,6 +167,14 @@ export default function Nav({
             >
               guide
             </Link>
+            <NavDropdown
+              label="journal"
+              href="/journal"
+              transparent={transparent}
+              active={pathname === "/journal" || pathname.startsWith("/journal/")}
+              columns={buildJournalColumns()}
+              panelWidth={240}
+            />
           </div>
         </div>
 
