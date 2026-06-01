@@ -618,14 +618,14 @@ button { font-family: inherit; }
   color: var(--ink);
   margin: 44px 0;
   padding-left: 24px;
-  border-left: 2px solid var(--honey);
+  border-left: 2px solid var(--blue);
 }
 .j-prose em { font-style: italic; }
 /* Markdown blockquote renders as the editorial pull-quote */
 .j-prose blockquote {
   margin: 44px 0;
   padding-left: 24px;
-  border-left: 2px solid var(--honey);
+  border-left: 2px solid var(--blue);
 }
 .j-prose blockquote p {
   font-family: var(--sans);
@@ -643,7 +643,7 @@ button { font-family: inherit; }
   text-decoration-color: var(--hairline-strong);
   transition: text-decoration-color 200ms var(--ease);
 }
-.j-prose a:hover { text-decoration-color: var(--honey); }
+.j-prose a:hover { text-decoration-color: var(--blue); }
 @media (max-width: 700px) {
   .j-prose p { font-size: 16px; line-height: 1.68; }
 }

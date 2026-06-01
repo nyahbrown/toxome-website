@@ -177,7 +177,7 @@ function ProductCard({
               position: "absolute",
               top: 14,
               left: 14,
-              background: "var(--honey)",
+              background: "var(--blue)",
               color: "var(--ink)",
               fontFamily: "var(--sans)",
               fontSize: 12,
@@ -464,9 +464,9 @@ export default function ShopClient({
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         );
       });
-      // In women's, pin the hand-selected Editor's Picks to the very top in
-      // their curated order, ahead of the rest of the Featured sort.
-      if (section === "women") {
+      // In women's AND shop-all, pin the hand-selected Editor's Picks to the
+      // very top in their curated order, ahead of the rest of the Featured sort.
+      if (section === "women" || section === null) {
         const picks: Product[] = [];
         for (const name of EDITORS_PICKS) {
           const found = result.find(
