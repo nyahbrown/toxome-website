@@ -245,31 +245,21 @@ function FilterChip({
       style={{
         display: "inline-flex",
         alignItems: "center",
-        gap: 6,
+        gap: 7,
         fontFamily: "var(--sans)",
-        fontSize: 12,
+        fontSize: 16,
         letterSpacing: "-0.005em",
         color: "var(--ink)",
         background: "transparent",
-        border: "1px solid var(--hairline-strong)",
-        borderRadius: 999,
-        padding: "4px 8px 4px 12px",
+        border: "none",
+        padding: 0,
         cursor: "pointer",
         lineHeight: 1.2,
       }}
       aria-label={`Remove ${label} filter`}
     >
+      <span style={{ fontSize: 16, lineHeight: 1, color: "var(--ink)" }}>×</span>
       {label}
-      <span
-        style={{
-          fontSize: 14,
-          lineHeight: 1,
-          color: "var(--ink-3)",
-          marginLeft: 2,
-        }}
-      >
-        ×
-      </span>
     </button>
   );
 }
@@ -640,7 +630,7 @@ export default function ShopClient({
       <div
         style={{
           padding: "14px 0",
-          marginBottom: 32,
+          marginBottom: 10,
         }}
       >
         <div
@@ -701,7 +691,7 @@ export default function ShopClient({
             display: "flex",
             alignItems: "center",
             flexWrap: "wrap",
-            gap: 10,
+            gap: 16,
             marginBottom: 24,
           }}
         >
@@ -711,7 +701,7 @@ export default function ShopClient({
               fontSize: 11,
               letterSpacing: ".08em",
               textTransform: "uppercase",
-              color: "var(--ink-3)",
+              color: "var(--ink)",
               marginRight: 4,
             }}
           >
@@ -740,33 +730,6 @@ export default function ShopClient({
               label={`"${query}"`}
               onRemove={() => updateParams({ q: null })}
             />
-          )}
-          {hasUserFilters && (
-            <button
-              onClick={() =>
-                updateParams({
-                  category: null,
-                  fiber: null,
-                  occasion: null,
-                  q: null,
-                })
-              }
-              style={{
-                fontFamily: "var(--mono)",
-                fontSize: 10,
-                letterSpacing: ".06em",
-                textTransform: "uppercase",
-                color: "var(--ink-3)",
-                background: "none",
-                border: "none",
-                padding: "3px 6px",
-                cursor: "pointer",
-                textDecoration: "underline",
-                textUnderlineOffset: 3,
-              }}
-            >
-              Clear all
-            </button>
           )}
         </div>
 
