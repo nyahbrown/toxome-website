@@ -12,7 +12,7 @@ const FAQ_ITEMS = [
 
 function FaqItem({ item, open, onToggle }: { item: { q: string; a: string }; open: boolean; onToggle: () => void }) {
   return (
-    <div style={{ borderBottom: "1px solid var(--hairline-strong)" }}>
+    <div>
       <button onClick={onToggle} style={{
         width: "100%", padding: "28px 0",
         background: "transparent", border: 0,

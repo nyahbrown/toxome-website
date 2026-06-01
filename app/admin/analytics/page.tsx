@@ -119,7 +119,6 @@ export default function AdminAnalyticsPage() {
           alignItems: "center",
           justifyContent: "space-between",
           padding: "16px 32px",
-          borderBottom: "1px solid var(--hairline-strong)",
           background: "var(--cream)",
           position: "sticky",
           top: 0,

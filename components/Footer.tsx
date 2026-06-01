@@ -51,7 +51,7 @@ const cols: FooterCol[] = [
 
 export default function Footer() {
   return (
-    <footer style={{ background: "var(--bg)", borderTop: "1px solid var(--hairline)", padding: "72px 0 36px", textTransform: "none" }}>
+    <footer style={{ background: "var(--bg)", padding: "72px 0 36px", textTransform: "none" }}>
       <div className="shell" style={{ padding: "0 16px" }}>
         <div className="footer-grid">
           <div>
@@ -102,7 +102,7 @@ export default function Footer() {
         </div>
 
         <div style={{
-          paddingTop: 28, borderTop: "1px solid var(--hairline)",
+          paddingTop: 28,
           fontSize: 11, letterSpacing: ".06em", color: "var(--ink-3)",
         }}>
           <span>© 2026 Toxome LLC</span>

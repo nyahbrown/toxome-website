@@ -72,13 +72,6 @@ button { font-family: inherit; }
   color: var(--ink-2);
 }
 
-.soft-divider {
-  height: 1px;
-  background: linear-gradient(to right, transparent, var(--hairline-strong), transparent);
-  border: 0;
-  margin: 0;
-}
-
 .pill-cta {
   display: inline-flex;
   align-items: center;

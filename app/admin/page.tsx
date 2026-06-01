@@ -371,7 +371,6 @@ export default function AdminPage() {
           alignItems: "center",
           justifyContent: "space-between",
           padding: "16px 32px",
-          borderBottom: "1px solid var(--hairline-strong)",
           background: "var(--cream)",
           position: "sticky",
           top: 0,
@@ -722,7 +721,7 @@ function ProductRow({
   const stopPropagation = (e: React.MouseEvent) => e.stopPropagation();
 
   return (
-    <div style={{ borderTop: "1px solid var(--hairline)" }}>
+    <div>
       <div
         style={{
           display: "flex",
@@ -1552,7 +1551,6 @@ function ReviewCard({
       {/* Decision bar */}
       <div
         style={{
-          borderTop: "1px solid var(--hairline)",
           background: "var(--cream)",
           padding: "16px 24px",
           display: "flex",
@@ -1780,7 +1778,6 @@ function EditPanel({
     <div
       style={{
         padding: "18px 24px 24px 74px",
-        borderTop: "1px solid var(--hairline)",
         background: "var(--cream)",
       }}
     >
@@ -2135,5 +2132,4 @@ const emptyRowStyle: React.CSSProperties = {
   fontFamily: "var(--sans)",
   fontSize: 13,
   color: "var(--ink-3)",
-  borderTop: "1px solid var(--hairline)",
 };

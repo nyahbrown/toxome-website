@@ -159,10 +159,6 @@ export default async function ArticlePage({
 
       {/* Body */}
       <article className="shell" style={{ paddingTop: 56, paddingBottom: 40 }}>
-        <hr
-          className="soft-divider j-rise"
-          style={{ maxWidth: 80, margin: "8px auto 56px", animationDelay: "120ms" }}
-        />
         <div
           className="j-article j-prose"
           dangerouslySetInnerHTML={{ __html: article.html }}
@@ -177,7 +173,6 @@ export default async function ArticlePage({
         <div className="j-article">
           {article.sources.length > 0 && (
             <>
-              <hr className="soft-divider" style={{ margin: "8px 0 28px" }} />
               <p className="eyebrow" style={{ marginBottom: 16 }}>
                 Further reading
               </p>
@@ -214,7 +209,6 @@ export default async function ArticlePage({
               gap: 20,
               marginTop: 44,
               paddingTop: 32,
-              borderTop: "1px solid var(--hairline)",
             }}
           >
             <Link href="/journal" className="pill-cta ghost">

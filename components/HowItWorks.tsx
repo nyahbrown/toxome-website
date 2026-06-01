@@ -64,7 +64,6 @@ function AnalyzeVisual() {
         <div key={label} style={{
           display: "flex", justifyContent: "space-between", alignItems: "center",
           padding: "8px 0", fontSize: 13, color: "var(--ink-2)",
-          borderBottom: "1px solid var(--hairline)",
         }}>
           <span>{label}</span>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 11, fontWeight: 600, color: c }}>
@@ -127,13 +126,10 @@ export default function HowItWorks() {
           </p>
         </div>
 
-        <hr className="soft-divider" />
-
         {steps.map((step, i) => (
           <div key={step.n} style={{
             display: "grid", gridTemplateColumns: "120px 1fr 1.2fr", gap: 48,
             padding: "48px 0",
-            borderBottom: i < steps.length - 1 ? "1px solid var(--hairline)" : "none",
             alignItems: "flex-start",
           }}>
             <div style={{ fontFamily: "var(--mono)", fontSize: 13, fontWeight: 500, color: "var(--ink-3)", letterSpacing: ".06em" }}>

@@ -419,7 +419,6 @@ function Related({ children }: { children: React.ReactNode }) {
       style={{
         marginTop: 72,
         paddingTop: 32,
-        borderTop: "1px solid var(--hairline)",
         fontSize: 14,
         color: "var(--ink-3)",
       }}

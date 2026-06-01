@@ -72,7 +72,6 @@ const cell: React.CSSProperties = {
   fontSize: 13,
   color: "var(--ink-2)",
   letterSpacing: "-0.005em",
-  borderBottom: "1px solid var(--hairline)",
   whiteSpace: "nowrap",
 };
 const headCell: React.CSSProperties = {
@@ -82,7 +81,6 @@ const headCell: React.CSSProperties = {
   fontSize: 11,
   letterSpacing: "0.08em",
   textTransform: "uppercase",
-  borderBottom: "1px solid var(--hairline-strong)",
 };
 
 function Delta({ pct }: { pct: number | null }) {
@@ -437,7 +435,6 @@ export default function BrandTrafficPanel({
                         fontFamily: "var(--sans)",
                         fontSize: 13,
                         color: "var(--ink-2)",
-                        borderBottom: "1px solid var(--hairline)",
                         paddingBottom: 6,
                       }}
                     >

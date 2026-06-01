@@ -223,7 +223,7 @@ export default async function ComparePage({
           </div>
 
           {/* Environmental note */}
-          <section style={{ paddingTop: 24, borderTop: "1px solid var(--hairline)" }}>
+          <section style={{ paddingTop: 24 }}>
             <div className="eyebrow" style={{ color: "var(--ink-3)", marginBottom: 14 }}>
               For the planet
             </div>

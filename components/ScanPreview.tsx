@@ -143,7 +143,7 @@ export default function ScanPreview() {
           {/* Header */}
           <div style={{
             display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 40,
-            paddingBottom: 32, borderBottom: "1px solid var(--hairline)", marginBottom: 32,
+            paddingBottom: 32, marginBottom: 32,
           }}>
             <div>
               <div className="eyebrow" style={{ marginBottom: 10 }}>Composition breakdown</div>
@@ -184,7 +184,7 @@ export default function ScanPreview() {
 
           <div style={{
             display: "flex", justifyContent: "space-between", alignItems: "center",
-            marginTop: 28, paddingTop: 24, borderTop: "1px solid var(--hairline)",
+            marginTop: 28, paddingTop: 24,
             fontSize: 12, color: "var(--ink-3)", fontFamily: "var(--mono)",
             letterSpacing: ".06em", textTransform: "uppercase",
           }}>

@@ -292,7 +292,6 @@ export default async function FiberGuidePage({
             style={{
               marginTop: 40,
               paddingTop: 24,
-              borderTop: "1px solid var(--hairline)",
             }}
           >
             <div
@@ -364,7 +363,6 @@ export default async function FiberGuidePage({
               style={{
                 marginTop: 40,
                 paddingTop: 24,
-                borderTop: "1px solid var(--hairline)",
               }}
             >
               <div
