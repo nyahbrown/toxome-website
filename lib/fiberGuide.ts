@@ -1,9 +1,10 @@
 // Editorial fabric-guide content for /guide. The hazard SCORE for each fiber is
 // NOT stored here. It is derived at render time from the canonical, app-mirrored
 // data (lib/fiber-scores.json via fiberScore) so the guide can never drift from
-// the app or the shop. This file holds only the freshly-researched prose and
-// sources. Voice: second person, no hedging, *italics* (asterisks) for emphasis,
-// never em dashes. Sources are real and shown in fine print on each fiber page.
+// the app or the shop. This file holds only the plain-language prose and the
+// real sources. Voice: second person, no hedging, short sentences a smart
+// 12-year-old can follow, *italics* (asterisks) for emphasis, never em dashes.
+// Sources are real and shown in fine print on each fiber page.
 
 import { fiberScore, scoreToRiskLevel, hazardColor } from "./fabricScores";
 
@@ -33,13 +34,13 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     name: "Hemp",
     natural: true,
     whatItIs:
-      "Hemp is a bast fiber from the stalk of the *Cannabis sativa* plant, and the cleanest versions are separated mechanically, meaning the fiber is physically combed out without the harsh solvents or chlorine bleaching that conventional textile processing relies on.",
+      "Hemp is a strong fiber that comes from the stalk of the hemp plant. The cleanest hemp is combed out by machines. That means the fiber is pulled apart in a physical way, without the harsh chemicals or bleach that most fabric-making uses.",
     healthStory:
-      "The fiber itself sits well against skin. It is breathable and does not trap the chemical residues that irritate sensitive skin. Your real exposure comes later, from what gets added: azo dyes, which can release *aromatic amines* (cancer-linked breakdown chemicals) and trigger contact dermatitis, and formaldehyde-based resins used for wrinkle resistance, a known carcinogen that causes rashes on direct skin contact. The fiber being natural does not protect you. The finish does the damage, so a cheaply dyed hemp piece can carry the same load as any conventional fabric.",
+      "The fiber itself feels good on your skin. It lets air through and does not hold onto the chemicals that bother sensitive skin. Your real risk comes from what gets added later. One is azo dyes, which can break down into chemicals linked to cancer and can cause itchy rashes. Another is formaldehyde, a chemical used to keep fabric from wrinkling that can cause cancer and rashes where it touches skin. A fiber being natural does not protect you. The finish is what does the harm. So a cheaply dyed hemp piece can carry just as much as any other fabric.",
     whatToLookFor:
-      "Look for OEKO-TEX STANDARD 100 certification, which caps formaldehyde at 75 ppm for direct-skin-contact garments and screens for restricted azo dyes, and favor mechanically processed, low-impact or natural-dyed hemp.",
+      "Look for the OEKO-TEX STANDARD 100 label. It limits how much formaldehyde is allowed in clothes that touch your skin, and it checks for the risky azo dyes. Then pick hemp that was made by machine and dyed with low-impact or natural dyes.",
     environment:
-      "Hemp grows with little water and few pesticides and the undyed fiber biodegrades.",
+      "Hemp grows with little water and few bug sprays, and the undyed fiber breaks down naturally.",
     shopFilter: "hemp",
     sources: [
       { title: "What chemicals are in Textiles and the Health Implications", publisher: "Allergy Standards", url: "https://www.allergystandards.com/news_events/chemicals-in-textiles-and-the-health-implications/" },
@@ -52,13 +53,13 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     name: "Linen",
     natural: true,
     whatItIs:
-      "Linen is a bast fiber spun from the stalk of the flax plant, and the traditional retting and mechanical processing that separate the fiber introduce little in the way of residual chemistry.",
+      "Linen is a fiber spun from the stalk of the flax plant. The old-fashioned way of soaking and combing out the fiber leaves very little leftover chemistry behind.",
     healthStory:
-      "Linen is one of the kindest fibers you can put against skin. It is highly breathable and moisture-wicking, pulling sweat away so you give bacteria less to feed on, which is why it reads as naturally antimicrobial and tends to suit sensitive and reactive skin. Cell-level *cytotoxicity* testing (whether a material kills or harms living cells) has found flax fiber non-toxic. The catch is marketing. Words like *wrinkle-free*, *easy-care*, and *anti-static* often signal a formaldehyde-based finish, a known carcinogen and skin irritant, layered onto a fiber that never needed it. You are paying for convenience with chemistry.",
+      "Linen is one of the gentlest fibers you can wear. It lets air through and pulls sweat away from your skin, so germs have less to feed on. That is why it feels naturally clean and tends to suit sensitive skin. Lab tests that check if a material harms living cells found flax to be safe. The catch is the marketing. Words like *wrinkle-free*, *easy-care*, and *anti-static* often mean a formaldehyde finish was added. Formaldehyde is a chemical that can cause cancer and irritate skin, and it sits on a fiber that never needed it. You are paying for convenience with chemicals.",
     whatToLookFor:
-      "Choose OEKO-TEX STANDARD 100 or GOTS-certified linen, skip the wrinkle-free and easy-care finishes, and treat European Flax sourcing as a quality signal rather than a health guarantee.",
+      "Choose linen with the OEKO-TEX STANDARD 100 or GOTS label. Skip the wrinkle-free and easy-care finishes. And treat European Flax sourcing as a sign of quality, not a promise about your health.",
     environment:
-      "Flax needs minimal irrigation and pesticides, and undyed linen biodegrades.",
+      "Flax needs little watering and few bug sprays, and undyed linen breaks down naturally.",
     shopFilter: "linen",
     sources: [
       { title: "Is Linen Fabric Toxic? The Science Behind This Natural Textile", publisher: "Dal The Label", url: "https://dalthelabel.com/blogs/fashion-101/is-linen-fabric-toxic-the-science-behind-this-natural-textile" },
@@ -71,13 +72,13 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     name: "Organic Cotton",
     natural: true,
     whatItIs:
-      "Organic cotton is the same seed-hair fiber as conventional cotton, grown without synthetic pesticides, and the difference that matters for your skin is the processing rules that follow it from field to finished garment.",
+      "Organic cotton is the same fiber as regular cotton, but it is grown without man-made bug sprays. The part that matters for your skin is the cleaner rules that follow it from the field all the way to the finished clothes.",
     healthStory:
-      "Conventional cotton is not the innocent default you have been sold. Lab analysis of conventional cotton textiles has found pesticide residues including malathion, deltamethrin, and endosulfan, some of which survive repeated washing and sit against your skin. Conventional finishing also routinely adds formaldehyde, a known carcinogen linked to skin irritation and allergic reactions. The GOTS standard is the lever here: it bans formaldehyde, azo dyes, heavy-metal dyes, and flame retardants across the whole supply chain, not just the fiber. So *organic* on a hangtag without certification can still hide a conventionally dyed, resin-finished garment.",
+      "Regular cotton is not the harmless choice you have been told it is. Lab tests on regular cotton fabric have found leftover bug spray, and some of it stays put even after many washes and sits against your skin. Regular finishing also often adds formaldehyde, a chemical linked to cancer, skin irritation, and allergic reactions. The GOTS label is the real fix. It bans formaldehyde, azo dyes, heavy-metal dyes, and flame retardants across the whole supply chain, not just the fiber. So the word *organic* on a tag, without that label, can still hide clothes that were dyed and finished the regular way.",
     whatToLookFor:
-      "Look for GOTS certification, which governs chemistry from fiber to finished piece, and use OEKO-TEX STANDARD 100 as a backstop confirming the final garment was screened for harmful residues.",
+      "Look for the GOTS label, which controls the chemistry from the fiber to the finished piece. Use the OEKO-TEX STANDARD 100 label as a backup that confirms the final garment was checked for harmful leftovers.",
     environment:
-      "Organic cotton avoids synthetic pesticides, though cotton remains a thirsty crop.",
+      "Organic cotton skips the man-made bug sprays, but cotton is still a thirsty crop.",
     shopFilter: "organic cotton",
     sources: [
       { title: "Why GOTS-Certified Organic Cotton Bedding Matters", publisher: "The Honest Label", url: "https://thehonestlabel.com/blogs/honestlabel/tired-of-toxins-in-your-bedding-gots-certified-organic-cotton" },
@@ -90,13 +91,13 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     name: "Ramie",
     natural: true,
     whatItIs:
-      "Ramie is a bast fiber from the stalk of a nettle-family plant, and turning it into fabric requires *degumming*, removing the natural pectins and resins that bind the fiber, traditionally done with concentrated caustic alkali and acid baths.",
+      "Ramie is a strong fiber from the stalk of a plant in the nettle family. To turn it into fabric, you have to strip out the natural gums and sap that hold the fiber together. The old way uses strong, harsh chemical baths to do this.",
     healthStory:
-      "The fiber breathes well, dries fast, and resists bacteria and mildew, so its wearer profile is genuinely good. The honest issues are two. First, *prickle*: ramie is stiff and coarse, and its rigid surface hairs stimulate nerve endings just under your skin, a measured discomfort one study cut by nearly 44 percent only after multi-enzyme softening. Second, processing residue: harsh chemical degumming leaves alkali and acid that must be fully washed out, and impurities left on the fiber can irritate skin. Done right, the fiber rinses clean. Done cheaply, you feel it.",
+      "The fiber breathes well, dries fast, and fights germs and mildew, so it is genuinely nice to wear. There are two honest problems. First is *prickle*. Ramie is stiff and rough, and its hard little surface hairs poke the nerve endings just under your skin. One study cut that discomfort by almost 44 percent, but only after the fiber was softened with enzymes. Second is leftover chemicals. The harsh cleaning leaves strong residue that has to be fully washed out, and anything left behind can irritate your skin. Done right, the fiber rinses clean. Done cheaply, you feel it.",
     whatToLookFor:
-      "Favor OEKO-TEX STANDARD 100 ramie and enzyme- or bio-degummed, softened fabric, and trust your hands: genuinely smooth ramie has been properly processed, while stiff and scratchy has not.",
+      "Pick ramie with the OEKO-TEX STANDARD 100 label, and look for fabric softened with enzymes or a gentler natural process. And trust your hands. Truly smooth ramie was made well, while stiff and scratchy ramie was not.",
     environment:
-      "Ramie is high-yielding, but conventional chemical degumming produces heavily polluted, high-pH wastewater.",
+      "Ramie gives a big harvest, but the regular harsh cleaning makes dirty, strongly alkaline wastewater.",
     shopFilter: "ramie",
     sources: [
       { title: "Synergistic Multi-Enzyme Modification of Ramie Fabric", publisher: "Textiles (MDPI)", url: "https://doi.org/10.3390/textiles5040060" },
@@ -111,13 +112,13 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     name: "Tencel Lyocell",
     natural: false,
     whatItIs:
-      "Tencel Lyocell is a regenerated cellulosic fiber, meaning wood pulp dissolved and re-spun into fiber, but it uses a non-toxic amine oxide solvent (NMMO) in a closed-loop system that recovers over 99 percent of the solvent for reuse, so it skips the *carbon disulfide* that defines older viscose.",
+      "TENCEL Lyocell starts as wood. The wood pulp gets dissolved into a thick goo, then squeezed back out into thread. What makes it special is the liquid used to dissolve it. It is non-toxic, and the factory runs a *closed-loop* system, which just means it captures over 99 percent of that liquid and reuses it instead of dumping it. So it skips the smelly, harsh chemical called *carbon disulfide* that older fabrics like viscose rely on.",
     healthStory:
-      "This is about as clean as a man-made fiber gets next to your skin. The NMMO solvent is captured rather than emitted, and the finished fiber is washed so it carries virtually no residual processing chemicals. It is highly moisture-absorbent and wicks dampness off your skin, which keeps the surface drier and gives bacteria less to feed on, a real help if you run hot or have reactive skin. The smooth fiber surface tends to irritate less than rougher fibers. Your real risk is not the fiber but what gets added later: reactive dyes, anti-wrinkle or anti-shrink finishes that can leave residual formaldehyde, so the certification on the finished garment matters more than the fiber name.",
+      "This is about as clean as a man-made fiber gets against your skin. The liquid used to make it gets captured, not released, and the finished thread is washed so it carries almost no leftover chemicals. It soaks up moisture and pulls dampness off your skin, so the surface stays drier and bacteria have less to feed on. That helps a lot if you run hot or have easily irritated skin. The fiber is smooth, so it tends to bother skin less than rougher ones. Your real risk is not the fiber. It is what gets added later: dyes and wrinkle-proof or shrink-proof coatings that can leave behind *formaldehyde*, a chemical that can irritate skin. So the label on the finished piece matters more than the fiber name.",
     whatToLookFor:
-      "Look for the branded *TENCEL* Lyocell name, which guarantees Lenzing's closed-loop process, and an OEKO-TEX STANDARD 100 label confirming the finished, dyed garment was tested against formaldehyde, azo dyes, and other harmful substances.",
+      "Look for the brand name *TENCEL* Lyocell. That guarantees the clean closed-loop process. Also look for an OEKO-TEX STANDARD 100 label, which means the finished, dyed piece was tested for formaldehyde, harmful dyes, and other bad stuff.",
     environment:
-      "The closed-loop solvent recovery and certified wood sourcing also make it far lower-impact than conventional viscose.",
+      "Reusing the dissolving liquid and sourcing the wood responsibly make it far easier on the planet than regular viscose.",
     shopFilter: "tencel",
     sources: [
       { title: "Recovery of N-Methylmorpholine N-Oxide (NMMO) in Lyocell Fibre Manufacturing", publisher: "Fibers (MDPI)", url: "https://www.mdpi.com/2079-6439/13/1/3" },
@@ -130,13 +131,13 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     name: "SaXcell",
     natural: false,
     whatItIs:
-      "SaXcell is a regenerated cellulosic fiber made from chemically recycled cotton textile waste rather than virgin wood, with the pulp re-spun using *lyocell* wet spinning, the same non-toxic amine-oxide, closed-loop chemistry as Tencel rather than the carbon-disulfide viscose route.",
+      "SaXcell is made from old cotton clothing instead of fresh wood. The cotton waste is broken down into pulp, then spun back into thread using the *lyocell* method. That is the same non-toxic, reuse-the-chemicals, *closed-loop* process as TENCEL, not the harsher carbon-disulfide route used for plain viscose. Closed-loop just means the factory captures its chemicals and uses them again.",
     healthStory:
-      "Because it is spun by the lyocell method, SaXcell inherits lyocell's clean profile against your skin: a smooth, absorbent cellulose fiber with no residual carbon disulfide and water and process chemicals recycled in a closed loop. It breathes and handles moisture like other cellulosics, so it sits comfortably on reactive or overheated skin. One honest caveat for recycled-content fiber: the feedstock is post-consumer cotton that may have carried its own dyes and finishes, so the de-coloring and purification steps, and the dyes and finishes applied to the final cloth, are what determine whether the garment is genuinely low-residue. The fiber chemistry is reassuring; the finishing still needs verifying.",
+      "Because it is spun the lyocell way, SaXcell gets that same clean feel against your skin: a smooth, absorbent thread with no leftover carbon disulfide, made with water and chemicals reused in a closed loop. It breathes and handles moisture like other wood-and-plant fibers, so it sits comfortably on hot or easily irritated skin. One honest catch with recycled fiber: the old cotton it starts from may have carried its own dyes and coatings. So the cleaning steps, plus whatever dyes and coatings get added to the final cloth, decide whether the piece is truly low on leftovers. The fiber itself is reassuring. The finishing still needs checking.",
     whatToLookFor:
-      "Look for the *SaXcell* name to confirm closed-loop lyocell spinning of recycled cotton, and an OEKO-TEX STANDARD 100 label on the finished garment to confirm it was tested for harmful residues.",
+      "Look for the *SaXcell* name to confirm it is recycled cotton spun the clean closed-loop way. Then look for an OEKO-TEX STANDARD 100 label on the finished piece to confirm it was tested for harmful leftovers.",
     environment:
-      "It uses roughly 10 liters of water per kilogram versus thousands for conventional cotton, and diverts textile waste from landfill.",
+      "It uses roughly 10 liters of water per kilogram, versus thousands for regular cotton, and it keeps old textiles out of the landfill.",
     shopFilter: "saxcell",
     sources: [
       { title: "SaXcell - Sustainable Lyocell Fibres from Textile Waste", publisher: "SaXcell", url: "https://saxcell.com/" },
@@ -148,13 +149,13 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     name: "LENZING ECOVERO",
     natural: false,
     whatItIs:
-      "LENZING ECOVERO is a *branded viscose*, still made by the traditional viscose route that uses carbon disulfide, but manufactured under Lenzing's tighter controls with chemicals recovered rather than dumped, and it is the first viscose to earn the EU Ecolabel.",
+      "LENZING ECOVERO is a *brand-name viscose*. It is still made the traditional viscose way, which uses *carbon disulfide*, a harsh chemical. But Lenzing makes it under tighter rules and captures those chemicals instead of dumping them. It was the first viscose to earn the EU Ecolabel, an official seal for lower-impact products.",
     healthStory:
-      "Be precise here, because the marketing blurs it: this is viscose, not lyocell, so the process does involve *carbon disulfide*, a solvent that is a documented hazard to factory workers when emissions are not controlled. The wearer-health point is different from the worker-health point. By the time the washed, finished fiber reaches your skin it carries essentially no carbon disulfide, and ECOVERO is certified to OEKO-TEX STANDARD 100 and is highly breathable and absorbent, so it feels soft and cool against skin. What you are paying for is controlled, lower-emission, traceable production and verified low residual chemistry, versus anonymous viscose where neither the worker exposure nor the finishing residues are accountable.",
+      "Be clear here, because the marketing blurs it: this is viscose, not lyocell, so making it really does use *carbon disulfide*, a chemical that is proven to harm factory workers when the fumes are not controlled. But worker safety and your safety are two different things. By the time the washed, finished fiber reaches your skin, it carries basically no carbon disulfide. ECOVERO is also OEKO-TEX STANDARD 100 certified, and it breathes well and soaks up moisture, so it feels soft and cool on your skin. What you pay for is cleaner, traceable production and tested, low-leftover fiber, instead of anonymous viscose where no one answers for worker safety or leftover chemicals.",
     whatToLookFor:
-      "Look for the branded *LENZING ECOVERO* name plus EU Ecolabel and OEKO-TEX STANDARD 100; generic unbranded viscose or rayon gives you no assurance about how it was made or what residues remain.",
+      "Look for the brand name *LENZING ECOVERO* plus the EU Ecolabel and OEKO-TEX STANDARD 100. Plain unbranded viscose or rayon tells you nothing about how it was made or what is left in it.",
     environment:
-      "It uses at least 50 percent less water and generates about half the carbon emissions of generic viscose.",
+      "It uses at least 50 percent less water and creates about half the carbon emissions of regular viscose.",
     shopFilter: null,
     sources: [
       { title: "LENZING ECOVERO Viscose", publisher: "Lenzing", url: "https://www.lenzing.com/products/textile-fibers/lenzingtm-ecoverotm/" },
@@ -167,13 +168,13 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     name: "Modal",
     natural: false,
     whatItIs:
-      "Modal is a second-generation regenerated cellulosic, usually spun from beech wood by a *modified viscose process* that, like all viscose, still relies on carbon disulfide, though branded TENCEL Modal recovers 99 percent or more of its solvents and water in a closed loop.",
+      "Modal is a softer wood-based fiber, usually made from beech wood by a *tweaked viscose process*. Like all viscose, it still uses *carbon disulfide*, a harsh chemical. But the brand-name version, TENCEL Modal, captures and reuses 99 percent or more of its chemicals and water in a *closed-loop* system, meaning the factory recycles them instead of dumping them.",
     healthStory:
-      "Modal feels silky and is prized for softness against skin, with strong moisture absorption and breathability that help it stay comfortable in heat. The health distinction is entirely about *who made it*. Generic modal runs the carbon-disulfide viscose process, a known worker hazard, and gives you no guarantee about residual solvents or the dyes and easy-care finishes applied afterward, some of which can release formaldehyde. Branded TENCEL Modal recovers its chemicals in a closed loop, audits its beech sourcing, and certifies the finished fiber as safe for skin contact. The fiber against your skin is comfortable either way; the certainty about residues and finishes is what separates the two.",
+      "Modal feels silky and is loved for being soft on skin. It soaks up moisture and breathes well, so it stays comfortable in heat. The health difference is all about *who made it*. Plain modal runs the carbon-disulfide process, which is risky for workers, and gives you no promise about leftover chemicals or the dyes and easy-care coatings added later, some of which can release *formaldehyde*, a skin irritant. TENCEL Modal recycles its chemicals in a closed loop, checks where its beech wood comes from, and tests the finished fiber as safe to touch. Either kind feels comfortable on your skin. The certainty about leftovers and coatings is what sets the two apart.",
     whatToLookFor:
-      "Look for the branded *TENCEL Modal* name to confirm closed-loop production and skin-safety certification, plus OEKO-TEX STANDARD 100 on the finished garment; treat unbranded modal as ordinary viscose.",
+      "Look for the brand name *TENCEL Modal* to confirm the closed-loop process and skin-safety testing, plus OEKO-TEX STANDARD 100 on the finished piece. Treat unbranded modal as ordinary viscose.",
     environment:
-      "TENCEL Modal generates roughly 50 percent lower carbon emissions than conventional modal and uses audited, regrowing beech sourcing.",
+      "TENCEL Modal makes roughly 50 percent less carbon emissions than regular modal and uses checked, regrowing beech wood.",
     shopFilter: "modal",
     sources: [
       { title: "What are TENCEL Lyocell and Modal Fibers", publisher: "Lenzing / TENCEL", url: "https://www.tencel.com/fibers" },
@@ -186,13 +187,13 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     name: "Cupro",
     natural: false,
     whatItIs:
-      "Cupro, also sold as Bemberg, is a regenerated cellulosic made from cotton linter waste dissolved in *Schweizer's reagent*, a copper-and-ammonia solution, then re-spun and regenerated in acid baths that strip out the copper and ammonia.",
+      "Cupro, also sold as Bemberg, is made from the fuzzy bits left over after cotton is processed. That waste is dissolved in a copper-and-ammonia liquid called *Schweizer's reagent*, then spun back into thread and rinsed in acid baths that pull the copper and ammonia back out.",
     healthStory:
-      "On the body, cupro is genuinely kind. Its fibers have an almost perfectly round cross-section, so it sits smoothly and tends to irritate less, and it is often described as hypoallergenic. It is highly breathable, more so than silk, cotton, acetate, nylon, or polyester, and its crystalline structure pulls moisture off your skin and releases it, holding a lot of dampness before it ever feels wet. The processing concern is upstream, not on your skin: the copper-ammonia method requires careful capture of copper and ammonia, which is a manufacturing and discharge issue rather than something that lingers in a washed, finished garment. As always, the dyes and finishes on the final cloth are the residue question, so finished-garment certification still matters.",
+      "On the body, cupro is genuinely kind. Its threads are almost perfectly round, so they sit smoothly and tend to bother skin less, and it is often called hypoallergenic, meaning less likely to cause a reaction. It breathes better than silk, cotton, nylon, or polyester, and it pulls dampness off your skin and lets it go, holding a lot of moisture before it ever feels wet. The chemical concern is back at the factory, not on your skin: the copper-and-ammonia method has to be carefully captured, which is a factory and waste issue, not something that sticks around in a washed, finished piece. As always, the dyes and coatings on the final cloth are the real leftover question, so testing on the finished piece still matters.",
     whatToLookFor:
-      "Look for *Bemberg* (made by Asahi Kasei) as the established, controlled-process cupro, and an OEKO-TEX STANDARD 100 label confirming the finished fabric was tested for harmful substances.",
+      "Look for *Bemberg* (made by Asahi Kasei) as the well-controlled, established kind of cupro. And look for an OEKO-TEX STANDARD 100 label confirming the finished fabric was tested for harmful stuff.",
     environment:
-      "It is made from cotton-processing waste, though the copper-ammonia chemistry demands strict effluent control at the mill.",
+      "It is made from cotton scraps, though the copper-and-ammonia chemistry means the factory has to control its waste carefully.",
     shopFilter: null,
     sources: [
       { title: "Cuprammonium rayon", publisher: "Wikipedia", url: "https://en.wikipedia.org/wiki/Cuprammonium_rayon" },
@@ -204,13 +205,13 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     name: "Acetate",
     natural: false,
     whatItIs:
-      "Acetate is a chemically modified cellulosic: wood pulp is reacted with *acetic acid and acetic anhydride* to form cellulose acetate, dissolved in acetone, then spun as the acetone evaporates, so unlike viscose it skips carbon disulfide but it is more chemically altered than lyocell.",
+      "Acetate is wood pulp that has been changed more deeply: it is reacted with *acetic acid and acetic anhydride* (the stuff that gives vinegar its tang, in stronger form), dissolved in acetone, then spun as the acetone dries off. So unlike viscose, it skips carbon disulfide, but it is more chemically changed than lyocell.",
     healthStory:
-      "Acetate is smooth and silk-like and is generally considered skin-friendly, but the acetylation makes it more *hydrophobic*, meaning water-repelling, than other cellulosics. Standard acetate absorbs moisture poorly and does not wick sweat off your skin well, so it can feel clammy in heat or humidity, the opposite of how breathable lyocell or cupro behave. Newer branded acetate, Eastman's Naia, is engineered to wick moisture, dry fast, and breathe without applied finishes, and is marketed as hypoallergenic, so the wearer experience depends heavily on which acetate you have. Either way the fiber itself carries no carbon disulfide; your residue questions are again the dyes and any finishes on the finished garment.",
+      "Acetate is smooth and silk-like and is generally considered easy on skin. But the way it is made leaves it *water-repelling*, more so than other wood-based fibers. Plain acetate soaks up moisture poorly and does not pull sweat off your skin well, so it can feel clammy in heat, the opposite of breezy fibers like lyocell or cupro. A newer brand-name acetate, Eastman's Naia, is built to pull moisture away, dry fast, and breathe without added coatings, and is sold as hypoallergenic, meaning less likely to cause a reaction. So how it feels depends a lot on which acetate you have. Either way, the fiber itself carries no carbon disulfide. Your leftover questions are again the dyes and coatings on the finished piece.",
     whatToLookFor:
-      "Prefer branded *Naia* by Eastman for genuine moisture management and finish-free comfort, and look for OEKO-TEX STANDARD 100 on the finished garment; with plain acetate, expect lower breathability.",
+      "Pick brand-name *Naia* by Eastman for real moisture control and comfort without added coatings, and look for OEKO-TEX STANDARD 100 on the finished piece. With plain acetate, expect it to breathe less.",
     environment:
-      "It is made from wood-pulp cellulose, and branded versions such as Naia use responsibly sourced and traceable pulp.",
+      "It is made from wood-pulp, and brand-name versions like Naia use responsibly sourced, traceable pulp.",
     shopFilter: null,
     sources: [
       { title: "Cellulose acetate", publisher: "Wikipedia", url: "https://en.wikipedia.org/wiki/Cellulose_acetate" },
@@ -225,13 +226,13 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     name: "Silk",
     natural: true,
     whatItIs:
-      "Silk is a continuous protein filament reeled from the cocoon of the *Bombyx mori* silkworm, made of fibroin (the core fiber, roughly 75 to 80 percent) wrapped in sericin, a gummy coating. Most sericin is stripped off in a hot-water or enzyme step called *degumming*, which is where finishing chemicals and dyes also enter the picture.",
+      "Silk is a long, thin thread spun by silkworms to build their cocoons. The thread is mostly a protein called fibroin, wrapped in a sticky coating called sericin. Most of that sticky coating is washed off in hot water, a step called *degumming*. This is also where dyes and finishing chemicals get added.",
     healthStory:
-      "Properly degummed silk is one of the most skin-friendly fibers you can wear. Its smooth filament structure and ability to manage moisture and temperature mean it breathes, wicks, and regulates heat against your skin, which lowers irritation and supports your skin barrier. The catch is residue: low-quality silk that keeps too much sericin can be read by your immune system as foreign and trigger histamine release and contact allergy, and the dyes and finishing agents layered on during manufacturing are a more common cause of allergic contact dermatitis than the fiber itself. If silk irritates you, suspect the *finish*, not the protein.",
+      "Clean, well-washed silk is one of the kindest fibers you can wear. It is smooth, it breathes, and it moves moisture and heat away from your skin. That keeps you comfortable and helps your skin stay calm. The catch is leftovers. Cheap silk that still holds too much of that sticky coating can confuse your immune system and cause a real reaction. But the dyes and finishing chemicals added during manufacturing cause skin trouble more often than the silk itself does. If silk bothers you, blame the *finish*, not the fiber.",
     whatToLookFor:
-      "Choose fully degummed silk and look for OEKO-TEX STANDARD 100 certification, which tests for 350-plus harmful substances including dye and finishing residues. Higher-grade silk with thorough degumming is the most hypoallergenic option.",
+      "Pick fully washed silk and look for OEKO-TEX STANDARD 100 on the label. That stamp means it was tested for 350-plus harmful substances, including leftover dyes and chemicals. Higher-grade, well-washed silk is the gentlest choice.",
     environment:
-      "Conventional sericulture is land-light but energy- and water-intensive, since cocoons are typically boiled to reel the filament.",
+      "Raising silkworms does not use much land, but it uses a lot of energy and water, because the cocoons are usually boiled to unwind the thread.",
     shopFilter: "silk",
     sources: [
       { title: "Silk for Sensitive Skin: Hypoallergenic Properties & Evidence", publisher: "Selvane", url: "https://www.selvane.co/blogs/knowledge/silk-for-sensitive-skin-hypoallergenic-properties-evidence" },
@@ -244,13 +245,13 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     name: "Alpaca",
     natural: true,
     whatItIs:
-      "Alpaca fiber is shorn from the alpaca, a camelid raised mainly in the Andes, then scoured and, for finer grades, *dehaired* to pull out coarse guard hairs. It typically runs 18 to 27 microns, with premium grades reaching cashmere-fine 18 to 22 microns and some as low as 14.5.",
+      "Alpaca fiber comes from the alpaca, a relative of the camel raised mostly in the Andes mountains. After shearing, it is cleaned, and the softer grades are *dehaired* to pull out the thick, coarse hairs. The fiber width runs from 18 to 27 microns (a micron is one millionth of a meter, so thinner means softer), and the best grades are as fine as 14.5.",
     healthStory:
-      "Alpaca is often easier on reactive skin than sheep wool for two physical reasons. First, it contains *no lanolin*, the waxy grease that drives most genuine wool-grease sensitivities, so if lanolin is your trigger, alpaca sidesteps it. Second, its fiber surface is smoother and more cylindrical, with flatter scales than sheep wool, so it produces less mechanical *prickle* against your skin. It also absorbs less moisture than wool (around 11 percent versus wool's 30), which keeps the fiber drier against you. Remember that comfort still tracks with fineness: a coarse, poorly dehaired alpaca with guard hairs left in can still poke and itch regardless of the lanolin-free claim.",
+      "Alpaca is often easier on touchy skin than sheep wool, for two reasons you can feel. First, it has *no lanolin*, the waxy grease in sheep wool that causes most real wool-grease reactions. If lanolin is your problem, alpaca skips it. Second, its surface is smoother and rounder, so it pokes your skin less. Most so-called wool allergy is really just stiff, thick fibers physically poking you, a feeling called *prickle*. Alpaca also stays drier against you than wool. Still, comfort comes down to thinness: a coarse alpaca with thick hairs left in can poke and itch no matter what.",
     whatToLookFor:
-      "Look for dehaired baby or royal alpaca around 18 to 22 microns for next-to-skin comfort, and OEKO-TEX STANDARD 100 certification to limit dye and processing residues.",
+      "Look for dehaired baby or royal alpaca around 18 to 22 microns for wearing right against your skin, plus OEKO-TEX STANDARD 100 to limit leftover dyes and chemicals.",
     environment:
-      "Alpacas are padded-foot grazers that are gentler on Andean pasture than hooved livestock, and as camelids they produce less methane per head than sheep.",
+      "Alpacas have soft, padded feet that are gentler on Andean grass than hooved animals. As camel relatives, they also burp up less methane than sheep.",
     shopFilter: "alpaca",
     sources: [
       { title: "Is Alpaca Wool Hypoallergenic or Lanolin-Free?", publisher: "Yanantin Alpaca", url: "https://shop.yanantin-alpaca.com/blogs/qualities-of-alpaca-wool/is-alpaca-wool-hypoallergenic-lanolin-free" },
@@ -263,13 +264,13 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     name: "Cashmere",
     natural: true,
     whatItIs:
-      "Cashmere is the soft downy undercoat combed or shorn from cashmere goats, then *dehaired*, a critical mechanical step that separates the fine down (19 microns or less, top grades 14 to 15.5) from coarse guard hairs that run 50 to 100 microns. Only about 30 to 50 percent of the raw fiber survives dehairing as usable cashmere.",
+      "Cashmere is the soft, fluffy under-layer combed or shorn from cashmere goats. It is then *dehaired*, an important step that separates the fine fluff (19 microns or less, the best at 14 to 15.5) from the thick guard hairs, which are much wider at 50 to 100. Only about 30 to 50 percent of the raw fiber survives this step as usable cashmere.",
     healthStory:
-      "With cashmere, your comfort is decided almost entirely by *processing quality*, not the species. Fine cashmere down is well below the roughly 30-to-32-micron threshold at which fibers stiff enough to mechanically jab your skin's nerve endings cause *prickle*, the itch that most people mistake for an allergy. But it takes only a few overlooked guard hairs to make luxuriously soft cashmere scratch and irritate, the so-called prickle factor, and two cashmeres with identical average microns can feel completely different depending on how well those coarse hairs were removed. Cheap cashmere is usually cheap because it skipped thorough dehairing. As with all goat and sheep fibers, an itch reaction is a physical, non-immune *irritant contact dermatitis*, not a true allergy.",
+      "With cashmere, how comfortable it feels comes down to *how well it was made*, not the goat. Fine cashmere fluff is far thinner than the point where fibers get stiff enough to poke the tiny nerves in your skin. That poking, called *prickle*, is the itch most people mistake for an allergy. But it takes only a few missed guard hairs to make soft cashmere scratch. Two sweaters with the same average thinness can feel totally different depending on how well those thick hairs were pulled out. Cheap cashmere is usually cheap because that step was rushed. Like all goat and sheep fibers, the itch is physical poking, not a true allergy.",
     whatToLookFor:
-      "Buy on fineness and dehairing quality, not just the word cashmere: look for fiber around 15 to 16 microns and OEKO-TEX STANDARD 100 certification for dye and finish safety.",
+      "Buy on thinness and how well it was dehaired, not just the word cashmere. Look for fiber around 15 to 16 microns and OEKO-TEX STANDARD 100 for safe dyes and finishes.",
     environment:
-      "Cashmere goats graze close and can degrade fragile grassland, and the very low yield per animal means each sweater represents many goats.",
+      "Cashmere goats graze very close to the ground and can wear out fragile grassland. Because each goat gives so little fiber, one sweater takes many goats.",
     shopFilter: "cashmere",
     sources: [
       { title: "Dehairing and Cashmere Quality: A Guide", publisher: "Selvane", url: "https://www.selvane.co/blogs/knowledge/the-architecture-of-softness-dehairing-and-cashmere-quality" },
@@ -282,13 +283,13 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     name: "Merino Wool",
     natural: true,
     whatItIs:
-      "Merino wool is shorn from merino sheep bred for exceptionally fine fleece (often 18 microns or finer), then scoured to strip grease and dirt. Much of it is also given a *superwash* finish: a chlorine bath that erodes the fiber scales followed by a Hercosett polymer resin coating, a treatment that introduces chlorinated residues.",
+      "Merino wool comes from merino sheep, bred to grow especially fine fleece (often 18 microns or thinner). It is washed to strip out grease and dirt. Much of it also gets a *superwash* finish: a chlorine bath that wears down the fiber's surface scales, then a thin plastic resin coating. This treatment leaves chlorine-based traces behind.",
     healthStory:
-      "Peer-reviewed dermatology directly debunks the myth that wool is a universal allergen. A 2017 review in *Acta Dermato-Venereologica* concluded that wool fiber is not a cutaneous allergen; the itch is non-immune *irritant contact dermatitis* caused by stiff fibers mechanically stimulating your skin's nerve endings. Because merino sits well under the roughly 30-to-32-micron prickle threshold, it is well tolerated and may even benefit eczema-prone skin. Two real concerns remain. First, the superwash chlorine-Hercosett process leaves a nylon-based resin film and chlorinated byproducts on the fiber that can bother sensitive skin. Second, residual lanolin is now extremely low in modern scoured wool (under 0.5 percent), usually below the level that triggers a reaction, so true lanolin sensitivity is rarer than blamed. Merino also breathes and thermoregulates well, wicking moisture to keep you dry.",
+      "Skin doctors have studied this and shown that the idea of wool being an allergen for everyone is a myth. A 2017 review in *Acta Dermato-Venereologica* found wool is not an allergen at all. The itch is just stiff fibers physically poking the tiny nerves in your skin, a feeling called *prickle*. Because merino is so thin, it is well tolerated and may even be good for eczema-prone skin. Two real worries remain. First, the *superwash* chlorine-and-plastic-coating process leaves a thin plastic film and chlorine traces that can bother sensitive skin. Second, leftover grease (lanolin) in modern washed wool is now very low, usually too little to cause a reaction, so true lanolin trouble is rarer than people think. Merino also breathes well and keeps you dry.",
     whatToLookFor:
-      "Choose fine merino around 17 to 18.5 microns, prefer untreated or non-superwash where possible, and look for OEKO-TEX STANDARD 100 plus Responsible Wool Standard (RWS) certification.",
+      "Choose fine merino around 17 to 18.5 microns, pick untreated or non-superwash when you can, and look for OEKO-TEX STANDARD 100 plus the Responsible Wool Standard (RWS).",
     environment:
-      "Merino welfare's biggest flag is *mulesing*, cutting skin from a lamb's hindquarters to prevent flystrike, often without pain relief; RWS-certified wool prohibits it.",
+      "The biggest welfare worry with merino is *mulesing*, cutting skin from a lamb's backside to stop flies, often with no pain relief. RWS-certified wool bans it.",
     shopFilter: "merino wool",
     sources: [
       { title: "Debunking the Myth of Wool Allergy", publisher: "Acta Dermato-Venereologica", url: "https://www.medicaljournals.se/acta/content/html/10.2340/00015555-2655" },
@@ -301,13 +302,13 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     name: "Mohair",
     natural: true,
     whatItIs:
-      "Mohair is shorn from the Angora goat and then scoured; it spans roughly 25 to 45 microns depending on the animal's age, with fine *kid mohair* (goats under one year) at about 20 to 24 microns and coarse adult fiber reaching 39 or more.",
+      "Mohair comes from the Angora goat. After shearing, it is washed. Its width runs from about 25 to 45 microns depending on the goat's age. Fine *kid mohair* (from goats under one year old) is about 20 to 24 microns, while coarse fiber from older goats reaches 39 or more.",
     healthStory:
-      "Mohair's reputation for being scratchy is mostly about *which* mohair and how it is spun, not an allergy. Its fiber scales lie flatter and smoother than sheep wool, so it creates less friction against your skin and less of the prickly sensation people associate with wool. But mohair's long staple and signature brushed *halo* leave many fiber ends sticking out, and once the fiber diameter climbs past the roughly 30-micron prickle threshold those ends mechanically poke your skin's nerve endings, producing irritant contact dermatitis rather than a true immune reaction. Kid mohair stays finer and silkier and is far less likely to irritate than coarse adult mohair. If a mohair piece feels pokey, that is fiber coarseness and construction, not your body rejecting the protein.",
+      "Mohair's scratchy reputation is mostly about *which* mohair and how it was made, not an allergy. Its surface scales lie flatter and smoother than sheep wool, so it rubs less and feels less prickly. But mohair has long fibers and that signature fuzzy *halo*, which leaves lots of fiber ends sticking out. Once the fiber gets thick enough, past the prickle point, those ends physically poke the tiny nerves in your skin. That is irritation, not your body fighting the fiber. Kid mohair stays thinner and silkier, so it is far less likely to bother you than coarse mohair from older goats. If a mohair piece feels pokey, that is thickness and how it was made, not an allergy.",
     whatToLookFor:
-      "Choose kid mohair around 20 to 24 microns for next-to-skin wear, favor smooth weaves over heavily brushed halos if you are sensitive, and look for OEKO-TEX STANDARD 100 certification.",
+      "Choose kid mohair around 20 to 24 microns for wearing against your skin. If you are sensitive, pick smooth weaves over heavily brushed, fuzzy ones, and look for OEKO-TEX STANDARD 100.",
     environment:
-      "Angora goats are pasture grazers and, like other ruminants, emit methane; overgrazing pressure is the main land concern.",
+      "Angora goats graze on pasture and, like cows and sheep, burp up methane. Overgrazing is the main land worry.",
     shopFilter: null,
     sources: [
       { title: "The Touch of Mohair", publisher: "Churchmouse Yarns & Teas", url: "https://www.churchmouseyarns.com/blogs/journal/the-touch-of-mohair" },
@@ -320,13 +321,13 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     name: "Wool",
     natural: true,
     whatItIs:
-      "Generic wool is shorn from sheep, scoured to remove grease and dirt, and frequently given a *superwash* finish (a chlorine descaling bath plus a Hercosett polymer resin coat) and sometimes a *moth-proofing* insecticide treatment, both of which add chemicals to the fiber that touches your skin.",
+      "Plain wool comes from sheep. It is washed to remove grease and dirt, and often gets a *superwash* finish (a chlorine bath that wears down the surface scales, plus a thin plastic resin coating). Sometimes it also gets a *moth-proofing* bug treatment. Both add chemicals to the fiber that touches your skin.",
     healthStory:
-      "The belief that a wool allergy is universal is wrong. A 2017 *Acta Dermato-Venereologica* review found wool is not a true cutaneous allergen; the itch is non-immune *irritant contact dermatitis* from coarse fibers (roughly 30-to-32 microns and up) mechanically jabbing your skin's nerve endings. So broad-grade wool itches more than fine merino purely because of fiber diameter. The chemistry matters more than the protein: superwash leaves chlorinated residues and a nylon-based Hercosett resin film, and the superwash step generates toxic adsorbable organic halides (AOX). Many wools are also moth-proofed with the insecticide *permethrin*, which is locked inside the fiber and can be OEKO-TEX certified, though it remains a pesticide on a garment. Residual lanolin in modern scoured wool is very low (under 0.5 percent) and rarely the real culprit. Wool itself breathes and thermoregulates well.",
+      "The belief that everyone is allergic to wool is wrong. A 2017 *Acta Dermato-Venereologica* review found wool is not a true allergen. The itch is just stiff, thick fibers physically poking the tiny nerves in your skin, a feeling called *prickle*. That is why plain wool itches more than fine merino: its fibers are simply thicker. The chemistry matters more than the fiber. *Superwash* leaves chlorine traces and a thin plastic film, and that step also creates toxic chlorine-based byproducts called AOX. Many wools are also moth-proofed with a bug killer called *permethrin*, which is locked inside the fiber and can still pass OEKO-TEX, though it is a pesticide on your clothes. Leftover grease (lanolin) in modern washed wool is very low and rarely the real problem. Wool itself breathes well and keeps you comfortable.",
     whatToLookFor:
-      "Prefer untreated, non-superwash, moth-proof-free wool, choose finer micron grades for comfort, and look for OEKO-TEX STANDARD 100 plus Responsible Wool Standard (RWS) certification.",
+      "Pick untreated wool: non-superwash and not moth-proofed. Choose thinner grades for comfort, and look for OEKO-TEX STANDARD 100 plus the Responsible Wool Standard (RWS).",
     environment:
-      "Sheep are ruminants that emit methane and need grazing land; RWS certification also addresses welfare practices like mulesing.",
+      "Sheep burp up methane and need grazing land. RWS certification also covers welfare practices like mulesing.",
     shopFilter: "wool",
     sources: [
       { title: "Debunking the Myth of Wool Allergy", publisher: "Acta Dermato-Venereologica", url: "https://www.medicaljournals.se/acta/content/html/10.2340/00015555-2655" },
@@ -342,13 +343,13 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     name: "Viscose",
     natural: false,
     whatItIs:
-      "Viscose is a semi-synthetic fiber made by chemically dissolving wood pulp cellulose in sodium hydroxide and carbon disulfide (CS2), then regenerating it into filament.",
+      "Viscose is a part-natural, part-made fiber. It starts as wood, which gets dissolved into mush using strong chemicals, including one called carbon disulfide, then squeezed back out into thread.",
     healthStory:
-      "The heaviest health burden falls on factory workers, where carbon disulfide exposure is linked to peripheral neuropathy, ischemic heart disease, and excess mortality among spinners. For you as the wearer, the concern is residual processing chemicals: carbon disulfide byproducts and dye and finishing agents can remain in the fabric and trigger allergic contact dermatitis or skin irritation in sensitive people, and some viscose gets the same formaldehyde-based wrinkle finishes used on cotton. On the comfort side, viscose is plastic-free and breathable, letting air circulate against your skin better than petroleum synthetics.",
+      "The biggest harm lands on the factory workers. Carbon disulfide is linked to nerve damage, heart disease, and more early deaths among the people who spin it. For you, the wearer, the worry is leftovers: bits of those chemicals, plus dyes and finishes, can stay in the cloth and make sensitive skin itch or break out. Some viscose even gets the same formaldehyde wrinkle-fighting treatment as cotton. On the comfy side, viscose has no plastic in it and breathes better against your skin than fibers made from oil.",
     whatToLookFor:
-      "Favor closed-loop lyocell (such as TENCEL) as the cleaner regenerated-cellulose alternative, since it recovers its solvent and skips carbon disulfide, and look for OEKO-TEX STANDARD 100 on any viscose you buy. Wash new pieces before wearing.",
+      "Pick closed-loop lyocell (like TENCEL) when you can. It is the cleaner version, because it reuses its chemicals and skips the carbon disulfide. Look for OEKO-TEX STANDARD 100 on any viscose you buy, and wash new pieces before wearing.",
     environment:
-      "Conventional viscose production releases hazardous air and water pollutants and is often tied to deforestation of ancient and endangered forests.",
+      "Making regular viscose puts harmful stuff into the air and water, and is often linked to cutting down old, rare forests.",
     shopFilter: "viscose",
     sources: [
       { title: "HEALTH EFFECTS - Toxicological Profile for Carbon Disulfide", publisher: "NCBI Bookshelf (ATSDR)", url: "https://www.ncbi.nlm.nih.gov/books/NBK601225/" },
@@ -361,13 +362,13 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     name: "Rayon",
     natural: false,
     whatItIs:
-      "Rayon is simply the generic name for regenerated cellulose fiber, and viscose is the most common type, so viscose and rayon describe the same material made by dissolving wood pulp in carbon disulfide.",
+      "Rayon is just the all-purpose name for fiber made from wood that has been dissolved and re-formed. Viscose is the most common kind, so *rayon* and *viscose* really mean the same material.",
     healthStory:
-      "Because rayon is viscose, it carries the same profile. The acute danger is to workers handling carbon disulfide, which causes nerve and cardiovascular damage at occupational doses. What reaches you is residue: the chemical substances used in production can remain in the fabric and provoke allergic reactions or contact dermatitis on skin contact, and formaldehyde-based finishing agents are sometimes added for wrinkle resistance, leaving residues that irritate sensitive skin. Rayon is breathable and absorbent, so it wears cool, but unbranded or uncertified pieces are the ones most likely to carry leftover finish.",
+      "Because rayon is viscose, the story is the same. The sharpest danger is to workers handling carbon disulfide, which damages nerves and the heart at the levels they breathe in. What reaches you is leftovers: the chemicals used to make it can stay in the cloth and irritate skin or cause a rash, and a formaldehyde finish is sometimes added to fight wrinkles, leaving bits that bother sensitive skin. Rayon breathes and soaks up moisture, so it feels cool, but the cheapest, uncertified pieces are the ones most likely to carry leftover finish.",
     whatToLookFor:
-      "Treat rayon and viscose as identical when shopping, prefer closed-loop lyocell as the safer regenerated fiber, choose OEKO-TEX STANDARD 100 certified goods, and launder before first wear.",
+      "Treat rayon and viscose as the exact same thing when you shop. Choose closed-loop lyocell as the safer version, pick OEKO-TEX STANDARD 100 pieces, and wash before the first wear.",
     environment:
-      "Standard rayon manufacturing emits toxic chemicals and contributes to deforestation pressure on endangered forests.",
+      "Making regular rayon releases harmful chemicals and adds to the pressure to cut down rare forests.",
     shopFilter: "rayon",
     sources: [
       { title: "FTC Warns 78 Retailers to Stop Advertising Rayon as Bamboo", publisher: "U.S. Federal Trade Commission", url: "https://www.ftc.gov/news-events/news/press-releases/2010/02/ftc-warns-78-retailers-including-wal-mart-target-kmart-stop-labeling-advertising-rayon-textile" },
@@ -380,13 +381,13 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     name: "Bamboo",
     natural: false,
     whatItIs:
-      "Bamboo sold as soft clothing is almost never natural bamboo fiber; it is bamboo *viscose*, meaning bamboo pulp chemically dissolved in carbon disulfide and regenerated into rayon, the exact same process and chemistry as ordinary viscose.",
+      "Soft *bamboo* clothing is almost never real bamboo fiber. It is bamboo *viscose*: bamboo mashed into pulp, dissolved in carbon disulfide, and turned into rayon. It is the same process and the same chemicals as ordinary viscose.",
     healthStory:
-      "Do not let the *eco* and *natural* marketing fool you. The FTC has fined retailers including Kohl's and Walmart, and warned dozens more, for labeling rayon as bamboo and claiming false environmental benefits, because the rayon process uses toxic chemicals and emits hazardous pollutants. By law it must be called *rayon (or viscose) made from bamboo*. For your health the story is identical to viscose: carbon disulfide is the worker hazard, and residual processing chemicals, dyes, and any formaldehyde finishes can leave residue that irritates skin or triggers contact dermatitis. The plant itself adds no special skin benefit once it is dissolved into rayon.",
+      "Do not let the *eco* and *natural* labels fool you. The US government's FTC has fined stores, including Kohl's and Walmart, and warned many more, for calling rayon *bamboo* and making false green claims, because the rayon process uses toxic chemicals and gives off harmful pollution. By law it must be called *rayon (or viscose) made from bamboo*. For your skin, the story is the same as viscose: carbon disulfide is the worker danger, and leftover chemicals, dyes, or formaldehyde finishes can irritate skin or cause a rash. Once the plant is dissolved into rayon, it gives your skin no special bonus.",
     whatToLookFor:
-      "Be skeptical of any *bamboo* claim and read the fiber content; if it says rayon or viscose, treat it as viscose, and choose closed-loop bamboo lyocell or OEKO-TEX STANDARD 100 certified fabric instead.",
+      "Be doubtful of any *bamboo* claim and read the fiber label. If it says rayon or viscose, treat it as viscose. Choose closed-loop bamboo lyocell, or OEKO-TEX STANDARD 100 cloth, instead.",
     environment:
-      "Bamboo grows fast with little input, but converting it to viscose chemically erases most of that environmental advantage.",
+      "Bamboo grows fast and needs little to thrive, but turning it into viscose with chemicals wipes out most of that green advantage.",
     shopFilter: null,
     sources: [
       { title: "Bamboo Textiles", publisher: "U.S. Federal Trade Commission", url: "https://www.ftc.gov/bamboo-textiles" },
@@ -399,13 +400,13 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     name: "Cotton",
     natural: true,
     whatItIs:
-      "Cotton is a natural plant fiber harvested from the cotton boll, but conventional cotton is one of the most pesticide-intensive crops grown, treated with glyphosate, organophosphates, and other agrochemicals in the field.",
+      "Cotton is a soft fiber that grows on a plant, picked from a fluffy pod called a boll. But most regular cotton is sprayed with a lot of bug and weed killers while it grows, including a weed killer called glyphosate.",
     healthStory:
-      "Most field pesticide residue degrades or washes out during processing, so it is the finishing chemistry on the finished garment you wear that matters most. Conventional cotton labeled *wrinkle-free*, *easy care*, or *no-iron* is frequently treated with formaldehyde-based durable-press resins, a recognized human carcinogen that off-gasses and is linked to contact dermatitis and skin irritation. Reactive and azo dyes can also leave residue that touches your skin all day. The upside: untreated cotton is genuinely breathable and lets air move against your skin, which is why it stays comfortable in heat.",
+      "Most of those field sprays break down or wash off before the cloth reaches you, so the chemistry added at the *end*, to the finished clothing, matters more. Cotton labeled *wrinkle-free*, *easy care*, or *no-iron* is often treated with a resin made from formaldehyde, a chemical known to cause cancer. It slowly releases into the air and can leave your skin red and itchy. The dyes used can also leave bits behind that sit against your skin all day. The good news: plain, untreated cotton breathes well and lets air move against your skin, so it stays comfy when it is hot.",
     whatToLookFor:
-      "Choose GOTS-certified organic cotton, which bans formaldehyde, chlorine bleach, and carcinogenic azo dyes across the entire supply chain, or look for OEKO-TEX STANDARD 100, and always wash new cotton before the first wear to flush loose finish and dye.",
+      "Look for GOTS-certified organic cotton, which bans formaldehyde, chlorine bleach, and cancer-linked dyes all the way through. Or look for the OEKO-TEX STANDARD 100 label. And always wash new cotton before you wear it, to rinse away loose finish and dye.",
     environment:
-      "Conventional cotton is water- and pesticide-heavy in cultivation, while organic systems sharply cut chemical inputs.",
+      "Regular cotton uses a lot of water and chemicals to grow. Organic farming uses far fewer chemicals.",
     shopFilter: "cotton",
     sources: [
       { title: "FTC Seeks Largest-Ever Civil Penalty for Bogus Bamboo Marketing", publisher: "U.S. Federal Trade Commission", url: "https://www.ftc.gov/news-events/news/press-releases/2022/04/ftc-uses-penalty-offense-authority-seek-largest-ever-civil-penalty-bogus-bamboo-marketing-kohls" },
@@ -420,13 +421,13 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     name: "Spandex",
     natural: false,
     whatItIs:
-      "Spandex is a synthetic polyurethane-based elastic fiber spun from segmented polymer chains, built using reactive diisocyanates like TDI and MDI. The finished fiber is a stable polymer, but those diisocyanates are genuine skin and respiratory sensitizers in their unreacted state, and trace processing residues, dye chemicals, and softeners can remain in the yarn.",
+      "Spandex is a stretchy plastic fiber. It is made by linking chemical chains together, and one of the building blocks used to make it can irritate skin and lungs before it is locked into place. Once the fiber is finished, that building block is mostly used up. But leftover bits of dye, softeners, and other processing chemicals can still hang around in the yarn.",
     healthStory:
-      "You almost never wear spandex alone; it is blended into leggings, sports bras, and shapewear that sit against your most absorbent skin while you sweat. That matters because spandex blends are where independent testing has repeatedly flagged *bisphenol A* (BPA), a known endocrine disruptor, with one watchdog study finding BPA in polyester-spandex athletic wear at up to 40 times California's safe limit. The same stretch garments are also where durable water-repellent *PFAS* finishes and residual manufacturing surfactants like *nonylphenol ethoxylates* show up, and the tight, occlusive fit traps heat and moisture against the skin, which increases both irritation and chemical migration. Spandex is not the worst offender on its own, but it is the fiber that keeps high-hazard chemistry pressed to your body.",
+      "You almost never wear spandex by itself. It gets blended into leggings, sports bras, and shapewear that hug your skin while you sweat. That matters, because testing keeps finding *BPA* in spandex blends. BPA is an *endocrine disruptor*, which means it can mess with your hormones. One watchdog study found BPA in polyester-spandex workout clothes at up to 40 times California's safe limit. These same tight clothes can also carry water-repellent *PFAS* coatings and other leftover chemicals. The snug fit traps heat and sweat against you, which makes your skin more irritated and helps those chemicals move onto your body. Spandex is not the worst fiber on its own. But it is the one that keeps risky chemistry pressed close to your skin.",
     whatToLookFor:
-      "Choose OEKO-TEX STANDARD 100 certified stretch wear, which bans intentional PFAS and limits BPA and phthalates, and keep spandex to the smallest practical percentage by favoring natural-fiber pieces with only a few percent stretch rather than full synthetic blends.",
+      "Pick stretchy clothes with an OEKO-TEX STANDARD 100 label. It bans added PFAS and limits BPA and *phthalates* (more hormone-messing chemicals). And keep the spandex small: choose natural-fiber pieces with just a little stretch instead of all-synthetic blends.",
     environment:
-      "Spandex is fossil-fuel derived, does not biodegrade, and makes blended garments nearly impossible to recycle.",
+      "Spandex comes from fossil fuels, never breaks down in nature, and makes the clothes it is blended into nearly impossible to recycle.",
     shopFilter: null,
     sources: [
       { title: "Immune sensitization to MDI resulting from skin exposure", publisher: "NCBI / PMC", url: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3068988/" },
@@ -439,13 +440,13 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     name: "Elastane",
     natural: false,
     whatItIs:
-      "Elastane is the same fiber as spandex; the names are interchangeable, and Lycra is simply a brand of it. It is a polyurethane-based elastic yarn made by reacting diisocyanates (TDI, MDI) with polyols, so the wearer-health questions come from residual processing chemicals and from what gets blended and finished onto it, not from the inert polymer itself.",
+      "Elastane is the exact same fiber as spandex. The names mean the same thing, and Lycra is just a brand of it. It is a stretchy plastic yarn made by reacting a few chemicals together. The fiber itself is mostly harmless once finished. The health questions come from leftover processing chemicals and from whatever gets blended and coated onto it.",
     healthStory:
-      "Because elastane gives garments their stretch, it lives in exactly the clothes you wear closest and sweat into: leggings, swimwear, underwear, and base layers. Studies of artificial-sweat leaching and consumer testing on polyester-elastane activewear have found *bisphenol A* and *antimony* migrating into the moisture against your skin, and durable water-repellent *PFAS* finishes are linked to hormonal, reproductive, and immune harm. The fiber's defining trait, a tight occlusive fit, traps heat and sweat, which both irritates skin and accelerates how much of that chemistry transfers onto and into you. The polymer is largely inert, but the company it keeps on your body is not.",
+      "Because elastane is what makes clothes stretchy, it lives in the things you wear closest and sweat into most: leggings, swimwear, underwear, and base layers. Tests using fake sweat have found *BPA* and *antimony* moving out of polyester-elastane activewear and into the moisture on your skin. BPA is an *endocrine disruptor*, meaning it can mess with your hormones, and antimony is a metal you do not want soaking in. Water-repellent *PFAS* coatings are also linked to hormone, reproductive, and immune harm. The whole point of elastane is a tight fit, and that fit traps heat and sweat, which irritates skin and speeds up how much chemistry moves onto you. The fiber is mostly harmless. The company it keeps on your body is not.",
     whatToLookFor:
-      "Look for OEKO-TEX STANDARD 100 certification to screen out PFAS, phthalates, and excess heavy metals, and prefer pieces that use elastane only as a small stretch percentage in an otherwise natural fabric rather than head-to-toe synthetic blends.",
+      "Look for an OEKO-TEX STANDARD 100 label to screen out PFAS, *phthalates*, and extra heavy metals. And choose pieces that use only a little elastane for stretch in an otherwise natural fabric, rather than head-to-toe synthetic blends.",
     environment:
-      "Elastane is petroleum-based, non-biodegradable, and contaminates the recyclability of any natural fiber it is blended into.",
+      "Elastane comes from petroleum, never breaks down in nature, and ruins the recyclability of any natural fiber it is blended into.",
     shopFilter: null,
     sources: [
       { title: "Is Recycled Polyester Safe? BPA & Antimony Risks", publisher: "Estroni", url: "https://estroni.com.au/pages/is-recycled-polyester-safe-the-hidden-bpa-antimony-risk-in-eco-activewear" },
@@ -458,13 +459,13 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     name: "Leather",
     natural: true,
     whatItIs:
-      "Most commercial leather is animal hide preserved by chrome tanning, which uses chromium(III) salts; under heat, light, or aging that chromium can oxidize into *chromium(VI)*, the hexavalent form. Chromium VI is a potent skin sensitizer, which is why it sits at the center of leather's wearer-health story.",
+      "Most leather you buy is animal hide preserved with chromium, a metal. This is called chrome tanning. The problem is that with heat, light, or age, that chromium can change into a more dangerous form called *chromium VI*. Chromium VI is hard on skin and triggers allergies easily, which is why it sits at the center of leather's health story.",
     healthStory:
-      "Chromium VI causes severe *allergic contact dermatitis* and can trigger it at very low concentrations, and chromium is the third most common metal allergy after nickel and cobalt, affecting roughly 1 to 3 percent of adults with a poor long-term prognosis. The hazard is real enough that the EU restricted chromium VI to under 3 mg/kg in skin-contact leather under REACH, a limit estimated to prevent about 80 percent of new chromium-related dermatitis cases. Studies have documented chromium VI releasing into artificial sweat from shoes in a real case of leather-induced dermatitis, so warm, sweaty contact, shoes, watch straps, waistbands, is where your exposure is highest.",
+      "Chromium VI causes a serious itchy, red skin rash called *allergic contact dermatitis*, and it can set off that rash even in tiny amounts. Chromium is the third most common metal allergy after nickel and cobalt, affecting about 1 to 3 percent of adults, and once you have it, it tends to stick around. The risk is real enough that Europe set a strict limit on chromium VI in leather that touches skin. Experts think that limit alone prevents about 80 percent of new chromium rash cases. In one real case, chromium VI was found leaking out of shoes into fake sweat. So warm, sweaty contact, like shoes, watch straps, and waistbands, is where your exposure is highest.",
     whatToLookFor:
-      "Choose *vegetable-tanned* leather, which uses plant tannins instead of chromium salts, or look for OEKO-TEX Leather Standard or Leather Working Group certification, both of which test and cap chromium VI and other harmful residues.",
+      "Choose *vegetable-tanned* leather, which uses plant ingredients instead of chromium. Or look for an OEKO-TEX Leather Standard or Leather Working Group label. Both test for and cap chromium VI and other harmful leftovers.",
     environment:
-      "Chrome tanning generates chromium-laden wastewater, while vegetable tanning cuts that toxic effluent by up to roughly 80 percent.",
+      "Chrome tanning creates wastewater full of chromium, while vegetable tanning cuts that toxic runoff by up to about 80 percent.",
     shopFilter: null,
     sources: [
       { title: "High release of hexavalent chromium into artificial sweat from leather shoes", publisher: "Contact Dermatitis (Wiley)", url: "https://onlinelibrary.wiley.com/doi/10.1111/cod.13425" },
@@ -477,13 +478,13 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     name: "Nylon",
     natural: false,
     whatItIs:
-      "Nylon is a synthetic polyamide made by polymerizing petroleum-derived monomers; in Nylon 6 the building block is *caprolactam*, and not every unit fully links during polymerization, so residual caprolactam monomer can remain in and migrate out of the fiber. Manufacturing and finishing chemicals, not the polymer backbone, drive most of its wearer-health concerns.",
+      "Nylon is a plastic fiber made from oil-based building blocks. When it is made, not every piece links up perfectly, so a little leftover building-block chemical can stay in the fiber and slowly seep out. Most of nylon's health concerns come from the chemicals used to make and finish it, not from the plastic itself.",
     healthStory:
-      "Nylon is dyed almost exclusively with *disperse dyes*, the leading cause of textile allergic contact dermatitis; these dyes do not bond to the fiber, so their small lipophilic molecules migrate onto your skin, with Disperse Blue and Disperse Orange dyes showing positive patch tests in roughly 5 to 7 percent of chronic-eczema patients, worse where clothing rubs and you sweat. Nylon is also one of the heaviest *microplastic* shedders of any fabric, releasing hundreds of thousands of fibers in a single wash and shedding directly onto your skin and into the air you breathe as you move. Those microfibers can carry dyes, plasticizers, and finishing additives that leach out on contact.",
+      "Nylon is almost always colored with *disperse dyes*, the number one cause of clothing-related skin allergies. These dyes do not really bond to the fiber, so the small dye molecules can rub off onto your skin. Two of them, Disperse Blue and Disperse Orange, show up as a trigger in roughly 5 to 7 percent of people with long-term eczema, and it is worst where clothes rub and you sweat. Nylon is also one of the heaviest *microplastic* shedders of any fabric. Microplastics are tiny bits of plastic that flake off the fabric. A single wash can release hundreds of thousands of these fibers, and they land on your skin and float into the air you breathe as you move. Those bits can carry dyes and other additives that leak out on contact.",
     whatToLookFor:
-      "Look for OEKO-TEX STANDARD 100 certification, which limits disperse-dye allergens and residual monomers, and prefer undyed or light-colored, tightly woven nylon over deeply dyed stretch pieces worn against the skin.",
+      "Look for an OEKO-TEX STANDARD 100 label, which limits dye allergens and leftover building-block chemicals. And choose undyed or light-colored, tightly woven nylon over deeply dyed stretchy pieces worn against your skin.",
     environment:
-      "Nylon is fossil-derived, non-biodegradable, and a major source of microplastic fiber pollution in water and air.",
+      "Nylon comes from fossil fuels, never breaks down in nature, and is a major source of microplastic pollution in water and air.",
     shopFilter: null,
     sources: [
       { title: "Contact allergy from disperse dyes in textiles - a review", publisher: "Contact Dermatitis (Wiley)", url: "https://onlinelibrary.wiley.com/doi/10.1111/cod.12001" },
@@ -496,13 +497,13 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     name: "Polyester",
     natural: false,
     whatItIs:
-      "Polyester is PET plastic spun into fiber, and roughly 80 to 85 percent of virgin PET is made using *antimony trioxide* as a polymerization catalyst, leaving antimony residues of about 125 to 470 micrograms per gram in the finished fabric. It is then colored with disperse dyes that sit on, rather than bond to, the fiber.",
+      "Polyester is plastic (the same kind used in water bottles) spun into thread. Most of it is made using a metal called *antimony* as a helper chemical, and some antimony stays behind in the finished fabric. The fabric is then colored with *disperse dyes*, which sit on top of the fiber instead of truly bonding to it.",
     healthStory:
-      "When polyester contacts your sweat, a fraction of that *antimony* mobilizes into the moisture against your skin; antimony trioxide is classified by IARC as a *possible human carcinogen*, and exposure rises in tight, warm activewear. Polyester is also the workhorse of *disperse-dye* allergy, the most common cause of textile contact dermatitis, with the dye migrating onto skin worst where you sweat and rub. On top of that, polyester sheds *microplastics* onto your skin and into household air, and consumer testing has flagged *bisphenol A* (an endocrine disruptor) in polyester athletic wear at many times the safe limit. The dose from any one garment is small, but you wear it constantly and sweat into it.",
+      "When polyester meets your sweat, a little of that *antimony* moves into the moisture on your skin. Antimony has been flagged as a *possible cause of cancer*, and more of it comes out in tight, warm activewear. Polyester is also the biggest cause of *disperse dye* skin allergies, which show up worst where you sweat and rub. On top of that, polyester sheds *microplastics*, tiny bits of plastic, onto your skin and into the air at home. Testing has also found *BPA*, a hormone-messing chemical, in polyester workout clothes at many times the safe limit. The amount from any one piece is small. But you wear it constantly and sweat into it.",
     whatToLookFor:
-      "Choose OEKO-TEX STANDARD 100 certified polyester to cap antimony, BPA, formaldehyde, and disperse-dye allergens, and do not be reassured by *recycled* polyester, which is still plastic, still sheds microplastics, often more than virgin, and can carry higher BPA.",
+      "Choose OEKO-TEX STANDARD 100 certified polyester, which caps antimony, BPA, formaldehyde, and dye allergens. And do not be fooled by *recycled* polyester. It is still plastic, still sheds microplastics, often more than new polyester, and can carry higher BPA.",
     environment:
-      "Polyester is fossil-fuel based, effectively non-biodegradable, and a primary driver of microplastic pollution.",
+      "Polyester comes from fossil fuels, basically never breaks down in nature, and is a main driver of microplastic pollution.",
     shopFilter: null,
     sources: [
       { title: "Antimony release from polyester textiles by artificial sweat solutions", publisher: "Regulatory Toxicology and Pharmacology", url: "https://www.sciencedirect.com/science/article/pii/S0273230020302506" },
@@ -515,13 +516,13 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     name: "Acrylic",
     natural: false,
     whatItIs:
-      "Acrylic is a synthetic fiber polymerized mostly from *acrylonitrile*, a petroleum-derived monomer; polymerization is never perfectly complete, so trace residual acrylonitrile remains in the fiber, historically estimated at under 1 part per million in acrylic and modacrylic.",
+      "Acrylic is a plastic fiber made mostly from an oil-based chemical called *acrylonitrile*. When acrylic is made, the linking is never perfect, so a tiny bit of leftover acrylonitrile stays in the fiber, historically estimated at under one part per million.",
     healthStory:
-      "The residual monomer is the concern: *acrylonitrile* is classified by IARC as Group 1, *carcinogenic to humans*, and the EPA treats it as a probable human carcinogen, with textile-plant workers showing raised lung and colon cancer risk after long exposure. Acrylonitrile can be absorbed through the skin, so warm, sweaty contact with a soft acrylic sweater or fleece is a real, if low-level, exposure route over time. Acrylic also sheds *microplastics* heavily, putting plastic fibers onto your skin and into the air at home, and like other synthetics it carries disperse dyes and finishing chemistry that can irritate sensitive skin.",
+      "That leftover chemical is the concern. *Acrylonitrile* is classified as *cancer-causing in humans*, and workers in textile plants who were exposed for a long time showed higher rates of lung and colon cancer. Acrylonitrile can soak in through the skin, so warm, sweaty contact with a soft acrylic sweater or fleece is a real, if small, exposure over time. Acrylic also sheds a lot of *microplastics*, tiny bits of plastic, onto your skin and into the air at home. And like other synthetics, it carries dyes and finishing chemicals that can bother sensitive skin.",
     whatToLookFor:
-      "Look for OEKO-TEX STANDARD 100 certification, which sets strict limits on residual acrylonitrile and other monomers, and favor natural insulating fibers like wool or cotton for next-to-skin knitwear where possible.",
+      "Look for an OEKO-TEX STANDARD 100 label, which sets strict limits on leftover acrylonitrile and similar chemicals. And when you can, choose natural warm fibers like wool or cotton for knitwear worn against your skin.",
     environment:
-      "Acrylic is fossil-derived, does not biodegrade, and is one of the worst microplastic-shedding fibers in the wash.",
+      "Acrylic comes from fossil fuels, never breaks down in nature, and is one of the worst microplastic shedders in the wash.",
     shopFilter: null,
     sources: [
       { title: "Acrylonitrile, 15th Report on Carcinogens", publisher: "NCBI Bookshelf (NTP)", url: "https://www.ncbi.nlm.nih.gov/books/NBK590811/" },
@@ -534,13 +535,13 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     name: "Polyurethane",
     natural: false,
     whatItIs:
-      "Polyurethane is a plastic coating or film, the material behind most so-called *vegan leather*, typically made by dissolving PU resin in the heavy solvent *DMF* (dimethylformamide) and softening it with plasticizers. DMF is a known liver toxin and reproductive hazard listed as a Substance of Very High Concern in Europe, and it can leave residual contamination on the finished product.",
+      "Polyurethane is a plastic coating or film. It is the material behind most so-called *vegan leather*. It is usually made by dissolving plastic resin in a heavy solvent called *DMF* and softening it with other chemicals. DMF is known to harm the liver and reproduction, and Europe lists it as a chemical of very high concern. Some of it can be left behind on the finished product.",
     healthStory:
-      "Here is the honest part the marketing skips: *vegan leather* is almost always polyurethane or PVC plastic, not a clean natural alternative, and it is the high-hazard end of the spectrum. The plasticizers that keep PU and PVC supple are commonly endocrine-disrupting *phthalates* that can be absorbed through the skin, and some phthalate plasticizers have been restricted over carcinogenicity and links to breast cancer. PVC versions add chlorine chemistry and dioxin concerns, and residual *DMF* solvent can linger in cheaper PU. Worn against warm, sweaty skin, a watchband, jacket, or bag lining, these are exactly the conditions that promote plasticizer migration.",
+      "Here is the honest part the marketing skips: *vegan leather* is almost always plastic (polyurethane or PVC), not a clean natural option, and it sits at the high-concern end. The chemicals that keep this plastic soft and bendy are often *phthalates*, which are *endocrine disruptors* that can mess with your hormones and soak in through skin. Some of them have been restricted over cancer concerns, including links to breast cancer. PVC versions add chlorine chemistry and other pollution worries, and leftover *DMF* solvent can linger in cheaper plastic. Worn against warm, sweaty skin, like a watchband, jacket, or bag lining, these are exactly the conditions that help those softening chemicals move onto you.",
     whatToLookFor:
-      "If you want a leather alternative, look for water-based PU (it eliminates the DMF solvent) and OEKO-TEX certification that caps phthalates and DMF, and treat any unlabeled *vegan leather* as plastic until proven otherwise.",
+      "If you want a leather alternative, look for water-based PU, which skips the DMF solvent, plus an OEKO-TEX label that caps phthalates and DMF. And treat any unlabeled *vegan leather* as plastic until proven otherwise.",
     environment:
-      "Polyurethane and PVC are fossil-based plastics that do not biodegrade and shed plastic particles as they wear and flake.",
+      "Polyurethane and PVC are fossil-fuel plastics that do not break down in nature and shed plastic bits as they wear and flake.",
     shopFilter: null,
     sources: [
       { title: "Is Polyurethane Toxic?", publisher: "The Filtery", url: "https://thefiltery.com/is-polyurethane-toxic/" },
@@ -601,7 +602,7 @@ export type GuideFiber = FiberGuideEntry & {
   kind: FiberKind;
 };
 
-/** Attach the canonical score, risk band, and hazard color to an entry. */
+/** Attach the canonical score, risk band, hazard color, and family to an entry. */
 export function withScore(entry: FiberGuideEntry): GuideFiber {
   const score = fiberScore(entry.slug);
   return {

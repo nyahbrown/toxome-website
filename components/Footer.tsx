@@ -3,59 +3,28 @@ import Image from "next/image";
 type FooterLink = { label: string; href: string };
 type FooterCol = { h: string; items: FooterLink[] };
 
-// Social accounts. Update the href values with the real handles — the icons
-// render in the footer's bottom-left corner.
-type Social = { label: string; href: string; icon: React.ReactNode };
+// Social accounts. Real brand glyphs (Simple Icons paths), rendered in the
+// brand column under the tagline. Update hrefs with the live handles.
+type Social = { label: string; href: string; path: string };
 
 const socials: Social[] = [
   {
     label: "Instagram",
     href: "https://www.instagram.com/toxome_app/",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <rect x="2.5" y="2.5" width="19" height="19" rx="5" stroke="currentColor" strokeWidth="1.6" />
-        <circle cx="12" cy="12" r="4.2" stroke="currentColor" strokeWidth="1.6" />
-        <circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" />
-      </svg>
-    ),
+    path:
+      "M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z",
   },
   {
     label: "Pinterest",
     href: "https://www.pinterest.com/toxomeApp/",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <circle cx="12" cy="12" r="9.2" stroke="currentColor" strokeWidth="1.6" />
-        <path
-          d="M11.1 16.7c-.3 1.2-.7 2.4-1.4 3.3M11 8.8c-.3.6-.3 1.4-.1 2.1.5 1.9.9 3.6.9 3.6.4 1 1.4 1.4 2.4 1.1 1.6-.5 2.4-2.4 2-4.4-.4-2-2.2-3.4-4.2-3-1.7.3-2.9 1.7-2.9 3.3 0 .8.3 1.5.8 1.9"
-          stroke="currentColor"
-          strokeWidth="1.6"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
+    path:
+      "M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.401.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.354-.629-2.758-1.379l-.749 2.848c-.269 1.045-1.004 2.352-1.498 3.146 1.123.345 2.306.535 3.55.535 6.607 0 11.985-5.365 11.985-11.987C23.97 5.39 18.592.026 11.985.026L12.017 0z",
   },
   {
     label: "TikTok",
     href: "https://www.tiktok.com/@toxome",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path
-          d="M13.2 3.5v10.9a3.1 3.1 0 1 1-2.6-3.05"
-          stroke="currentColor"
-          strokeWidth="1.6"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M13.2 3.5c.4 2.4 1.9 4 4.3 4.3"
-          stroke="currentColor"
-          strokeWidth="1.6"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
+    path:
+      "M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z",
   },
 ];
 
@@ -90,9 +59,26 @@ export default function Footer() {
               <Image src="/toxome-logo.png" alt="" width={37} height={24} style={{ height: 24, width: "auto" }} />
               <span style={{ fontSize: 18, fontWeight: 600, letterSpacing: "-0.025em", color: "var(--ink)" }}>Toxome</span>
             </div>
-            <p style={{ fontSize: 13.5, lineHeight: 1.55, margin: 0, maxWidth: 260, color: "var(--ink)" }}>
+            <p style={{ fontSize: 13.5, lineHeight: 1.55, margin: "0 0 22px", maxWidth: 260, color: "var(--ink)" }}>
               A clothing scanner for people who want to know what&apos;s in their clothes.
             </p>
+            <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
+              {socials.map((s) => (
+                <a
+                  key={s.label}
+                  href={s.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={s.label}
+                  className="footer-social"
+                  style={{ display: "inline-flex", color: "var(--ink-3)" }}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d={s.path} />
+                  </svg>
+                </a>
+              ))}
+            </div>
           </div>
           {cols.map((c) => (
             <div key={c.h}>
@@ -116,27 +102,10 @@ export default function Footer() {
         </div>
 
         <div style={{
-          paddingTop: 40,
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-          gap: 16, flexWrap: "wrap",
+          paddingTop: 28, borderTop: "1px solid var(--hairline)",
           fontFamily: "var(--mono)", fontSize: 11, letterSpacing: ".06em",
           textTransform: "uppercase", color: "var(--ink-3)",
         }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            {socials.map((s) => (
-              <a
-                key={s.label}
-                href={s.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={s.label}
-                className="footer-social"
-                style={{ display: "inline-flex", color: "var(--ink-3)" }}
-              >
-                {s.icon}
-              </a>
-            ))}
-          </div>
           <span>© 2026 Toxome LLC</span>
         </div>
       </div>

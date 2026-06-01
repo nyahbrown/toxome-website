@@ -53,22 +53,14 @@ const BAND_LABEL: Record<FiberBand, string> = {
 
 function Section({ heading, body }: { heading: string; body: string }) {
   return (
-    <section style={{ padding: "28px 0", borderTop: "1px solid var(--hairline)" }}>
+    <section className="guide-detail-card">
       <div
         className="eyebrow"
-        style={{ color: "var(--ink-3)", marginBottom: 14 }}
+        style={{ color: "var(--ink-3)", marginBottom: 12 }}
       >
         {heading}
       </div>
-      <p
-        style={{
-          fontSize: 17,
-          lineHeight: 1.68,
-          letterSpacing: "-0.006em",
-          color: "var(--ink)",
-          margin: 0,
-        }}
-      >
+      <p className="guide-detail-card__body">
         <RichText text={body} />
       </p>
     </section>
@@ -288,7 +280,7 @@ export default async function FiberGuidePage({
           </header>
 
           {/* Sections */}
-          <div style={{ marginTop: 36 }}>
+          <div className="guide-detail-grid">
             <Section heading="What it is" body={f.whatItIs} />
             <Section heading="The health story" body={f.healthStory} />
             <Section heading="What to look for" body={f.whatToLookFor} />
