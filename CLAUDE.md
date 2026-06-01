@@ -82,9 +82,21 @@ public/
 
 ## Typography
 
-- **Headlines / display:** Cormorant (Google Fonts, `Cormorant`, loaded as a variable font 300–700 + italics) — replaced Source Serif 4. A high-contrast editorial serif set at **Light (300)** for headlines, with 500 reserved for italic emphasis. Tight tracking (-0.02em to -0.04em).
-- **Body / UI:** Inter — clean, legible. 14–18px, -0.011em tracking at body sizes.
-- **Eyebrows / labels:** System monospace — `ui-monospace, "SF Mono", Menlo, monospace`. 11px, uppercase, 0.14em tracking. Never the display font.
+Two families only. No system monospace.
+
+- **Headlines / display:** Cormorant (Google Fonts, `Cormorant`, loaded as a variable font 300–700 + italics). High-contrast editorial serif. Light (300) for headlines; Medium italic (500) for pull-quote emphasis. Tight tracking (-0.02em to -0.04em).
+- **Body / UI / Eyebrows:** Inter — handles all functional roles. Body at Regular (400), 14–19px, -0.011em tracking. Buttons/nav at Medium (500). Eyebrow labels at SemiBold (600).
+
+**Eyebrow / label treatment (Inter 600):**
+- `font-family: var(--mono)` → resolves to Inter via the `--mono: var(--sans)` token
+- `font-size: 10–11px` | `font-weight: 600` | `letter-spacing: 0.13em` | `text-transform: uppercase`
+- Color: `var(--ink-2)` (or `var(--ink-3)` for softer contexts)
+- Used on: section labels, journal kickers, article-end CTAs, share labels
+- White overrides (`color: rgba(255,255,255,0.5)`) are set as inline styles on individual elements and are not affected by the base eyebrow token
+
+**Rule:** Cormorant carries emotion and authority. Inter carries everything functional — reading, acting, labeling. Never mix roles.
+
+**Case rule:** All text renders lowercase site-wide (`text-transform: lowercase` on `body`). Exception: `.j-prose` (article reading body only) — `text-transform: none` restores natural sentence case so the author's capitalization is preserved. The article grid/index cards are lowercase (intended). All `text-transform: uppercase` instances in the codebase should be written as `text-transform: lowercase` — the eyebrow "label" look is achieved through weight (600), tracking (0.13em), and size (10–11px), not ALL CAPS.
 
 ---
 

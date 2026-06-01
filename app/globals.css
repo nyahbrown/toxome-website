@@ -26,7 +26,7 @@
   --serif: var(--font-serif), Georgia, "Times New Roman", serif;
   --sans:  var(--font-sans), -apple-system, BlinkMacSystemFont,
            "Helvetica Neue", Helvetica, Arial, system-ui, sans-serif;
-  --mono:  ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+  --mono:  var(--sans); /* eyebrow/label role — Inter at weight 600, not system mono */
   --ease:  cubic-bezier(.22, .61, .36, 1);
   --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
 }
@@ -43,6 +43,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.5;
   letter-spacing: -0.005em;
+  text-transform: lowercase;
 }
 
 a { color: inherit; text-decoration: none; }
@@ -65,9 +66,9 @@ button { font-family: inherit; }
 .eyebrow {
   font-family: var(--mono);
   font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: lowercase;
   color: var(--ink-2);
 }
 
@@ -199,10 +200,10 @@ button { font-family: inherit; }
 }
 .fiber-tile__kind {
   font-family: var(--mono);
-  font-size: 9.5px;
-  font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: lowercase;
   color: rgba(255, 255, 255, 0.88);
   text-shadow: 0 1px 8px rgba(44, 36, 32, 0.5);
 }
@@ -236,7 +237,7 @@ button { font-family: inherit; }
   margin: 0;
   font-family: var(--serif);
   font-weight: 300;
-  text-transform: uppercase;
+  text-transform: lowercase;
   letter-spacing: 0.1em;
   font-size: clamp(18px, 1.9vw, 27px);
   line-height: 1.12;
@@ -314,6 +315,7 @@ button { font-family: inherit; }
   gap: 18px;
   font-family: var(--mono);
   font-size: 11px;
+  font-weight: 600;
   letter-spacing: 0.06em;
   color: var(--ink-3);
 }
@@ -388,7 +390,7 @@ button { font-family: inherit; }
   font-size: 14px;
   letter-spacing: -0.005em;
   color: var(--ink-2);
-  text-transform: capitalize;
+  text-transform: lowercase;
 }
 .fiber-rail-item[data-active="true"] .fiber-rail-label { color: var(--ink); font-weight: 500; }
 @media (hover: hover) and (pointer: fine) {
@@ -543,8 +545,9 @@ button { font-family: inherit; }
 .j-card__kicker {
   font-family: var(--mono);
   font-size: 10.5px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: lowercase;
   color: var(--ink-3);
   margin: 16px 0 6px;
 }
@@ -577,6 +580,9 @@ button { font-family: inherit; }
 
 /* Article reading column (width container only) */
 .j-article { max-width: 680px; margin: 0 auto; }
+
+/* Prose exception — restore natural sentence case inside article body */
+.j-prose { text-transform: none; }
 
 /* Prose styling — applied only to the article body, never the header */
 .j-prose p {
@@ -651,8 +657,9 @@ button { font-family: inherit; }
 .article-cta__eyebrow {
   font-family: var(--mono);
   font-size: 10.5px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: lowercase;
   color: var(--ink-3);
   margin: 0 0 14px;
 }
@@ -687,8 +694,9 @@ button { font-family: inherit; }
 .share-bar__label {
   font-family: var(--mono);
   font-size: 10.5px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: lowercase;
   color: var(--ink-3);
   margin-right: 2px;
 }
@@ -718,8 +726,9 @@ button { font-family: inherit; }
 .share-btn__copied {
   font-family: var(--mono);
   font-size: 10.5px;
+  font-weight: 600;
   letter-spacing: 0.12em;
-  text-transform: uppercase;
+  text-transform: lowercase;
   color: var(--risk-low);
 }
 @media (prefers-reduced-motion: reduce) {
