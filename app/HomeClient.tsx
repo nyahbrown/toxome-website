@@ -340,24 +340,10 @@ function ReportSection() {
         style={{ position: "relative", paddingTop: 120, paddingBottom: 120 }}
       >
         <div style={{ maxWidth: 720, margin: "0 auto", textAlign: "center" }}>
-          <div
-            style={{
-              width: 40,
-              height: 1,
-              background: "var(--honey)",
-              margin: "0 auto 28px",
-            }}
-          />
-          <div
-            className="eyebrow"
-            style={{ color: "rgba(255,255,255,0.5)", marginBottom: 18 }}
-          >
-            Coming 2026
-          </div>
           <h2
             style={{
               fontFamily: "var(--sans)",
-              fontWeight: 700,
+              fontWeight: 400,
               fontSize: "clamp(28px, 3.4vw, 46px)",
               lineHeight: 1.14,
               letterSpacing: "-0.022em",
@@ -365,7 +351,7 @@ function ReportSection() {
               margin: 0,
             }}
           >
-            the first annual report on what we&apos;re all wearing.
+            our annual report on the state of fashion wellness.
           </h2>
           <p
             style={{
