@@ -109,12 +109,12 @@ export default function HomeClient({
             }}
           />
         </picture>
-        {/* Subtle overlay so white text stays legible */}
+        {/* Overlay so white headline + CTA stay legible over the video */}
         <div
           style={{
             position: "absolute",
             inset: 0,
-            background: "rgba(10, 6, 2, 0.28)",
+            background: "rgba(10, 6, 2, 0.42)",
           }}
         />
         {showVideo && (
@@ -147,21 +147,55 @@ export default function HomeClient({
             padding: "0 40px",
           }}
         >
-          <h1
+          <div
             style={{
-              fontFamily: "var(--serif)",
-              fontWeight: 400,
-              fontSize: "clamp(28px, 5vw, 60px)",
-              color: "var(--white)",
-              textAlign: "center",
-              lineHeight: 1.1,
-              letterSpacing: "-0.02em",
-              margin: 0,
-              maxWidth: 900,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 24,
+              maxWidth: 860,
             }}
           >
-            the future of fashion is healthy
-          </h1>
+            <h1
+              style={{
+                fontFamily: "var(--serif)",
+                fontWeight: 400,
+                fontSize: "clamp(30px, 5.2vw, 62px)",
+                color: "var(--white)",
+                textAlign: "center",
+                lineHeight: 1.12,
+                letterSpacing: "-0.02em",
+                margin: 0,
+                textWrap: "balance",
+              }}
+            >
+              60% of the average closet is made from plastic.{" "}
+              <em style={{ fontStyle: "italic", opacity: 0.94 }}>
+                yours doesn&apos;t have to be.
+              </em>
+            </h1>
+            <Link
+              href="/shop"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                height: 48,
+                padding: "0 30px",
+                borderRadius: 999,
+                background: "var(--white)",
+                color: "var(--ink)",
+                fontFamily: "var(--sans)",
+                fontSize: 15,
+                fontWeight: 500,
+                letterSpacing: "-0.005em",
+                textDecoration: "none",
+                boxShadow: "0 6px 20px -8px rgba(10, 6, 2, 0.35)",
+              }}
+            >
+              shop now
+            </Link>
+          </div>
         </div>
       </section>
 
