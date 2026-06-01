@@ -8,17 +8,21 @@ export default async function Home() {
     getPublishedProducts(),
   ]);
 
-  // The Clean Edit: the cleanest pieces that have a usable image. Lower Toxome
-  // Score = cleaner, so ascending surfaces the ones that "earned their place".
-  const cleanEdit = products
-    .filter((p) => p.item_image)
-    .sort((a, b) => (a.toxome_score ?? 999) - (b.toxome_score ?? 999))
-    .slice(0, 4);
+  // Editor's Picks — hand-selected, featured in this exact order.
+  const EDITORS_PICKS = [
+    "Erma Drop Waist Linen Dress",
+    "Mai Cashmere Hoodie Pullover",
+    "Niko Scoop Tank",
+    "Clementine Dress",
+  ];
+  const editorsPicks = EDITORS_PICKS.map((name) =>
+    products.find((p) => p.item_name === name)
+  ).filter((p): p is (typeof products)[number] => Boolean(p));
 
   // Three most recent Journal pieces for the homepage reading-room block.
   const articles = getAllArticles().slice(0, 3);
 
   return (
-    <HomeClient taxonomy={taxonomy} articles={articles} products={cleanEdit} />
+    <HomeClient taxonomy={taxonomy} articles={articles} products={editorsPicks} />
   );
 }

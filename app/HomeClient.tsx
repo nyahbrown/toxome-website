@@ -254,15 +254,15 @@ function MiniProductCard({ p }: { p: Product }) {
   );
 }
 
-/* § The Clean Edit — commerce framed as a standard, not a store. */
-function CleanEditSection({ products }: { products: Product[] }) {
+/* § Editor's Picks — hand-selected featured products. */
+function EditorsPicksSection({ products }: { products: Product[] }) {
   if (!products.length) return null;
   return (
     <section style={{ background: "var(--bg)" }}>
       <div className="shell" style={{ paddingTop: 104, paddingBottom: 104 }}>
         <div style={{ maxWidth: 600, margin: "0 auto 40px", textAlign: "center" }}>
           <div className="eyebrow" style={{ marginBottom: 14 }}>
-            The Clean Edit
+            Editor&apos;s Picks
           </div>
           <h2
             style={{
@@ -298,7 +298,7 @@ function CleanEditSection({ products }: { products: Product[] }) {
         </div>
         <div style={{ textAlign: "center", marginTop: 44 }}>
           <Link href="/shop" className="pill-cta ghost">
-            Shop the edit
+            Shop all
             <ArrowIcon />
           </Link>
         </div>
@@ -718,7 +718,7 @@ export default function HomeClient({
       </section>
 
       <JournalSection articles={articles} />
-      <CleanEditSection products={products} />
+      <EditorsPicksSection products={products} />
       <ReportSection />
       <NewsletterInline />
 
