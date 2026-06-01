@@ -103,8 +103,7 @@ export default function Footer() {
 
         <div style={{
           paddingTop: 28, borderTop: "1px solid var(--hairline)",
-          fontFamily: "var(--mono)", fontSize: 11, letterSpacing: ".06em",
-          textTransform: "uppercase", color: "var(--ink-3)",
+          fontSize: 11, letterSpacing: ".06em", color: "var(--ink-3)",
         }}>
           <span>© 2026 Toxome LLC</span>
         </div>
