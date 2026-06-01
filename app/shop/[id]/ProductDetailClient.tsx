@@ -135,6 +135,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
 
   return (
     <main
+      className="product-detail"
       style={{
         background: "var(--linen)",
         minHeight: "100vh",
