@@ -717,8 +717,8 @@ export default function HomeClient({
         </div>
       </section>
 
-      <JournalSection articles={articles} />
       <EditorsPicksSection products={products} />
+      <JournalSection articles={articles} />
       <ReportSection />
       <NewsletterInline />
 
