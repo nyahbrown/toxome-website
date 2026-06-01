@@ -456,12 +456,14 @@ button { font-family: inherit; }
 /* Footer grid */
 .footer-grid {
   display: grid;
-  grid-template-columns: 1.6fr 1fr 1fr;
-  gap: 48px;
+  /* Brand block flexes on the left; the three link columns are content-width
+     and cluster together on the right with even gaps (no edge-to-edge stretch). */
+  grid-template-columns: 1.4fr auto auto auto;
+  gap: 56px;
   margin-bottom: 56px;
 }
-@media (max-width: 900px) { .footer-grid { gap: 40px; } }
-@media (max-width: 560px) { .footer-grid { grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 48px; } }
+@media (max-width: 900px) { .footer-grid { grid-template-columns: 1fr 1fr; gap: 40px; } }
+@media (max-width: 560px) { .footer-grid { gap: 32px; margin-bottom: 48px; } }
 @media (max-width: 380px) { .footer-grid { grid-template-columns: 1fr; } }
 .footer-social { transition: color 0.15s ease; }
 .footer-social:hover { color: var(--ink); }
