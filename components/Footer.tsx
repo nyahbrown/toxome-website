@@ -30,7 +30,7 @@ const socials: Social[] = [
 
 const cols: FooterCol[] = [
   {
-    h: "Explore",
+    h: "Index",
     items: [
       { label: "Shop", href: "/shop" },
       { label: "Fabric guide", href: "/guide" },
