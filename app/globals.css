@@ -378,6 +378,12 @@ button { font-family: inherit; }
   object-fit: cover;
   transition: transform 600ms var(--ease-out-strong);
 }
+/* Second-view photo that crossfades in on hover (e.g. wool). */
+.fiber-rail-hover {
+  opacity: 0;
+  transition: opacity 450ms var(--ease-out-strong),
+    transform 600ms var(--ease-out-strong);
+}
 .fiber-rail-tint { position: absolute; inset: 0; background: rgba(59, 60, 58, 0.12); }
 .fiber-rail-label {
   margin-top: 12px;
@@ -390,6 +396,7 @@ button { font-family: inherit; }
 .fiber-rail-item[data-active="true"] .fiber-rail-label { color: var(--ink); font-weight: 500; }
 @media (hover: hover) and (pointer: fine) {
   .fiber-rail-item:hover .fiber-rail-img img { transform: scale(1.04); }
+  .fiber-rail-item:hover .fiber-rail-hover { opacity: 1; }
 }
 /* Carousel arrows are bare chevrons, never enclosed in a circle or button
    shape. See DESIGN.md (Carousels & scroll affordances). */

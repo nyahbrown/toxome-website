@@ -25,12 +25,12 @@ const SECTION_META: Record<
   home: { title: "home" },
 };
 
-const FIBERS: { name: string; image: string }[] = [
+const FIBERS: { name: string; image: string; hover?: string }[] = [
   { name: "organic cotton", image: "/fibers/guide/organic_cotton.jpg" },
   { name: "silk", image: "/fibers/guide/silk.jpg" },
   { name: "linen", image: "/fibers/guide/linen.jpg" },
   { name: "hemp", image: "/fibers/guide/hemp.jpg" },
-  { name: "wool", image: "/fibers/guide/wool.jpg" },
+  { name: "wool", image: "/fibers/guide/wool.jpg", hover: "/fibers/guide/wool-2.jpg" },
   { name: "alpaca", image: "/fibers/guide/alpaca.jpg" },
   { name: "cashmere", image: "/fibers/guide/cashmere.jpg" },
   { name: "ramie", image: "/fibers/guide/ramie.jpg" },
@@ -643,6 +643,16 @@ export default function ShopClient({
                   <div className="fiber-rail-img">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={fiber.image} alt={fiber.name} loading="lazy" />
+                    {fiber.hover && (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        className="fiber-rail-hover"
+                        src={fiber.hover}
+                        alt=""
+                        aria-hidden="true"
+                        loading="lazy"
+                      />
+                    )}
                     {active && <div className="fiber-rail-tint" />}
                   </div>
                   <div className="fiber-rail-label">{fiber.name}</div>
