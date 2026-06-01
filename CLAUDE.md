@@ -84,8 +84,10 @@ public/
 
 Two families only. No system monospace.
 
-- **Headlines / display:** Cormorant (Google Fonts, `Cormorant`, loaded as a variable font 300–700 + italics). High-contrast editorial serif. Light (300) for headlines; Medium italic (500) for pull-quote emphasis. Tight tracking (-0.02em to -0.04em).
-- **Body / UI / Eyebrows:** Inter — handles all functional roles. Body at Regular (400), 14–19px, -0.011em tracking. Buttons/nav at Medium (500). Eyebrow labels at SemiBold (600).
+- **Cormorant (serif) — PAGE HEADERS ONLY (LOCKED 2026-06-01):** Cormorant appears on exactly ONE element per page — that page's single top headline (homepage hero h1, page-title h1). NOTHING else uses it: not section headlines, not card titles, not deks. Loaded as a variable font via `--serif`/`--font-serif` (keep the import). Homepage hero runs Medium (500).
+- **Inter — EVERYTHING else:** section headlines, card titles, body, deks, labels, buttons, nav, eyebrows. -0.011em tracking; Medium (500) for buttons/nav; SemiBold (600) for eyebrow labels.
+- **Body size — 16px (LOCKED 2026-06-01):** Non-header body/supporting copy is **16px**; for emphasis use **bold weight, never a larger size**. EXEMPT (keep their own sizes): all headings (page H1 + section headlines + card-title headings), the homepage hero subtext, display stat numbers (e.g. account closet score), eyebrows/micro-labels, buttons/inputs, and the product grid (shop ProductCard + homepage MiniProductCard).
+- **No divider lines (LOCKED 2026-06-01):** Never use hairline/divider rule lines — `borderTop`/`borderBottom` separators, `.soft-divider`, `<hr>`, section-dividing `--hairline`/`--line` rules. Separate sections with spacing, not lines. (Box outlines on cards/inputs/buttons/images are fine — those are not divider lines.)
 
 **Eyebrow / label treatment (Inter 600):**
 - `font-family: var(--mono)` → resolves to Inter via the `--mono: var(--sans)` token
