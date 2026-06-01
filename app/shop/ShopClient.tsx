@@ -197,12 +197,11 @@ function ProductCard({
 
       {/* Info below card */}
       <div style={{ paddingTop: 20 }}>
-        <h3
+        <h2
           style={{
             fontFamily: "var(--serif)",
-            fontSize: 18,
+            fontSize: 20,
             fontWeight: 400,
-            textTransform: "lowercase",
             lineHeight: 1.2,
             letterSpacing: "-0.015em",
             color: "var(--ink)",
@@ -210,7 +209,7 @@ function ProductCard({
           }}
         >
           {p.item_name}
-        </h3>
+        </h2>
         <p
           style={{
             fontSize: 14,
