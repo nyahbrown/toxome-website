@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
@@ -67,17 +67,6 @@ export default function HomeClient({
 }: {
   taxonomy: ShopTaxonomy;
 }) {
-  // The 11MB hero video downloads eagerly and starves the page's JS chunk
-  // loads on a real network, which blocked React hydration on the homepage
-  // (nav dropdowns dead, no navigation). Defer it until after hydration —
-  // this effect only runs once the page is interactive, so the JS loads and
-  // hydrates first, then the video mounts and plays. The poster image below
-  // shows instantly, so there's no visual change.
-  const [showVideo, setShowVideo] = useState(false);
-  useEffect(() => {
-    setShowVideo(true);
-  }, []);
-
   return (
     <div style={{ background: "var(--bg)" }}>
       <Nav taxonomy={taxonomy} />
@@ -88,54 +77,33 @@ export default function HomeClient({
           position: "relative",
           height: 670,
           overflow: "hidden",
-          background: "var(--espresso)",
+          background: "var(--ink)",
         }}
       >
-        <picture>
-          <source srcSet="/hero-bg.avif" type="image/avif" />
-          <source srcSet="/hero-bg.webp" type="image/webp" />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/hero-bg.png"
-            alt=""
-            fetchPriority="high"
-            style={{
-              position: "absolute",
-              inset: 0,
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              objectPosition: "center",
-            }}
-          />
-        </picture>
-        {/* Overlay so white headline + CTA stay legible over the video */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/hero-field.jpg"
+          alt="A farmer gathering grasses in a paddy field — natural fiber at its source"
+          fetchPriority="high"
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            objectPosition: "center 40%",
+          }}
+        />
+        {/* Overlay so the white headline + CTA stay legible over the photo —
+            slightly deeper through the middle where the text sits. */}
         <div
           style={{
             position: "absolute",
             inset: 0,
-            background: "rgba(10, 6, 2, 0.42)",
+            background:
+              "linear-gradient(180deg, rgba(10,6,2,0.30) 0%, rgba(10,6,2,0.50) 52%, rgba(10,6,2,0.42) 100%)",
           }}
         />
-        {showVideo && (
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="none"
-            poster="/hero-bg.webp"
-            style={{
-              position: "absolute",
-              inset: 0,
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-            }}
-          >
-            <source src="/meditation.mp4" type="video/mp4" />
-          </video>
-        )}
 
         <div
           style={{
@@ -152,28 +120,50 @@ export default function HomeClient({
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              gap: 24,
-              maxWidth: 860,
+              gap: 32,
+              maxWidth: 720,
             }}
           >
-            <h1
+            <div
               style={{
-                fontFamily: "var(--serif)",
-                fontWeight: 400,
-                fontSize: "clamp(30px, 5.2vw, 62px)",
-                color: "var(--white)",
-                textAlign: "center",
-                lineHeight: 1.12,
-                letterSpacing: "-0.02em",
-                margin: 0,
-                textWrap: "balance",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 16,
               }}
             >
-              60% of the average closet is made from plastic.{" "}
-              <em style={{ fontStyle: "italic", opacity: 0.94 }}>
+              <h1
+                style={{
+                  fontFamily: "var(--serif)",
+                  fontWeight: 300,
+                  fontSize: "clamp(27px, 4.2vw, 48px)",
+                  color: "var(--white)",
+                  textAlign: "center",
+                  lineHeight: 1.2,
+                  letterSpacing: "-0.018em",
+                  margin: 0,
+                  textWrap: "balance",
+                }}
+              >
+                60% of the average closet is made from plastic.
+              </h1>
+              <p
+                style={{
+                  fontFamily: "var(--serif)",
+                  fontStyle: "italic",
+                  fontWeight: 300,
+                  fontSize: "clamp(18px, 2.4vw, 26px)",
+                  color: "var(--white)",
+                  opacity: 0.92,
+                  textAlign: "center",
+                  lineHeight: 1.3,
+                  letterSpacing: "-0.01em",
+                  margin: 0,
+                }}
+              >
                 yours doesn&apos;t have to be.
-              </em>
-            </h1>
+              </p>
+            </div>
             <Link
               href="/shop"
               style={{
@@ -208,7 +198,7 @@ export default function HomeClient({
           <h2
             style={{
               fontFamily: "var(--serif)",
-              fontWeight: 400,
+              fontWeight: 300,
               fontSize: "clamp(24px, 3vw, 36px)",
               lineHeight: 1.15,
               letterSpacing: "-0.018em",
