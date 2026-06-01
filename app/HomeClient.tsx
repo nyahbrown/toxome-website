@@ -685,7 +685,7 @@ export default function HomeClient({
           </p>
           <div className="fiber-grid">
             {FIBERS.map((f) => (
-              <FiberTile key={f.name} name={f.name} image={f.image} />
+              <FiberTile key={f.name} name={f.name} image={f.image} hover={f.hover} />
             ))}
           </div>
         </div>
