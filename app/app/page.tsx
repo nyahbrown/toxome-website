@@ -127,29 +127,53 @@ export default async function AppPage() {
         </div>
       </header>
 
-      {/* Phone screenshot — the proof shot */}
+      {/* Phone screenshot — the proof shot, framed as an iPhone */}
       <section className="shell" style={{ paddingTop: 56 }}>
         <div
           style={{
+            position: "relative",
             width: "100%",
             maxWidth: 300,
             margin: "0 auto",
-            borderRadius: 40,
-            overflow: "hidden",
-            border: "1px solid var(--hairline)",
+            background: "var(--ink)",
+            borderRadius: 56,
+            padding: 11,
             boxShadow:
-              "0 36px 70px -34px rgba(59,60,58,0.34), 0 12px 26px -16px rgba(59,60,58,0.16)",
+              "0 42px 80px -34px rgba(59,60,58,0.42), 0 14px 30px -18px rgba(59,60,58,0.22)",
           }}
         >
-          <Image
-            src="/app-screenshot.png"
-            alt="The Toxome app showing a scanned garment: a 72 'High' hazard level, a composition breakdown of 50% acrylic, 30% nylon, and 20% wool, and a health-impact list flagging endocrine disruption, breathability, and skin irritation."
-            width={1125}
-            height={2436}
-            sizes="(max-width: 360px) 100vw, 300px"
-            style={{ display: "block", width: "100%", height: "auto" }}
-            priority
-          />
+          <div
+            style={{
+              position: "relative",
+              borderRadius: 46,
+              overflow: "hidden",
+              background: "var(--ink)",
+            }}
+          >
+            <Image
+              src="/app-screenshot.png"
+              alt="The Toxome app showing a scanned garment: a 72 'High' hazard level, a composition breakdown of 50% acrylic, 30% nylon, and 20% wool, and a health-impact list flagging endocrine disruption, breathability, and skin irritation."
+              width={1125}
+              height={2436}
+              sizes="(max-width: 360px) 100vw, 280px"
+              style={{ display: "block", width: "100%", height: "auto" }}
+              priority
+            />
+            {/* Dynamic Island */}
+            <div
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                top: 12,
+                left: "50%",
+                transform: "translateX(-50%)",
+                width: 82,
+                height: 23,
+                borderRadius: 999,
+                background: "#1d1e1c",
+              }}
+            />
+          </div>
         </div>
       </section>
 
@@ -300,12 +324,27 @@ export default async function AppPage() {
           <div
             style={{
               display: "flex",
+              flexDirection: "column",
               alignItems: "center",
-              justifyContent: "center",
-              gap: 28,
-              flexWrap: "wrap",
+              gap: 16,
             }}
           >
+            <Image
+              src="/app-store-qr.svg"
+              alt="QR code to download the Toxome app"
+              width={148}
+              height={148}
+              style={{ display: "block", height: 148, width: 148 }}
+            />
+            <span
+              style={{
+                fontSize: 12,
+                letterSpacing: "0.04em",
+                color: "var(--ink-3)",
+              }}
+            >
+              Scan to download
+            </span>
             <a
               href={APP_STORE}
               target="_blank"
@@ -321,26 +360,6 @@ export default async function AppPage() {
                 style={{ display: "block", height: 50, width: "auto" }}
               />
             </a>
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <Image
-                src="/app-store-qr.svg"
-                alt="QR code to download the Toxome app"
-                width={64}
-                height={64}
-                style={{ display: "block", height: 64, width: 64 }}
-              />
-              <span
-                style={{
-                  fontSize: 13,
-                  lineHeight: 1.4,
-                  color: "var(--ink-3)",
-                  textAlign: "left",
-                  maxWidth: 90,
-                }}
-              >
-                Scan to download
-              </span>
-            </div>
           </div>
         </div>
       </section>
