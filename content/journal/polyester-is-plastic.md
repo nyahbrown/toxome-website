@@ -4,7 +4,8 @@ dek: "Your gym top and a soda bottle start in nearly the same place. Here is wha
 date: "2026-06-01"
 pillar: "Fabric Science"
 mode: "educational"
-hero: "/fibers/wool.jpg"
+hero: "/journal/polyester-is-plastic.jpg"
+heroAlt: "An extreme close-up of human skin in warm light, its fine diamond-patterned texture filling the frame."
 keywords:
   - "is polyester bad for you"
   - "polyester is plastic"
