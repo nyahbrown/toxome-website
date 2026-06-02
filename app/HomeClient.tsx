@@ -141,9 +141,7 @@ function NamingSection() {
             }}
           >
             The idea that what you wear is a health decision — like what you
-            eat, or what you put on your skin. Your food has a label. Your water
-            has a watchdog. The fabric against your skin all day has neither.
-            That&apos;s the room we built Toxome to fill.
+            eat, or what you put on your skin.
           </p>
         </div>
       </div>
@@ -631,7 +629,7 @@ export default function HomeClient({
                   margin: 0,
                 }}
               >
-                You don&apos;t have to be average.
+                yours doesn&apos;t have to be.
               </p>
             </div>
             <Link
