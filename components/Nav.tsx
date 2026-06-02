@@ -330,28 +330,6 @@ export default function Nav({
               </Link>
             );
           })}
-          <a
-            href="https://apps.apple.com/us/app/toxome/id6748622034"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => setMenuOpen(false)}
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              height: 50,
-              marginTop: 24,
-              borderRadius: 999,
-              background: "var(--ink)",
-              color: "var(--white)",
-              fontSize: 16,
-              fontWeight: 500,
-              letterSpacing: "-0.005em",
-              textDecoration: "none",
-            }}
-          >
-            download app
-          </a>
         </div>
       )}
     </nav>
