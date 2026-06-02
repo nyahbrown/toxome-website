@@ -116,7 +116,7 @@ function NamingSection() {
       <div className="shell">
         <div style={{ maxWidth: 720, margin: "0 auto", textAlign: "center" }}>
           <div className="eyebrow" style={{ marginBottom: 20 }}>
-            A new category
+            the next frontier
           </div>
           <h2
             style={{
@@ -604,7 +604,7 @@ export default function HomeClient({
             >
               <h1
                 style={{
-                  fontFamily: "var(--serif)",
+                  fontFamily: "var(--sans)",
                   fontWeight: 500,
                   fontSize: "clamp(27px, 4.2vw, 48px)",
                   color: "var(--white)",
