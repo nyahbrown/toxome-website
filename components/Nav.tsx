@@ -7,6 +7,13 @@ import { usePathname } from "next/navigation";
 import NavDropdown from "./NavDropdown";
 import type { ShopTaxonomy } from "@/lib/supabase";
 
+const MOBILE_LINKS = [
+  { label: "shop", href: "/shop" },
+  { label: "guide", href: "/guide" },
+  { label: "journal", href: "/journal" },
+  { label: "account", href: "/account" },
+];
+
 const FALLBACK_TAXONOMY: ShopTaxonomy = {
   women: ["Activewear", "Bottoms", "Outerwear", "Tops"],
   men: ["Activewear", "Bottoms", "Outerwear", "Tops"],
@@ -45,8 +52,13 @@ export default function Nav({
 } = {}) {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const isHome = pathname === "/";
-  const transparent = isHome && !scrolled;
+  // The bar reads as transparent only on the homepage hero before scroll AND
+  // while the mobile menu is closed (open menu = cream surface behind it).
+  const transparent = isHome && !scrolled && !menuOpen;
+  const hamburgerColor =
+    isHome && !scrolled && !menuOpen ? "rgba(255,255,255,0.95)" : "var(--ink)";
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60);
@@ -54,6 +66,26 @@ export default function Nav({
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // Close the mobile menu on navigation.
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
+
+  // Lock body scroll + close on Escape while the mobile menu is open.
+  useEffect(() => {
+    if (!menuOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMenuOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [menuOpen]);
 
   return (
     <nav
@@ -112,7 +144,10 @@ export default function Nav({
               Toxome
             </span>
           </Link>
-          <div style={{ display: "flex", gap: 28, alignItems: "center" }}>
+          <div
+            className="nav-links-inline"
+            style={{ display: "flex", gap: 28, alignItems: "center" }}
+          >
             <NavDropdown
               label="shop"
               href="/shop"
@@ -211,6 +246,7 @@ export default function Nav({
             </a>
           <Link
             href="/account"
+            className="nav-desktop-only"
             style={{
               fontSize: 14,
               fontWeight: 400,
@@ -222,8 +258,102 @@ export default function Nav({
           >
             account
           </Link>
+          {/* Hamburger — phones only. Toggles the full-width mobile menu. */}
+          <button
+            type="button"
+            className="nav-mobile-only"
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((o) => !o)}
+            style={{
+              alignItems: "center",
+              justifyContent: "center",
+              width: 40,
+              height: 40,
+              margin: "0 -8px 0 0",
+              background: "transparent",
+              border: "none",
+              cursor: "pointer",
+              color: hamburgerColor,
+              transition: "color 300ms ease",
+            }}
+          >
+            {menuOpen ? (
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M5 5l14 14M19 5L5 19" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              </svg>
+            ) : (
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M3 6.5h18M3 12h18M3 17.5h18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              </svg>
+            )}
+          </button>
         </div>
       </div>
+
+      {/* Mobile menu — full-width cream panel under the bar, phones only. */}
+      {menuOpen && (
+        <div
+          className="nav-mobile-menu"
+          style={{
+            position: "fixed",
+            top: 64,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "var(--cream)",
+            display: "flex",
+            flexDirection: "column",
+            padding: "16px 20px 40px",
+            overflowY: "auto",
+          }}
+        >
+          {MOBILE_LINKS.map((link) => {
+            const active =
+              pathname === link.href || pathname.startsWith(`${link.href}/`);
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setMenuOpen(false)}
+                style={{
+                  fontFamily: "var(--sans)",
+                  fontSize: 24,
+                  fontWeight: 500,
+                  letterSpacing: "-0.02em",
+                  color: active ? "var(--ink)" : "var(--ink-2)",
+                  textDecoration: "none",
+                  padding: "18px 0",
+                }}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
+          <a
+            href="https://apps.apple.com/us/app/toxome/id6748622034"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => setMenuOpen(false)}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              height: 50,
+              marginTop: 24,
+              borderRadius: 999,
+              background: "var(--ink)",
+              color: "var(--white)",
+              fontSize: 16,
+              fontWeight: 500,
+              letterSpacing: "-0.005em",
+              textDecoration: "none",
+            }}
+          >
+            download app
+          </a>
+        </div>
+      )}
     </nav>
   );
 }

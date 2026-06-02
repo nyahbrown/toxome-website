@@ -475,9 +475,13 @@ button { font-family: inherit; }
 .footer-social { transition: color 0.15s ease; }
 .footer-social:hover { color: var(--ink); }
 
-/* Nav: hide the search field + download pill on phones (the bar would overflow). */
+/* Nav: phones collapse to logo + hamburger. Desktop-only items (search,
+   download pill, inline links, account) hide; the hamburger appears. */
+.nav-mobile-only { display: none; }
 @media (max-width: 768px) {
   .nav-desktop-only { display: none !important; }
+  .nav-links-inline { display: none !important; }
+  .nav-mobile-only { display: inline-flex !important; }
 }
 
 /* Product image skeleton — branded shimmer shown until the image decodes. */
