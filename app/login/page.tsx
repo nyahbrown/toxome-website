@@ -51,9 +51,11 @@ function LoginContent() {
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [resetSent, setResetSent] = useState(false);
-  // Optional newsletter opt-in shown on the create-account form. Unchecked by
-  // default (explicit opt-in only).
-  const [subscribeNewsletter, setSubscribeNewsletter] = useState(false);
+  // Newsletter opt-in shown on the create-account form, default selected.
+  const [subscribeNewsletter, setSubscribeNewsletter] = useState(true);
+  // Social-first: the email/password form is collapsed until the visitor taps
+  // "or … with email".
+  const [emailOpen, setEmailOpen] = useState(false);
 
   // Redirect if already signed in
   useEffect(() => {
@@ -265,10 +267,10 @@ function LoginContent() {
           </div>
           <h1
             style={{
-              fontFamily: "var(--serif)",
-              fontWeight: 300,
-              fontSize: 29,
-              letterSpacing: "-0.025em",
+              fontFamily: "var(--sans)",
+              fontWeight: 500,
+              fontSize: 24,
+              letterSpacing: "-0.02em",
               color: "var(--ink)",
               margin: "0 0 10px",
             }}
@@ -300,171 +302,178 @@ function LoginContent() {
           </button>
         </div>
 
-        {/* Divider */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-            margin: "24px 0",
-          }}
-        >
-          <div style={{ flex: 1, height: 1, background: "var(--hairline-strong)" }} />
-          <span
-            style={{
-              fontFamily: "var(--mono)",
-              fontSize: 10,
-              letterSpacing: ".12em",
-              textTransform: "uppercase",
-              color: "var(--ink-3)",
-            }}
-          >
-            or
-          </span>
-          <div style={{ flex: 1, height: 1, background: "var(--hairline-strong)" }} />
-        </div>
-
-        {/* Email form */}
-        <form onSubmit={handleEmailSubmit} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          <input
-            type="email"
-            placeholder="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            style={inputStyle}
-          />
-          <input
-            type="password"
-            placeholder="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            style={inputStyle}
-          />
-
-          {mode === "signin" && (
-            <div style={{ textAlign: "center", marginTop: -2 }}>
+        {/* Email — social-first; the email/password form expands on tap. */}
+        <div style={{ marginTop: 18 }}>
+          {!emailOpen ? (
+            <div style={{ textAlign: "center" }}>
               <button
                 type="button"
-                onClick={handleForgotPassword}
+                onClick={() => setEmailOpen(true)}
+                aria-expanded={emailOpen}
                 style={{
                   background: "none",
                   border: "none",
                   cursor: "pointer",
                   fontFamily: "var(--sans)",
-                  fontSize: 12,
+                  fontSize: 13,
                   color: "var(--ink-3)",
                   letterSpacing: "-0.005em",
-                  padding: "2px 0",
-                  textDecoration: "underline",
-                  textUnderlineOffset: 3,
+                  padding: "6px 0",
                 }}
               >
-                forgot password?
+                or{" "}
+                <span style={{ textDecoration: "underline", textUnderlineOffset: 3, color: "var(--ink-2)" }}>
+                  {mode === "signin" ? "log in with email" : "sign up with email"}
+                </span>
               </button>
             </div>
-          )}
-
-          {resetSent && (
-            <p
-              style={{
-                fontFamily: "var(--sans)",
-                fontSize: 13,
-                color: "var(--ink-2)",
-                margin: "4px 0 0",
-                letterSpacing: "-0.005em",
-              }}
+          ) : (
+            <form
+              onSubmit={handleEmailSubmit}
+              className="auth-email-reveal"
+              style={{ display: "flex", flexDirection: "column", gap: 10 }}
             >
-              If an account exists for that email, a reset link is on its way.
-              Check your inbox (and spam).
-            </p>
+              <input
+                type="email"
+                placeholder="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                style={inputStyle}
+              />
+              <input
+                type="password"
+                placeholder="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                style={inputStyle}
+              />
+
+              {mode === "signin" && (
+                <div style={{ textAlign: "center", marginTop: -2 }}>
+                  <button
+                    type="button"
+                    onClick={handleForgotPassword}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      fontFamily: "var(--sans)",
+                      fontSize: 12,
+                      color: "var(--ink-3)",
+                      letterSpacing: "-0.005em",
+                      padding: "2px 0",
+                      textDecoration: "underline",
+                      textUnderlineOffset: 3,
+                    }}
+                  >
+                    forgot password?
+                  </button>
+                </div>
+              )}
+
+              {resetSent && (
+                <p
+                  style={{
+                    fontFamily: "var(--sans)",
+                    fontSize: 13,
+                    color: "var(--ink-2)",
+                    margin: "4px 0 0",
+                    letterSpacing: "-0.005em",
+                  }}
+                >
+                  If an account exists for that email, a reset link is on its way.
+                  Check your inbox (and spam).
+                </p>
+              )}
+
+              {mode === "signup" && (
+                <button
+                  type="button"
+                  role="checkbox"
+                  aria-checked={subscribeNewsletter}
+                  onClick={() => setSubscribeNewsletter((v) => !v)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    width: "100%",
+                    background: "none",
+                    border: "none",
+                    padding: "2px 0",
+                    cursor: "pointer",
+                    textAlign: "left",
+                  }}
+                >
+                  <span
+                    style={{
+                      flexShrink: 0,
+                      width: 18,
+                      height: 18,
+                      borderRadius: 5,
+                      border: `1px solid ${
+                        subscribeNewsletter ? "var(--ink)" : "var(--hairline-strong)"
+                      }`,
+                      background: subscribeNewsletter ? "var(--ink)" : "transparent",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      transition: "background 140ms ease, border-color 140ms ease",
+                    }}
+                  >
+                    {subscribeNewsletter && (
+                      <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                        <path
+                          d="M2.5 6.2l2.2 2.2 4.8-4.8"
+                          stroke="var(--white)"
+                          strokeWidth="1.6"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    )}
+                  </span>
+                  <span
+                    style={{
+                      fontFamily: "var(--sans)",
+                      fontSize: 13,
+                      lineHeight: 1.45,
+                      letterSpacing: "-0.005em",
+                      color: "var(--ink-2)",
+                    }}
+                  >
+                    subscribe to weekly newsletter
+                  </span>
+                </button>
+              )}
+
+              <button type="submit" style={submitButtonStyle} disabled={submitting}>
+                {submitting ? "..." : mode === "signin" ? "sign in" : "create account"}
+              </button>
+            </form>
           )}
+        </div>
 
-          {error && (
-            <p
-              style={{
-                fontFamily: "var(--sans)",
-                fontSize: 13,
-                color: "var(--red)",
-                margin: "4px 0 0",
-                letterSpacing: "-0.005em",
-              }}
-            >
-              {error}
-            </p>
-          )}
+        {error && (
+          <p
+            style={{
+              fontFamily: "var(--sans)",
+              fontSize: 13,
+              color: "var(--red)",
+              margin: "12px 0 0",
+              letterSpacing: "-0.005em",
+              textAlign: "center",
+            }}
+          >
+            {error}
+          </p>
+        )}
 
-          {mode === "signup" && (
-            <button
-              type="button"
-              role="checkbox"
-              aria-checked={subscribeNewsletter}
-              onClick={() => setSubscribeNewsletter((v) => !v)}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-                gap: 10,
-                width: "100%",
-                background: "none",
-                border: "none",
-                padding: "2px 0",
-                cursor: "pointer",
-                textAlign: "left",
-              }}
-            >
-              <span
-                style={{
-                  flexShrink: 0,
-                  marginTop: 1,
-                  width: 18,
-                  height: 18,
-                  borderRadius: 5,
-                  border: `1px solid ${
-                    subscribeNewsletter ? "var(--ink)" : "var(--hairline-strong)"
-                  }`,
-                  background: subscribeNewsletter ? "var(--ink)" : "transparent",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  transition: "background 140ms ease, border-color 140ms ease",
-                }}
-              >
-                {subscribeNewsletter && (
-                  <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                    <path
-                      d="M2.5 6.2l2.2 2.2 4.8-4.8"
-                      stroke="var(--white)"
-                      strokeWidth="1.6"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                )}
-              </span>
-              <span
-                style={{
-                  fontFamily: "var(--sans)",
-                  fontSize: 13,
-                  lineHeight: 1.45,
-                  letterSpacing: "-0.005em",
-                  color: "var(--ink-2)",
-                }}
-              >
-                email me the weekly report — fashion wellness science, no spam.
-              </span>
-            </button>
-          )}
-
-          <button type="submit" style={submitButtonStyle} disabled={submitting}>
-            {submitting ? "..." : mode === "signin" ? "sign in" : "create account"}
-          </button>
-
-          <ConsentNote
-            lead="By continuing, you agree to our"
-            style={{ marginTop: 6 }}
-          />
-        </form>
+        <ConsentNote
+          lead="By continuing, you agree to our"
+          style={{ marginTop: 16 }}
+        />
 
         {/* Toggle mode */}
         <div style={{ textAlign: "center", marginTop: 20 }}>

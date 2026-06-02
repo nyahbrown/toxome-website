@@ -456,6 +456,16 @@ button { font-family: inherit; }
 @media (max-width: 640px)  { .product-grid { grid-template-columns: repeat(2, 1fr); column-gap: 14px; row-gap: 34px; } }
 @media (max-width: 380px)  { .product-grid { column-gap: 12px; row-gap: 28px; } }
 
+/* Login: email/password form revealed when "or … with email" is tapped. */
+@keyframes auth-email-reveal {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: none; }
+}
+.auth-email-reveal { animation: auth-email-reveal 220ms var(--ease-out-strong); }
+@media (prefers-reduced-motion: reduce) {
+  .auth-email-reveal { animation: none; }
+}
+
 /* Shop "Filter by" bar — label + filter/sort pills. On desktop the sort pill
    is pushed to the right; on phones everything wraps left-aligned in even rows
    instead of stacking with a floating sort control. */
