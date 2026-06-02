@@ -291,46 +291,92 @@ export default function Nav({
         </div>
       </div>
 
-      {/* Mobile menu — full-width cream panel under the bar, phones only. */}
+      {/* Mobile menu — right-side sheet with a dimmed backdrop, phones only. */}
       {menuOpen && (
-        <div
-          className="nav-mobile-menu"
-          style={{
-            position: "fixed",
-            top: 64,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: "var(--cream)",
-            display: "flex",
-            flexDirection: "column",
-            padding: "16px 20px 40px",
-            overflowY: "auto",
-          }}
-        >
-          {MOBILE_LINKS.map((link) => {
-            const active =
-              pathname === link.href || pathname.startsWith(`${link.href}/`);
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
+        <>
+          <div
+            className="nav-sheet-backdrop"
+            onClick={() => setMenuOpen(false)}
+            style={{
+              position: "fixed",
+              inset: 0,
+              background: "rgba(59,60,58,0.38)",
+            }}
+          />
+          <aside
+            className="nav-sheet"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Menu"
+            style={{
+              position: "fixed",
+              top: 0,
+              right: 0,
+              bottom: 0,
+              width: "min(82vw, 320px)",
+              background: "var(--cream)",
+              boxShadow: "-16px 0 48px -16px rgba(59,60,58,0.28)",
+              display: "flex",
+              flexDirection: "column",
+              padding: "16px 24px 40px",
+              overflowY: "auto",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                height: 48,
+                alignItems: "center",
+                marginBottom: 8,
+              }}
+            >
+              <button
+                type="button"
+                aria-label="Close menu"
                 onClick={() => setMenuOpen(false)}
                 style={{
-                  fontFamily: "var(--sans)",
-                  fontSize: 24,
-                  fontWeight: 500,
-                  letterSpacing: "-0.02em",
-                  color: active ? "var(--ink)" : "var(--ink-2)",
-                  textDecoration: "none",
-                  padding: "18px 0",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: 40,
+                  height: 40,
+                  margin: "0 -8px 0 0",
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "var(--ink)",
                 }}
               >
-                {link.label}
-              </Link>
-            );
-          })}
-        </div>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M5 5l14 14M19 5L5 19" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
+            {MOBILE_LINKS.map((link) => {
+              const active =
+                pathname === link.href || pathname.startsWith(`${link.href}/`);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMenuOpen(false)}
+                  style={{
+                    fontFamily: "var(--sans)",
+                    fontSize: 24,
+                    fontWeight: 500,
+                    letterSpacing: "-0.02em",
+                    color: active ? "var(--ink)" : "var(--ink-2)",
+                    textDecoration: "none",
+                    padding: "16px 0",
+                  }}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+          </aside>
+        </>
       )}
     </nav>
   );
