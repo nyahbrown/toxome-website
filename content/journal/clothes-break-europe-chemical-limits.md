@@ -4,7 +4,8 @@ dek: "Scientists tested 111 everyday pieces of clothing. What they found, and wh
 date: "2026-06-01"
 pillar: "In the News"
 mode: "news"
-hero: "/fibers/cotton.jpg"
+hero: "/journal/clothes-break-europe-chemical-limits.jpg"
+heroAlt: "A nutrition-style \"Clothing Facts\" label listing a garment's materials, chemical toxicity, environmental impact, and country of origin, set against a blurred green backdrop."
 keywords:
   - "chemicals in clothing"
   - "bisphenol in clothes"
