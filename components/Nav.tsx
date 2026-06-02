@@ -88,6 +88,7 @@ export default function Nav({
   }, [menuOpen]);
 
   return (
+    <>
     <nav
       style={{
         position: "fixed",
@@ -290,8 +291,12 @@ export default function Nav({
           </button>
         </div>
       </div>
+    </nav>
 
-      {/* Mobile menu — right-side sheet with a dimmed backdrop, phones only. */}
+      {/* Mobile menu — right-side sheet with a dimmed backdrop, phones only.
+          Rendered OUTSIDE <nav> on purpose: the nav's backdrop-filter would
+          otherwise become the containing block for these fixed elements and
+          clip the sheet to the 64px bar height. */}
       {menuOpen && (
         <>
           <div
@@ -378,7 +383,7 @@ export default function Nav({
           </aside>
         </>
       )}
-    </nav>
+    </>
   );
 }
 
