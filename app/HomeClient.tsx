@@ -111,7 +111,7 @@ function ArrowIcon() {
 /* § The naming moment — plant the category flag. Pure belief, no CTA. */
 function NamingSection() {
   return (
-    <section style={{ padding: "112px 0 0" }}>
+    <section style={{ padding: "clamp(64px, 12vw, 112px) 0 0" }}>
       <div className="shell">
         <div style={{ maxWidth: 720, margin: "0 auto", textAlign: "center" }}>
           <div className="eyebrow" style={{ marginBottom: 20 }}>
@@ -167,7 +167,7 @@ function NamingSection() {
 function JournalSection({ articles }: { articles: Article[] }) {
   if (!articles.length) return null;
   return (
-    <section className="shell" style={{ paddingTop: 104, paddingBottom: 104 }}>
+    <section className="shell" style={{ paddingBlock: "clamp(56px, 11vw, 104px)" }}>
       <div
         style={{
           display: "flex",
@@ -288,7 +288,10 @@ function EditorsPicksSection({ products }: { products: Product[] }) {
   if (!products.length) return null;
   return (
     <section style={{ background: "var(--bg)" }}>
-      <div className="shell" style={{ paddingTop: 104, paddingBottom: 104 }}>
+      <div
+        className="shell"
+        style={{ paddingBlock: "clamp(56px, 11vw, 104px)" }}
+      >
         <div style={{ maxWidth: 600, margin: "0 auto 40px", textAlign: "center" }}>
           <div className="eyebrow" style={{ marginBottom: 14 }}>
             Editor&apos;s Picks
@@ -352,17 +355,15 @@ function NewsletterSection() {
     setState("submitting");
     setErrorMessage("");
     try {
-      const { supabase } = await import("@/lib/supabase");
-      const { error } = await supabase
-        .from("newsletter_signups")
-        .insert({ email: trimmed, source: "homepage_newsletter" });
-      if (error) {
-        // Duplicate = already subscribed; honor it as success.
-        if (error.code === "23505") {
-          setState("success");
-          return;
-        }
-        throw error;
+      // Captures to Supabase AND syncs to beehiiv server-side via /api/newsletter.
+      const res = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: trimmed, source: "homepage_newsletter" }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error || "Something went wrong.");
       }
       setState("success");
     } catch (err) {
@@ -402,7 +403,7 @@ function NewsletterSection() {
       />
       <div
         className="shell"
-        style={{ position: "relative", paddingTop: 120, paddingBottom: 120 }}
+        style={{ position: "relative", paddingBlock: "clamp(64px, 13vw, 120px)" }}
       >
         <div style={{ maxWidth: 620, margin: "0 auto", textAlign: "center" }}>
           <div
@@ -488,6 +489,8 @@ function NewsletterSection() {
                   style={{
                     height: 48,
                     padding: "0 28px",
+                    // Grows to fill its own row when the form wraps on narrow phones.
+                    flex: "1 1 140px",
                     borderRadius: 999,
                     border: "none",
                     background: "var(--cream)",
@@ -529,11 +532,12 @@ export default function HomeClient({
     <div style={{ background: "var(--bg)" }}>
       <Nav taxonomy={taxonomy} />
 
-      {/* Hero — 670px matching Figma */}
+      {/* Hero — 670px on desktop; on phones cap to the viewport (svh avoids
+          the iOS URL-bar resize jump) so the hero never overflows the screen. */}
       <section
         style={{
           position: "relative",
-          height: 670,
+          height: "min(670px, 92svh)",
           overflow: "hidden",
           background: "var(--ink)",
         }}
@@ -570,7 +574,7 @@ export default function HomeClient({
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            padding: "0 40px",
+            padding: "0 clamp(24px, 6vw, 40px)",
           }}
         >
           <div
@@ -578,7 +582,7 @@ export default function HomeClient({
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              gap: 32,
+              gap: "clamp(24px, 5vw, 32px)",
               maxWidth: 720,
             }}
           >
@@ -652,7 +656,7 @@ export default function HomeClient({
       <EditorsPicksSection products={products} />
 
       {/* Browse by fiber — 50px gap below hero, matching Figma y=720 */}
-      <section style={{ paddingTop: 50, paddingBottom: 96 }}>
+      <section style={{ paddingTop: "clamp(40px, 9vw, 50px)", paddingBottom: "clamp(56px, 11vw, 96px)" }}>
         <div className="shell">
           <div className="eyebrow" style={{ marginBottom: 14 }}>
             Browse by fiber

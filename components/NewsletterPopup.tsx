@@ -47,23 +47,17 @@ export default function NewsletterPopup() {
     setState("submitting");
     setErrorMessage("");
     try {
-      // Imported lazily so the ~200KB Supabase client stays out of the
-      // homepage's initial JS bundle. The popup only appears after 8s and the
-      // client is only needed on submit, so eager-loading it just delayed
-      // hydration (and made the nav feel dead) for no benefit.
-      const { supabase } = await import("@/lib/supabase");
-      const { error } = await supabase
-        .from("newsletter_signups")
-        .insert({ email: trimmed, source: "homepage_popup" });
-      if (error) {
-        // Duplicate email is treated as success — the user signed up before,
-        // we honor that and don't pester them again.
-        if (error.code === "23505") {
-          persist("submitted");
-          setState("success");
-          return;
-        }
-        throw error;
+      // Posts to /api/newsletter, which captures to Supabase AND syncs to
+      // beehiiv server-side. Going through the API also keeps the ~200KB
+      // Supabase client out of the homepage bundle entirely.
+      const res = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: trimmed, source: "homepage_popup" }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error || "Something went wrong.");
       }
       persist("submitted");
       setState("success");
