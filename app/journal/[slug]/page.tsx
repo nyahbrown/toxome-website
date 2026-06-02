@@ -200,7 +200,7 @@ export default async function ArticlePage({
           {article.sources.length > 0 && (
             <>
               <p className="eyebrow" style={{ marginBottom: 16 }}>
-                Further reading
+                Sources
               </p>
               <ul style={{ margin: 0, padding: 0, listStyle: "none" }}>
                 {article.sources.map((s) => (
