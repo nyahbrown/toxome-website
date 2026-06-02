@@ -399,7 +399,7 @@ export default function AccountClient() {
               <button
                 onClick={async () => {
                   await signOut();
-                  router.replace("/shop");
+                  router.replace("/");
                 }}
                 className="pill-cta ghost"
                 style={{ alignSelf: "flex-start", height: 44 }}
