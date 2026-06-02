@@ -61,10 +61,13 @@ export default function Footer() {
       <div className="shell" style={{ padding: "0 21px" }}>
         <div className="footer-grid">
           <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
               <Image src="/toxome-logo.png" alt="" width={37} height={24} style={{ height: 24, width: "auto" }} />
               <span style={{ fontSize: 18, fontWeight: 600, letterSpacing: "-0.025em", color: "var(--ink)" }}>Toxome</span>
             </div>
+            <p style={{ fontSize: 16, lineHeight: 1.45, color: "var(--ink-2)", margin: 0, maxWidth: 240 }}>
+              know what&rsquo;s in your clothes.
+            </p>
             <div style={{ display: "flex", alignItems: "center", gap: 18, marginTop: 20 }}>
               {socials.map((s) => (
                 <a
