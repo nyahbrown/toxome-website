@@ -433,8 +433,10 @@ button { font-family: inherit; }
   row-gap: 56px;
 }
 @media (max-width: 1024px) { .product-grid { grid-template-columns: repeat(3, 1fr); row-gap: 48px; } }
-@media (max-width: 640px)  { .product-grid { grid-template-columns: repeat(2, 1fr); column-gap: 16px; row-gap: 40px; } }
-@media (max-width: 380px)  { .product-grid { grid-template-columns: 1fr; row-gap: 32px; } }
+/* Goop-style density: a tight 2-up grid persists across all phone widths
+   instead of collapsing to a single column. */
+@media (max-width: 640px)  { .product-grid { grid-template-columns: repeat(2, 1fr); column-gap: 14px; row-gap: 34px; } }
+@media (max-width: 380px)  { .product-grid { column-gap: 12px; row-gap: 28px; } }
 
 /* Account dashboard grid */
 .account-grid {
@@ -469,11 +471,19 @@ button { font-family: inherit; }
   gap: 56px;
   margin-bottom: 56px;
 }
+/* Goop-style mobile footer: the brand block spans full width on top, with the
+   link columns held in a dense multi-column row beneath (not stacked 1-up). */
+@media (max-width: 900px) {
+  .footer-grid { grid-template-columns: repeat(3, 1fr); gap: 36px 28px; }
+  .footer-grid > :first-child { grid-column: 1 / -1; }
+}
 /* Looser link spacing on phones for comfortable tap targets. */
 @media (max-width: 768px) { .footer-link-list { gap: 16px !important; } }
-@media (max-width: 900px) { .footer-grid { grid-template-columns: 1fr 1fr; gap: 40px; } }
-@media (max-width: 560px) { .footer-grid { gap: 32px; margin-bottom: 48px; } }
-@media (max-width: 380px) { .footer-grid { grid-template-columns: 1fr; } }
+@media (max-width: 560px) { .footer-grid { gap: 30px 22px; margin-bottom: 44px; } }
+@media (max-width: 380px) {
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+  .footer-grid > :first-child { grid-column: 1 / -1; }
+}
 .footer-social { transition: color 0.15s ease; }
 .footer-social:hover { color: var(--ink); }
 
@@ -497,6 +507,17 @@ button { font-family: inherit; }
 }
 .nav-sheet { z-index: 70; animation: nav-sheet-in 280ms var(--ease-out-strong); }
 .nav-sheet-backdrop { z-index: 65; animation: nav-backdrop-in 240ms ease; }
+
+/* Expandable shop section inside the mobile drawer. */
+@keyframes nav-sub-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: none; }
+}
+.nav-sheet-sub { animation: nav-sub-in 220ms var(--ease-out-strong); }
+@media (prefers-reduced-motion: reduce) {
+  .nav-sheet,
+  .nav-sheet-sub { animation: none; }
+}
 
 /* Product image skeleton — branded shimmer shown until the image decodes. */
 @keyframes skeleton-shimmer {
@@ -546,8 +567,11 @@ button { font-family: inherit; }
   column-gap: 28px;
   row-gap: 48px;
 }
-@media (max-width: 900px) { .j-grid { grid-template-columns: repeat(2, 1fr); row-gap: 40px; } }
-@media (max-width: 560px) { .j-grid { grid-template-columns: 1fr; row-gap: 36px; } }
+/* Goop-style editorial density: hold the 2-up grid down to standard phones;
+   only the narrowest screens drop to a single column. */
+@media (max-width: 900px) { .j-grid { grid-template-columns: repeat(2, 1fr); column-gap: 18px; row-gap: 36px; } }
+@media (max-width: 560px) { .j-grid { column-gap: 14px; row-gap: 30px; } }
+@media (max-width: 340px) { .j-grid { grid-template-columns: 1fr; row-gap: 28px; } }
 
 .j-card { display: block; text-decoration: none; }
 .j-card__media {

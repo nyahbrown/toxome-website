@@ -7,13 +7,6 @@ import { usePathname } from "next/navigation";
 import NavDropdown from "./NavDropdown";
 import type { ShopTaxonomy } from "@/lib/supabase";
 
-const MOBILE_LINKS = [
-  { label: "shop", href: "/shop" },
-  { label: "guide", href: "/guide" },
-  { label: "journal", href: "/journal" },
-  { label: "account", href: "/account" },
-];
-
 const FALLBACK_TAXONOMY: ShopTaxonomy = {
   women: ["Activewear", "Bottoms", "Outerwear", "Tops"],
   men: ["Activewear", "Bottoms", "Outerwear", "Tops"],
@@ -53,7 +46,9 @@ export default function Nav({
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [shopOpen, setShopOpen] = useState(false);
   const isHome = pathname === "/";
+  const shopColumns = buildShopColumns(taxonomy);
   // The bar reads as transparent only on the homepage hero before scroll AND
   // while the mobile menu is closed (open menu = cream surface behind it).
   const transparent = isHome && !scrolled && !menuOpen;
@@ -67,10 +62,16 @@ export default function Nav({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Close the mobile menu on navigation.
+  // Close the mobile menu (and any expanded shop section) on navigation.
   useEffect(() => {
     setMenuOpen(false);
+    setShopOpen(false);
   }, [pathname]);
+
+  // Collapse the shop section whenever the drawer closes, so it reopens tidy.
+  useEffect(() => {
+    if (!menuOpen) setShopOpen(false);
+  }, [menuOpen]);
 
   // Lock body scroll + close on Escape while the mobile menu is open.
   useEffect(() => {
@@ -293,7 +294,7 @@ export default function Nav({
       </div>
     </nav>
 
-      {/* Mobile menu — right-side sheet with a dimmed backdrop, phones only.
+      {/* Mobile menu — full-bleed drawer with a dimmed backdrop, phones only.
           Rendered OUTSIDE <nav> on purpose: the nav's backdrop-filter would
           otherwise become the containing block for these fixed elements and
           clip the sheet to the 64px bar height. */}
@@ -318,22 +319,22 @@ export default function Nav({
               top: 0,
               right: 0,
               bottom: 0,
-              width: "min(82vw, 320px)",
+              width: "min(100vw, 400px)",
               background: "var(--cream)",
               boxShadow: "-16px 0 48px -16px rgba(59,60,58,0.28)",
               display: "flex",
               flexDirection: "column",
-              padding: "16px 24px 40px",
+              padding: "12px 28px 32px",
               overflowY: "auto",
             }}
           >
+            {/* Close */}
             <div
               style={{
                 display: "flex",
                 justifyContent: "flex-end",
-                height: 48,
+                height: 52,
                 alignItems: "center",
-                marginBottom: 8,
               }}
             >
               <button
@@ -358,28 +359,200 @@ export default function Nav({
                 </svg>
               </button>
             </div>
-            {MOBILE_LINKS.map((link) => {
-              const active =
-                pathname === link.href || pathname.startsWith(`${link.href}/`);
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setMenuOpen(false)}
+
+            {/* Search */}
+            <form
+              action="/shop"
+              method="GET"
+              role="search"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                height: 44,
+                padding: "0 14px",
+                borderRadius: 999,
+                border: "1px solid rgba(59,60,58,0.18)",
+                marginBottom: 22,
+              }}
+            >
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true" style={{ flexShrink: 0, color: "var(--ink-3)" }}>
+                <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.4" />
+                <path d="M11 11L14 14" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+              </svg>
+              <input
+                type="search"
+                name="q"
+                placeholder="search"
+                aria-label="Search products"
+                style={{
+                  flex: 1,
+                  minWidth: 0,
+                  background: "transparent",
+                  border: "none",
+                  outline: "none",
+                  fontFamily: "var(--sans)",
+                  fontSize: 15,
+                  letterSpacing: "-0.005em",
+                  color: "var(--ink)",
+                  padding: 0,
+                }}
+              />
+            </form>
+
+            {/* Primary links */}
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              {/* shop — expandable */}
+              <button
+                type="button"
+                aria-expanded={shopOpen}
+                onClick={() => setShopOpen((o) => !o)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  width: "100%",
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  padding: "13px 0",
+                  fontFamily: "var(--sans)",
+                  fontSize: 26,
+                  fontWeight: 500,
+                  letterSpacing: "-0.02em",
+                  color:
+                    pathname === "/shop" || pathname.startsWith("/shop/")
+                      ? "var(--ink)"
+                      : "var(--ink-2)",
+                  textTransform: "lowercase",
+                }}
+              >
+                shop
+                <svg
+                  width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"
                   style={{
-                    fontFamily: "var(--sans)",
-                    fontSize: 24,
-                    fontWeight: 500,
-                    letterSpacing: "-0.02em",
-                    color: active ? "var(--ink)" : "var(--ink-2)",
-                    textDecoration: "none",
-                    padding: "16px 0",
+                    color: "var(--ink-3)",
+                    transform: shopOpen ? "rotate(180deg)" : "none",
+                    transition: "transform 240ms var(--ease-out-strong)",
                   }}
                 >
-                  {link.label}
-                </Link>
-              );
-            })}
+                  <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+              {shopOpen && (
+                <div className="nav-sheet-sub" style={{ paddingBottom: 8 }}>
+                  <Link
+                    href="/shop"
+                    onClick={() => setMenuOpen(false)}
+                    style={{
+                      display: "block",
+                      fontSize: 16,
+                      fontWeight: 500,
+                      letterSpacing: "-0.01em",
+                      color: "var(--ink)",
+                      textDecoration: "none",
+                      padding: "8px 0",
+                    }}
+                  >
+                    shop all
+                  </Link>
+                  {shopColumns.map((col) => (
+                    <div key={col.heading} style={{ marginTop: 14 }}>
+                      <div className="eyebrow" style={{ marginBottom: 8, color: "var(--ink-3)" }}>
+                        {col.heading}
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column" }}>
+                        {col.items.map((item) => (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            onClick={() => setMenuOpen(false)}
+                            style={{
+                              fontSize: 16,
+                              letterSpacing: "-0.005em",
+                              color: "var(--ink-2)",
+                              textDecoration: "none",
+                              padding: "7px 0",
+                            }}
+                          >
+                            {item.label}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* guide + journal */}
+              {[
+                { label: "guide", href: "/guide" },
+                { label: "journal", href: "/journal" },
+              ].map((link) => {
+                const active =
+                  pathname === link.href || pathname.startsWith(`${link.href}/`);
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setMenuOpen(false)}
+                    style={{
+                      fontFamily: "var(--sans)",
+                      fontSize: 26,
+                      fontWeight: 500,
+                      letterSpacing: "-0.02em",
+                      color: active ? "var(--ink)" : "var(--ink-2)",
+                      textDecoration: "none",
+                      padding: "13px 0",
+                    }}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
+            </div>
+
+            {/* Utility — pinned lower */}
+            <div style={{ marginTop: "auto", paddingTop: 32 }}>
+              <Link
+                href="/account"
+                onClick={() => setMenuOpen(false)}
+                style={{
+                  display: "block",
+                  fontFamily: "var(--sans)",
+                  fontSize: 16,
+                  fontWeight: 500,
+                  letterSpacing: "-0.005em",
+                  color: "var(--ink-2)",
+                  textDecoration: "none",
+                  padding: "10px 0 18px",
+                }}
+              >
+                account
+              </Link>
+              <a
+                href="https://apps.apple.com/us/app/toxome/id6748622034"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setMenuOpen(false)}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: "100%",
+                  height: 48,
+                  borderRadius: 999,
+                  background: "var(--ink)",
+                  color: "var(--white)",
+                  fontSize: 15,
+                  fontWeight: 500,
+                  letterSpacing: "-0.005em",
+                  textDecoration: "none",
+                }}
+              >
+                download app
+              </a>
+            </div>
           </aside>
         </>
       )}
