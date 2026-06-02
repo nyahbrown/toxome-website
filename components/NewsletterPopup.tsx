@@ -152,8 +152,9 @@ export default function NewsletterPopup() {
               margin: 0,
             }}
           >
-            We&apos;ll send a quiet letter on Sundays — fiber stories, new
-            scans, and the things we&apos;re unlearning.
+            Our weekly report on the state of fashion wellness, in your
+            inbox — fiber stories, new scans, and the things we&apos;re
+            unlearning.
           </p>
         </>
       ) : (
@@ -168,7 +169,7 @@ export default function NewsletterPopup() {
               margin: "0 0 10px",
             }}
           >
-            the toxome letter
+            the weekly report
           </p>
           <p
             style={{
@@ -191,8 +192,8 @@ export default function NewsletterPopup() {
               margin: "0 0 14px",
             }}
           >
-            A Sunday letter on fibers, dyes, and the science underneath
-            wellness fashion. No spam.
+            Our weekly report on the state of fashion wellness — fibers,
+            dyes, and the science underneath what you wear. No spam.
           </p>
           <form
             onSubmit={handleSubmit}
