@@ -1287,40 +1287,82 @@ function WishlistRow({
 
 function EmptyClosetCTA() {
   return (
-    <div>
-      <p
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: 32,
+        flexWrap: "wrap",
+      }}
+    >
+      <div style={{ flex: 1, minWidth: 240 }}>
+        <p
+          style={{
+            fontFamily: "var(--sans)",
+            fontSize: 22,
+            letterSpacing: "-0.015em",
+            color: "var(--ink)",
+            margin: "0 0 8px",
+            fontWeight: 500,
+          }}
+        >
+          Your closet is empty.
+        </p>
+        <p
+          style={{
+            fontSize: 14,
+            color: "var(--ink-2)",
+            lineHeight: 1.5,
+            margin: 0,
+            maxWidth: 420,
+          }}
+        >
+          Scan a clothing label with the Toxome app to see your closet&apos;s
+          Toxome score, fiber breakdown, and cleaner alternatives here.
+        </p>
+      </div>
+
+      {/* QR code to the App Store listing */}
+      <div
         style={{
-          fontFamily: "var(--sans)",
-          fontSize: 22,
-          letterSpacing: "-0.015em",
-          color: "var(--ink)",
-          margin: "0 0 8px",
-          fontWeight: 500,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 10,
+          flexShrink: 0,
         }}
       >
-        Your closet is empty.
-      </p>
-      <p
-        style={{
-          fontSize: 14,
-          color: "var(--ink-2)",
-          lineHeight: 1.5,
-          margin: "0 0 20px",
-          maxWidth: 480,
-        }}
-      >
-        Scan a clothing label with the Toxome app to see your closet's Toxome
-        score, fiber breakdown, and cleaner alternatives here.
-      </p>
-      <a
-        href="https://apps.apple.com/us/app/toxome/id6748622034"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="pill-cta"
-        style={{ justifyContent: "center" }}
-      >
-        Download the app
-      </a>
+        <div
+          style={{
+            background: "var(--white)",
+            border: "1px solid var(--hairline)",
+            borderRadius: 14,
+            padding: 12,
+            lineHeight: 0,
+          }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/app-store-qr.svg"
+            alt="Scan to download the Toxome app from the App Store"
+            width={132}
+            height={132}
+            style={{ display: "block", width: 132, height: 132 }}
+          />
+        </div>
+        <span
+          style={{
+            fontFamily: "var(--mono)",
+            fontSize: 10,
+            letterSpacing: "0.12em",
+            textTransform: "uppercase",
+            color: "var(--ink-3)",
+          }}
+        >
+          scan to download
+        </span>
+      </div>
     </div>
   );
 }
