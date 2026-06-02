@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Nav from "@/components/Nav";
@@ -156,6 +157,31 @@ export default async function ArticlePage({
           </div>
         </div>
       </header>
+
+      {/* Lead image — leads the essay, magazine-style */}
+      {article.hero && (
+        <figure className="shell" style={{ margin: 0, paddingTop: 44 }}>
+          <div
+            className="j-article j-rise"
+            style={{
+              position: "relative",
+              overflow: "hidden",
+              border: "1px solid var(--hairline)",
+              animationDelay: "120ms",
+            }}
+          >
+            <Image
+              src={article.hero}
+              alt={article.heroAlt || article.dek || article.title}
+              width={735}
+              height={887}
+              sizes="(max-width: 720px) 100vw, 680px"
+              style={{ display: "block", width: "100%", height: "auto" }}
+              priority
+            />
+          </div>
+        </figure>
+      )}
 
       {/* Body */}
       <article className="shell" style={{ paddingTop: 56, paddingBottom: 40 }}>

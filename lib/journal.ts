@@ -19,6 +19,7 @@ export type ArticleMeta = {
   mode?: string;
   pinned: boolean; // featured as the standing Journal cover
   hero: string; // card/listing image (path under /public)
+  heroAlt?: string; // alt text for the hero/lead image
   keywords: string[]; // SEO keywords
   cta: string; // end-of-article CTA variant: app | shop | guide
   readingTime: string;
@@ -60,6 +61,7 @@ function readArticle(slug: string): Article | null {
     mode: data.mode ? String(data.mode) : undefined,
     pinned: data.pinned === true,
     hero: String(data.hero ?? "/fibers/linen.jpg"),
+    heroAlt: data.heroAlt ? String(data.heroAlt) : undefined,
     keywords: Array.isArray(data.keywords) ? data.keywords.map(String) : [],
     cta: String(data.cta ?? "app"),
     readingTime: `${minutes} min read`,

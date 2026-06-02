@@ -5,7 +5,8 @@ date: "2026-06-01"
 pillar: "The Manifesto"
 mode: "educational"
 pinned: true
-hero: "/fibers/linen.jpg"
+hero: "/journal/fashion-wellness-next-clean-beauty.jpg"
+heroAlt: "A woman in soft morning light wearing a raw organic cotton crochet top and organic cotton and hemp shorts, standing barefoot on grass."
 keywords:
   - "fashion wellness"
   - "what you wear is a health choice"
