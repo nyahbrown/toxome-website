@@ -505,10 +505,12 @@ function LoginContent() {
           </button>
         </div>
 
-        <ConsentNote
-          lead="By continuing, you agree to our"
-          style={{ marginTop: 36 }}
-        />
+        {mode === "signup" && (
+          <ConsentNote
+            lead="By continuing, you agree to our"
+            style={{ marginTop: 36 }}
+          />
+        )}
       </div>
     </main>
   );
