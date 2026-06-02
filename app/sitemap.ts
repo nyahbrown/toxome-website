@@ -1,6 +1,5 @@
 import type { MetadataRoute } from "next";
 import { allFiberSlugs } from "@/lib/fiberGuide";
-import { COMPARE_PAIRS, compareSlug } from "@/lib/comparisons";
 import { getPublishedProducts } from "@/lib/supabase";
 import { getAllSlugs, getArticle } from "@/lib/journal";
 
@@ -20,7 +19,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/shop/men`, lastModified: now, changeFrequency: "daily", priority: 0.8 },
     { url: `${BASE_URL}/shop/home`, lastModified: now, changeFrequency: "daily", priority: 0.7 },
     { url: `${BASE_URL}/guide`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
-    { url: `${BASE_URL}/compare`, lastModified: now, changeFrequency: "weekly", priority: 0.7 },
     { url: `${BASE_URL}/journal`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
     { url: `${BASE_URL}/extension`, lastModified: now, changeFrequency: "weekly", priority: 0.7 },
     { url: `${BASE_URL}/privacy`, lastModified: now, changeFrequency: "yearly", priority: 0.2 },
@@ -33,14 +31,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: now,
     changeFrequency: "monthly",
     priority: 0.7,
-  }));
-
-  // Fiber comparison pages.
-  const compareRoutes: MetadataRoute.Sitemap = COMPARE_PAIRS.map(([a, b]) => ({
-    url: `${BASE_URL}/compare/${compareSlug(a, b)}`,
-    lastModified: now,
-    changeFrequency: "monthly",
-    priority: 0.6,
   }));
 
   // Journal articles — one indexable page per published markdown file.
@@ -72,7 +62,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     ...staticRoutes,
     ...fiberRoutes,
-    ...compareRoutes,
     ...journalRoutes,
     ...productRoutes,
   ];

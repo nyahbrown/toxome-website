@@ -203,8 +203,8 @@ export default async function FiberGuidePage({
             </span>
             <h1
               style={{
-                fontFamily: "var(--serif)",
-                fontWeight: 300,
+                fontFamily: "var(--sans)",
+                fontWeight: 500,
                 fontSize: "clamp(32px, 5vw, 48px)",
                 lineHeight: 1.08,
                 letterSpacing: "-0.02em",
@@ -375,7 +375,7 @@ export default async function FiberGuidePage({
                   marginBottom: 14,
                 }}
               >
-                Compare cleaner fibers
+                Related fibers
               </div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
                 {related.map((r) => (

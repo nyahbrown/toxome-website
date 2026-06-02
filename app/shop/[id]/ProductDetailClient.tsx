@@ -267,7 +267,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
 
           <h1
             style={{
-              fontFamily: "var(--serif)",
+              fontFamily: "var(--sans)",
               fontSize: "clamp(30px, 3.4vw, 44px)",
               fontWeight: 500,
               lineHeight: 1.08,

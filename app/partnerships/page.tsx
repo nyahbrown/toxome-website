@@ -36,7 +36,7 @@ export default async function PartnershipsPage() {
           </p>
           <h1
             style={{
-              fontFamily: "var(--serif)",
+              fontFamily: "var(--sans)",
               fontWeight: 500,
               fontSize: "clamp(32px, 4vw, 54px)",
               lineHeight: 1.1,

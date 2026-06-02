@@ -590,8 +590,8 @@ export default function ShopClient({
                   margin: 0,
                 }
               : {
-                  fontFamily: "var(--serif)",
-                  fontWeight: 300,
+                  fontFamily: "var(--sans)",
+                  fontWeight: 500,
                   fontSize: "clamp(18px, 2.75vw, 34px)",
                   lineHeight: 1.25,
                   letterSpacing: "-0.018em",
