@@ -260,6 +260,7 @@ function LoginContent() {
                 fontWeight: 600,
                 letterSpacing: "-0.025em",
                 color: "var(--ink)",
+                textTransform: "none",
               }}
             >
               Toxome
@@ -275,7 +276,7 @@ function LoginContent() {
               margin: "0 0 10px",
             }}
           >
-            sign in
+            {mode === "signin" ? "sign in" : "create account"}
           </h1>
           <p
             style={{
@@ -286,7 +287,9 @@ function LoginContent() {
               letterSpacing: "-0.005em",
             }}
           >
-            save items, sync with the app
+            {mode === "signin"
+              ? "save items, sync with the app"
+              : "join to save items and sync with the app"}
           </p>
         </div>
 
