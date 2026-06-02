@@ -45,7 +45,7 @@ const SITE_DESCRIPTION =
 export const metadata: Metadata = {
   // Resolves all relative canonical / OpenGraph URLs to absolute ones.
   metadataBase: new URL("https://toxome.app"),
-  title: "Toxome | Know what's in your clothes",
+  title: "Toxome | Fashion Wellness",
   description: SITE_DESCRIPTION,
   // Self-referencing canonical for the homepage. Every other route overrides
   // this with its own path.
