@@ -206,6 +206,30 @@ export default function Nav({
             >
               journal
             </Link>
+            <Link
+              href="/extension"
+              style={{
+                fontSize: 14,
+                fontWeight: 400,
+                letterSpacing: "-0.005em",
+                color: transparent
+                  ? "rgba(255,255,255,0.92)"
+                  : pathname === "/extension" || pathname.startsWith("/extension/")
+                  ? "var(--ink)"
+                  : "var(--ink-2)",
+                textDecoration:
+                  !transparent &&
+                  (pathname === "/extension" || pathname.startsWith("/extension/"))
+                    ? "underline"
+                    : "none",
+                textUnderlineOffset: 5,
+                textDecorationThickness: 1,
+                transition: "color 300ms ease",
+                padding: "8px 0",
+              }}
+            >
+              extension
+            </Link>
           </div>
         </div>
 
@@ -488,6 +512,7 @@ export default function Nav({
               {[
                 { label: "guide", href: "/guide" },
                 { label: "journal", href: "/journal" },
+                { label: "extension", href: "/extension" },
               ].map((link) => {
                 const active =
                   pathname === link.href || pathname.startsWith(`${link.href}/`);
