@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import type { WishlistItem } from "@/lib/firestore";
+import { DEV_WISHLIST } from "@/lib/devAccountData";
 import WishlistHeart from "@/components/WishlistHeart";
 
 function WishlistCard({
@@ -141,13 +142,25 @@ export default function WishlistPage() {
   const { user, loading, wishlistItems, toggleWishlist } = useAuth();
   const router = useRouter();
 
+  // Dev preview (?dev=1) bypasses auth and shows the mock saved items.
+  const [devMode, setDevMode] = useState(false);
+  const [devChecked, setDevChecked] = useState(false);
   useEffect(() => {
-    if (!loading && !user) {
+    const d = new URLSearchParams(window.location.search).get("dev");
+    setDevMode(d === "1" || d === "premium");
+    setDevChecked(true);
+  }, []);
+
+  useEffect(() => {
+    if (devChecked && !devMode && !loading && !user) {
       router.replace("/login?return=/account/wishlist");
     }
-  }, [user, loading, router]);
+  }, [devChecked, devMode, user, loading, router]);
 
-  if (loading || !user) return null;
+  if (!devChecked) return null;
+  if (!devMode && (loading || !user)) return null;
+
+  const items = devMode ? DEV_WISHLIST : wishlistItems;
 
   return (
     <main
@@ -158,26 +171,14 @@ export default function WishlistPage() {
         paddingBottom: 120,
       }}
     >
-      <div style={{ textAlign: "center", paddingTop: 52, paddingBottom: 48 }}>
-        <div
-          style={{
-            fontFamily: "var(--mono)",
-            fontSize: 11,
-            letterSpacing: ".12em",
-            textTransform: "uppercase",
-            color: "var(--ink-3)",
-            marginBottom: 24,
-          }}
-        >
-          account
-        </div>
+      <div style={{ textAlign: "center", paddingTop: 40, paddingBottom: 44 }}>
         <h1
           style={{
-            fontFamily: "var(--serif)",
-            fontWeight: 300,
-            fontSize: "clamp(32px, 5vw, 56px)",
-            lineHeight: 1.05,
-            letterSpacing: "-0.025em",
+            fontFamily: "var(--sans)",
+            fontWeight: 500,
+            fontSize: 24,
+            lineHeight: 1.2,
+            letterSpacing: "-0.015em",
             color: "var(--ink)",
             margin: "0 auto",
             maxWidth: 780,
@@ -189,7 +190,7 @@ export default function WishlistPage() {
       </div>
 
       <div className="shell">
-        {wishlistItems.length === 0 ? (
+        {items.length === 0 ? (
           <div
             style={{
               textAlign: "center",
@@ -215,11 +216,12 @@ export default function WishlistPage() {
           </div>
         ) : (
           <div className="product-grid">
-            {wishlistItems.map((item) => (
+            {items.map((item) => (
               <WishlistCard
                 key={item.productId}
                 item={item}
                 onRemove={() => {
+                  if (devMode) return;
                   // Build a minimal Product-shaped object for toggleWishlist
                   toggleWishlist({
                     id: item.productId,

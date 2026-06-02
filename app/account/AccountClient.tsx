@@ -20,6 +20,7 @@ import {
 } from "@/lib/firestore";
 import { getPublishedProducts, type Product } from "@/lib/supabase";
 import { EDITORS_PICKS } from "@/lib/editorsPicks";
+import { DEV_WISHLIST, DEV_SCANS } from "@/lib/devAccountData";
 import { hazardColor, prettyFiber } from "@/lib/fabricScores";
 import WishlistHeart from "@/components/WishlistHeart";
 
@@ -36,167 +37,6 @@ const DEV_PROFILE: UserProfile = {
   subscriptionStatus: "monthly",
   scanCount: 14,
 };
-
-const DEV_SCANS: ClosetScan[] = (() => {
-  const today = Date.now();
-  const d = (daysAgo: number) => new Date(today - daysAgo * 86_400_000);
-  const fakes: Array<Omit<ClosetScan, "id">> = [
-    {
-      itemDescription: "Linen midi dress",
-      brandName: "Reformation",
-      category: "Dresses",
-      scanImageUrl: "https://picsum.photos/seed/dress1/300/300",
-      scanDate: d(1),
-      overallHazardScore: 14,
-      overallHazardLevel: "low",
-      naturalFiberPercentage: 100,
-      composition: [{ fiber: "linen", percentage: 100 }],
-    },
-    {
-      itemDescription: "Cotton tee",
-      brandName: "Everlane",
-      category: "Tops",
-      scanImageUrl: "https://picsum.photos/seed/tee2/300/300",
-      scanDate: d(3),
-      overallHazardScore: 22,
-      overallHazardLevel: "low",
-      naturalFiberPercentage: 100,
-      composition: [{ fiber: "organic_cotton", percentage: 100 }],
-    },
-    {
-      itemDescription: "Workout legging",
-      brandName: "Lululemon",
-      category: "Activewear",
-      scanImageUrl: "https://picsum.photos/seed/legging3/300/300",
-      scanDate: d(5),
-      overallHazardScore: 62,
-      overallHazardLevel: "moderate",
-      naturalFiberPercentage: 0,
-      composition: [
-        { fiber: "nylon", percentage: 73 },
-        { fiber: "elastane", percentage: 27 },
-      ],
-    },
-    {
-      itemDescription: "Wool blend coat",
-      brandName: "Aritzia",
-      category: "Outerwear",
-      scanImageUrl: "https://picsum.photos/seed/coat4/300/300",
-      scanDate: d(8),
-      overallHazardScore: 28,
-      overallHazardLevel: "low",
-      naturalFiberPercentage: 88,
-      composition: [
-        { fiber: "wool", percentage: 88 },
-        { fiber: "polyester", percentage: 12 },
-      ],
-    },
-    {
-      itemDescription: "Polyester blouse",
-      brandName: "Zara",
-      category: "Tops",
-      scanImageUrl: "https://picsum.photos/seed/blouse5/300/300",
-      scanDate: d(10),
-      overallHazardScore: 78,
-      overallHazardLevel: "high",
-      naturalFiberPercentage: 5,
-      composition: [
-        { fiber: "polyester", percentage: 95 },
-        { fiber: "elastane", percentage: 5 },
-      ],
-    },
-    {
-      itemDescription: "Denim jeans",
-      brandName: "Levi's",
-      category: "Bottoms",
-      scanImageUrl: "https://picsum.photos/seed/jeans6/300/300",
-      scanDate: d(12),
-      overallHazardScore: 24,
-      overallHazardLevel: "low",
-      naturalFiberPercentage: 98,
-      composition: [
-        { fiber: "cotton", percentage: 98 },
-        { fiber: "elastane", percentage: 2 },
-      ],
-    },
-    {
-      itemDescription: "Silk pajama set",
-      brandName: "Printfresh",
-      category: "Pajamas",
-      scanImageUrl: "https://picsum.photos/seed/pj7/300/300",
-      scanDate: d(15),
-      overallHazardScore: 16,
-      overallHazardLevel: "low",
-      naturalFiberPercentage: 100,
-      composition: [{ fiber: "silk", percentage: 100 }],
-    },
-    {
-      itemDescription: "Sports bra",
-      brandName: "Nike",
-      category: "Activewear",
-      scanImageUrl: "https://picsum.photos/seed/bra8/300/300",
-      scanDate: d(18),
-      overallHazardScore: 72,
-      overallHazardLevel: "high",
-      naturalFiberPercentage: 0,
-      composition: [
-        { fiber: "polyester", percentage: 82 },
-        { fiber: "elastane", percentage: 18 },
-      ],
-    },
-    {
-      itemDescription: "Hemp tee",
-      brandName: "Outerknown",
-      category: "Tops",
-      scanImageUrl: "https://picsum.photos/seed/hemp9/300/300",
-      scanDate: d(22),
-      overallHazardScore: 10,
-      overallHazardLevel: "low",
-      naturalFiberPercentage: 100,
-      composition: [
-        { fiber: "hemp", percentage: 55 },
-        { fiber: "cotton", percentage: 45 },
-      ],
-    },
-    {
-      itemDescription: "Cashmere sweater",
-      brandName: "Quince",
-      category: "Sweaters",
-      scanImageUrl: "https://picsum.photos/seed/sweater10/300/300",
-      scanDate: d(25),
-      overallHazardScore: 15,
-      overallHazardLevel: "low",
-      naturalFiberPercentage: 100,
-      composition: [{ fiber: "wool", percentage: 100 }],
-    },
-    {
-      itemDescription: "Fleece pullover",
-      brandName: "Patagonia",
-      category: "Outerwear",
-      scanImageUrl: "https://picsum.photos/seed/fleece11/300/300",
-      scanDate: d(40),
-      overallHazardScore: 55,
-      overallHazardLevel: "moderate",
-      naturalFiberPercentage: 0,
-      composition: [{ fiber: "recycled_polyester", percentage: 100 }],
-    },
-    {
-      itemDescription: "Underwear set",
-      brandName: "Pact",
-      category: "Undergarments",
-      scanImageUrl: "https://picsum.photos/seed/under12/300/300",
-      scanDate: d(60),
-      overallHazardScore: 20,
-      overallHazardLevel: "low",
-      naturalFiberPercentage: 95,
-      composition: [
-        { fiber: "organic_cotton", percentage: 95 },
-        { fiber: "elastane", percentage: 5 },
-      ],
-    },
-  ];
-  return fakes.map((f, i) => ({ id: `dev-${i + 1}`, ...f }));
-})();
 
 function firstName(displayName: string | null | undefined, email: string | null | undefined) {
   if (displayName) return displayName.split(" ")[0];
@@ -255,7 +95,7 @@ export default function AccountClient() {
     if (devMode) {
       setProfile(DEV_PROFILE);
       setScans(DEV_SCANS);
-      setWishlist([]);
+      setWishlist(DEV_WISHLIST);
       getPublishedProducts()
         .catch(() => [])
         .then((products) => setAlternatives(pickFeatured(products)));
@@ -328,6 +168,15 @@ export default function AccountClient() {
 
   const stats: ClosetStats | null = scans ? computeClosetStats(scans) : null;
 
+  // The auth `wishlistIds` set is empty in dev preview, so show the mock
+  // wishlist as-is; otherwise filter to the user's actually-saved ids.
+  const savedItems: WishlistItem[] | null =
+    wishlist === null
+      ? null
+      : devMode
+      ? wishlist
+      : wishlist.filter((w) => wishlistIds.has(w.productId));
+
   return (
     <>
       <Nav />
@@ -384,7 +233,7 @@ export default function AccountClient() {
             {/* Closet snapshot */}
             <div className="account-cell account-cell--closet">
               <Panel
-                eyebrow="the closet"
+                eyebrow="your closet"
                 aside={
                   profile?.isPremium && stats?.lastScanAt
                     ? `last scan · ${formatRelative(stats.lastScanAt)}`
@@ -399,21 +248,6 @@ export default function AccountClient() {
                   <ClosetSnapshot stats={stats} />
                 ) : (
                   <EmptyClosetCTA />
-                )}
-              </Panel>
-            </div>
-
-            {/* Fiber donut */}
-            <div className="account-cell account-cell--fiber">
-              <Panel eyebrow="what you own">
-                {profile === undefined ? (
-                  <PanelLoading />
-                ) : !profile?.isPremium ? (
-                  <FiberLockedCTA />
-                ) : stats && stats.fiberDistribution.length > 0 ? (
-                  <FiberDonut stats={stats} />
-                ) : (
-                  <EmptyFiberHint />
                 )}
               </Panel>
             </div>
@@ -434,7 +268,14 @@ export default function AccountClient() {
                     {!profile?.isPremium ? (
                       <RecentScansLockedCTA />
                     ) : (
-                      scans && <RecentScansRow scans={scans} />
+                      scans && (
+                        <RecentScansRow
+                          scans={scans}
+                          moreHref={
+                            devMode ? "/account/scans?dev=1" : "/account/scans"
+                          }
+                        />
+                      )
                     )}
                   </Panel>
                 </div>
@@ -475,9 +316,9 @@ export default function AccountClient() {
               <Panel
                 eyebrow="saved"
                 aside={
-                  wishlist && wishlist.length > 0 ? (
+                  savedItems && savedItems.length > 0 ? (
                     <Link
-                      href="/account/wishlist"
+                      href={devMode ? "/account/wishlist?dev=1" : "/account/wishlist"}
                       style={{ color: "var(--ink-3)", textDecoration: "none" }}
                     >
                       view all →
@@ -485,16 +326,16 @@ export default function AccountClient() {
                   ) : undefined
                 }
               >
-                {wishlist === null ? (
+                {savedItems === null ? (
                   <PanelLoading />
-                ) : wishlist.filter((w) => wishlistIds.has(w.productId))
-                    .length === 0 ? (
+                ) : savedItems.length === 0 ? (
                   <EmptyWishlistCTA />
                 ) : (
                   <WishlistRow
-                    items={wishlist
-                      .filter((w) => wishlistIds.has(w.productId))
-                      .slice(0, 4)}
+                    items={savedItems.slice(0, 12)}
+                    moreHref={
+                      devMode ? "/account/wishlist?dev=1" : "/account/wishlist"
+                    }
                     onRemove={async (item) => {
                       await toggleWishlist({
                         id: item.productId,
@@ -700,148 +541,179 @@ function PlanChip({ profile }: { profile: UserProfile }) {
   );
 }
 
-function EmptyFiberHint() {
+/* ──────────────────────────────────────────────────────────────── */
+
+// Small info "i" with a hover/click tooltip — explains the score.
+function InfoTip({ text }: { text: string }) {
+  const [open, setOpen] = useState(false);
   return (
-    <p
-      style={{
-        fontSize: 14,
-        color: "var(--ink-3)",
-        lineHeight: 1.5,
-        margin: 0,
-      }}
+    <span
+      style={{ position: "relative", display: "inline-flex" }}
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
     >
-      Scan a few items in the app to see the fiber breakdown of everything
-      you own.
-    </p>
+      <button
+        type="button"
+        aria-label="What does this score mean?"
+        onClick={() => setOpen((o) => !o)}
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: 20,
+          height: 20,
+          padding: 0,
+          border: "none",
+          background: "transparent",
+          color: open ? "var(--ink-2)" : "var(--ink-3)",
+          cursor: "pointer",
+          transition: "color 140ms ease-out",
+        }}
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="9" />
+          <line x1="12" y1="11" x2="12" y2="16" />
+          <circle cx="12" cy="7.6" r="0.7" fill="currentColor" stroke="none" />
+        </svg>
+      </button>
+      <span
+        role="tooltip"
+        style={{
+          position: "absolute",
+          top: "calc(100% + 8px)",
+          right: 0,
+          width: 246,
+          padding: "12px 14px",
+          background: "var(--ink)",
+          color: "var(--cream)",
+          borderRadius: 12,
+          fontSize: 12.5,
+          lineHeight: 1.5,
+          letterSpacing: "-0.005em",
+          textTransform: "none",
+          boxShadow: "0 10px 28px rgba(59,60,58,0.20)",
+          zIndex: 5,
+          opacity: open ? 1 : 0,
+          transform: open ? "translateY(0) scale(1)" : "translateY(-4px) scale(0.96)",
+          transformOrigin: "top right",
+          pointerEvents: open ? "auto" : "none",
+          transition:
+            "opacity 140ms ease-out, transform 160ms cubic-bezier(0.23,1,0.32,1)",
+        }}
+      >
+        {text}
+      </span>
+    </span>
   );
 }
 
-/* ──────────────────────────────────────────────────────────────── */
-
+// Merged "your closet" card — score + risk tray beside the fiber tray.
 function ClosetSnapshot({ stats }: { stats: ClosetStats }) {
-  const total =
-    stats.riskBreakdown.low +
-    stats.riskBreakdown.moderate +
-    stats.riskBreakdown.high;
   const segments = [
     { count: stats.riskBreakdown.low, color: "var(--risk-low)", label: "low" },
-    {
-      count: stats.riskBreakdown.moderate,
-      color: "var(--orange)",
-      label: "moderate",
-    },
-    {
-      count: stats.riskBreakdown.high,
-      color: "var(--red)",
-      label: "high",
-    },
+    { count: stats.riskBreakdown.moderate, color: "var(--orange)", label: "moderate" },
+    { count: stats.riskBreakdown.high, color: "var(--red)", label: "high" },
   ];
-  const scoreColor = hazardColor(stats.avgToxomeScore);
+  const total = segments.reduce((n, s) => n + s.count, 0) || 1;
+
+  const tray: React.CSSProperties = {
+    background: "var(--cream)",
+    borderRadius: 14,
+    padding: "22px 24px",
+    border: "1px solid var(--hairline)",
+    boxShadow: "inset 0 1px 1px rgba(255,255,255,0.6)",
+  };
 
   return (
-    <div>
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "0.82fr 1.18fr",
+        gap: 14,
+        height: "100%",
+      }}
+    >
+      {/* Score + risk tray */}
       <div
         style={{
+          ...tray,
+          position: "relative",
           display: "flex",
-          alignItems: "baseline",
-          gap: 24,
-          marginBottom: 28,
-          flexWrap: "wrap",
+          flexDirection: "column",
+          justifyContent: "center",
         }}
       >
+        <span style={{ position: "absolute", top: 14, right: 14 }}>
+          <InfoTip text="Your closet's average Toxome score (0–100). Lower is cleaner — it means fewer hazardous fibers and finishes across what you've scanned. Roughly: under 30 is low-risk, 30–60 moderate, 60+ high." />
+        </span>
         <div
           style={{
             fontFamily: "var(--sans)",
             fontWeight: 600,
-            fontSize: 64,
+            fontSize: 60,
             lineHeight: 1,
-            letterSpacing: "-0.03em",
+            letterSpacing: "-0.04em",
             color: "var(--ink)",
+            marginBottom: 6,
           }}
         >
           {stats.avgToxomeScore}
-          <span
-            style={{
-              display: "inline-block",
-              width: 10,
-              height: 10,
-              borderRadius: 999,
-              background: scoreColor,
-              marginLeft: 12,
-              verticalAlign: "middle",
-            }}
-          />
         </div>
         <div
           style={{
             fontFamily: "var(--mono)",
-            fontSize: 11,
-            letterSpacing: "0.1em",
+            fontSize: 10,
+            letterSpacing: "0.12em",
             textTransform: "uppercase",
             color: "var(--ink-3)",
-            display: "flex",
-            flexDirection: "column",
-            gap: 4,
+            marginBottom: 18,
           }}
         >
-          <span>avg toxome score</span>
-          <span>{stats.totalCount} items in closet</span>
+          avg score · {stats.totalCount} items
+        </div>
+        <div
+          style={{
+            display: "flex",
+            height: 10,
+            borderRadius: 999,
+            overflow: "hidden",
+            background: "var(--tan)",
+            boxShadow: "inset 0 1px 2px rgba(59,60,58,0.08)",
+            marginBottom: 12,
+          }}
+        >
+          {segments.map((s) =>
+            s.count > 0 ? (
+              <div key={s.label} style={{ width: `${(s.count / total) * 100}%`, background: s.color }} />
+            ) : null
+          )}
+        </div>
+        <div style={{ display: "flex", gap: 16, fontSize: 12.5, color: "var(--ink-2)", flexWrap: "wrap" }}>
+          {segments.map((s) => (
+            <span key={s.label} style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+              <span style={{ width: 8, height: 8, borderRadius: 999, background: s.color }} />
+              <strong style={{ fontWeight: 600, color: "var(--ink)" }}>{s.count}</strong> {s.label}
+            </span>
+          ))}
         </div>
       </div>
 
-      {/* Segmented risk bar */}
-      <div
-        style={{
-          display: "flex",
-          height: 8,
-          borderRadius: 999,
-          overflow: "hidden",
-          background: "var(--hairline)",
-          marginBottom: 12,
-        }}
-      >
-        {segments.map((s) =>
-          s.count > 0 ? (
-            <div
-              key={s.label}
-              style={{
-                width: `${(s.count / total) * 100}%`,
-                background: s.color,
-                transition: "width 300ms ease",
-              }}
-            />
-          ) : null
-        )}
-      </div>
-      <div
-        style={{
-          display: "flex",
-          gap: 16,
-          fontSize: 12,
-          color: "var(--ink-2)",
-          letterSpacing: "-0.005em",
-        }}
-      >
-        {segments.map((s) => (
-          <span
-            key={s.label}
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 6,
-            }}
-          >
-            <span
-              style={{
-                width: 8,
-                height: 8,
-                borderRadius: 999,
-                background: s.color,
-              }}
-            />
-            {s.count} {s.label}
-          </span>
-        ))}
+      {/* Fiber tray */}
+      <div style={{ ...tray }}>
+        <div
+          style={{
+            fontFamily: "var(--mono)",
+            fontSize: 10,
+            fontWeight: 600,
+            letterSpacing: "0.12em",
+            textTransform: "uppercase",
+            color: "var(--ink-3)",
+            marginBottom: 16,
+          }}
+        >
+          what you own
+        </div>
+        <FiberDonut stats={stats} size={148} />
       </div>
     </div>
   );
@@ -849,7 +721,7 @@ function ClosetSnapshot({ stats }: { stats: ClosetStats }) {
 
 /* ──────────────────────────────────────────────────────────────── */
 
-function FiberDonut({ stats }: { stats: ClosetStats }) {
+function FiberDonut({ stats, size = 180 }: { stats: ClosetStats; size?: number }) {
   const TOP_N = 5;
   const top = stats.fiberDistribution.slice(0, TOP_N);
   const otherShare =
@@ -862,8 +734,7 @@ function FiberDonut({ stats }: { stats: ClosetStats }) {
         ]
       : top;
 
-  const size = 180;
-  const stroke = 22;
+  const stroke = Math.round(size * 0.12);
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;
 
@@ -883,7 +754,7 @@ function FiberDonut({ stats }: { stats: ClosetStats }) {
     <div
       style={{
         display: "flex",
-        gap: 40,
+        gap: size > 150 ? 40 : 26,
         alignItems: "center",
         flexWrap: "wrap",
       }}
@@ -919,7 +790,7 @@ function FiberDonut({ stats }: { stats: ClosetStats }) {
         ))}
       </svg>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 10, flex: 1, minWidth: 240 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10, flex: 1, minWidth: size > 150 ? 240 : 150 }}>
         {slices.map((s) => (
           <div
             key={s.fiber}
@@ -959,7 +830,58 @@ function FiberDonut({ stats }: { stats: ClosetStats }) {
 
 /* ──────────────────────────────────────────────────────────────── */
 
-function RecentScansRow({ scans }: { scans: ClosetScan[] }) {
+// A thin chevron at the end of a horizontal rail that links to the full grid
+// page. `height` centers it against the card image, not the whole card.
+function MoreCaret({
+  href,
+  label,
+  height,
+}: {
+  href: string;
+  label: string;
+  height: number;
+}) {
+  return (
+    <Link
+      href={href}
+      aria-label={label}
+      title={label}
+      style={{
+        flex: "0 0 auto",
+        alignSelf: "flex-start",
+        height,
+        width: 40,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "var(--ink-3)",
+        textDecoration: "none",
+      }}
+    >
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
+        <polyline points="9 6 15 12 9 18" />
+      </svg>
+    </Link>
+  );
+}
+
+function RecentScansRow({
+  scans,
+  moreHref,
+}: {
+  scans: ClosetScan[];
+  moreHref: string;
+}) {
   const recent = [...scans]
     .filter((s) => s.scanImageUrl)
     .sort((a, b) => {
@@ -967,7 +889,7 @@ function RecentScansRow({ scans }: { scans: ClosetScan[] }) {
       const bt = b.scanDate?.getTime() ?? 0;
       return bt - at;
     })
-    .slice(0, 8);
+    .slice(0, 15);
 
   if (recent.length === 0) {
     return (
@@ -977,20 +899,26 @@ function RecentScansRow({ scans }: { scans: ClosetScan[] }) {
     );
   }
 
+  const THUMB = 116;
+
   return (
     <div
       style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(auto-fill, minmax(110px, 1fr))",
+        display: "flex",
         gap: 12,
+        overflowX: "auto",
+        paddingBottom: 6,
+        scrollbarWidth: "thin",
+        WebkitOverflowScrolling: "touch",
       }}
     >
       {recent.map((s) => (
-        <div key={s.id}>
+        <div key={s.id} style={{ flex: "0 0 auto", width: THUMB }}>
           <div
             style={{
               position: "relative",
-              aspectRatio: "1",
+              width: THUMB,
+              height: THUMB,
               background: "var(--tan)",
               borderRadius: 10,
               overflow: "hidden",
@@ -1045,6 +973,7 @@ function RecentScansRow({ scans }: { scans: ClosetScan[] }) {
           </div>
         </div>
       ))}
+      <MoreCaret href={moreHref} label="See all past scans" height={THUMB} />
     </div>
   );
 }
@@ -1212,20 +1141,31 @@ function AlternativesRow({ items }: { items: Product[] }) {
 function WishlistRow({
   items,
   onRemove,
+  moreHref,
 }: {
   items: WishlistItem[];
   onRemove: (item: WishlistItem) => void | Promise<void>;
+  moreHref: string;
 }) {
+  const CARD = 150;
+  const IMG_H = Math.round((CARD * 334) / 266); // keep the 266/334 ratio
+
   return (
     <div
       style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
+        display: "flex",
         gap: 16,
+        overflowX: "auto",
+        paddingBottom: 6,
+        scrollbarWidth: "thin",
+        WebkitOverflowScrolling: "touch",
       }}
     >
       {items.map((item) => (
-        <div key={item.productId} style={{ position: "relative" }}>
+        <div
+          key={item.productId}
+          style={{ position: "relative", flex: "0 0 auto", width: CARD }}
+        >
           <Link
             href={`/shop/${item.productId}`}
             style={{ textDecoration: "none", color: "inherit", display: "block" }}
@@ -1233,7 +1173,8 @@ function WishlistRow({
             <div
               style={{
                 position: "relative",
-                aspectRatio: "266 / 334",
+                width: CARD,
+                height: IMG_H,
                 background: "var(--tan)",
                 borderRadius: 10,
                 overflow: "hidden",
@@ -1279,6 +1220,7 @@ function WishlistRow({
           </Link>
         </div>
       ))}
+      <MoreCaret href={moreHref} label="See all saved items" height={IMG_H} />
     </div>
   );
 }
@@ -1362,123 +1304,6 @@ function EmptyClosetCTA() {
         >
           scan to download
         </span>
-      </div>
-    </div>
-  );
-}
-
-function FiberLockedCTA() {
-  // A static donut preview rendered blurred behind the CTA copy. Picks
-  // arbitrary slices so the visual stays consistent regardless of user.
-  const size = 130;
-  const stroke = 18;
-  const radius = (size - stroke) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const slices: { length: number; color: string }[] = [
-    { length: 0.42 * circumference, color: "var(--red)" },
-    { length: 0.22 * circumference, color: "var(--orange)" },
-    { length: 0.18 * circumference, color: "var(--risk-low)" },
-    { length: 0.12 * circumference, color: "var(--risk-low)" },
-    { length: 0.06 * circumference, color: "var(--ink-3)" },
-  ];
-  let offset = 0;
-
-  return (
-    <div
-      style={{
-        position: "relative",
-        overflow: "hidden",
-        minHeight: 180,
-      }}
-    >
-      <div
-        aria-hidden="true"
-        style={{
-          position: "absolute",
-          right: 24,
-          top: "50%",
-          transform: "translateY(-50%)",
-          opacity: 0.22,
-          filter: "blur(5px)",
-          pointerEvents: "none",
-        }}
-      >
-        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-          <circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            fill="none"
-            stroke="var(--hairline)"
-            strokeWidth={stroke}
-          />
-          {slices.map((s, i) => {
-            const node = (
-              <circle
-                key={i}
-                cx={size / 2}
-                cy={size / 2}
-                r={radius}
-                fill="none"
-                stroke={s.color}
-                strokeWidth={stroke}
-                strokeDasharray={`${s.length} ${circumference}`}
-                strokeDashoffset={-offset}
-                transform={`rotate(-90 ${size / 2} ${size / 2})`}
-              />
-            );
-            offset += s.length;
-            return node;
-          })}
-        </svg>
-      </div>
-
-      <div style={{ position: "relative", maxWidth: 420 }}>
-        <div
-          style={{
-            fontFamily: "var(--mono)",
-            fontSize: 10,
-            letterSpacing: "0.12em",
-            textTransform: "uppercase",
-            color: "var(--ink-3)",
-            marginBottom: 10,
-          }}
-        >
-          premium
-        </div>
-        <p
-          style={{
-            fontFamily: "var(--sans)",
-            fontSize: 22,
-            letterSpacing: "-0.015em",
-            color: "var(--ink)",
-            margin: "0 0 10px",
-            fontWeight: 500,
-            lineHeight: 1.2,
-          }}
-        >
-          See what your wardrobe is made of.
-        </p>
-        <p
-          style={{
-            fontSize: 14,
-            color: "var(--ink-2)",
-            lineHeight: 1.55,
-            margin: "0 0 20px",
-          }}
-        >
-          Toxome Premium breaks down every fiber in your closet — polyester,
-          cotton, wool, elastane — color-coded by hazard.
-        </p>
-        <a
-          href="https://apps.apple.com/us/app/toxome/id6748622034"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="pill-cta"
-          style={{ justifyContent: "center" }}
-        >
-          Download the app to unlock
-        </a>
       </div>
     </div>
   );

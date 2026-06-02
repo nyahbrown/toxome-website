@@ -491,8 +491,7 @@ button { font-family: inherit; }
 /* `order` drives the visual sequence so we can swap cards without touching
    JSX. saved takes the full-width row; cleaner-alternatives sits next to
    settings on the row below. */
-.account-cell--closet   { grid-column: 1 / 2;  order: 1; }
-.account-cell--fiber    { grid-column: 2 / 3;  order: 2; }
+.account-cell--closet   { grid-column: 1 / -1; order: 1; }
 .account-cell--recent   { grid-column: 1 / -1; order: 3; }
 .account-cell--saved    { grid-column: 1 / -1; order: 4; }
 .account-cell--alts     { grid-column: 1 / 2;  order: 5; }
