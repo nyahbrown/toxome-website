@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { useAuth } from "@/contexts/AuthContext";
+import ConsentNote from "@/components/ConsentNote";
 import type { Product } from "@/types/product";
 
 function GoogleIcon() {
@@ -383,6 +384,11 @@ function LoginContent() {
           <button type="submit" style={submitButtonStyle} disabled={submitting}>
             {submitting ? "..." : mode === "signin" ? "sign in" : "create account"}
           </button>
+
+          <ConsentNote
+            lead="By continuing, you agree to our"
+            style={{ marginTop: 6 }}
+          />
         </form>
 
         {/* Toggle mode */}

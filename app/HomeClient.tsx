@@ -6,6 +6,7 @@ import Link from "next/link";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import NewsletterPopup from "@/components/NewsletterPopup";
+import ConsentNote from "@/components/ConsentNote";
 import type { ShopTaxonomy } from "@/lib/supabase";
 import type { Article } from "@/lib/journal";
 import type { Product } from "@/types/product";
@@ -511,6 +512,13 @@ function NewsletterSection() {
                   {errorMessage}
                 </p>
               )}
+              <ConsentNote
+                lead='By clicking "subscribe," you agree to receive emails from Toxome and accept our'
+                color="rgba(255,255,255,0.62)"
+                linkColor="rgba(255,255,255,0.85)"
+                showTermsApply
+                style={{ margin: "18px auto 0", maxWidth: 480 }}
+              />
             </>
           )}
         </div>

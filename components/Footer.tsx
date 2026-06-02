@@ -65,10 +65,7 @@ export default function Footer() {
               <Image src="/toxome-logo.png" alt="" width={37} height={24} style={{ height: 24, width: "auto" }} />
               <span style={{ fontSize: 18, fontWeight: 600, letterSpacing: "-0.025em", color: "var(--ink)" }}>Toxome</span>
             </div>
-            <p style={{ fontSize: 13.5, lineHeight: 1.55, margin: "0 0 22px", maxWidth: 260, color: "var(--ink)" }}>
-              A clothing scanner for people who want to know what&apos;s in their clothes.
-            </p>
-            <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 18, marginTop: 20 }}>
               {socials.map((s) => (
                 <a
                   key={s.label}

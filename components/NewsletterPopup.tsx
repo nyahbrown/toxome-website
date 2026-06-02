@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import ConsentNote from "./ConsentNote";
 
 const STORAGE_KEY = "toxome-newsletter-popup";
 // Mirrors CookieBanner's consent key + the event it fires when resolved.
@@ -285,6 +286,12 @@ export default function NewsletterPopup() {
                 {errorMessage}
               </p>
             )}
+            <ConsentNote
+              lead='By clicking "subscribe," you agree to receive emails from Toxome and accept our'
+              align="left"
+              showTermsApply
+              style={{ marginTop: 12 }}
+            />
           </form>
         </>
       )}
