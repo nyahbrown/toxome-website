@@ -687,9 +687,11 @@ export default function HomeClient({
             Toxome scores every fiber for what it does to your body and the
             planet. Start with one to see the cleaner options and what to avoid.
           </p>
-          <div className="fiber-grid">
+          <div className="fiber-hscroll">
             {FIBERS.map((f) => (
-              <FiberTile key={f.name} name={f.name} image={f.image} hover={f.hover} />
+              <div className="fiber-hscroll__item" key={f.name}>
+                <FiberTile name={f.name} image={f.image} hover={f.hover} />
+              </div>
             ))}
           </div>
         </div>

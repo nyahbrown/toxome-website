@@ -681,53 +681,46 @@ export default function ShopClient({
           marginBottom: 10,
         }}
       >
-        <div
-          className="shell"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 16,
-          }}
-        >
+        <div className="shell shop-filterbar">
           <span
-            className="eyebrow"
-            style={{ flexShrink: 0, marginRight: 4, textTransform: "uppercase" }}
+            className="eyebrow shop-filterbar__label"
+            style={{ flexShrink: 0, textTransform: "uppercase" }}
           >
             Filter by
           </span>
-          <div style={{ display: "flex", gap: 8, flex: 1, flexWrap: "wrap" }}>
-            {sectionCategories.length > 0 && (
-              <FrostedSelect
-                label="Category"
-                options={sectionCategories}
-                value={category}
-                onChange={(v) => updateParams({ category: v })}
-              />
-            )}
+          {sectionCategories.length > 0 && (
             <FrostedSelect
-              label="Occasion"
-              options={OCCASIONS}
-              value={occasionFilter ?? "All"}
-              onChange={(v) => updateParams({ occasion: v })}
+              label="Category"
+              options={sectionCategories}
+              value={category}
+              onChange={(v) => updateParams({ category: v })}
+            />
+          )}
+          <FrostedSelect
+            label="Occasion"
+            options={OCCASIONS}
+            value={occasionFilter ?? "All"}
+            onChange={(v) => updateParams({ occasion: v })}
+          />
+          <div className="shop-filterbar__sort">
+            <FrostedSelect
+              label="Sort By"
+              options={[
+                "Featured",
+                "Lowest Risk",
+                "Newest",
+                "Oldest",
+                "Price: Low to High",
+                "Price: High to Low",
+              ]}
+              value={sort}
+              onChange={(v) =>
+                updateParams({ sort: v === "Featured" ? null : v })
+              }
+              align="right"
+              hideAll
             />
           </div>
-          <FrostedSelect
-            label="Sort By"
-            options={[
-              "Featured",
-              "Lowest Risk",
-              "Newest",
-              "Oldest",
-              "Price: Low to High",
-              "Price: High to Low",
-            ]}
-            value={sort}
-            onChange={(v) =>
-              updateParams({ sort: v === "Featured" ? null : v })
-            }
-            align="right"
-            hideAll
-          />
         </div>
       </div>
 

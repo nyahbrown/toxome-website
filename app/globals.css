@@ -335,6 +335,24 @@ button { font-family: inherit; }
 @media (max-width: 640px) { .fiber-grid { grid-template-columns: repeat(3, 1fr); gap: 7px; } }
 @media (max-width: 380px) { .fiber-grid { grid-template-columns: repeat(2, 1fr); } }
 
+/* Homepage browse-by-fiber — horizontal scroll rail (replaces the grid).
+   Tiles hold a fixed width and scroll/snap; the last tile is clipped by the
+   shell padding to hint there's more to swipe. */
+.fiber-hscroll {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.fiber-hscroll::-webkit-scrollbar { display: none; }
+.fiber-hscroll__item {
+  flex: 0 0 auto;
+  width: clamp(150px, 42vw, 224px);
+  scroll-snap-align: start;
+}
+
 /* Shop — Browse by fiber: horizontal scrollable rail of landscape cards */
 .fiber-rail-wrap { position: relative; }
 .fiber-rail {
@@ -437,6 +455,21 @@ button { font-family: inherit; }
    instead of collapsing to a single column. */
 @media (max-width: 640px)  { .product-grid { grid-template-columns: repeat(2, 1fr); column-gap: 14px; row-gap: 34px; } }
 @media (max-width: 380px)  { .product-grid { column-gap: 12px; row-gap: 28px; } }
+
+/* Shop "Filter by" bar — label + filter/sort pills. On desktop the sort pill
+   is pushed to the right; on phones everything wraps left-aligned in even rows
+   instead of stacking with a floating sort control. */
+.shop-filterbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.shop-filterbar__sort { margin-left: auto; }
+@media (max-width: 640px) {
+  .shop-filterbar { gap: 10px; }
+  .shop-filterbar__sort { margin-left: 0; }
+}
 
 /* Account dashboard grid */
 .account-grid {

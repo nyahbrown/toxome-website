@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 
 const STORAGE_KEY = "toxome-newsletter-popup";
+// Mirrors CookieBanner's consent key + the event it fires when resolved.
+const CONSENT_KEY = "toxome-cookie-consent";
+const CONSENT_EVENT = "toxome-cookie-consent";
 const DELAY_MS = 8000;
 
 type State = "idle" | "submitting" | "success" | "error";
@@ -22,12 +25,45 @@ export default function NewsletterPopup() {
     } catch {
       // ignore storage errors
     }
-    timeoutId = setTimeout(() => {
-      if (!cancelled) setVisible(true);
-    }, DELAY_MS);
+
+    function scheduleShow() {
+      if (cancelled || timeoutId) return;
+      timeoutId = setTimeout(() => {
+        if (!cancelled) setVisible(true);
+      }, DELAY_MS);
+    }
+
+    // Don't surface the popup while the cookie banner is still up — the two
+    // live in the same bottom-corner space and would overlap. Wait until the
+    // visitor has accepted/rejected cookies, then start the delay timer.
+    function consentResolved() {
+      try {
+        return !!localStorage.getItem(CONSENT_KEY);
+      } catch {
+        // Storage blocked (private mode): don't let the gate trap the popup.
+        return true;
+      }
+    }
+
+    if (consentResolved()) {
+      scheduleShow();
+      return () => {
+        cancelled = true;
+        if (timeoutId) clearTimeout(timeoutId);
+      };
+    }
+
+    const onConsent = () => scheduleShow();
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === CONSENT_KEY && e.newValue) scheduleShow();
+    };
+    window.addEventListener(CONSENT_EVENT, onConsent);
+    window.addEventListener("storage", onStorage);
     return () => {
       cancelled = true;
       if (timeoutId) clearTimeout(timeoutId);
+      window.removeEventListener(CONSENT_EVENT, onConsent);
+      window.removeEventListener("storage", onStorage);
     };
   }, []);
 

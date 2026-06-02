@@ -23,6 +23,13 @@ export default function CookieBanner() {
     } catch {
       // ignore
     }
+    // Let the newsletter popup know the banner is resolved so it can start its
+    // delay timer instead of stacking on top of this banner.
+    try {
+      window.dispatchEvent(new Event(STORAGE_KEY));
+    } catch {
+      // ignore
+    }
     setVisible(false);
   }
 
