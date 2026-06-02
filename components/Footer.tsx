@@ -33,10 +33,10 @@ const cols: FooterCol[] = [
     h: "Index",
     items: [
       { label: "Shop", href: "/shop" },
-      { label: "Fabric guide", href: "/guide" },
+      { label: "Guide", href: "/guide" },
       { label: "Journal", href: "/journal" },
       { label: "Extension", href: "/extension" },
-      { label: "Get the app", href: "https://apps.apple.com/us/app/toxome/id6748622034" },
+      { label: "Get the app", href: "/app" },
     ],
   },
   {
@@ -96,7 +96,7 @@ export default function Footer() {
                       href={item.href}
                       target={item.href.startsWith("http") ? "_blank" : undefined}
                       rel={item.href.startsWith("http") ? "noopener noreferrer" : undefined}
-                      style={{ fontSize: 13.5, color: "var(--ink-2)" }}
+                      style={{ fontSize: 13.5, color: "var(--ink-2)", textTransform: "lowercase" }}
                     >
                       {item.label}
                     </a>
