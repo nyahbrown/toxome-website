@@ -6,13 +6,14 @@ import Link from "next/link";
 // pipeline (/admin) and the brand-traffic analytics (/admin/analytics).
 const TABS = [
   { key: "products", label: "Products", href: "/admin" },
+  { key: "content", label: "Content", href: "/admin/content" },
   { key: "analytics", label: "Brand traffic", href: "/admin/analytics" },
 ] as const;
 
 export default function AdminTabs({
   active,
 }: {
-  active: "products" | "analytics";
+  active: "products" | "content" | "analytics";
 }) {
   return (
     <div style={{ display: "flex", gap: 6, marginBottom: 28 }}>
