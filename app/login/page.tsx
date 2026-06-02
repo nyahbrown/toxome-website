@@ -473,11 +473,6 @@ function LoginContent() {
           </p>
         )}
 
-        <ConsentNote
-          lead="By continuing, you agree to our"
-          style={{ marginTop: 16 }}
-        />
-
         {/* Toggle mode */}
         <div style={{ textAlign: "center", marginTop: 20 }}>
           <button
@@ -509,6 +504,11 @@ function LoginContent() {
             )}
           </button>
         </div>
+
+        <ConsentNote
+          lead="By continuing, you agree to our"
+          style={{ marginTop: 36 }}
+        />
       </div>
     </main>
   );
