@@ -7,11 +7,11 @@ import { getShopTaxonomy } from "@/lib/supabase";
 export const metadata: Metadata = {
   title: "Toxome | Privacy",
   description:
-    "How Toxome collects, uses, and protects your data — across the website and the iOS app.",
+    "How Toxome collects, uses, and protects your data — across the website, the iOS app, and the browser extension.",
   alternates: { canonical: "/privacy" },
 };
 
-const LAST_UPDATED = "May 28, 2026";
+const LAST_UPDATED = "June 2, 2026";
 
 export default async function PrivacyPage() {
   const taxonomy = await getShopTaxonomy();
@@ -40,8 +40,9 @@ export default async function PrivacyPage() {
 
           <Intro>
             This is the privacy policy for the Toxome website at{" "}
-            <a href="https://toxome.app">toxome.app</a> and the Toxome iOS app.
-            Both are run by <strong>Toxome LLC</strong>, a New York
+            <a href="https://toxome.app">toxome.app</a>, the Toxome iOS app, and
+            the Toxome browser extension. They are run by{" "}
+            <strong>Toxome LLC</strong>, a New York
             limited-liability company (&ldquo;Toxome,&rdquo;
             &ldquo;we,&rdquo; &ldquo;us&rdquo;). We&apos;re a clothing scanner
             and editorial shop for people who want to know what&apos;s
@@ -94,6 +95,52 @@ export default async function PrivacyPage() {
             aggregate analytics to understand what works and what
             doesn&apos;t. It is not tied to advertising trackers and we do
             not enable third-party ad networks.
+          </P>
+
+          <H2 id="extension">The browser extension</H2>
+          <P>
+            The Toxome browser extension shows a garment&apos;s health score
+            right on the product page while you shop. Because it asks for broad
+            permissions, here is exactly how it handles your data.
+          </P>
+          <H3>What it reads</H3>
+          <P>
+            On a page you visit, the extension looks for a fabric composition
+            (for example, &ldquo;80% cotton, 20% polyester&rdquo;) along with
+            the product name, brand, and image. It only acts on pages that
+            actually list a fabric — on every other page it stays dormant. It
+            does <strong>not</strong> read your browsing history, track which
+            sites you visit, or build a profile of you.
+          </P>
+          <H3>Why it needs access to the sites you shop on</H3>
+          <P>
+            Clothing is sold on thousands of different stores, so the extension
+            has to be able to run on whichever site you choose to shop. That
+            access is used for one purpose only: to find a fabric composition on
+            the page in front of you. We don&apos;t use it to collect data from
+            pages that aren&apos;t about clothing.
+          </P>
+          <H3>Where the scoring happens</H3>
+          <P>
+            The score is calculated <em>inside the extension, on your own
+            device</em>. The fabric details on the page are not sent to Toxome
+            to generate a score. The only time product information leaves your
+            browser is when <em>you</em> choose to save an item to your wishlist
+            or closet — then the product name, brand, image, link, and score are
+            saved to your Toxome account (in Firebase), exactly like a scan in
+            the app.
+          </P>
+          <H3>Signing in and permissions</H3>
+          <P>
+            If you sign in through the extension to save items, we use the same
+            Firebase authentication as the app and website, and your login
+            session is stored locally in the browser&apos;s extension storage so
+            you stay signed in — it is never shared with the sites you visit.
+            The extension requests only these permissions: access to the product
+            pages you shop on (to read the fabric), <strong>identity</strong>
+            (for Google sign-in), and <strong>storage</strong> (to keep you
+            signed in). It shows no ads, contains no third-party trackers, and
+            never sells your data.
           </P>
 
           <H2 id="how-we-use-it">How we use it</H2>
