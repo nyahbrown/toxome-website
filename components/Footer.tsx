@@ -89,7 +89,7 @@ export default function Footer() {
           {cols.map((c) => (
             <div key={c.h}>
               <div className="eyebrow" style={{ marginBottom: 16, color: "var(--ink)" }}>{c.h}</div>
-              <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 10 }}>
+              <ul className="footer-link-list" style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 10 }}>
                 {c.items.map((item) => (
                   <li key={item.label}>
                     <a
