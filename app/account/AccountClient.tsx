@@ -18,7 +18,8 @@ import {
   type WishlistItem,
   type UserProfile,
 } from "@/lib/firestore";
-import { getCleanerAlternatives, type Product } from "@/lib/supabase";
+import { getPublishedProducts, type Product } from "@/lib/supabase";
+import { EDITORS_PICKS } from "@/lib/editorsPicks";
 import { hazardColor, prettyFiber } from "@/lib/fabricScores";
 import WishlistHeart from "@/components/WishlistHeart";
 
@@ -203,6 +204,14 @@ function firstName(displayName: string | null | undefined, email: string | null 
   return "you";
 }
 
+// Featured products = the hand-selected Editor's Picks, matched by exact
+// item_name and kept in their curated order (same source the homepage uses).
+function pickFeatured(products: Product[]): Product[] {
+  return EDITORS_PICKS.map((name) =>
+    products.find((p) => p.item_name === name)
+  ).filter((p): p is Product => Boolean(p));
+}
+
 function formatRelative(date: Date | null) {
   if (!date) return null;
   const diff = Date.now() - date.getTime();
@@ -247,10 +256,9 @@ export default function AccountClient() {
       setProfile(DEV_PROFILE);
       setScans(DEV_SCANS);
       setWishlist([]);
-      const stats = computeClosetStats(DEV_SCANS);
-      getCleanerAlternatives(stats.problemCategories, 4)
+      getPublishedProducts()
         .catch(() => [])
-        .then((alts) => setAlternatives(alts));
+        .then((products) => setAlternatives(pickFeatured(products)));
       return;
     }
 
@@ -293,13 +301,9 @@ export default function AccountClient() {
       if (cancelled) return;
       setScans(s);
 
-      const stats = computeClosetStats(s);
-      const alts = await getCleanerAlternatives(
-        stats.problemCategories,
-        4
-      ).catch(() => []);
+      const products = await getPublishedProducts().catch(() => []);
       if (cancelled) return;
-      setAlternatives(alts);
+      setAlternatives(pickFeatured(products));
     })();
     return () => {
       cancelled = true;
@@ -337,9 +341,8 @@ export default function AccountClient() {
       >
         <div
           style={{
-            maxWidth: 1200,
-            margin: "0 auto",
-            padding: "0 32px",
+            width: "100%",
+            padding: "0 clamp(20px, 4vw, 56px)",
           }}
         >
           {devMode && <DevBanner />}
@@ -361,11 +364,11 @@ export default function AccountClient() {
               </div>
               <h1
                 style={{
-                  fontFamily: "var(--serif)",
-                  fontWeight: 300,
+                  fontFamily: "var(--sans)",
+                  fontWeight: 500,
                   fontSize: "clamp(32px, 4.4vw, 48px)",
-                  lineHeight: 1.05,
-                  letterSpacing: "-0.025em",
+                  lineHeight: 1.1,
+                  letterSpacing: "-0.02em",
                   color: "var(--ink)",
                   margin: 0,
                 }}
@@ -460,12 +463,7 @@ export default function AccountClient() {
                       lineHeight: 1.5,
                     }}
                   >
-                    {stats && stats.problemCategories.length > 0
-                      ? `Low-risk picks for the categories where your closet leans high — ${stats.problemCategories
-                          .slice(0, 3)
-                          .join(", ")
-                          .toLowerCase()}.`
-                      : "Editor's picks — our cleanest verified items right now."}
+                    the items we&rsquo;re loving right now.
                   </p>
                   <AlternativesRow items={alternatives} />
                 </Panel>
@@ -633,6 +631,8 @@ function Panel({
         height: "100%",
         display: "flex",
         flexDirection: "column",
+        boxShadow:
+          "0 1px 2px rgba(59, 60, 58, 0.04), 0 14px 32px rgba(59, 60, 58, 0.07)",
       }}
     >
       <div
