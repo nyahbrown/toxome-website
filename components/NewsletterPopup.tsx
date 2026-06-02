@@ -289,7 +289,6 @@ export default function NewsletterPopup() {
             <ConsentNote
               lead='By clicking "subscribe," you agree to receive emails from Toxome and accept our'
               align="left"
-              showTermsApply
               style={{ marginTop: 12 }}
             />
           </form>

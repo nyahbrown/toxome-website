@@ -453,11 +453,15 @@ function NewsletterSection() {
                 onSubmit={handleSubmit}
                 style={{
                   display: "flex",
-                  gap: 10,
+                  alignItems: "center",
+                  gap: 0,
                   maxWidth: 460,
                   margin: "0 auto",
-                  flexWrap: "wrap",
-                  justifyContent: "center",
+                  height: 52,
+                  paddingRight: 5,
+                  borderRadius: 999,
+                  border: "1px solid rgba(255,255,255,0.5)",
+                  background: "rgba(255,255,255,0.95)",
                 }}
               >
                 <input
@@ -469,12 +473,12 @@ function NewsletterSection() {
                   autoComplete="email"
                   style={{
                     flex: 1,
-                    minWidth: 220,
-                    height: 48,
-                    padding: "0 18px",
-                    border: "1px solid rgba(255,255,255,0.5)",
+                    minWidth: 0,
+                    height: "100%",
+                    padding: "0 8px 0 20px",
+                    border: "none",
                     borderRadius: 999,
-                    background: "rgba(255,255,255,0.95)",
+                    background: "transparent",
                     color: "var(--ink)",
                     fontFamily: "var(--sans)",
                     fontSize: 15,
@@ -486,18 +490,19 @@ function NewsletterSection() {
                   type="submit"
                   disabled={state === "submitting"}
                   style={{
-                    height: 48,
-                    padding: "0 28px",
-                    // Grows to fill its own row when the form wraps on narrow phones.
-                    flex: "1 1 140px",
+                    height: 42,
+                    // Hugs its label and sits inset inside the capsule.
+                    flex: "0 0 auto",
+                    padding: "0 22px",
                     borderRadius: 999,
                     border: "none",
-                    background: "var(--cream)",
-                    color: "var(--ink)",
+                    background: "var(--ink)",
+                    color: "var(--cream)",
                     fontFamily: "var(--sans)",
-                    fontSize: 15,
+                    fontSize: 14,
                     fontWeight: 500,
                     letterSpacing: "-0.005em",
+                    whiteSpace: "nowrap",
                     cursor: state === "submitting" ? "not-allowed" : "pointer",
                     opacity: state === "submitting" ? 0.6 : 1,
                   }}
@@ -514,7 +519,6 @@ function NewsletterSection() {
                 lead='By clicking "subscribe," you agree to receive emails from Toxome and accept our'
                 color="rgba(255,255,255,0.62)"
                 linkColor="rgba(255,255,255,0.85)"
-                showTermsApply
                 style={{ margin: "18px auto 0", maxWidth: 480 }}
               />
             </>
