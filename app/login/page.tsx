@@ -51,6 +51,9 @@ function LoginContent() {
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [resetSent, setResetSent] = useState(false);
+  // Optional newsletter opt-in shown on the create-account form. Unchecked by
+  // default (explicit opt-in only).
+  const [subscribeNewsletter, setSubscribeNewsletter] = useState(false);
 
   // Redirect if already signed in
   useEffect(() => {
@@ -130,6 +133,17 @@ function LoginContent() {
         await signInWithEmail(email, password);
       } else {
         await signUpWithEmail(email, password);
+        if (subscribeNewsletter) {
+          // Fire-and-forget opt-in — never block account creation on it.
+          fetch("/api/newsletter", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: email.trim().toLowerCase(),
+              source: "account_signup",
+            }),
+          }).catch(() => {});
+        }
       }
       await handlePostLogin();
     } catch (e: unknown) {
@@ -330,7 +344,7 @@ function LoginContent() {
           />
 
           {mode === "signin" && (
-            <div style={{ textAlign: "right", marginTop: -2 }}>
+            <div style={{ textAlign: "center", marginTop: -2 }}>
               <button
                 type="button"
                 onClick={handleForgotPassword}
@@ -381,6 +395,67 @@ function LoginContent() {
             </p>
           )}
 
+          {mode === "signup" && (
+            <button
+              type="button"
+              role="checkbox"
+              aria-checked={subscribeNewsletter}
+              onClick={() => setSubscribeNewsletter((v) => !v)}
+              style={{
+                display: "flex",
+                alignItems: "flex-start",
+                gap: 10,
+                width: "100%",
+                background: "none",
+                border: "none",
+                padding: "2px 0",
+                cursor: "pointer",
+                textAlign: "left",
+              }}
+            >
+              <span
+                style={{
+                  flexShrink: 0,
+                  marginTop: 1,
+                  width: 18,
+                  height: 18,
+                  borderRadius: 5,
+                  border: `1px solid ${
+                    subscribeNewsletter ? "var(--ink)" : "var(--hairline-strong)"
+                  }`,
+                  background: subscribeNewsletter ? "var(--ink)" : "transparent",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  transition: "background 140ms ease, border-color 140ms ease",
+                }}
+              >
+                {subscribeNewsletter && (
+                  <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                    <path
+                      d="M2.5 6.2l2.2 2.2 4.8-4.8"
+                      stroke="var(--white)"
+                      strokeWidth="1.6"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                )}
+              </span>
+              <span
+                style={{
+                  fontFamily: "var(--sans)",
+                  fontSize: 13,
+                  lineHeight: 1.45,
+                  letterSpacing: "-0.005em",
+                  color: "var(--ink-2)",
+                }}
+              >
+                email me the weekly report — fashion wellness science, no spam.
+              </span>
+            </button>
+          )}
+
           <button type="submit" style={submitButtonStyle} disabled={submitting}>
             {submitting ? "..." : mode === "signin" ? "sign in" : "create account"}
           </button>
@@ -405,9 +480,21 @@ function LoginContent() {
               letterSpacing: "-0.005em",
             }}
           >
-            {mode === "signin"
-              ? "don't have an account? create one"
-              : "already have an account? sign in"}
+            {mode === "signin" ? (
+              <>
+                don&apos;t have an account?{" "}
+                <span style={{ textDecoration: "underline", textUnderlineOffset: 3 }}>
+                  create one
+                </span>
+              </>
+            ) : (
+              <>
+                already have an account?{" "}
+                <span style={{ textDecoration: "underline", textUnderlineOffset: 3 }}>
+                  sign in
+                </span>
+              </>
+            )}
           </button>
         </div>
       </div>
