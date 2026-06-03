@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { burstConfetti } from "@/lib/confetti";
+import { zipStore, type ZipEntry } from "@/lib/zip";
 import {
   loadGame,
   saveGame,
@@ -89,10 +90,25 @@ async function downloadDraftMedia(draft: Draft): Promise<void> {
   if (!draft.media_url) return;
   const slides = draft.media_type === "carousel" ? carouselSlideUrls(draft.media_url) : null;
   if (slides) {
+    // Bundle every slide into ONE .zip so a carousel downloads as a single
+    // file. Fetch slides in order; stop at the first gap (end of the set).
+    const slug = slides[0].name.replace(/-slide-0\.[^.]+$/, "") || "carousel";
+    const entries: ZipEntry[] = [];
     for (const s of slides) {
-      const ok = await fetchDownload(s.url, s.name);
-      if (!ok) break; // first gap = end of the carousel
-      await new Promise((r) => setTimeout(r, 350)); // let the browser queue each save
+      const res = await fetch(s.url).catch(() => null);
+      if (!res || !res.ok) break;
+      entries.push({ name: s.name, data: new Uint8Array(await res.arrayBuffer()) });
+    }
+    if (entries.length) {
+      const blob = zipStore(entries);
+      const obj = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = obj;
+      a.download = `${slug}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(obj), 1500);
     }
   } else {
     const name = draft.media_url.split("/").pop() || "toxome-image";
@@ -116,9 +132,9 @@ function DownloadButton({ draft, style }: { draft: Draft; style: React.CSSProper
       }}
       disabled={busy}
       style={{ ...style, opacity: busy ? 0.6 : 1 }}
-      title={isCarousel ? "Download all slides as PNGs" : "Download image"}
+      title={isCarousel ? "Download all slides as one .zip" : "Download image"}
     >
-      {busy ? "Saving…" : isCarousel ? "↓ Slides" : "↓ Image"}
+      {busy ? "Zipping…" : isCarousel ? "↓ Slides (.zip)" : "↓ Image"}
     </button>
   );
 }
