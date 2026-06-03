@@ -25,6 +25,13 @@ type Post =
   // Vogue-style article teaser — kicker + serif headline + standfirst + CTA
   // over a full-bleed editorial photo. Drives to a /journal article.
   | { kind: "teaser"; kicker: string; headline: string; dek: string; cta: string; image: string }
+  // Vogue COVER — cream page, serif masthead, centered serif headline, byline +
+  // date, a flush row of 3 photos at the foot. A carousel opener.
+  | { kind: "voguecover"; kicker: string; headline: string; byline: string; date: string; images: [string, string, string] }
+  // Editorial split — cream page, guide masthead, big roman+italic serif
+  // headline, one photo bleeding from the lower-left, a right-aligned body
+  // column ending on a lead-in. Sets up a listicle carousel.
+  | { kind: "editorialsplit"; masthead: string; headline: string; headlineItalic: string; body: string; leadIn: string; image: string }
   // Fiber index card on cream — a swatch + the fiber's one-line dossier.
   | { kind: "index"; no: string; fiber: string; meta: string[]; verdict: string; image: string; tone?: "clean" | "warn" };
 
@@ -113,6 +120,23 @@ const POSTS: Record<string, Post> = {
     cta: "Read on toxome.com",
     image: "/fibers/linen-1.jpg",
   },
+  "vogue-clean-beauty": {
+    kind: "voguecover",
+    kicker: "Fashion Wellness",
+    headline: "Fashion Wellness Is the Next Clean Beauty",
+    byline: "By Toxome",
+    date: "June 2026",
+    images: ["/fibers/guide/silk.jpg", "/fibers/guide/cotton.jpg", "/fibers/guide/wool.jpg"],
+  },
+  "editorial-natural-luxury": {
+    kind: "editorialsplit",
+    masthead: "The Toxome Guide",
+    headline: "Natural Fiber Is the New",
+    headlineItalic: "Luxury",
+    body: "In a world of synthetic everything, real luxury isn’t a logo — it’s what your clothes are actually made of. Linen, cotton, wool, silk: fibers that breathe, last, and were never pretending to be plastic.",
+    leadIn: "These four are where it starts:",
+    image: "/fibers/linen-1.jpg",
+  },
 };
 
 const ORDER = [
@@ -127,6 +151,8 @@ const ORDER = [
   "index-polyester",
   "teaser-quiet-plastic",
   "teaser-what-linen-knows",
+  "vogue-clean-beauty",
+  "editorial-natural-luxury",
 ];
 
 // First sentence (or a clean ~120-char trim) — article deks run 2 sentences,
@@ -355,6 +381,70 @@ function PostView({ post }: { post: Post }) {
               <path d="M31 2l6 5-6 5" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Vogue cover (cream page) ─────────────────────────────────────────────
+  if (post.kind === "voguecover") {
+    const hs = post.headline.length > 46 ? 70 : post.headline.length > 32 ? 78 : 86;
+    return (
+      <div style={{ ...frame, background: "var(--cream, #FCFBF7)", color: "var(--ink, #3B3C3A)" }}>
+        {/* serif masthead, top-left — the Vogue move */}
+        <div style={{ position: "absolute", top: 70, left: PAD, fontFamily: "var(--font-serif)", fontSize: 80, fontWeight: 500, letterSpacing: "0.02em", lineHeight: 1, color: "var(--ink, #3B3C3A)" }}>
+          TOXOME
+        </div>
+
+        {/* centered editorial block */}
+        <div style={{ position: "absolute", top: 280, left: PAD, right: PAD, textAlign: "center" }}>
+          <div style={{ ...eyebrowInk, color: "var(--ink-2, #57636C)", fontSize: 22, letterSpacing: "0.30em" }}>{post.kicker}</div>
+          <div style={{ marginTop: 30, fontFamily: "var(--font-serif)", fontSize: hs, fontWeight: 500, lineHeight: 1.06, letterSpacing: "-0.005em", color: "var(--ink, #3B3C3A)" }}>
+            {post.headline}
+          </div>
+          <div style={{ marginTop: 40, ...eyebrowInk, color: "var(--ink-2, #57636C)", fontSize: 20, letterSpacing: "0.22em" }}>{post.byline}</div>
+          <div style={{ marginTop: 12, fontFamily: "var(--font-sans)", fontSize: 24, fontWeight: 400, color: "var(--ink-3, #8A9199)", letterSpacing: "0.01em" }}>{post.date}</div>
+        </div>
+
+        {/* flush 3-photo row at the foot */}
+        <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: 340, display: "flex", gap: 6 }}>
+          {post.images.map((src, idx) => (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img key={idx} src={src} alt="" style={{ flex: 1, width: "33.33%", height: "100%", objectFit: "cover", display: "block" }} />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // ── Editorial split (cream page, roman+italic headline) ──────────────────
+  if (post.kind === "editorialsplit") {
+    return (
+      <div style={{ ...frame, background: "var(--cream, #FCFBF7)", color: "var(--ink, #3B3C3A)" }}>
+        {/* photo bleeding from the lower-left */}
+        <div style={{ position: "absolute", left: 0, bottom: 0, width: "46%", height: "60%" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={post.image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+        </div>
+
+        {/* guide masthead, top-center */}
+        <div style={{ position: "absolute", top: 74, left: PAD, right: PAD, textAlign: "center", fontFamily: "var(--font-serif)", fontSize: 30, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--ink, #3B3C3A)" }}>
+          {post.masthead}
+        </div>
+
+        {/* big roman + italic serif headline, upper-right */}
+        <div style={{ position: "absolute", top: 168, left: 360, right: PAD, textAlign: "right", fontFamily: "var(--font-serif)", fontSize: 92, fontWeight: 500, lineHeight: 1.0, letterSpacing: "-0.01em", color: "var(--ink, #3B3C3A)" }}>
+          {post.headline} <span style={{ fontStyle: "italic" }}>{post.headlineItalic}</span>
+        </div>
+
+        {/* right-aligned body column */}
+        <div style={{ position: "absolute", right: PAD, top: 640, width: 440, textAlign: "right", fontFamily: "var(--font-sans)", fontSize: 26, fontWeight: 400, lineHeight: 1.5, letterSpacing: "-0.005em", color: "var(--ink-2, #57636C)" }}>
+          {post.body}
+        </div>
+
+        {/* lead-in line, bottom-right */}
+        <div style={{ position: "absolute", right: PAD, bottom: 120, width: 440, textAlign: "right", fontFamily: "var(--font-sans)", fontSize: 26, fontWeight: 500, fontStyle: "italic", color: "var(--ink, #3B3C3A)" }}>
+          {post.leadIn}
         </div>
       </div>
     );
