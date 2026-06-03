@@ -1,9 +1,12 @@
 // Internal render surface for single Instagram GRID TILES (1080×1350).
-// Visit /studio/post?t=SLUG to render one tile; omit t for a contact sheet.
-// These are the non-carousel templates that give the @toxome grid its rhythm:
-// full-bleed photo tiles alternating with quiet cream type tiles. Inter only.
+// Visit /studio/post?t=SLUG to render a template tile, or
+// /studio/post?article=SLUG to auto-render a Vogue teaser from a real
+// /journal article (title + dek + hero pulled straight from the markdown).
+// Omit both for a contact sheet (templates + a teaser per published article).
 // (Editorial reference: warm beauty-magazine grids — mastheads, thin-line marks,
 // big quiet headlines, lots of negative space.)
+
+import { getArticle, getAllArticles, type ArticleMeta } from "@/lib/journal";
 
 const W = 1080;
 const H = 1350;
@@ -126,22 +129,60 @@ const ORDER = [
   "teaser-what-linen-knows",
 ];
 
+// First sentence (or a clean ~120-char trim) — article deks run 2 sentences,
+// a teaser wants one crisp line.
+function teaserDek(dek: string): string {
+  const firstSentence = dek.match(/^.*?[.!?](?=\s|$)/);
+  const s = firstSentence ? firstSentence[0] : dek;
+  if (s.length <= 130) return s.trim();
+  return dek.slice(0, 120).trim().replace(/[\s,;:]+\S*$/, "") + "…";
+}
+
+// Map a published /journal article straight into the teaser template.
+function articleToTeaser(a: ArticleMeta): Extract<Post, { kind: "teaser" }> {
+  return {
+    kind: "teaser",
+    kicker: a.pillar || "The Journal",
+    headline: a.title,
+    dek: teaserDek(a.dek),
+    cta: "Read on toxome.com",
+    image: a.hero,
+  };
+}
+
 export default async function PostStudio({
   searchParams,
 }: {
-  searchParams: Promise<{ t?: string }>;
+  searchParams: Promise<{ t?: string; article?: string }>;
 }) {
   const sp = await searchParams;
+
+  // Auto-pulled article teaser: /studio/post?article=<slug>
+  if (sp.article) {
+    const article = getArticle(sp.article);
+    if (article) {
+      return (
+        <div style={{ background: "#C9C7C1", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <HideChrome />
+          <PostView post={articleToTeaser(article)} />
+        </div>
+      );
+    }
+  }
+
   const slug = sp.t && POSTS[sp.t] ? sp.t : null;
 
   if (!slug) {
+    // Contact sheet: every template + a live teaser for each published article.
+    const articleTeasers = getAllArticles().map((a) => ({ key: `article:${a.slug}`, post: articleToTeaser(a) }));
+    const tiles = [...ORDER.map((s) => ({ key: s, post: POSTS[s] })), ...articleTeasers];
     return (
       <div style={{ background: "#E9E7E1", minHeight: "100vh", padding: 32, display: "flex", flexWrap: "wrap", gap: 24, justifyContent: "center" }}>
         <HideChrome />
-        {ORDER.map((s) => (
-          <div key={s} style={{ width: W * 0.3, height: H * 0.3, overflow: "hidden", borderRadius: 8, boxShadow: "0 8px 28px rgba(0,0,0,0.14)" }}>
+        {tiles.map(({ key, post }) => (
+          <div key={key} style={{ width: W * 0.3, height: H * 0.3, overflow: "hidden", borderRadius: 8, boxShadow: "0 8px 28px rgba(0,0,0,0.14)" }}>
             <div style={{ transform: "scale(0.3)", transformOrigin: "top left" }}>
-              <PostView post={POSTS[s]} />
+              <PostView post={post} />
             </div>
           </div>
         ))}
@@ -284,7 +325,11 @@ function PostView({ post }: { post: Post }) {
       <div style={{ ...frame, background: "#1d1b17" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={post.image} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(20,19,15,0.50) 0%, rgba(20,19,15,0.10) 30%, rgba(20,19,15,0.36) 60%, rgba(20,19,15,0.86) 100%)" }} />
+        {/* gentle overall depth */}
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(20,19,15,0.46) 0%, rgba(20,19,15,0.06) 26%, rgba(20,19,15,0.14) 52%, rgba(20,19,15,0.40) 100%)" }} />
+        {/* strong bottom scrim — guarantees white text reads over any hero, even
+            busy/light ones (e.g. an infographic) */}
+        <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: "62%", background: "linear-gradient(180deg, rgba(20,19,15,0) 0%, rgba(20,19,15,0.55) 52%, rgba(20,19,15,0.92) 100%)" }} />
 
         {/* masthead row */}
         <div style={{ position: "absolute", top: 80, left: PAD, right: PAD, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -295,7 +340,7 @@ function PostView({ post }: { post: Post }) {
         {/* headline block, lower third */}
         <div style={{ position: "absolute", left: PAD, right: PAD, bottom: 128 }}>
           <div style={{ ...eyebrowWhite, color: "rgba(255,255,255,0.9)" }}>{post.kicker}</div>
-          <div style={{ marginTop: 26, fontFamily: "var(--font-serif)", color: "#fff", fontSize: 86, fontWeight: 500, lineHeight: 1.04, letterSpacing: "-0.01em", maxWidth: 880, textShadow: "0 2px 22px rgba(0,0,0,0.45)" }}>
+          <div style={{ marginTop: 26, fontFamily: "var(--font-serif)", color: "#fff", fontSize: post.headline.length > 52 ? 64 : post.headline.length > 38 ? 74 : 86, fontWeight: 500, lineHeight: 1.05, letterSpacing: "-0.01em", maxWidth: 900, textShadow: "0 2px 22px rgba(0,0,0,0.45)" }}>
             {post.headline}
           </div>
           <div style={{ marginTop: 26, fontFamily: "var(--font-sans)", color: "rgba(255,255,255,0.92)", fontSize: 28, fontWeight: 400, fontStyle: "italic", lineHeight: 1.4, letterSpacing: "-0.005em", maxWidth: 720, textShadow: "0 1px 14px rgba(0,0,0,0.4)" }}>
