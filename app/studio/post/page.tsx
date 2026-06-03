@@ -13,11 +13,15 @@ type Post =
   // Magazine-cover masthead over a full-bleed photo.
   | { kind: "masthead"; eyebrow: string; coverline: string; issue: string; image: string }
   // Thin-line ring mark with a 3-word phrase over a textural photo.
-  | { kind: "linemark"; words: [string, string, string]; image: string; tone: "ink" | "white" }
+  // Overlays on photos are ALWAYS white (locked 2026-06-03).
+  | { kind: "linemark"; words: [string, string, string]; image: string }
   // Pure-type breather on cream — an overheard line.
   | { kind: "quote"; quote: string; attribution: string }
   // Editorial headline anchored bottom-left over a full-bleed photo.
   | { kind: "editorial"; eyebrow: string; headline: string; image: string }
+  // Vogue-style article teaser — kicker + serif headline + standfirst + CTA
+  // over a full-bleed editorial photo. Drives to a /journal article.
+  | { kind: "teaser"; kicker: string; headline: string; dek: string; cta: string; image: string }
   // Fiber index card on cream — a swatch + the fiber's one-line dossier.
   | { kind: "index"; no: string; fiber: string; meta: string[]; verdict: string; image: string; tone?: "clean" | "warn" };
 
@@ -33,7 +37,6 @@ const POSTS: Record<string, Post> = {
     kind: "linemark",
     words: ["know", "your", "fibers"],
     image: "/fibers/wool-2.jpg",
-    tone: "ink",
   },
   "quote-plain-shirt": {
     kind: "quote",
@@ -91,6 +94,22 @@ const POSTS: Record<string, Post> = {
     image: "/fibers/guide/polyester.jpg",
     tone: "warn",
   },
+  "teaser-quiet-plastic": {
+    kind: "teaser",
+    kicker: "The Journal",
+    headline: "The Quiet Plastic in Your Closet",
+    dek: "The softest shirt in your drawer may be spun from petroleum. A field guide to reading what you wear.",
+    cta: "Read on toxome.com",
+    image: "/hero-field.jpg",
+  },
+  "teaser-what-linen-knows": {
+    kind: "teaser",
+    kicker: "The Journal",
+    headline: "What Linen Knows",
+    dek: "On flax, breath, and the case for fabrics that were never trying to be plastic.",
+    cta: "Read on toxome.com",
+    image: "/fibers/linen-1.jpg",
+  },
 };
 
 const ORDER = [
@@ -103,6 +122,8 @@ const ORDER = [
   "index-wool",
   "index-silk",
   "index-polyester",
+  "teaser-quiet-plastic",
+  "teaser-what-linen-knows",
 ];
 
 export default async function PostStudio({
@@ -185,13 +206,14 @@ function PostView({ post }: { post: Post }) {
 
   // ── Thin-line ring mark ──────────────────────────────────────────────────
   if (post.kind === "linemark") {
-    const c = post.tone === "white" ? "#fff" : "#3B3C3A";
+    // Overlays on photos are always white (locked 2026-06-03).
+    const c = "#fff";
     return (
-      <div style={{ ...frame, background: "#EDE9E0" }}>
+      <div style={{ ...frame, background: "#1d1b17" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={post.image} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-        {/* soft veil so the line work reads without flattening the photo */}
-        <div style={{ position: "absolute", inset: 0, background: post.tone === "white" ? "rgba(20,19,15,0.34)" : "rgba(252,251,247,0.42)" }} />
+        {/* dark veil so the white line work reads cleanly over any photo */}
+        <div style={{ position: "absolute", inset: 0, background: "rgba(20,19,15,0.42)" }} />
 
         {/* eye mark, top-center */}
         <div style={{ position: "absolute", top: 104, left: 0, right: 0, display: "flex", justifyContent: "center" }}>
@@ -213,7 +235,7 @@ function PostView({ post }: { post: Post }) {
 
         {/* lockup label, bottom-center */}
         <div style={{ position: "absolute", bottom: 110, left: 0, right: 0, textAlign: "center" }}>
-          <span style={{ fontFamily: "var(--font-sans)", fontSize: 20, fontWeight: 600, letterSpacing: "0.30em", textTransform: "uppercase", color: post.tone === "white" ? "rgba(255,255,255,0.8)" : "var(--ink-3, #8A9199)" }}>
+          <span style={{ fontFamily: "var(--font-sans)", fontSize: 20, fontWeight: 600, letterSpacing: "0.30em", textTransform: "uppercase", color: "rgba(255,255,255,0.82)" }}>
             Toxome
           </span>
         </div>
@@ -250,6 +272,43 @@ function PostView({ post }: { post: Post }) {
           <div style={eyebrowWhite}>{post.eyebrow}</div>
           <div style={{ marginTop: 20, color: "#fff", fontSize: 60, fontWeight: 400, lineHeight: 1.14, letterSpacing: "-0.02em", maxWidth: 760, textShadow: "0 2px 18px rgba(0,0,0,0.42)" }}>
             {post.headline}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Vogue-style article teaser ───────────────────────────────────────────
+  if (post.kind === "teaser") {
+    return (
+      <div style={{ ...frame, background: "#1d1b17" }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={post.image} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(20,19,15,0.50) 0%, rgba(20,19,15,0.10) 30%, rgba(20,19,15,0.36) 60%, rgba(20,19,15,0.86) 100%)" }} />
+
+        {/* masthead row */}
+        <div style={{ position: "absolute", top: 80, left: PAD, right: PAD, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <EyeLogo size={58} />
+          <span style={{ ...eyebrowWhite, fontSize: 19, letterSpacing: "0.30em" }}>Toxome</span>
+        </div>
+
+        {/* headline block, lower third */}
+        <div style={{ position: "absolute", left: PAD, right: PAD, bottom: 128 }}>
+          <div style={{ ...eyebrowWhite, color: "rgba(255,255,255,0.9)" }}>{post.kicker}</div>
+          <div style={{ marginTop: 26, fontFamily: "var(--font-serif)", color: "#fff", fontSize: 86, fontWeight: 500, lineHeight: 1.04, letterSpacing: "-0.01em", maxWidth: 880, textShadow: "0 2px 22px rgba(0,0,0,0.45)" }}>
+            {post.headline}
+          </div>
+          <div style={{ marginTop: 26, fontFamily: "var(--font-sans)", color: "rgba(255,255,255,0.92)", fontSize: 28, fontWeight: 400, fontStyle: "italic", lineHeight: 1.4, letterSpacing: "-0.005em", maxWidth: 720, textShadow: "0 1px 14px rgba(0,0,0,0.4)" }}>
+            {post.dek}
+          </div>
+          {/* thin white rule + CTA */}
+          <div style={{ marginTop: 38, height: 1, background: "rgba(255,255,255,0.6)", width: 92 }} />
+          <div style={{ marginTop: 22, display: "flex", alignItems: "center", gap: 16 }}>
+            <span style={{ fontFamily: "var(--font-sans)", color: "#fff", fontSize: 24, fontWeight: 500, letterSpacing: "0.01em" }}>{post.cta}</span>
+            <svg width="40" height="14" viewBox="0 0 40 14" fill="none" aria-hidden>
+              <path d="M0 7h36" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" />
+              <path d="M31 2l6 5-6 5" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
           </div>
         </div>
       </div>
