@@ -19,7 +19,7 @@ type Post =
   // Editorial headline anchored bottom-left over a full-bleed photo.
   | { kind: "editorial"; eyebrow: string; headline: string; image: string }
   // Fiber index card on cream — a swatch + the fiber's one-line dossier.
-  | { kind: "index"; no: string; fiber: string; meta: string[]; verdict: string; image: string };
+  | { kind: "index"; no: string; fiber: string; meta: string[]; verdict: string; image: string; tone?: "clean" | "warn" };
 
 const POSTS: Record<string, Post> = {
   "cover-radiance": {
@@ -52,11 +52,58 @@ const POSTS: Record<string, Post> = {
     fiber: "Linen",
     meta: ["from flax", "breathable", "biodegradable"],
     verdict: "zero plastic",
-    image: "/fibers/linen-1.jpg",
+    image: "/fibers/guide/linen.jpg",
+    tone: "clean",
+  },
+  "index-cotton": {
+    kind: "index",
+    no: "Fiber Nº 02",
+    fiber: "Cotton",
+    meta: ["from the cotton plant", "soft", "breathable"],
+    verdict: "zero plastic",
+    image: "/fibers/guide/cotton.jpg",
+    tone: "clean",
+  },
+  "index-wool": {
+    kind: "index",
+    no: "Fiber Nº 03",
+    fiber: "Wool",
+    meta: ["from sheep", "warm", "odor-resistant"],
+    verdict: "zero plastic",
+    image: "/fibers/guide/wool.jpg",
+    tone: "clean",
+  },
+  "index-silk": {
+    kind: "index",
+    no: "Fiber Nº 04",
+    fiber: "Silk",
+    meta: ["from silkworms", "smooth", "temperature-regulating"],
+    verdict: "zero plastic",
+    image: "/fibers/guide/silk.jpg",
+    tone: "clean",
+  },
+  "index-polyester": {
+    kind: "index",
+    no: "Fiber Nº 05",
+    fiber: "Polyester",
+    meta: ["spun from petroleum", "sheds microplastics", "traps heat & sweat"],
+    verdict: "this one is plastic",
+    image: "/fibers/guide/polyester.jpg",
+    tone: "warn",
   },
 };
 
-const ORDER = ["cover-radiance", "mark-fibers", "quote-plain-shirt", "editorial-next-to-skin", "index-linen"];
+const ORDER = [
+  "cover-radiance",
+  "mark-fibers",
+  "quote-plain-shirt",
+  "editorial-next-to-skin",
+  "index-linen",
+  "index-cotton",
+  "index-wool",
+  "index-silk",
+  "index-polyester",
+];
 
 export default async function PostStudio({
   searchParams,
@@ -229,7 +276,19 @@ function PostView({ post }: { post: Post }) {
       <div style={{ marginTop: 28, fontSize: 30, fontWeight: 400, letterSpacing: "0.01em", color: "var(--ink-2, #57636C)" }}>
         {post.meta.join("   ·   ")}
       </div>
-      <div style={{ marginTop: 40, display: "inline-block", padding: "12px 22px", borderRadius: 999, background: "var(--blue, #A8BDD3)", color: "var(--ink, #3B3C3A)", fontSize: 26, fontWeight: 500, letterSpacing: "0.01em" }}>
+      <div
+        style={{
+          marginTop: 40,
+          display: "inline-block",
+          padding: "12px 22px",
+          borderRadius: 999,
+          background: post.tone === "warn" ? "var(--red, #C84242)" : "var(--blue, #A8BDD3)",
+          color: post.tone === "warn" ? "#fff" : "var(--ink, #3B3C3A)",
+          fontSize: 26,
+          fontWeight: 500,
+          letterSpacing: "0.01em",
+        }}
+      >
         {post.verdict}
       </div>
     </div>
