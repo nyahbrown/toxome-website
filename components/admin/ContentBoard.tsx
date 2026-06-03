@@ -50,6 +50,101 @@ const PLATFORM_LABEL: Record<string, string> = {
 
 type Float = { id: number; text: string; tone: "pos" | "big" };
 
+// ── Media download helpers ─────────────────────────────────────────────────
+// Lets you save the slide PNGs to disk for manual posting while auto-push is
+// still dormant. Carousel covers are stored as `…/slide-0.png`; we derive the
+// sibling slides (slide-1, slide-2, …) and stop at the first one missing.
+async function fetchDownload(url: string, filename: string): Promise<boolean> {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return false;
+    const blob = await res.blob();
+    const obj = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = obj;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(obj), 1500);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function carouselSlideUrls(coverUrl: string): { url: string; name: string }[] | null {
+  const m = coverUrl.match(/^(.*\/)slide-0\.(png|jpe?g|webp)$/i);
+  if (!m) return null;
+  const [, base, ext] = m;
+  const slug = base.replace(/\/$/, "").split("/").pop() || "carousel";
+  // Up to 10 slides; downloader bails at the first missing file.
+  return Array.from({ length: 10 }, (_, i) => ({
+    url: `${base}slide-${i}.${ext}`,
+    name: `${slug}-slide-${i}.${ext}`,
+  }));
+}
+
+async function downloadDraftMedia(draft: Draft): Promise<void> {
+  if (!draft.media_url) return;
+  const slides = draft.media_type === "carousel" ? carouselSlideUrls(draft.media_url) : null;
+  if (slides) {
+    for (const s of slides) {
+      const ok = await fetchDownload(s.url, s.name);
+      if (!ok) break; // first gap = end of the carousel
+      await new Promise((r) => setTimeout(r, 350)); // let the browser queue each save
+    }
+  } else {
+    const name = draft.media_url.split("/").pop() || "toxome-image";
+    await fetchDownload(draft.media_url, name);
+  }
+}
+
+function DownloadButton({ draft, style }: { draft: Draft; style: React.CSSProperties }) {
+  const [busy, setBusy] = useState(false);
+  if (!draft.media_url) return null;
+  const isCarousel = draft.media_type === "carousel";
+  return (
+    <button
+      onClick={async () => {
+        setBusy(true);
+        try {
+          await downloadDraftMedia(draft);
+        } finally {
+          setBusy(false);
+        }
+      }}
+      disabled={busy}
+      style={{ ...style, opacity: busy ? 0.6 : 1 }}
+      title={isCarousel ? "Download all slides as PNGs" : "Download image"}
+    >
+      {busy ? "Saving…" : isCarousel ? "↓ Slides" : "↓ Image"}
+    </button>
+  );
+}
+
+function CopyCaptionButton({ text, style }: { text: string; style: React.CSSProperties }) {
+  const [done, setDone] = useState(false);
+  if (!text.trim()) return null;
+  return (
+    <button
+      onClick={async () => {
+        try {
+          await navigator.clipboard.writeText(text);
+          setDone(true);
+          setTimeout(() => setDone(false), 1500);
+        } catch {
+          /* clipboard blocked — ignore */
+        }
+      }}
+      style={style}
+      title="Copy the caption text"
+    >
+      {done ? "Copied ✓" : "Copy caption"}
+    </button>
+  );
+}
+
 // ── Component ─────────────────────────────────────────────────────────────
 export default function ContentBoard({ getToken }: { getToken: () => Promise<string> }) {
   const [drafts, setDrafts] = useState<Draft[]>([]);
@@ -449,6 +544,13 @@ function ReviewMode({
           <div style={{ ...reviewMedia, ...mediaEmptyInner }}>no visual yet</div>
         )}
 
+        {current.media_url && (
+          <div style={{ display: "flex", gap: 8, marginTop: 10, marginBottom: 4 }}>
+            <DownloadButton draft={current} style={miniGhost} />
+            <CopyCaptionButton text={body} style={miniGhost} />
+          </div>
+        )}
+
         {isPin && (
           <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="pin title (the search query)" style={titleInput} />
         )}
@@ -590,6 +692,8 @@ function MiniCard({
         <div style={{ fontFamily: "var(--sans)", fontSize: 11, color: "var(--ink-3)", marginBottom: 6 }}>pushed · {draft.external_id}</div>
       )}
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+        <DownloadButton draft={draft} style={miniGhost} />
+        <CopyCaptionButton text={body} style={miniGhost} />
         {draft.status !== "approved" && draft.status !== "scheduled" && (
           <button onClick={() => onPatch(draft.id, { status: "approved" })} style={miniApprove}>
             {schedulerOn ? "Approve + push" : "Approve"}
