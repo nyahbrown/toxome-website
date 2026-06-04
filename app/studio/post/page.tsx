@@ -109,7 +109,7 @@ const POSTS: Record<string, Post> = {
     kicker: "The Journal",
     headline: "The Quiet Plastic in Your Closet",
     dek: "The softest shirt in your drawer may be spun from petroleum. A field guide to reading what you wear.",
-    cta: "Read on toxome.com",
+    cta: "Read on toxome.app",
     image: "/hero-field.jpg",
   },
   "teaser-what-linen-knows": {
@@ -117,7 +117,7 @@ const POSTS: Record<string, Post> = {
     kicker: "The Journal",
     headline: "What Linen Knows",
     dek: "On flax, breath, and the case for fabrics that were never trying to be plastic.",
-    cta: "Read on toxome.com",
+    cta: "Read on toxome.app",
     image: "/fibers/linen-1.jpg",
   },
   "vogue-clean-beauty": {
@@ -171,7 +171,7 @@ function articleToTeaser(a: ArticleMeta): Extract<Post, { kind: "teaser" }> {
     kicker: a.pillar || "The Journal",
     headline: a.title,
     dek: teaserDek(a.dek),
-    cta: "Read on toxome.com",
+    cta: "Read on toxome.app",
     image: a.hero,
   };
 }
