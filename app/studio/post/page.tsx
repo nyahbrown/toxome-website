@@ -164,13 +164,6 @@ function teaserDek(dek: string): string {
   return dek.slice(0, 120).trim().replace(/[\s,;:]+\S*$/, "") + "…";
 }
 
-// Per-article teaser-image overrides. Some article heroes (e.g. an infographic)
-// don't work as a full-bleed teaser background; override the IG teaser image
-// here without touching the article's real on-site hero.
-const TEASER_IMAGE_OVERRIDE: Record<string, string> = {
-  "clothes-break-europe-chemical-limits": "/fibers/guide/elastane.jpg",
-};
-
 // Map a published /journal article straight into the teaser template.
 function articleToTeaser(a: ArticleMeta): Extract<Post, { kind: "teaser" }> {
   return {
@@ -179,7 +172,7 @@ function articleToTeaser(a: ArticleMeta): Extract<Post, { kind: "teaser" }> {
     headline: a.title,
     dek: teaserDek(a.dek),
     cta: "Read on toxome.app",
-    image: TEASER_IMAGE_OVERRIDE[a.slug] ?? a.hero,
+    image: a.hero,
   };
 }
 
