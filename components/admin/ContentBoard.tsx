@@ -15,7 +15,7 @@ import {
 } from "@/lib/contentGame";
 
 // ── Types ────────────────────────────────────────────────────────────────
-type Status = "draft" | "needs_edit" | "approved" | "scheduled";
+type Status = "draft" | "needs_edit" | "approved" | "scheduled" | "posted";
 
 type Draft = {
   id: string;
@@ -31,6 +31,8 @@ type Draft = {
   media_type: string | null;
   status: Status;
   comment: string | null;
+  scheduled_at: string | null;
+  posted_at: string | null;
   external_id: string | null;
   push_error: string | null;
 };
@@ -40,7 +42,30 @@ const COLUMNS: { key: Status; label: string }[] = [
   { key: "needs_edit", label: "Needs edit" },
   { key: "approved", label: "Approved" },
   { key: "scheduled", label: "Scheduled" },
+  { key: "posted", label: "Posted" },
 ];
+
+// Date helpers for scheduling. We store scheduled_at as an ISO timestamp at
+// noon UTC so the calendar day never drifts across timezones.
+function ymd(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+function isoFromInput(dateStr: string): string | null {
+  if (!dateStr) return null;
+  return `${dateStr}T12:00:00.000Z`;
+}
+function inputFromIso(iso: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
+}
+function prettyDay(iso: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
+}
 
 const PLATFORMS = ["instagram", "twitter", "pinterest"] as const;
 const PLATFORM_LABEL: Record<string, string> = {
@@ -167,7 +192,7 @@ export default function ContentBoard({ getToken }: { getToken: () => Promise<str
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
   const [schedulerOn, setSchedulerOn] = useState(false);
-  const [view, setView] = useState<"review" | "board">("review");
+  const [view, setView] = useState<"review" | "board" | "calendar">("review");
   const [showComposer, setShowComposer] = useState(false);
 
   // Game state (persisted to localStorage)
@@ -244,7 +269,7 @@ export default function ContentBoard({ getToken }: { getToken: () => Promise<str
   );
 
   const byStatus = useMemo(() => {
-    const map: Record<Status, Draft[]> = { draft: [], needs_edit: [], approved: [], scheduled: [] };
+    const map: Record<Status, Draft[]> = { draft: [], needs_edit: [], approved: [], scheduled: [], posted: [] };
     for (const d of drafts) map[d.status]?.push(d);
     return map;
   }, [drafts]);
@@ -343,11 +368,12 @@ export default function ContentBoard({ getToken }: { getToken: () => Promise<str
       {/* View toggle + composer */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", margin: "20px 0 18px" }}>
         <div style={{ display: "flex", gap: 6 }}>
-          {(["review", "board"] as const).map((v) => {
+          {(["review", "board", "calendar"] as const).map((v) => {
             const on = view === v;
+            const label = v === "review" ? "Review" : v === "board" ? "Board" : "Calendar";
             return (
               <button key={v} onClick={() => setView(v)} style={{ ...pill, ...(on ? pillOn : pillOff) }}>
-                {v === "review" ? "Review" : "Board"}
+                {label}
               </button>
             );
           })}
@@ -381,8 +407,10 @@ export default function ContentBoard({ getToken }: { getToken: () => Promise<str
           dailyGoal={game.dailyGoal}
           todayCount={todayCount}
         />
-      ) : (
+      ) : view === "board" ? (
         <BoardView byStatus={byStatus} onPatch={patch} onRemove={remove} schedulerOn={schedulerOn} />
+      ) : (
+        <CalendarView drafts={drafts} onPatch={patch} />
       )}
     </div>
   );
@@ -623,7 +651,11 @@ function BoardView({
   onRemove: (id: string) => void;
   schedulerOn: boolean;
 }) {
-  const empty = COLUMNS.every((c) => byStatus[c.key].length === 0);
+  // In approve-only (manual) mode the "Scheduled" status is never used — that's
+  // only for scheduler auto-push. Hide that column so the manual loop reads
+  // Draft → Needs edit → Approved → Posted.
+  const cols = COLUMNS.filter((c) => c.key !== "scheduled" || schedulerOn);
+  const empty = cols.every((c) => byStatus[c.key].length === 0);
   if (empty) {
     return (
       <div style={{ ...card, textAlign: "center", padding: "40px 24px" }}>
@@ -633,8 +665,8 @@ function BoardView({
     );
   }
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, alignItems: "start" }}>
-      {COLUMNS.map((col) => (
+    <div style={{ display: "grid", gridTemplateColumns: `repeat(${cols.length}, 1fr)`, gap: 16, alignItems: "start" }}>
+      {cols.map((col) => (
         <div key={col.key}>
           <div style={columnHeader}>
             {col.label}
@@ -707,15 +739,39 @@ function MiniCard({
       {draft.status === "scheduled" && draft.external_id && (
         <div style={{ fontFamily: "var(--sans)", fontSize: 11, color: "var(--ink-3)", marginBottom: 6 }}>pushed · {draft.external_id}</div>
       )}
+      {draft.status === "posted" && (
+        <div style={{ fontFamily: "var(--sans)", fontSize: 12, fontWeight: 600, color: "var(--risk-low)", marginBottom: 8 }}>
+          ✓ posted{draft.posted_at ? ` · ${prettyDay(draft.posted_at)}` : ""}
+        </div>
+      )}
+
+      {/* plan a day to post (the calendar reads this) */}
+      {(draft.status === "approved" || draft.status === "scheduled") && (
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+          <span style={{ fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, letterSpacing: ".06em", textTransform: "uppercase", color: "var(--ink-3)" }}>plan</span>
+          <input
+            type="date"
+            value={inputFromIso(draft.scheduled_at)}
+            onChange={(e) => onPatch(draft.id, { scheduled_at: isoFromInput(e.target.value) })}
+            style={dateInput}
+          />
+        </div>
+      )}
+
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
         <DownloadButton draft={draft} style={miniGhost} />
         <CopyCaptionButton text={body} style={miniGhost} />
-        {draft.status !== "approved" && draft.status !== "scheduled" && (
+        {draft.status !== "approved" && draft.status !== "scheduled" && draft.status !== "posted" && (
           <button onClick={() => onPatch(draft.id, { status: "approved" })} style={miniApprove}>
             {schedulerOn ? "Approve + push" : "Approve"}
           </button>
         )}
-        {draft.status !== "needs_edit" && draft.status !== "scheduled" && (
+        {(draft.status === "approved" || draft.status === "scheduled") && (
+          <button onClick={() => onPatch(draft.id, { status: "posted" })} style={miniPosted}>
+            Mark posted ✓
+          </button>
+        )}
+        {draft.status !== "needs_edit" && draft.status !== "scheduled" && draft.status !== "posted" && (
           <button onClick={() => onPatch(draft.id, { status: "needs_edit" })} style={miniGhost}>
             Needs edit
           </button>
@@ -725,6 +781,135 @@ function MiniCard({
             Reset
           </button>
         )}
+      </div>
+    </div>
+  );
+}
+
+// ── Calendar view — the planning surface ─────────────────────────────────
+// An agenda of the next 14 days built from scheduled_at, plus an "Unscheduled"
+// bucket for approved posts that still need a day. Closes the loop: each item
+// has Download · Copy · Mark posted right where you plan it.
+function CalendarView({
+  drafts,
+  onPatch,
+}: {
+  drafts: Draft[];
+  onPatch: (id: string, u: Partial<Draft>) => void;
+}) {
+  // planning pool = approved or scheduled (ready, not yet posted)
+  const planning = drafts.filter((d) => d.status === "approved" || d.status === "scheduled");
+  const scheduled = planning.filter((d) => d.scheduled_at);
+  const unscheduled = planning.filter((d) => !d.scheduled_at);
+
+  const today = new Date();
+  const days: { key: string; label: string; items: Draft[] }[] = [];
+  for (let i = 0; i < 14; i++) {
+    const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + i);
+    const key = ymd(d);
+    const items = scheduled
+      .filter((x) => inputFromIso(x.scheduled_at) === key)
+      .sort((a, b) => a.platform.localeCompare(b.platform));
+    const label =
+      i === 0 ? "Today" : i === 1 ? "Tomorrow" : d.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
+    days.push({ key, label, items });
+  }
+
+  // overdue: scheduled before today and not posted
+  const todayKey = ymd(today);
+  const overdue = scheduled.filter((x) => inputFromIso(x.scheduled_at) < todayKey);
+
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 20, alignItems: "start" }}>
+      {/* agenda */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {overdue.length > 0 && (
+          <div>
+            <div style={{ ...columnHeader, color: "var(--red)" }}>
+              Overdue<span style={{ color: "var(--ink-3)", fontWeight: 400 }}> · {overdue.length}</span>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {overdue.map((d) => (
+                <CalCard key={d.id} draft={d} onPatch={onPatch} />
+              ))}
+            </div>
+          </div>
+        )}
+        {days.map((day) => (
+          <div key={day.key}>
+            <div style={columnHeader}>
+              {day.label}
+              {day.items.length > 0 && <span style={{ color: "var(--ink-3)", fontWeight: 400 }}> · {day.items.length}</span>}
+            </div>
+            {day.items.length === 0 ? (
+              <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", padding: "2px 0 6px" }}>—</div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {day.items.map((d) => (
+                  <CalCard key={d.id} draft={d} onPatch={onPatch} />
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* unscheduled sidebar */}
+      <div style={{ ...card, padding: 16, position: "sticky", top: 16 }}>
+        <div style={{ ...columnHeader, marginBottom: 12 }}>
+          Unscheduled<span style={{ color: "var(--ink-3)", fontWeight: 400 }}> · {unscheduled.length}</span>
+        </div>
+        {unscheduled.length === 0 ? (
+          <p style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)", margin: 0 }}>
+            Everything approved has a day. Approve more from Review.
+          </p>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {unscheduled.map((d) => (
+              <CalCard key={d.id} draft={d} onPatch={onPatch} showDate />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Compact card used inside the calendar agenda + unscheduled list.
+function CalCard({ draft, onPatch, showDate }: { draft: Draft; onPatch: (id: string, u: Partial<Draft>) => void; showDate?: boolean }) {
+  return (
+    <div style={{ ...card, padding: 10, display: "flex", gap: 10, alignItems: "flex-start" }}>
+      {draft.media_url ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={draft.media_url} alt="" style={{ width: 46, height: 58, objectFit: "cover", borderRadius: 6, flexShrink: 0 }} />
+      ) : (
+        <div style={{ width: 46, height: 58, borderRadius: 6, background: "var(--tan)", flexShrink: 0 }} />
+      )}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+          <span style={{ ...platformBadge, fontSize: 9, padding: "2px 7px" }}>{PLATFORM_LABEL[draft.platform] || draft.platform}</span>
+          {draft.scheduled_at && !showDate && (
+            <span style={{ fontFamily: "var(--sans)", fontSize: 10, color: "var(--ink-3)" }}>{prettyDay(draft.scheduled_at)}</span>
+          )}
+        </div>
+        <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", lineHeight: 1.35, overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
+          {draft.source_ref || draft.body.slice(0, 80)}
+        </div>
+        {showDate && (
+          <input
+            type="date"
+            value={inputFromIso(draft.scheduled_at)}
+            onChange={(e) => onPatch(draft.id, { scheduled_at: isoFromInput(e.target.value) })}
+            style={{ ...dateInput, marginTop: 6 }}
+          />
+        )}
+        <div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginTop: 7 }}>
+          <DownloadButton draft={draft} style={{ ...miniGhost, fontSize: 11, padding: "5px 9px" }} />
+          <CopyCaptionButton text={draft.body} style={{ ...miniGhost, fontSize: 11, padding: "5px 9px" }} />
+          <button onClick={() => onPatch(draft.id, { status: "posted" })} style={{ ...miniPosted, fontSize: 11, padding: "5px 9px" }}>
+            Posted ✓
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -887,6 +1072,8 @@ const bigApprove: React.CSSProperties = { border: "1px solid var(--blue)", backg
 
 const miniApprove: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 12, padding: "7px 12px", borderRadius: 999, cursor: "pointer", background: "var(--blue)", color: "var(--ink)", border: "1px solid var(--blue)" };
 const miniGhost: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 12, padding: "7px 12px", borderRadius: 999, cursor: "pointer", background: "var(--white)", color: "var(--ink-2)", border: "1px solid var(--hairline-strong)" };
+const miniPosted: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 12, padding: "7px 12px", borderRadius: 999, cursor: "pointer", background: "var(--risk-low)", color: "var(--ink)", border: "1px solid var(--risk-low)" };
+const dateInput: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 12, padding: "5px 9px", borderRadius: 8, background: "var(--white)", color: "var(--ink)", border: "1px solid var(--hairline-strong)", cursor: "pointer" };
 
 const kbd: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 10, fontWeight: 600, padding: "2px 6px", borderRadius: 5, background: "rgba(59,60,58,0.08)", color: "var(--ink-2)" };
 const kbdDark: React.CSSProperties = { background: "rgba(59,60,58,0.18)", color: "var(--ink)" };

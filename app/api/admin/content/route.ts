@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 const MAX_ROWS = 500;
 const TABLE = "content_drafts";
 
-const STATUSES = ["draft", "needs_edit", "approved", "scheduled"] as const;
+const STATUSES = ["draft", "needs_edit", "approved", "scheduled", "posted"] as const;
 type Status = (typeof STATUSES)[number];
 
 // GET — list drafts (optionally filtered by status). Returns scheduler config so
@@ -94,6 +94,8 @@ export async function PATCH(req: Request) {
   if ("title" in payload) updates.title = str(payload.title) || null;
   if ("comment" in payload) updates.comment = str(payload.comment) || null;
   if ("media_url" in payload) updates.media_url = str(payload.media_url) || null;
+  if ("scheduled_at" in payload) updates.scheduled_at = str(payload.scheduled_at) || null;
+  if ("posted_at" in payload) updates.posted_at = str(payload.posted_at) || null;
 
   let requestedStatus: Status | null = null;
   if ("status" in payload) {
@@ -103,6 +105,12 @@ export async function PATCH(req: Request) {
     }
     requestedStatus = s as Status;
     updates.status = requestedStatus;
+    // Stamp/clear posted_at automatically as the post crosses the finish line.
+    if (requestedStatus === "posted" && !("posted_at" in payload)) {
+      updates.posted_at = new Date().toISOString();
+    } else if (requestedStatus !== "posted" && !("posted_at" in payload)) {
+      updates.posted_at = null;
+    }
   }
 
   // Apply the field/status update first.
