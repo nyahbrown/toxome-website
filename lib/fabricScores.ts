@@ -1,4 +1,4 @@
-// Toxome V2 scoring (website). Logic only — all numbers come from the canonical
+// Toxome V2 scoring (website). Logic only, all numbers come from the canonical
 // data file lib/fiber-scores.json. Mirrored by scripts/fabricScores.js.
 //
 // DIRECTION: the public Toxome Score is CLEAN space (0–100, HIGHER = BETTER).
@@ -47,6 +47,13 @@ export function resolveFiber(name: string): string | null {
   if (/tencel.*modal|modal.*tencel/.test(k)) return "tencel_modal";
   if (/tencel|lyocell/.test(k)) return "lyocell";
   if (/ecovero/.test(k)) return "ecovero";
+  // Branded closed-loop names must route to their own (cleaner) entries before
+  // the generic substring fallback grabs "viscose"/"modal".
+  if (/lenzing/.test(k) && /viscose/.test(k)) return "lenzing_viscose";
+  if (/lenzing/.test(k) && /modal/.test(k)) return "tencel_modal";
+  // Lycra / "elastic" are spandex; otherwise they fall to the null→50 default
+  // and UNDER-penalize the synthetic.
+  if (k === "elastic" || /lycra/.test(k)) return "spandex";
   if (k in FIBERS) return k;
   let best: string | null = null;
   let bestLen = 0;
@@ -141,7 +148,7 @@ export interface ScoreOpts {
 }
 
 /**
- * Overall Toxome Score from a {fiber: fraction|percent} map — CLEAN space
+ * Overall Toxome Score from a {fiber: fraction|percent} map, CLEAN space
  * (0–100, higher = better), or null. opts adds Layer-B finish/dye penalties,
  * cert-driven floor unlock, and the confirmed red-flag cap. Without opts it's a
  * fiber-only score (the catalog case). Mirrors scripts/fabricScores.js and the
@@ -168,7 +175,7 @@ export function calcToxomeScore(
   const lambda = LAMBDA_MAX * (1 - Math.exp(-synthPct / TAU));
   let hazard = weighted + lambda * (worst - weighted);
 
-  // Layer B — finishes + dye prior
+  // Layer B, finishes + dye prior
   let finishPts = 0;
   for (const r of FINISH_RULES) {
     if (r.re.test(text) && !r.clearedBy.some((c) => certs.some((x) => x.includes(c)))) finishPts += r.pts;

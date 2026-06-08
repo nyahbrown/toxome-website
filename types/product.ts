@@ -28,5 +28,8 @@ export interface Product {
   description: string | null;
   materials_text: string | null;
   certifications: string[] | null;
+  // Fibers present when no percentage breakdown is published (e.g. home goods).
+  // Display-only: rendered as a fiber list with NO Toxome score or bars.
+  fibers_present?: string[] | null;
   occasion?: string[] | null;
 }

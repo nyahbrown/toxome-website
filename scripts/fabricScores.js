@@ -28,6 +28,13 @@ function resolveFiber(name) {
   if (/tencel.*modal|modal.*tencel/.test(k)) return "tencel_modal";
   if (/tencel|lyocell/.test(k)) return "lyocell";
   if (/ecovero/.test(k)) return "ecovero";
+  // Branded closed-loop names must route to their own (cleaner) entries before
+  // the generic substring fallback grabs "viscose"/"modal".
+  if (/lenzing/.test(k) && /viscose/.test(k)) return "lenzing_viscose";
+  if (/lenzing/.test(k) && /modal/.test(k)) return "tencel_modal";
+  // Lycra / "elastic" are spandex; otherwise they fall to the null→50 default
+  // and UNDER-penalize the synthetic.
+  if (k === "elastic" || /lycra/.test(k)) return "spandex";
   if (k in FIBERS) return k;
   let best = null, len = 0;
   for (const known of Object.keys(FIBERS)) {

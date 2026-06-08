@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import type { Product } from "@/types/product";
 import { useAuth } from "@/contexts/AuthContext";
 import { HeartFilled, HeartOutline } from "@/components/icons";
-// Single source of truth for fiber hazard colors + labels — keeps the product
+// Single source of truth for fiber hazard colors + labels, keeps the product
 // page bars in sync with the score table (alpaca/cashmere green, Lenzing green,
 // recycled synthetics red, "european linen" -> linen via keyword fallback, etc.)
 import { fiberHazardColor, prettyFiber } from "@/lib/fabricScores";
@@ -123,6 +123,14 @@ export default function ProductDetailClient({ product }: { product: Product }) {
         .sort(([, a], [, b]) => b - a)
     : [];
 
+  // Special case: items that disclose fibers but no percentage breakdown
+  // (e.g. home goods like pillows). We list the fibers present — no bars, no
+  // Toxome score — only when there's no real composition to show instead.
+  const fibersPresent =
+    fabricEntries.length === 0 && product.fibers_present?.length
+      ? product.fibers_present
+      : [];
+
   function handleWishlist() {
     if (!user) {
       sessionStorage.setItem("pendingLike", product.id);
@@ -191,7 +199,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={src}
-                    alt={`${product.item_name} — image ${i + 1}`}
+                    alt={`${product.item_name}, image ${i + 1}`}
                     onError={() =>
                       setImgError((prev) => ({ ...prev, [i]: true }))
                     }
@@ -404,10 +412,57 @@ export default function ProductDetailClient({ product }: { product: Product }) {
             </>
           )}
 
-          {(product.materials_text || fabricEntries.length > 0) && (
+          {(product.materials_text ||
+            fabricEntries.length > 0 ||
+            fibersPresent.length > 0) && (
             <>
               <Divider />
               <SectionHeading>Materials</SectionHeading>
+              {fibersPresent.length > 0 && (
+                <div style={{ marginBottom: product.materials_text ? 18 : 0 }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: 8,
+                      marginBottom: 10,
+                    }}
+                  >
+                    {fibersPresent.map((fiber) => (
+                      <Link
+                        key={fiber}
+                        href={`/shop?fiber=${encodeURIComponent(
+                          fiber.toLowerCase()
+                        )}`}
+                        style={{
+                          fontSize: 14,
+                          color: "var(--ink)",
+                          letterSpacing: "-0.005em",
+                          background: "transparent",
+                          border: "1px solid var(--hairline-strong)",
+                          padding: "5px 12px",
+                          borderRadius: 999,
+                          textDecoration: "none",
+                        }}
+                      >
+                        {prettyFiber(fiber)}
+                      </Link>
+                    ))}
+                  </div>
+                  <p
+                    style={{
+                      fontFamily: "var(--mono)",
+                      fontSize: 10,
+                      letterSpacing: "0.06em",
+                      color: "var(--ink-3)",
+                      margin: 0,
+                    }}
+                  >
+                    Fibers present — no percentage breakdown published, so this
+                    item isn&apos;t scored.
+                  </p>
+                </div>
+              )}
               {fabricEntries.length > 0 && (
                 <div
                   style={{
