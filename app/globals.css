@@ -175,7 +175,7 @@ button { font-family: inherit; }
   position: absolute;
   inset: 0;
   background: rgba(44, 36, 32, 0.30);
-  opacity: 0.2; /* constant slight overlay so the white text pops */
+  opacity: 0.38; /* constant overlay so the white text pops */
   transition: opacity 300ms var(--ease-out-strong);
 }
 
