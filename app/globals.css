@@ -175,7 +175,7 @@ button { font-family: inherit; }
   position: absolute;
   inset: 0;
   background: rgba(44, 36, 32, 0.30);
-  opacity: 0;
+  opacity: 0.2; /* constant slight overlay so the white text pops */
   transition: opacity 300ms var(--ease-out-strong);
 }
 
@@ -232,7 +232,7 @@ button { font-family: inherit; }
   margin: 0;
   font-family: var(--sans);
   font-weight: 400;
-  text-transform: lowercase;
+  text-transform: none;
   letter-spacing: 0.1em;
   font-size: 16px;
   line-height: 1.12;
