@@ -6,7 +6,7 @@ import { getShopTaxonomy } from "@/lib/supabase";
 export const metadata: Metadata = {
   title: "Toxome | Partnerships",
   description:
-    "Partner with Toxome: editorial features, the Clean Edit, and Editor's Picks for brands that take what touches the skin seriously.",
+    "Partner with Toxome to reach an audience that reads the label.",
   alternates: { canonical: "/partnerships" },
 };
 
@@ -45,22 +45,8 @@ export default async function PartnershipsPage() {
               margin: 0,
             }}
           >
-            let&apos;s work together.
+            the audience that reads the label.
           </h1>
-          <p
-            style={{
-              fontSize: 16,
-              lineHeight: 1.7,
-              color: "var(--ink-2)",
-              maxWidth: 560,
-              margin: "24px auto 0",
-            }}
-          >
-            Toxome partners with brands that take what touches the skin
-            seriously, through editorial features in the Journal, the Clean
-            Edit, and Editor&apos;s Picks. If your label belongs in the Fashion
-            Wellness conversation, we&apos;d love to hear from you.
-          </p>
           <div style={{ marginTop: 32 }}>
             <a href="mailto:nyah@toxome.app" className="pill-cta ghost">
               Get in touch
