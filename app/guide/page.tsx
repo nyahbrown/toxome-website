@@ -106,8 +106,8 @@ function FiberTile({ fiber, hasImage }: { fiber: GuideFiber; hasImage: boolean }
 export default async function GuidePage() {
   const taxonomy = await getShopTaxonomy();
   const images = availableImages();
-  // Flat gallery, safest first so the ranking is still implied by position.
-  const fibers = FIBER_GUIDE.map(withScore).sort((a, b) => a.score - b.score);
+  // Flat gallery, highest score (safest) first so the ranking is implied by position.
+  const fibers = FIBER_GUIDE.map(withScore).sort((a, b) => b.score - a.score);
 
   return (
     <>
