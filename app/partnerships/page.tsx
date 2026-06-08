@@ -19,15 +19,18 @@ export default async function PartnershipsPage() {
         style={{
           background: "var(--cream)",
           minHeight: "100vh",
-          paddingTop: 88,
-          paddingBottom: 130,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "120px 0",
         }}
       >
         <section
           style={{
             maxWidth: 720,
             margin: "0 auto",
-            padding: "56px 32px 0",
+            padding: "0 32px",
             textAlign: "center",
           }}
         >
