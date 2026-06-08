@@ -1,12 +1,12 @@
 "use client";
 
-// ⭐ SAVED DESIGN REFERENCE — do not delete.
+// ⭐ SAVED DESIGN REFERENCE, do not delete.
 // Canonical source of truth for account/dashboard card design (Nyah loves the
 // whole UI here). When designing any new data card, pull from this lab first.
 // Design lab for the closet card. Two groups:
 //   A) each closet-card variation beside the real "what you own" fiber card
 //   B) mockups that MERGE the closet + fiber cards into one unified card
-// Dev/design tool — not linked in nav. Renders with DEV_SCANS mock data.
+// Dev/design tool, not linked in nav. Renders with DEV_SCANS mock data.
 import { computeClosetStats, type ClosetStats } from "@/lib/closet";
 import { hazardColor, prettyFiber } from "@/lib/fabricScores";
 import { DEV_SCANS } from "@/lib/devAccountData";
@@ -366,7 +366,7 @@ function VarMinimal({ stats }: { stats: ClosetStats }) {
 
 /* ── B) MERGED cards (closet + fiber in one) ─────────────────────── */
 
-// M1 · Unified split — score/risk on the left, fiber donut on the right.
+// M1 · Unified split, score/risk on the left, fiber donut on the right.
 function MergeSplit({ stats }: { stats: ClosetStats }) {
   return (
     <CardShell eyebrow="your closet">
@@ -397,7 +397,7 @@ function MergeSplit({ stats }: { stats: ClosetStats }) {
   );
 }
 
-// M2 · Twin gauges — score ring + fiber ring, each with its legend.
+// M2 · Twin gauges, score ring + fiber ring, each with its legend.
 function MergeTwinRings({ stats }: { stats: ClosetStats }) {
   const segs = segments(stats);
   return (
@@ -430,7 +430,7 @@ function MergeTwinRings({ stats }: { stats: ClosetStats }) {
   );
 }
 
-// M3 · Nested bento — score+risk tray beside a fiber tray (double-bezel).
+// M3 · Nested bento, score+risk tray beside a fiber tray (double-bezel).
 function MergeBento({ stats }: { stats: ClosetStats }) {
   const tray: React.CSSProperties = {
     background: "var(--cream)",
@@ -475,16 +475,16 @@ export default function ClosetLabPage() {
   ];
 
   const merged = [
-    { tag: "M1", note: "unified split — score left, fiber right", node: <MergeSplit stats={stats} /> },
-    { tag: "M2", note: "twin gauges — score ring + fiber ring", node: <MergeTwinRings stats={stats} /> },
-    { tag: "M3", note: "nested bento — two recessed trays", node: <MergeBento stats={stats} /> },
+    { tag: "M1", note: "unified split: score left, fiber right", node: <MergeSplit stats={stats} /> },
+    { tag: "M2", note: "twin gauges: score ring + fiber ring", node: <MergeTwinRings stats={stats} /> },
+    { tag: "M3", note: "nested bento: two recessed trays", node: <MergeBento stats={stats} /> },
   ];
 
   return (
     <main style={{ background: "var(--cream)", minHeight: "100vh", padding: "80px clamp(20px, 5vw, 64px) 120px" }}>
       <div style={{ maxWidth: 1120, margin: "0 auto" }}>
         <h1 style={{ fontFamily: "var(--sans)", fontWeight: 500, fontSize: 24, letterSpacing: "-0.015em", color: "var(--ink)", margin: "0 0 8px" }}>
-          closet card — variations
+          closet card variations
         </h1>
         <p style={{ fontSize: 14, color: "var(--ink-2)", lineHeight: 1.5, margin: "0 0 8px", maxWidth: 540 }}>
           Group A keeps the cards separate; Group B merges &ldquo;your

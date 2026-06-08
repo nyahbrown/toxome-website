@@ -40,7 +40,7 @@ function deriveStatus(p: AdminProduct): Status {
   return "pending";
 }
 
-// Products as returned by the admin API — superset of the public Product type.
+// Products as returned by the admin API, superset of the public Product type.
 type AdminProduct = Product & {
   rejected?: boolean;
   unpublish_reason?: string | null;
@@ -808,7 +808,7 @@ function ProductRow({
 
         {/* Price */}
         <div style={{ width: 90, color: "var(--ink-2)" }}>
-          {p.item_price != null ? `$${p.item_price}` : "—"}
+          {p.item_price != null ? `$${p.item_price}` : "–"}
         </div>
 
         {/* Score chip */}
@@ -838,13 +838,13 @@ function ProductRow({
               {p.risk_level ? ` · ${p.risk_level}` : ""}
             </span>
           ) : (
-            <span style={{ color: "var(--ink-3)" }}>—</span>
+            <span style={{ color: "var(--ink-3)" }}>–</span>
           )}
         </div>
 
         {/* Fabric */}
         <div style={{ width: 160, color: "var(--ink-2)", fontSize: 12, paddingRight: 8 }}>
-          {fabricSummary || "—"}
+          {fabricSummary || "–"}
         </div>
 
         {/* Status badge */}
@@ -1024,7 +1024,7 @@ function ReviewFlow({
     );
   }
 
-  // Inbox zero — either no pending at all, or we've worked through the queue.
+  // Inbox zero, either no pending at all, or we've worked through the queue.
   if (!current) {
     return (
       <div style={{ ...reviewShellStyle, ...reviewEmptyStyle }}>
@@ -1136,7 +1136,7 @@ function ReviewFlow({
         </div>
       </div>
 
-      {/* The card — keyed so it remounts (image reset + transition) per product */}
+      {/* The card, keyed so it remounts (image reset + transition) per product */}
       <ReviewCard
         key={current.id}
         p={current}
@@ -1739,7 +1739,7 @@ function EditPanel({
     previewScore = calcToxomeScore(parsed);
     previewRisk = scoreToRiskLevel(previewScore);
   } catch {
-    /* invalid JSON — no preview */
+    /* invalid JSON, no preview */
   }
 
   function handleSave() {
@@ -1800,7 +1800,7 @@ function EditPanel({
         </Field>
         <Field label="Category">
           <select style={editInputStyle} value={category} onChange={(e) => setCategory(e.target.value)}>
-            <option value="">—</option>
+            <option value="">(none)</option>
             {CATEGORY_OPTIONS.map((c) => (
               <option key={c} value={c}>{c}</option>
             ))}
@@ -1808,7 +1808,7 @@ function EditPanel({
         </Field>
         <Field label="Gender">
           <select style={editInputStyle} value={gender} onChange={(e) => setGender(e.target.value)}>
-            <option value="">—</option>
+            <option value="">(none)</option>
             {GENDER_OPTIONS.map((g) => (
               <option key={g} value={g}>{g}</option>
             ))}
@@ -1888,7 +1888,7 @@ function EditPanel({
                 {previewScore} · {previewRisk}
               </strong>
             ) : (
-              "—"
+              "–"
             )}
           </div>
           {jsonError && <p style={errorTextStyle}>{jsonError}</p>}
@@ -2008,7 +2008,7 @@ function StatCard({
           color: highlight ? "var(--orange)" : "var(--ink)",
         }}
       >
-        {value ?? "—"}
+        {value ?? "–"}
       </div>
     </div>
   );

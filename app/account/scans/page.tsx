@@ -68,7 +68,7 @@ function ScanCard({ scan }: { scan: ClosetScan }) {
             marginBottom: 5,
           }}
         >
-          {scan.brandName || scan.category || "—"}
+          {scan.brandName || scan.category || "–"}
         </div>
         <div
           style={{
@@ -173,7 +173,7 @@ export default function ScansPage() {
               textTransform: "uppercase",
             }}
           >
-            no scans yet —{" "}
+            no scans yet.{" "}
             <Link
               href="https://apps.apple.com/us/app/toxome/id6748622034"
               target="_blank"

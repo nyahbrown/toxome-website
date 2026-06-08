@@ -4,7 +4,7 @@ import matter from "gray-matter";
 import { marked } from "marked";
 
 // Published Journal articles live as markdown here. To publish a new piece,
-// drop a finalized `<slug>.md` (with frontmatter) into this folder — the
+// drop a finalized `<slug>.md` (with frontmatter) into this folder, the
 // listing, the /journal/[slug] page, and its OG/pin image all pick it up.
 const JOURNAL_DIR = path.join(process.cwd(), "content/journal");
 

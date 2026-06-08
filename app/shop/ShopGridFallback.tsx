@@ -4,7 +4,7 @@ import type { Product } from "@/lib/supabase";
 // Server-rendered product grid used as the <Suspense> fallback for the
 // client-only ShopClient (which de-opts to client rendering via
 // useSearchParams). This guarantees real, crawlable <a href="/shop/{id}">
-// links land in the static HTML so products are never orphaned — Google can
+// links land in the static HTML so products are never orphaned, Google can
 // discover and pass link equity to them. On the client, ShopClient hydrates
 // and replaces this with the interactive, filterable grid.
 export default function ShopGridFallback({ products }: { products: Product[] }) {

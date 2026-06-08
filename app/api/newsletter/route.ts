@@ -5,7 +5,7 @@ import { createClient } from "@supabase/supabase-js";
 //   2. Pushes the subscriber to beehiiv (the sending engine).
 // The beehiiv API key is read server-side only and never reaches the browser.
 // If beehiiv isn't configured yet, we still capture to Supabase so the site
-// keeps working — the signup is never lost.
+// keeps working, the signup is never lost.
 
 export const runtime = "nodejs";
 
@@ -23,7 +23,7 @@ function supabaseAdmin() {
 async function addToBeehiiv(email: string, source: string): Promise<boolean> {
   const apiKey = process.env.BEEHIIV_API_KEY;
   const pubId = process.env.BEEHIIV_PUBLICATION_ID;
-  // Not configured yet — skip silently so Supabase capture still succeeds.
+  // Not configured yet, skip silently so Supabase capture still succeeds.
   if (!apiKey || !pubId) return false;
 
   try {
@@ -74,7 +74,7 @@ export async function POST(request: Request) {
     );
   }
 
-  // Capture to Supabase (our own list). Duplicate is fine — already on the list.
+  // Capture to Supabase (our own list). Duplicate is fine, already on the list.
   let supabaseOk = false;
   const db = supabaseAdmin();
   if (db) {
@@ -89,7 +89,7 @@ export async function POST(request: Request) {
   // Push to the sending engine.
   const beehiivOk = await addToBeehiiv(email, source);
 
-  // Succeed if either side accepted the email — we don't want a beehiiv hiccup
+  // Succeed if either side accepted the email, we don't want a beehiiv hiccup
   // to show the user an error after we've already saved them, and vice versa.
   if (supabaseOk || beehiivOk) {
     return Response.json({ ok: true });

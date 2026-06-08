@@ -32,7 +32,7 @@ function availableImages(): Set<string> {
   }
 }
 
-// One concise line for the hover reveal — the first sentence of the researched
+// One concise line for the hover reveal, the first sentence of the researched
 // "what it is" copy, with emphasis asterisks stripped and length capped.
 function teaser(text: string): string {
   const clean = text.replace(/\*/g, "").trim();

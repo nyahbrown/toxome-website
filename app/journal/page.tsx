@@ -9,7 +9,7 @@ import { getAllArticles } from "@/lib/journal";
 export const metadata: Metadata = {
   title: "Toxome | Journal",
   description:
-    "Fiber science, slow fashion, and the invisible chemistry in your wardrobe — in plain English.",
+    "Fiber science, slow fashion, and the invisible chemistry in your wardrobe, in plain English.",
   alternates: { canonical: "/journal" },
 };
 
@@ -25,7 +25,7 @@ export default async function JournalPage() {
     <main style={{ background: "var(--bg)", minHeight: "100vh" }}>
       <Nav taxonomy={taxonomy} />
 
-      {/* Featured editorial — text-led cover (title lowercased on the index) */}
+      {/* Featured editorial, text-led cover (title lowercased on the index) */}
       {featured && (
         <section
           className="shell"
@@ -106,7 +106,7 @@ export default async function JournalPage() {
         </section>
       )}
 
-      {/* Photo grid — the rest of the Journal */}
+      {/* Photo grid, the rest of the Journal */}
       {rest.length > 0 && (
         <section className="shell shell--grid" style={{ paddingBottom: 130 }}>
           <div className="j-grid">

@@ -1,4 +1,4 @@
-// Hand-selected Editor's Picks — single source of truth, matched by exact
+// Hand-selected Editor's Picks, single source of truth, matched by exact
 // item_name. Used by:
 //   - the homepage "Editor's Picks" section (app/page.tsx)
 //   - the shop women's + Featured view (pinned to top + "Editor's Pick" badge)

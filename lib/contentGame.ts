@@ -1,5 +1,5 @@
 // Gamification layer for the content approval dashboard.
-// Single-user (Nyah), desktop — state lives in localStorage. The real work
+// Single-user (Nyah), desktop, state lives in localStorage. The real work
 // (approvals) persists to Supabase; this is the motivation/dopamine layer on top.
 
 export type GameState = {
@@ -125,7 +125,7 @@ export function registerReview(
   // Streak
   let streakAdvanced = false;
   if (next.lastReviewDate === today) {
-    // already counted today — streak unchanged
+    // already counted today, streak unchanged
   } else if (next.lastReviewDate === yesterdayStr()) {
     next.streakDays = next.streakDays + 1;
     streakAdvanced = true;

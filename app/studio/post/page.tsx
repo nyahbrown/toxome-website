@@ -3,7 +3,7 @@
 // /studio/post?article=SLUG to auto-render a Vogue teaser from a real
 // /journal article (title + dek + hero pulled straight from the markdown).
 // Omit both for a contact sheet (templates + a teaser per published article).
-// (Editorial reference: warm beauty-magazine grids — mastheads, thin-line marks,
+// (Editorial reference: warm beauty-magazine grids, mastheads, thin-line marks,
 // big quiet headlines, lots of negative space.)
 
 import { getArticle, getAllArticles, type ArticleMeta } from "@/lib/journal";
@@ -18,21 +18,21 @@ type Post =
   // Thin-line ring mark with a 3-word phrase over a textural photo.
   // Overlays on photos are ALWAYS white (locked 2026-06-03).
   | { kind: "linemark"; words: [string, string, string]; image: string }
-  // Pure-type breather on cream — an overheard line.
+  // Pure-type breather on cream, an overheard line.
   | { kind: "quote"; quote: string; attribution: string }
   // Editorial headline anchored bottom-left over a full-bleed photo.
   | { kind: "editorial"; eyebrow: string; headline: string; image: string }
-  // Vogue-style article teaser — kicker + serif headline + standfirst + CTA
+  // Vogue-style article teaser, kicker + serif headline + standfirst + CTA
   // over a full-bleed editorial photo. Drives to a /journal article.
   | { kind: "teaser"; kicker: string; headline: string; dek: string; cta: string; image: string }
-  // Vogue COVER — cream page, serif masthead, centered serif headline, byline +
+  // Vogue COVER, cream page, serif masthead, centered serif headline, byline +
   // date, a flush row of 3 photos at the foot. A carousel opener.
   | { kind: "voguecover"; kicker: string; headline: string; byline: string; date: string; images: [string, string, string] }
-  // Editorial split — cream page, guide masthead, big roman+italic serif
+  // Editorial split, cream page, guide masthead, big roman+italic serif
   // headline, one photo bleeding from the lower-left, a right-aligned body
   // column ending on a lead-in. Sets up a listicle carousel.
   | { kind: "editorialsplit"; masthead: string; headline: string; headlineItalic: string; body: string; leadIn: string; image: string }
-  // Fiber index card on cream — a swatch + the fiber's one-line dossier.
+  // Fiber index card on cream, a swatch + the fiber's one-line dossier.
   | { kind: "index"; no: string; fiber: string; meta: string[]; verdict: string; image: string; tone?: "clean" | "warn" };
 
 const POSTS: Record<string, Post> = {
@@ -133,7 +133,7 @@ const POSTS: Record<string, Post> = {
     masthead: "The Toxome Guide",
     headline: "Natural Fiber Is the New",
     headlineItalic: "Luxury",
-    body: "In a world of synthetic everything, real luxury isn’t a logo — it’s what your clothes are actually made of. Linen, cotton, wool, silk: fibers that breathe, last, and were never pretending to be plastic.",
+    body: "In a world of synthetic everything, real luxury isn’t a logo. It’s what your clothes are actually made of. Linen, cotton, wool, silk: fibers that breathe, last, and were never pretending to be plastic.",
     leadIn: "These four are where it starts:",
     image: "/fibers/linen-1.jpg",
   },
@@ -155,7 +155,7 @@ const ORDER = [
   "editorial-natural-luxury",
 ];
 
-// First sentence (or a clean ~120-char trim) — article deks run 2 sentences,
+// First sentence (or a clean ~120-char trim), article deks run 2 sentences,
 // a teaser wants one crisp line.
 function teaserDek(dek: string): string {
   const firstSentence = dek.match(/^.*?[.!?](?=\s|$)/);
@@ -353,7 +353,7 @@ function PostView({ post }: { post: Post }) {
         <img src={post.image} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
         {/* gentle overall depth */}
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(20,19,15,0.46) 0%, rgba(20,19,15,0.06) 26%, rgba(20,19,15,0.14) 52%, rgba(20,19,15,0.40) 100%)" }} />
-        {/* strong bottom scrim — guarantees white text reads over any hero, even
+        {/* strong bottom scrim, guarantees white text reads over any hero, even
             busy/light ones (e.g. an infographic) */}
         <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: "62%", background: "linear-gradient(180deg, rgba(20,19,15,0) 0%, rgba(20,19,15,0.55) 52%, rgba(20,19,15,0.92) 100%)" }} />
 
@@ -391,7 +391,7 @@ function PostView({ post }: { post: Post }) {
     const hs = post.headline.length > 46 ? 70 : post.headline.length > 32 ? 78 : 86;
     return (
       <div style={{ ...frame, background: "var(--cream, #FCFBF7)", color: "var(--ink, #3B3C3A)" }}>
-        {/* serif masthead, top-left — the Vogue move */}
+        {/* serif masthead, top-left, the Vogue move */}
         <div style={{ position: "absolute", top: 70, left: PAD, fontFamily: "var(--font-serif)", fontSize: 80, fontWeight: 500, letterSpacing: "0.02em", lineHeight: 1, color: "var(--ink, #3B3C3A)" }}>
           TOXOME
         </div>
@@ -507,7 +507,7 @@ const eyebrowInk: React.CSSProperties = {
   color: "var(--ink-3, #8A9199)",
 };
 
-// Toxome eye mark — the actual locked logo (eye only, 4311×2813 ≈ 1.532:1).
+// Toxome eye mark, the actual locked logo (eye only, 4311×2813 ≈ 1.532:1).
 function EyeLogo({ size = 56 }: { size?: number }) {
   return (
     // eslint-disable-next-line @next/next/no-img-element

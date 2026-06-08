@@ -9,7 +9,7 @@ const APP_STORE = "https://apps.apple.com/us/app/toxome/id6748622034";
 export const metadata: Metadata = {
   title: "Toxome | Get the App",
   description:
-    "Scan any clothing label and Toxome reads it back to you — a health rating, the full fiber breakdown, and what each material does to your body. Free on iPhone.",
+    "Scan any clothing label and Toxome reads it back to you: a health rating, the full fiber breakdown, and what each material does to your body. Free on iPhone.",
   alternates: { canonical: "/app" },
   openGraph: {
     title: "The Toxome App",
@@ -24,12 +24,12 @@ const STEPS = [
   {
     n: "01",
     title: "Snap the label",
-    body: "Point your camera at any care or composition label. Toxome reads the fibers for you — even the fine print.",
+    body: "Point your camera at any care or composition label. Toxome reads the fibers for you, even the fine print.",
   },
   {
     n: "02",
     title: "Get the rating",
-    body: "A hazard score out of 100 with the verdict, the full composition, and the health impact — endocrine disruption, breathability, skin irritation, and more.",
+    body: "A hazard score out of 100 with the verdict, the full composition, and the health impact: endocrine disruption, breathability, skin irritation, and more.",
   },
   {
     n: "03",
@@ -41,15 +41,15 @@ const STEPS = [
 const FEATURES = [
   {
     label: "A hazard score you can trust",
-    body: "Every garment rated 0–100 on what it does to your body — the same rubric across the app, the website, and the extension.",
+    body: "Every garment rated 0–100 on what it does to your body, using the same rubric across the app, the website, and the extension.",
   },
   {
     label: "The full composition",
-    body: "Every fiber by percentage, with a clear read on what's plastic and what grew — acrylic, nylon, wool, and the rest.",
+    body: "Every fiber by percentage, with a clear read on what's plastic and what grew: acrylic, nylon, wool, and the rest.",
   },
   {
     label: "Health impact, decoded",
-    body: "Endocrine disruption, breathability, skin irritation, chemical exposure — each one flagged in plain English, never jargon.",
+    body: "Endocrine disruption, breathability, skin irritation, chemical exposure: each one flagged in plain English, never jargon.",
   },
   {
     label: "Your closet, scored",
@@ -92,7 +92,7 @@ export default async function AppPage() {
               maxWidth: 560,
             }}
           >
-            Scan any clothing label and Toxome reads it back to you — a health
+            Scan any clothing label and Toxome reads it back to you: a health
             rating, the full fiber breakdown, and exactly what each material does
             to your body.
           </p>
@@ -127,7 +127,7 @@ export default async function AppPage() {
         </div>
       </header>
 
-      {/* Phone screenshot — the proof shot, framed as an iPhone */}
+      {/* Phone screenshot, the proof shot, framed as an iPhone */}
       <section className="shell" style={{ paddingTop: 56 }}>
         <div
           style={{
@@ -305,7 +305,7 @@ export default async function AppPage() {
         </div>
       </section>
 
-      {/* Closing CTA — badge + scan-to-download QR */}
+      {/* Closing CTA, badge + scan-to-download QR */}
       <section className="shell" style={{ paddingTop: 110, paddingBottom: 130 }}>
         <div style={{ maxWidth: 620, margin: "0 auto", textAlign: "center" }}>
           <h2

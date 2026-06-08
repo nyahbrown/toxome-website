@@ -357,7 +357,7 @@ export default async function FiberGuidePage({
             </p>
           </div>
 
-          {/* Related fibers — internal linking + crawl paths */}
+          {/* Related fibers, internal linking + crawl paths */}
           {related.length > 0 && (
             <div
               style={{

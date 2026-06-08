@@ -158,7 +158,7 @@ export default async function ArticlePage({
         </div>
       </header>
 
-      {/* Lead image — leads the essay, magazine-style */}
+      {/* Lead image, leads the essay, magazine-style */}
       {article.hero && (
         <figure className="shell" style={{ margin: 0, paddingTop: 44 }}>
           <div

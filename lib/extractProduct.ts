@@ -2,12 +2,11 @@
 // Ports the relevant parts of scripts/enrich-products.js to TypeScript: fetch
 // the page (+ Shopify JSON + JSON-LD), harvest images programmatically, then
 // ask Claude for the structured fields with a single forced tool call.
-// NEVER import this into a client component — it uses the Anthropic API key.
+// NEVER import this into a client component, it uses the Anthropic API key.
 import Anthropic from "@anthropic-ai/sdk";
 import { calcToxomeScore, scoreToRiskLevel } from "@/lib/fabricScores";
 
-// Haiku is fast and plenty for structured extraction from text we hand it —
-// keeps the add-by-URL request well under the serverless timeout.
+// Haiku is fast and plenty for structured extraction from text we hand it, // keeps the add-by-URL request well under the serverless timeout.
 const MODEL = "claude-haiku-4-5-20251001";
 const UA =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 " +
@@ -109,7 +108,7 @@ function findProductLd(ldArr: Record<string, unknown>[]): ProductLd | undefined 
   }) as ProductLd | undefined;
 }
 
-/** Shopify exposes /products/{handle}.js — the most reliable source when present. */
+/** Shopify exposes /products/{handle}.js, the most reliable source when present. */
 async function shopifyProduct(url: string): Promise<ShopifyProduct | null> {
   try {
     const u = new URL(url);
@@ -147,7 +146,7 @@ function harvestImages(
   const found: string[] = [];
   const base = page.finalUrl || url;
   const push = (s?: string | null) => {
-    // Authoritative sources (Shopify images, JSON-LD image, og:image) — don't
+    // Authoritative sources (Shopify images, JSON-LD image, og:image), don't
     // require a file extension; many CDNs serve extensionless image URLs.
     // imageLoads() validates the content-type later.
     const abs = s && absolutize(s, base);
@@ -423,7 +422,7 @@ export async function extractProductFromUrl(
   }
 
   // Run the (slow) Claude extraction and the image-render checks concurrently,
-  // and validate the image candidates in parallel — sequential image checks
+  // and validate the image candidates in parallel, sequential image checks
   // alone were ~12s and blew the serverless timeout (504). Cap candidates so
   // one slow CDN can't dominate.
   const client = new Anthropic({ apiKey });

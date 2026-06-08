@@ -1,4 +1,4 @@
-// Minimal zero-dependency ZIP writer (STORE method — no compression).
+// Minimal zero-dependency ZIP writer (STORE method, no compression).
 // PNGs are already compressed, so storing them as-is is the right call and lets
 // us avoid pulling in a deflate library. Produces a standard .zip Blob that
 // macOS Finder, Windows Explorer, and unzip all open natively.

@@ -9,7 +9,7 @@ export default async function Home() {
     getPublishedProducts(),
   ]);
 
-  // Editor's Picks — hand-selected, featured in this exact order (lib/editorsPicks).
+  // Editor's Picks, hand-selected, featured in this exact order (lib/editorsPicks).
   const editorsPicks = EDITORS_PICKS.map((name) =>
     products.find((p) => p.item_name === name)
   ).filter((p): p is (typeof products)[number] => Boolean(p));

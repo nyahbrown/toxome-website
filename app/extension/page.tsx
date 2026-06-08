@@ -16,12 +16,12 @@ const APP_STORE = "https://apps.apple.com/us/app/toxome/id6748622034";
 export const metadata: Metadata = {
   title: "Toxome | The Chrome Extension",
   description:
-    "See how healthy any garment is for you while you shop — the Toxome rating, fiber breakdown, and why it matters, right on the product page. Coming soon to Chrome.",
+    "See how healthy any garment is for you while you shop. The Toxome rating, fiber breakdown, and why it matters, right on the product page. Coming soon to Chrome.",
   alternates: { canonical: "/extension" },
   openGraph: {
     title: "The Toxome Extension",
     description:
-      "A fabric-health check that follows you to every store. The Toxome rating, full fiber breakdown, and why it matters — right on the product page.",
+      "A fabric-health check that follows you to every store. The Toxome rating, full fiber breakdown, and why it matters, right on the product page.",
     url: "/extension",
     siteName: "Toxome",
   },
@@ -41,18 +41,18 @@ const STEPS = [
   {
     n: "03",
     title: "Shop anywhere",
-    body: "Open any product page. The Toxome card appears on its own — no copy-paste, no searching.",
+    body: "Open any product page. The Toxome card appears on its own, no copy-paste, no searching.",
   },
 ];
 
 const FEATURES = [
   {
     label: "A rating, not a guess",
-    body: "The same wearer-health rubric as the Toxome app, scored out of 100 with a plain verdict — great, good, okay, or bad.",
+    body: "The same wearer-health rubric as the Toxome app, scored out of 100 with a plain verdict: great, good, okay, or bad.",
   },
   {
     label: "The full composition",
-    body: "Every fiber by percentage, pulled straight from the label — even the fine print tucked inside collapsed accordions.",
+    body: "Every fiber by percentage, pulled straight from the label, even the fine print tucked inside collapsed accordions.",
   },
   {
     label: "Why this score",
@@ -99,12 +99,12 @@ export default async function ExtensionPage() {
               maxWidth: 560,
             }}
           >
-            A fabric-health check that follows you to every store — the Toxome
+            A fabric-health check that follows you to every store. The Toxome
             rating, the full fiber breakdown, and why it matters, right on the
             product page before you buy.
           </p>
 
-          {/* CTA — live store button, or pre-launch waitlist */}
+          {/* CTA, live store button, or pre-launch waitlist */}
           {IS_LIVE ? (
             <div
               style={{
@@ -120,7 +120,7 @@ export default async function ExtensionPage() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Add to Chrome — free
+                Add to Chrome, free
                 <ArrowIcon />
               </a>
               <p style={{ fontSize: 12, color: "var(--ink-3)", margin: 0 }}>
@@ -169,7 +169,7 @@ export default async function ExtensionPage() {
         </div>
       </header>
 
-      {/* Product screenshot — the proof shot */}
+      {/* Product screenshot, the proof shot */}
       <section className="shell" style={{ paddingTop: 56 }}>
         <div
           style={{
@@ -321,7 +321,7 @@ export default async function ExtensionPage() {
         </div>
       </section>
 
-      {/* Closing — app cross-sell while the extension is pre-launch */}
+      {/* Closing, app cross-sell while the extension is pre-launch */}
       <section className="shell" style={{ paddingTop: 110, paddingBottom: 130 }}>
         <div style={{ maxWidth: 620, margin: "0 auto", textAlign: "center" }}>
           <p className="eyebrow" style={{ margin: "0 0 16px" }}>

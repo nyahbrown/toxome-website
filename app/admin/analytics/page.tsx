@@ -9,7 +9,7 @@ import BrandTrafficPanel from "@/components/admin/BrandTrafficPanel";
 // Brand-traffic analytics, on its own route so it's separate from the product
 // pipeline at /admin. Auth mirrors the products page: Firebase session is
 // shared, so signing in on /admin carries over here. Anyone not signed in (or
-// not the admin) is pointed back to /admin to sign in — we don't duplicate the
+// not the admin) is pointed back to /admin to sign in, we don't duplicate the
 // full sign-in form.
 const ADMIN_EMAIL = "nyah@toxome.app";
 
@@ -112,7 +112,7 @@ export default function AdminAnalyticsPage() {
 
   return (
     <main style={{ background: "var(--cream)", minHeight: "100vh", color: "var(--ink)" }}>
-      {/* Top bar — matches /admin */}
+      {/* Top bar, matches /admin */}
       <div
         style={{
           display: "flex",

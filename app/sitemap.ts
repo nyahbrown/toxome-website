@@ -26,7 +26,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/terms`, lastModified: now, changeFrequency: "yearly", priority: 0.2 },
   ];
 
-  // Fiber guide — the proprietary glossary, one indexable page per fiber.
+  // Fiber guide, the proprietary glossary, one indexable page per fiber.
   const fiberRoutes: MetadataRoute.Sitemap = allFiberSlugs().map((slug) => ({
     url: `${BASE_URL}/guide/${slug}`,
     lastModified: now,
@@ -34,7 +34,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  // Journal articles — one indexable page per published markdown file.
+  // Journal articles, one indexable page per published markdown file.
   const journalRoutes: MetadataRoute.Sitemap = getAllSlugs().map((slug) => {
     const article = getArticle(slug);
     return {

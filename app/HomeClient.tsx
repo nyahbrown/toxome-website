@@ -109,7 +109,7 @@ function ArrowIcon() {
   );
 }
 
-/* § The naming moment — plant the category flag. Pure belief, no CTA. */
+/* § The naming moment, plant the category flag. Pure belief, no CTA. */
 function NamingSection() {
   return (
     <section style={{ padding: "clamp(64px, 12vw, 112px) 0 0" }}>
@@ -140,7 +140,7 @@ function NamingSection() {
               margin: "26px auto 0",
             }}
           >
-            The idea that what you wear is a health decision — like what you
+            The idea that what you wear is a health decision, like what you
             eat, or what you put on your skin.
           </p>
         </div>
@@ -162,7 +162,7 @@ function NamingSection() {
   );
 }
 
-/* § The Journal — proof that we publish. The loudest authority signal. */
+/* § The Journal, proof that we publish. The loudest authority signal. */
 function JournalSection({ articles }: { articles: Article[] }) {
   if (!articles.length) return null;
   return (
@@ -221,7 +221,7 @@ function JournalSection({ articles }: { articles: Article[] }) {
   );
 }
 
-/* Minimal product card — image card with info below (locked Flamingo style). */
+/* Minimal product card, image card with info below (locked Flamingo style). */
 function MiniProductCard({ p }: { p: Product }) {
   return (
     <Link
@@ -282,7 +282,7 @@ function MiniProductCard({ p }: { p: Product }) {
   );
 }
 
-/* § Editor's Picks — hand-selected featured products. */
+/* § Editor's Picks, hand-selected featured products. */
 function EditorsPicksSection({ products }: { products: Product[] }) {
   if (!products.length) return null;
   return (
@@ -338,7 +338,7 @@ function EditorsPicksSection({ products }: { products: Product[] }) {
   );
 }
 
-/* § Newsletter — photo banner + email capture (merged report band + letter). */
+/* § Newsletter, photo banner + email capture (merged report band + letter). */
 function NewsletterSection() {
   const [email, setEmail] = useState("");
   const [state, setState] = useState<
@@ -542,7 +542,7 @@ export default function HomeClient({
     <div style={{ background: "var(--bg)" }}>
       <Nav taxonomy={taxonomy} />
 
-      {/* Hero — 670px on desktop; on phones cap to the viewport (svh avoids
+      {/* Hero, 670px on desktop; on phones cap to the viewport (svh avoids
           the iOS URL-bar resize jump) so the hero never overflows the screen. */}
       <section
         style={{
@@ -555,7 +555,7 @@ export default function HomeClient({
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/hero-field.jpg"
-          alt="A farmer gathering grasses in a paddy field — natural fiber at its source"
+          alt="A farmer gathering grasses in a paddy field, natural fiber at its source"
           fetchPriority="high"
           style={{
             position: "absolute",
@@ -566,8 +566,7 @@ export default function HomeClient({
             objectPosition: "center 40%",
           }}
         />
-        {/* Overlay so the white headline + CTA stay legible over the photo —
-            slightly deeper through the middle where the text sits. */}
+        {/* Overlay so the white headline + CTA stay legible over the photo,             slightly deeper through the middle where the text sits. */}
         <div
           style={{
             position: "absolute",
@@ -617,7 +616,7 @@ export default function HomeClient({
                   textWrap: "balance",
                 }}
               >
-                The average closet is 60% plastic.
+                The average closet is 61% plastic.
               </h1>
               <p
                 style={{
@@ -665,7 +664,7 @@ export default function HomeClient({
 
       <EditorsPicksSection products={products} />
 
-      {/* Browse by fiber — 50px gap below hero, matching Figma y=720 */}
+      {/* Browse by fiber, 50px gap below hero, matching Figma y=720 */}
       <section style={{ paddingTop: "clamp(40px, 9vw, 50px)", paddingBottom: "clamp(56px, 11vw, 96px)" }}>
         <div className="shell">
           <div className="eyebrow" style={{ marginBottom: 14 }}>

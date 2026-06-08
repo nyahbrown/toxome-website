@@ -175,7 +175,7 @@ function CopyCaptionButton({ text, style }: { text: string; style: React.CSSProp
           setDone(true);
           setTimeout(() => setDone(false), 1500);
         } catch {
-          /* clipboard blocked — ignore */
+          /* clipboard blocked, ignore */
         }
       }}
       style={style}
@@ -330,7 +330,7 @@ export default function ContentBoard({ getToken }: { getToken: () => Promise<str
             burstConfetti({ count: 90 });
             spawnFloat("daily goal hit", "big");
           }
-          // index stays — the approved/flagged card drops out of the queue and
+          // index stays, the approved/flagged card drops out of the queue and
           // the next one slides into this slot.
         }
         setAnim(null);
@@ -340,7 +340,7 @@ export default function ContentBoard({ getToken }: { getToken: () => Promise<str
     [combo, game, patch, spawnFloat]
   );
 
-  // Celebrate clearing the whole queue — but only when it actually drained from
+  // Celebrate clearing the whole queue, but only when it actually drained from
   // a non-empty state this session (not just because you opened an empty board).
   const clearedRef = useRef(false);
   const hadItemsRef = useRef(false);
@@ -517,7 +517,7 @@ function ReviewMode({
     setComment(current?.comment ?? "");
   }, [current?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Keyboard shortcuts — ignored while typing in a field.
+  // Keyboard shortcuts, ignored while typing in a field.
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       const t = e.target as HTMLElement | null;
@@ -633,7 +633,7 @@ function Cleared({ totalDrafts, todayCount, dailyGoal }: { totalDrafts: number; 
       <p style={{ fontFamily: "var(--sans)", fontSize: 14, color: "var(--ink-2)", margin: "0 0 6px" }}>
         {totalDrafts === 0
           ? "Add a draft above, or let the generator drop a batch in here."
-          : `You reviewed ${todayCount} today${todayCount >= dailyGoal ? " — goal smashed." : `, ${Math.max(0, dailyGoal - todayCount)} off today's goal.`}`}
+          : `You reviewed ${todayCount} today${todayCount >= dailyGoal ? ", goal smashed." : `, ${Math.max(0, dailyGoal - todayCount)} off today's goal.`}`}
       </p>
     </div>
   );
@@ -651,7 +651,7 @@ function BoardView({
   onRemove: (id: string) => void;
   schedulerOn: boolean;
 }) {
-  // In approve-only (manual) mode the "Scheduled" status is never used — that's
+  // In approve-only (manual) mode the "Scheduled" status is never used, that's
   // only for scheduler auto-push. Hide that column so the manual loop reads
   // Draft → Needs edit → Approved → Posted.
   const cols = COLUMNS.filter((c) => c.key !== "scheduled" || schedulerOn);
@@ -786,7 +786,7 @@ function MiniCard({
   );
 }
 
-// ── Calendar view — the planning surface ─────────────────────────────────
+// ── Calendar view, the planning surface ─────────────────────────────────
 // An agenda of the next 14 days built from scheduled_at, plus an "Unscheduled"
 // bucket for approved posts that still need a day. Closes the loop: each item
 // has Download · Copy · Mark posted right where you plan it.
@@ -842,7 +842,7 @@ function CalendarView({
               {day.items.length > 0 && <span style={{ color: "var(--ink-3)", fontWeight: 400 }}> · {day.items.length}</span>}
             </div>
             {day.items.length === 0 ? (
-              <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", padding: "2px 0 6px" }}>—</div>
+              <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", padding: "2px 0 6px" }}>–</div>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {day.items.map((d) => (

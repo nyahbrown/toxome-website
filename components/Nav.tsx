@@ -211,7 +211,7 @@ export default function Nav({
 
         {/* Search + Download app + Account */}
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          {/* Hidden on phones via CSS (.nav-desktop-only) — pure CSS so it
+          {/* Hidden on phones via CSS (.nav-desktop-only), pure CSS so it
               never depends on hydration. iOS shows the App Store smart banner. */}
           <span className="nav-desktop-only" style={{ display: "inline-flex" }}>
             <NavSearch transparent={transparent} />
@@ -260,7 +260,7 @@ export default function Nav({
           >
             account
           </Link>
-          {/* Hamburger — phones only. Toggles the full-width mobile menu. */}
+          {/* Hamburger, phones only. Toggles the full-width mobile menu. */}
           <button
             type="button"
             className="nav-mobile-only"
@@ -294,7 +294,7 @@ export default function Nav({
       </div>
     </nav>
 
-      {/* Mobile menu — full-bleed drawer with a dimmed backdrop, phones only.
+      {/* Mobile menu, full-bleed drawer with a dimmed backdrop, phones only.
           Rendered OUTSIDE <nav> on purpose: the nav's backdrop-filter would
           otherwise become the containing block for these fixed elements and
           clip the sheet to the 64px bar height. */}
@@ -402,7 +402,7 @@ export default function Nav({
 
             {/* Primary links */}
             <div style={{ display: "flex", flexDirection: "column" }}>
-              {/* shop — expandable */}
+              {/* shop, expandable */}
               <button
                 type="button"
                 aria-expanded={shopOpen}
@@ -512,7 +512,7 @@ export default function Nav({
               })}
             </div>
 
-            {/* Utility — pinned lower */}
+            {/* Utility, pinned lower */}
             <div style={{ marginTop: "auto", paddingTop: 32 }}>
               <Link
                 href="/account"

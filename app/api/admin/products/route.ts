@@ -26,7 +26,7 @@ export async function GET(req: Request) {
     .order("created_at", { ascending: false })
     .limit(MAX_ROWS);
 
-  // Status model — derived in the query, no extra columns.
+  // Status model, derived in the query, no extra columns.
   switch (status) {
     case "pending":
       query = query

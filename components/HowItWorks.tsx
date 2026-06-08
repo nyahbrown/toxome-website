@@ -2,13 +2,13 @@ const steps = [
   {
     n: "01",
     title: "Scan the label",
-    body: "Open the camera, frame the composition tag. Toxome reads it in under two seconds — no typing, no hunting for the brand online.",
+    body: "Open the camera, frame the composition tag. Toxome reads it in under two seconds, no typing, no hunting for the brand online.",
     visual: "scan",
   },
   {
     n: "02",
     title: "See the hazards",
-    body: "Six axes — endocrine, microplastics, breathability, skin, biodegradability, climate — rated Low, Moderate, or High in plain English.",
+    body: "Six axes, endocrine, microplastics, breathability, skin, biodegradability, and climate, rated Low, Moderate, or High in plain English.",
     visual: "analyze",
   },
   {
@@ -122,7 +122,7 @@ export default function HowItWorks() {
             </h2>
           </div>
           <p style={{ fontSize: 17, lineHeight: 1.5, color: "var(--ink-2)", margin: 0, maxWidth: 480, paddingTop: 36 }}>
-            We built Toxome so the friction you feel is "should I keep this?" — never "how do I look this up?" Three steps, every time.
+            We built Toxome so the friction you feel is "should I keep this?", not "how do I look this up?" Three steps, every time.
           </p>
         </div>
 

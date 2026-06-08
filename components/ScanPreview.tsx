@@ -29,7 +29,7 @@ const FIBERS: Fiber[] = [
   },
   {
     id: "polyester", name: "Polyester", formula: "100% Polyester (PET)", priority: "High", priorityColor: "#C84242",
-    summary: "Plastic, spun. Polyester is petroleum-derived PET — durable and cheap, but it never stops shedding microfibers.",
+    summary: "Plastic, spun. Polyester is petroleum-derived PET, durable and cheap, but it never stops shedding microfibers.",
     impacts: [
       { key: "endocrine", label: "Endocrine disruption", level: "Moderate", detail: "Antimony catalysts and finishing PFAS can leach with heat and sweat." },
       { key: "micro", label: "Microplastic shedding", level: "High", detail: "A single load can release 700,000+ microfibers into wastewater." },
@@ -112,7 +112,7 @@ export default function ScanPreview() {
           </div>
           <p className="reveal" style={{ fontSize: 17, lineHeight: 1.5, color: "var(--ink-2)", margin: 0, paddingTop: 36 }}>
             What feels identical on the hanger reads very differently to your endocrine system.
-            Toxome surfaces the six axes that matter — and ranks them.
+            Toxome surfaces the six axes that matter, and ranks them.
           </p>
         </div>
 

@@ -1,5 +1,5 @@
 // Server-side admin authentication.
-// API routes must independently verify the caller — never trust the client.
+// API routes must independently verify the caller, never trust the client.
 // The client sends a Firebase ID token as `Authorization: Bearer <token>`;
 // we verify it against Firebase's identity toolkit REST endpoint and confirm
 // the email matches the single allowed admin.

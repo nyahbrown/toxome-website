@@ -2,8 +2,8 @@
 import { useState } from "react";
 
 const FAQ_ITEMS = [
-  { q: "How is Toxome different from a sustainability rating site?", a: "Sustainability ratings score brands. Toxome scores the actual garment in your hand — by reading its composition tag. Two shirts from the same 'ethical' brand can have wildly different fiber profiles. We measure what you'll be wearing, not what the company says it stands for." },
-  { q: "Where does the scoring data come from?", a: "Peer-reviewed material science and toxicology, plus published lifecycle assessments. Each fiber has a source-linked dossier inside the app. We don't accept payment from brands to influence scores — ever." },
+  { q: "How is Toxome different from a sustainability rating site?", a: "Sustainability ratings score brands. Toxome scores the actual garment in your hand, by reading its composition tag. Two shirts from the same 'ethical' brand can have wildly different fiber profiles. We measure what you'll be wearing, not what the company says it stands for." },
+  { q: "Where does the scoring data come from?", a: "Peer-reviewed material science and toxicology, plus published lifecycle assessments. Each fiber has a source-linked dossier inside the app. We don't accept payment from brands to influence scores. Ever." },
   { q: "What if my tag is blurry or in another language?", a: "Toxome handles 28 languages and most degraded tags. If a tag is unreadable, you can search by brand and product name as a fallback. We're also working on care-symbol recognition for tags that have been worn off entirely." },
   { q: "Is my closet private?", a: "Yes. Scans live on-device by default. Optional iCloud sync is end-to-end encrypted. We never sell or share scan data, and you can wipe your closet at any time." },
   { q: "Is it free?", a: "Scanning is free, forever. The subscription ($2.99/mo or $14.99/yr, with a 14-day free trial) adds your full closet history, swap suggestions, and the article library. Cancel anytime." },

@@ -29,7 +29,7 @@ export default function ShareBar({ url, title, description, image }: ShareBarPro
 
   const pinterest = `https://www.pinterest.com/pin/create/button/?url=${enc(
     url
-  )}&description=${enc(`${title} — ${shareText}`)}${image ? `&media=${enc(image)}` : ""}`;
+  )}&description=${enc(`${title}: ${shareText}`)}${image ? `&media=${enc(image)}` : ""}`;
   const twitter = `https://twitter.com/intent/tweet?text=${enc(title)}&url=${enc(url)}`;
   const facebook = `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}`;
   const email = `mailto:?subject=${enc(title)}&body=${enc(`${shareText}\n\n${url}`)}`;
@@ -40,7 +40,7 @@ export default function ShareBar({ url, title, description, image }: ShareBarPro
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // Clipboard blocked (e.g. insecure context) — open the email fallback.
+      // Clipboard blocked (e.g. insecure context), open the email fallback.
       window.location.href = email;
     }
   }
@@ -49,7 +49,7 @@ export default function ShareBar({ url, title, description, image }: ShareBarPro
     try {
       await navigator.share({ title, text: shareText, url });
     } catch {
-      /* user dismissed — no-op */
+      /* user dismissed, no-op */
     }
   }
 

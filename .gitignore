@@ -38,6 +38,7 @@ yarn-error.log*
 
 # oh-my-claudecode runtime state
 .omc/
+.claude/
 
 # typescript
 *.tsbuildinfo

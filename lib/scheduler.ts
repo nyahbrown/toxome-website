@@ -11,7 +11,7 @@
 //   - "none"/unset → no push; dashboard runs in approve-only mode
 //
 // Metricool's public API does not expose generic post-scheduling on lower tiers,
-// so it's intentionally not an auto-push target — use it as the analytics/manual
+// so it's intentionally not an auto-push target, use it as the analytics/manual
 // scheduler and keep the dashboard in approve-only mode for it.
 
 export type SchedulerDraft = {
@@ -24,7 +24,7 @@ export type SchedulerDraft = {
 
 export type PushResult =
   | { ok: true; externalId: string }
-  | { ok: false; configured: false } // no provider set — approve-only mode
+  | { ok: false; configured: false } // no provider set, approve-only mode
   | { ok: false; configured: true; error: string };
 
 function provider(): string {

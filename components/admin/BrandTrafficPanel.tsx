@@ -174,7 +174,7 @@ export default function BrandTrafficPanel({
 
   useEffect(() => {
     // Fetches from an external API (Supabase), not synchronous derived state,
-    // so the cascading-render rule does not apply — same pattern as /admin.
+    // so the cascading-render rule does not apply, same pattern as /admin.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void load();
   }, [load]);
@@ -192,7 +192,7 @@ export default function BrandTrafficPanel({
       r.clicks === 1 ? "" : "s"
     } from ${r.unique_shoppers} clean-fabric shopper${
       r.unique_shoppers === 1 ? "" : "s"
-    } ${rangeWord(days)} (plus ${r.views} product views) — verify it in your own analytics (utm_source=toxome.app).`;
+    } ${rangeWord(days)} (plus ${r.views} product views). Verify it in your own analytics (utm_source=toxome.app).`;
     void navigator.clipboard?.writeText(line);
     setCopied(r.brand);
     window.setTimeout(() => setCopied((c) => (c === r.brand ? null : c)), 1800);
@@ -277,12 +277,12 @@ export default function BrandTrafficPanel({
             <KpiCard label="Likes" value={k.likes} />
             <KpiCard
               label="Click rate"
-              value={ctr === null ? "—" : ctr.toFixed(0)}
+              value={ctr === null ? "–" : ctr.toFixed(0)}
               suffix={ctr === null ? "" : "%"}
             />
           </div>
 
-          {/* Daily trend — animated, interactive SVG */}
+          {/* Daily trend, animated, interactive SVG */}
           <div style={card}>
             <div style={sectionLabel}>Daily trend</div>
             <TrendChart daily={data.daily} rangeKey={days} />
@@ -349,12 +349,12 @@ export default function BrandTrafficPanel({
                           <td style={{ ...cell, textAlign: "right" }}>{r.views}</td>
                           <td style={{ ...cell, textAlign: "right" }}>{r.likes}</td>
                           <td style={{ ...cell, textAlign: "right", color: "var(--ink-3)" }}>
-                            {brandCtr === null ? "—" : `${brandCtr.toFixed(0)}%`}
+                            {brandCtr === null ? "–" : `${brandCtr.toFixed(0)}%`}
                           </td>
                           <td style={{ ...cell, textAlign: "right", color: "var(--ink-3)" }}>
                             {r.last_click
                               ? new Date(r.last_click).toLocaleDateString()
-                              : "—"}
+                              : "–"}
                           </td>
                           <td style={{ ...cell, textAlign: "right" }}>
                             <button
@@ -422,7 +422,7 @@ export default function BrandTrafficPanel({
               <div style={sectionLabel}>Top searches</div>
               {data.top_searches.length === 0 ? (
                 <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)" }}>
-                  No searches yet — these show what shoppers want.
+                  No searches yet. These show what shoppers want.
                 </div>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>

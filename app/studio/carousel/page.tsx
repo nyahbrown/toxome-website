@@ -2,7 +2,7 @@
 // Visit /studio/carousel?c=SLUG&i=N to render a single slide for screenshot/export.
 // Omit i to get a contact sheet of the whole carousel. Omit c for the default.
 // Not linked anywhere; used to produce post visuals for the content dashboard.
-// Editorial reference: Headicure-style — full-bleed stat cover + minimal cream
+// Editorial reference: Headicure-style, full-bleed stat cover + minimal cream
 // interior slides with eye+wordmark lockup, one big statement each. Inter only.
 
 const W = 1080;
@@ -25,17 +25,17 @@ const CAROUSELS: Record<string, Slide[]> = {
       stat: "60%",
       image: "/hero-field.jpg",
     },
-    { kind: "statement", paras: ["Polyester is plastic — spun from petroleum.", "And most of us wear it against our skin, all day."] },
+    { kind: "statement", paras: ["Polyester is plastic, spun from petroleum.", "And most of us wear it against our skin, all day."] },
     { kind: "statement", paras: ["It traps heat and sweat, and sheds microplastics as it wears down.", "Some finishes are even linked to hormone disruption."] },
     { kind: "quote", quote: "“why is it so hard to find a plain shirt that isn’t made of plastic?”" },
-    { kind: "statement", paras: ["So we built the check.", "Scan any clothing label — and see what’s really in it."] },
+    { kind: "statement", paras: ["So we built the check.", "Scan any clothing label and see what’s really in it."] },
     { kind: "close", headline: "Learn more about how your clothes are made.", image: "/app-screenshot.png" },
   ],
 
   // ── Educational: microplastics found in human blood (77%) ────────────────
   // Source: Leslie et al., Environment International, 2022 (Vrije Universiteit
-  // Amsterdam). Plastic detected in 17 of 22 donors (77%); PET — the polymer
-  // spun into polyester clothing — was among the most common.
+  // Amsterdam). Plastic detected in 17 of 22 donors (77%); PET, the polymer
+  // spun into polyester clothing, was among the most common.
   "microplastics-blood": [
     {
       kind: "cover",
@@ -44,8 +44,8 @@ const CAROUSELS: Record<string, Slide[]> = {
       image: "/hero-field.jpg",
     },
     { kind: "statement", paras: ["In 2022, researchers tested blood from 22 healthy adults.", "They found plastic particles in 77% of them."] },
-    { kind: "statement", paras: ["One of the most common plastics was PET —", "the same material spun into polyester clothing."] },
-    { kind: "quote", quote: "“we are wearing plastic, washing plastic — and now carrying it inside us.”" },
+    { kind: "statement", paras: ["One of the most common plastics was PET,", "the same material spun into polyester clothing."] },
+    { kind: "quote", quote: "“we are wearing plastic, washing plastic, and now carrying it inside us.”" },
     { kind: "statement", paras: ["Your clothes are the plastic you touch most.", "So we built a way to check them."] },
     { kind: "close", headline: "See what your clothes are really made of.", image: "/app-screenshot.png" },
   ],
@@ -62,7 +62,7 @@ const CAROUSELS: Record<string, Slide[]> = {
       image: "/fibers/wool-2.jpg",
     },
     { kind: "statement", paras: ["One synthetic wash load can shed up to 730,000 microfibers.", "Most are too small for any filter to catch."] },
-    { kind: "statement", paras: ["They travel from your laundry to the ocean —", "and back to you, through water and food."] },
+    { kind: "statement", paras: ["They travel from your laundry to the ocean,", "and back to you, through water and food."] },
     { kind: "quote", quote: "“every time you wash polyester, it sheds a little more of itself.”" },
     { kind: "statement", paras: ["Natural fibers don’t shed plastic.", "Knowing what you own is where it starts."] },
     { kind: "close", headline: "Know what’s in your clothes.", image: "/app-screenshot.png" },
@@ -81,9 +81,9 @@ const CAROUSELS: Record<string, Slide[]> = {
       image: "/fibers/silk-1.jpg",
     },
     { kind: "statement", paras: ["In the early 1990s, Dr. Ahmed Shafik tracked men who wore polyester, cotton, or wool underwear."] },
-    { kind: "statement", paras: ["Every man in the polyester group saw his sperm count fall — some to zero — within months."] },
+    { kind: "statement", paras: ["Every man in the polyester group saw his sperm count fall, some to zero, within months."] },
     { kind: "statement", paras: ["The cotton and wool groups saw no change.", "And when the men stopped, their fertility came back."] },
-    { kind: "quote", quote: "“it was a small, early study — but it asks a question worth sitting with.”" },
+    { kind: "quote", quote: "“it was a small, early study, but it asks a question worth sitting with.”" },
     { kind: "close", headline: "What you wear touches more than your skin.", image: "/app-screenshot.png" },
   ],
 };
@@ -103,7 +103,7 @@ export default async function CarouselStudio({
   const i = Math.max(0, Math.min(slides.length - 1, Number(raw ?? 0)));
 
   if (showAll) {
-    // Contact sheet — all slides scaled down for review.
+    // Contact sheet, all slides scaled down for review.
     return (
       <div style={{ background: "#E9E7E1", minHeight: "100vh", padding: 32, display: "flex", flexWrap: "wrap", gap: 24, justifyContent: "center" }}>
         <HideChrome />
@@ -156,7 +156,7 @@ function SlideView({ slide }: { slide: Slide }) {
       <div style={{ ...frame, background: "#1d1b17" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={slide.image} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-        {/* Strong dark wash — keeps white type legible over any photo tone. */}
+        {/* Strong dark wash, keeps white type legible over any photo tone. */}
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(20,19,15,0.62) 0%, rgba(20,19,15,0.34) 30%, rgba(20,19,15,0.40) 60%, rgba(20,19,15,0.80) 100%)" }} />
 
         {/* small eye mark */}
@@ -183,7 +183,7 @@ function SlideView({ slide }: { slide: Slide }) {
     );
   }
 
-  // Closing CTA slide — phone mockup + eye lockup on a soft radial wash.
+  // Closing CTA slide, phone mockup + eye lockup on a soft radial wash.
   if (slide.kind === "close") {
     return (
       <div style={{ ...frame, background: "radial-gradient(ellipse 78% 56% at 50% 40%, #FCFBF7 0%, #EFECE4 48%, #D9D4CA 100%)", color: "var(--ink, #3B3C3A)" }}>
@@ -204,7 +204,7 @@ function SlideView({ slide }: { slide: Slide }) {
     );
   }
 
-  // Interior slides — cream chrome: eye+wordmark lockup, statement/quote, arrow.
+  // Interior slides, cream chrome: eye+wordmark lockup, statement/quote, arrow.
   return (
     <div style={{ ...frame, background: "var(--cream, #FCFBF7)", color: "var(--ink, #3B3C3A)" }}>
       {/* wordmark lockup with eye */}
@@ -265,7 +265,7 @@ function ArrowRing({ color, size }: { color: string; size: number }) {
   );
 }
 
-// Toxome eye mark — the actual locked logo (eye only, 4311×2813 ≈ 1.532:1).
+// Toxome eye mark, the actual locked logo (eye only, 4311×2813 ≈ 1.532:1).
 // Scaled proportionally, never recolored or cropped.
 function EyeLogo({ size = 56 }: { size?: number }) {
   return (
@@ -280,8 +280,7 @@ function EyeLogo({ size = 56 }: { size?: number }) {
   );
 }
 
-// Minimal phone frame holding an app screenshot (warm dark bezel, no notch —
-// the screenshot carries its own status bar).
+// Minimal phone frame holding an app screenshot (warm dark bezel, no notch, // the screenshot carries its own status bar).
 function PhoneMock({ src }: { src: string }) {
   return (
     <div style={{ width: 304, height: 652, borderRadius: 54, background: "#1d1b17", padding: 12, boxSizing: "border-box", boxShadow: "0 34px 64px -22px rgba(40,36,30,0.5)" }}>

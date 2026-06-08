@@ -3,7 +3,7 @@ import { collection, doc, getDocs, query, where } from "firebase/firestore";
 import type { Timestamp } from "firebase/firestore";
 import { fiberKey, fiberScore, calcToxomeScore, scoreToRiskLevel } from "./fabricScores";
 
-// Subset of the iOS app's scans/{scan} document — only the fields we
+// Subset of the iOS app's scans/{scan} document, only the fields we
 // actually surface on the website.
 export interface ClosetScan {
   id: string;
@@ -54,7 +54,7 @@ export async function getClosetScans(uid: string): Promise<ClosetScan[]> {
     const ts = data.scan_date as Timestamp | undefined;
     // Recompute the Toxome Score at read-time from the saved composition (plus
     // any disclosed certs/finishes) so the website always reflects the current
-    // V2 rubric and the inverted (higher = better) direction — regardless of
+    // V2 rubric and the inverted (higher = better) direction, regardless of
     // what an older app binary wrote into overallHazardScore. Firestore is not
     // mutated, so old app versions keep reading their stored value.
     const compMap: Record<string, number> = {};

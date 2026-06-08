@@ -5,7 +5,7 @@
 import type { WishlistItem } from "@/lib/firestore";
 import type { ClosetScan } from "@/lib/closet";
 
-// 20 saved items — clean-fiber pieces from real brands in the catalog's voice.
+// 20 saved items, clean-fiber pieces from real brands in the catalog's voice.
 export const DEV_WISHLIST: WishlistItem[] = (
   [
     { name: "Erma Drop Waist Linen Dress", brand: "Boden", price: 260 },
@@ -41,7 +41,7 @@ export const DEV_WISHLIST: WishlistItem[] = (
   brand_verified: i % 3 === 0,
 }));
 
-// 30 closet scans — cycles a set of base items, each with a unique image+date.
+// 30 closet scans, cycles a set of base items, each with a unique image+date.
 export const DEV_SCANS: ClosetScan[] = (() => {
   const today = Date.now();
   const d = (daysAgo: number) => new Date(today - daysAgo * 86_400_000);

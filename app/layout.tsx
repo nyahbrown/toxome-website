@@ -6,7 +6,7 @@ import CookieBanner from "@/components/CookieBanner";
 import JsonLd from "@/components/JsonLd";
 import { AuthProvider } from "@/contexts/AuthContext";
 
-// Site-wide Organization schema — establishes Toxome as an entity and links
+// Site-wide Organization schema, establishes Toxome as an entity and links
 // the verified social profiles (helps with brand knowledge panels).
 const organizationSchema = {
   "@context": "https://schema.org",
@@ -23,7 +23,7 @@ const organizationSchema = {
   ],
 };
 
-// Cormorant — high-contrast editorial serif. Loaded as a variable font so the
+// Cormorant, high-contrast editorial serif. Loaded as a variable font so the
 // full 300–700 weight axis is available; headlines run Light (300). Replaced
 // Source Serif 4.
 const cormorant = Cormorant({
@@ -40,7 +40,7 @@ const inter = Inter({
 });
 
 const SITE_DESCRIPTION =
-  "Photograph the composition tag on any garment. Toxome reads the fibers and tells you exactly what they do to your body — and to the world.";
+  "Photograph the composition tag on any garment. Toxome reads the fibers and tells you exactly what they do to your body, and to the world.";
 
 export const metadata: Metadata = {
   // Resolves all relative canonical / OpenGraph URLs to absolute ones.
@@ -69,7 +69,7 @@ export const metadata: Metadata = {
   verification: {
     google: "5V6smK6H9R1nC5Vu9Wop36OxW6P8jwV31KSePfSdWX8",
   },
-  // Native iOS Safari "Smart App Banner" — shown automatically at the top
+  // Native iOS Safari "Smart App Banner", shown automatically at the top
   // of the page on iPhone/iPad. Links to the App Store listing for the
   // Toxome iOS app.
   other: {

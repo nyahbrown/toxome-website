@@ -6,7 +6,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 // Every brand in the catalog (all statuses) with a product count, so the admin
-// can search/filter by any brand — not just the ones in the current view.
+// can search/filter by any brand, not just the ones in the current view.
 export async function GET(req: Request) {
   const auth = await verifyAdmin(req);
   if (!auth.ok) {

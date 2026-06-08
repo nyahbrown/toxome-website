@@ -24,7 +24,7 @@ import { DEV_WISHLIST, DEV_SCANS } from "@/lib/devAccountData";
 import { hazardColor, prettyFiber } from "@/lib/fabricScores";
 import WishlistHeart from "@/components/WishlistHeart";
 
-// Accounts comped to Premium on the web — full closet access regardless of
+// Accounts comped to Premium on the web, full closet access regardless of
 // any App Store subscription. The founder / admin account.
 const COMPED_PREMIUM_EMAILS = ["nyah@toxome.app"];
 
@@ -89,7 +89,7 @@ export default function AccountClient() {
   }, [user, loading, router, devMode]);
 
   useEffect(() => {
-    // Dev preview mode — bypass auth + gating, use mock closet data so
+    // Dev preview mode, bypass auth + gating, use mock closet data so
     // every panel renders populated without a subscription or signed-in
     // user.
     if (devMode) {
@@ -132,7 +132,7 @@ export default function AccountClient() {
       setProfile(effProfile);
       setWishlist(w);
 
-      // Only pull closet data if the user is premium — Firestore reads
+      // Only pull closet data if the user is premium, Firestore reads
       // for a free user would just be wasted work since we gate the UI.
       const isPremium = effProfile?.isPremium === true;
       const s = isPremium
@@ -543,7 +543,7 @@ function PlanChip({ profile }: { profile: UserProfile }) {
 
 /* ──────────────────────────────────────────────────────────────── */
 
-// Small info "i" with a hover/click tooltip — explains the score.
+// Small info "i" with a hover/click tooltip, explains the score.
 function InfoTip({ text }: { text: string }) {
   const [open, setOpen] = useState(false);
   return (
@@ -607,7 +607,7 @@ function InfoTip({ text }: { text: string }) {
   );
 }
 
-// Merged "your closet" card — score + risk tray beside the fiber tray.
+// Merged "your closet" card, score + risk tray beside the fiber tray.
 function ClosetSnapshot({ stats }: { stats: ClosetStats }) {
   const segments = [
     { count: stats.riskBreakdown.low, color: "var(--risk-low)", label: "low" },
@@ -644,7 +644,7 @@ function ClosetSnapshot({ stats }: { stats: ClosetStats }) {
         }}
       >
         <span style={{ position: "absolute", top: 14, right: 14 }}>
-          <InfoTip text="Your closet's average Toxome Score (0–100). Higher is cleaner — it means fewer hazardous fibers and finishes across what you've scanned. Roughly: 68+ is low-risk, 40–67 moderate, under 40 high." />
+          <InfoTip text="Your closet's average Toxome Score (0–100). Higher is cleaner, meaning fewer hazardous fibers and finishes across what you've scanned. Roughly: 68+ is low-risk, 40–67 moderate, under 40 high." />
         </span>
         <div
           style={{
@@ -969,7 +969,7 @@ function RecentScansRow({
               whiteSpace: "nowrap",
             }}
           >
-            {s.brandName || s.category || "—"}
+            {s.brandName || s.category || "–"}
           </div>
         </div>
       ))}
@@ -1340,7 +1340,7 @@ function ClosetLockedCTA({ scanCount }: { scanCount: number }) {
             marginBottom: 20,
           }}
         >
-          ——
+          ––
         </div>
         <div
           style={{
@@ -1394,7 +1394,7 @@ function ClosetLockedCTA({ scanCount }: { scanCount: number }) {
             <>
               {" "}
               You&apos;ve already scanned {scanCount}{" "}
-              {scanCount === 1 ? "item" : "items"} — unlock to see them all in
+              {scanCount === 1 ? "item" : "items"}. Unlock to see them all in
               one view.
             </>
           )}

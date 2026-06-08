@@ -36,7 +36,7 @@ const FIBERS: { name: string; image: string; hover?: string }[] = [
   { name: "ramie", image: "/fibers/guide/ramie.jpg" },
 ];
 
-// Lifestyle-5 occasion taxonomy — mirrors the `occasion` column values.
+// Lifestyle-5 occasion taxonomy, mirrors the `occasion` column values.
 const OCCASIONS = [
   "Everyday",
   "Workwear",
@@ -84,7 +84,7 @@ function ProductCard({
       onMouseLeave={() => setHovered(false)}
       style={{ textDecoration: "none", display: "block" }}
     >
-      {/* Image card — 266:334 aspect (portrait) */}
+      {/* Image card, 266:334 aspect (portrait) */}
       <div
         style={{
           position: "relative",
@@ -312,7 +312,7 @@ function SmartEmpty({
       >
         {hasUserFilters
           ? "No items match those filters."
-          : "No products yet — check back soon."}
+          : "No products yet. Check back soon."}
       </p>
       {hasUserFilters && (
         <button
@@ -343,7 +343,7 @@ export default function ShopClient({
   const scrollRail = (dir: 1 | -1) =>
     fiberRailRef.current?.scrollBy({ left: dir * 340, behavior: "smooth" });
 
-  // Base path the section lives under — filter changes route here.
+  // Base path the section lives under, filter changes route here.
   const sectionPath =
     section === "women" ? "/shop/women"
     : section === "men" ? "/shop/men"
@@ -378,7 +378,7 @@ export default function ShopClient({
   const query = (searchParams.get("q") || "").trim();
 
   // Record committed searches (debounced so we log the settled term, not every
-  // keystroke) — a free read on what shoppers want, including gaps we don't stock.
+  // keystroke), a free read on what shoppers want, including gaps we don't stock.
   useEffect(() => {
     if (!query) return;
     const t = setTimeout(
@@ -401,7 +401,7 @@ export default function ShopClient({
         )!
       : "All";
 
-  // Push a partial URL update — replace so we don't pollute history per pill click.
+  // Push a partial URL update, replace so we don't pollute history per pill click.
   function updateParams(updates: Record<string, string | null>) {
     const p = new URLSearchParams(searchParams.toString());
     for (const [k, v] of Object.entries(updates)) {
@@ -525,7 +525,7 @@ export default function ShopClient({
   const hasUserFilters =
     !!fiberFilter || !!occasionFilter || category !== "All" || query.length > 0;
 
-  // Auto-load pagination — reveal a fresh PAGE_SIZE every time the
+  // Auto-load pagination, reveal a fresh PAGE_SIZE every time the
   // sentinel below the grid scrolls into view. Reset to first page
   // whenever any filter changes.
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
@@ -610,7 +610,7 @@ export default function ShopClient({
         </h1>
       </div>
 
-      {/* Browse by fiber — horizontal scrollable rail, only on /shop default */}
+      {/* Browse by fiber, horizontal scrollable rail, only on /shop default */}
       {!section && (
       <div className="shell" style={{ paddingBottom: 52 }}>
         <div

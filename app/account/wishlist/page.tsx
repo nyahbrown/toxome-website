@@ -202,7 +202,7 @@ export default function WishlistPage() {
               textTransform: "uppercase",
             }}
           >
-            nothing saved yet —{" "}
+            nothing saved yet.{" "}
             <Link
               href="/shop"
               style={{

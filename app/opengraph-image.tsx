@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 
 // Branded social share card, applied site-wide via the Next.js file
 // convention (also used for twitter:image when no twitter-image is present).
-export const alt = "Toxome — know what's in your clothes";
+export const alt = "Toxome: know what's in your clothes";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 

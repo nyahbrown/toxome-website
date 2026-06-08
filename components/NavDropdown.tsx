@@ -18,7 +18,7 @@ type Props = {
    * means clicking it navigates even before the page's JS has hydrated (the
    * dropdown is a button otherwise and is dead until hydration, which can take
    * several seconds on the homepage). Once hydrated, the click is intercepted
-   * to open the dropdown instead — progressive enhancement.
+   * to open the dropdown instead, progressive enhancement.
    */
   href?: string;
 };
@@ -72,7 +72,7 @@ export default function NavDropdown({
           href={href}
           // Once hydrated, intercept the click to open the dropdown instead of
           // navigating (the user wanted click-to-open). Before hydration there
-          // is no handler, so the browser follows the href — navigation always
+          // is no handler, so the browser follows the href, navigation always
           // works even if the page's JS is slow or fails to load.
           onClick={(e) => {
             e.preventDefault();

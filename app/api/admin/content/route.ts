@@ -12,7 +12,7 @@ const TABLE = "content_drafts";
 const STATUSES = ["draft", "needs_edit", "approved", "scheduled", "posted"] as const;
 type Status = (typeof STATUSES)[number];
 
-// GET — list drafts (optionally filtered by status). Returns scheduler config so
+// GET, list drafts (optionally filtered by status). Returns scheduler config so
 // the UI can show whether approve will auto-push or just mark approved.
 export async function GET(req: Request) {
   const auth = await verifyAdmin(req);
@@ -37,7 +37,7 @@ export async function GET(req: Request) {
   return NextResponse.json({ drafts: data ?? [], schedulerConfigured: schedulerConfigured() });
 }
 
-// POST — create one or more drafts. Accepts a single object or an array (used by
+// POST, create one or more drafts. Accepts a single object or an array (used by
 // the /toxome-distribute generator to drop a whole platform group in at once).
 export async function POST(req: Request) {
   const auth = await verifyAdmin(req);
@@ -73,7 +73,7 @@ export async function POST(req: Request) {
   return NextResponse.json({ drafts: data ?? [] }, { status: 201 });
 }
 
-// PATCH — edit copy / comment / status for one draft. When status moves to
+// PATCH, edit copy / comment / status for one draft. When status moves to
 // "approved" and a scheduler is configured, push the post and flip to "scheduled".
 export async function PATCH(req: Request) {
   const auth = await verifyAdmin(req);
@@ -144,7 +144,7 @@ export async function PATCH(req: Request) {
     }
 
     if (result.configured) {
-      // Scheduler is set up but the push failed — keep it approved, surface the error.
+      // Scheduler is set up but the push failed, keep it approved, surface the error.
       const { data: withErr } = await supabaseAdmin
         .from(TABLE)
         .update({ push_error: result.error })
@@ -153,13 +153,13 @@ export async function PATCH(req: Request) {
         .single();
       return NextResponse.json({ draft: withErr ?? updated, pushed: false, pushError: result.error });
     }
-    // No scheduler configured — approve-only mode. Nothing more to do.
+    // No scheduler configured, approve-only mode. Nothing more to do.
   }
 
   return NextResponse.json({ draft: updated });
 }
 
-// DELETE — remove a draft by ?id=
+// DELETE, remove a draft by ?id=
 export async function DELETE(req: Request) {
   const auth = await verifyAdmin(req);
   if (!auth.ok) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

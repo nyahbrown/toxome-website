@@ -1,5 +1,5 @@
 const FACTORS = [
-  { title: "Endocrine disruption", body: "Phthalates, BPA in elastane, PFAS in waterproofing. Chemicals that mimic or block hormones — implicated in metabolic and reproductive health.", weight: "High weight" },
+  { title: "Endocrine disruption", body: "Phthalates, BPA in elastane, PFAS in waterproofing. Chemicals that mimic or block hormones, implicated in metabolic and reproductive health.", weight: "High weight" },
   { title: "Microplastic shedding", body: "Synthetic fibers shed in every wash and every wear. We estimate per-garment lifetime shed in grams.", weight: "High weight" },
   { title: "Skin barrier", body: "Direct-contact irritants, formaldehyde finishes, dye sensitizers. What your largest organ meets all day.", weight: "Moderate weight" },
   { title: "Breathability", body: "Moisture wicking, thermal regulation, sweat-trapping. Fiber-level data, not marketing copy.", weight: "Moderate weight" },
@@ -24,7 +24,7 @@ export default function WhatWeCheck() {
           </h2>
           <p style={{ fontSize: 17, lineHeight: 1.5, color: "var(--ink-2)", margin: 0 }}>
             We separate the things that touch your endocrine system today from the things that strain the planet for a century.
-            Both matter — but they&apos;re not the same axis. Toxome scores them separately and shows the work.
+            Both matter, but they&apos;re not the same axis. Toxome scores them separately and shows the work.
           </p>
         </div>
 

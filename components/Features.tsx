@@ -3,7 +3,7 @@ const features = [
     n: "01",
     title: "Instant label scanner",
     description:
-      "Photograph the composition tag on any garment. Toxome reads the fiber breakdown in under two seconds — no typing, no hunting for the brand online.",
+      "Photograph the composition tag on any garment. Toxome reads the fiber breakdown in under two seconds, no typing, no hunting for the brand online.",
   },
   {
     n: "02",

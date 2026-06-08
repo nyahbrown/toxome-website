@@ -93,7 +93,7 @@ export default function Hero() {
             maxWidth: 540, margin: "0 0 36px", letterSpacing: "-0.011em",
           }}>
             Photograph the composition tag on any garment. Toxome reads the fibers and
-            tells you exactly what they do to your body — and to the world.
+            tells you exactly what they do to your body, and to the world.
           </p>
 
           <div className="reveal" data-reveal-delay="600">

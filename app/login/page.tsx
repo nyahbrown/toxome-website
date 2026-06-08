@@ -51,8 +51,6 @@ function LoginContent() {
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [resetSent, setResetSent] = useState(false);
-  // Newsletter opt-in shown on the create-account form, default selected.
-  const [subscribeNewsletter, setSubscribeNewsletter] = useState(true);
   // Social-first: the email/password form is collapsed until the visitor taps
   // "or … with email".
   const [emailOpen, setEmailOpen] = useState(false);
@@ -115,7 +113,7 @@ function LoginContent() {
       if (e instanceof Error) {
         const msg = e.message;
         if (msg.includes("user-not-found")) {
-          // Don't leak account existence — confirm reset either way.
+          // Don't leak account existence, confirm reset either way.
           setResetSent(true);
         } else if (msg.includes("invalid-email")) {
           setError("That email doesn't look right.");
@@ -135,17 +133,9 @@ function LoginContent() {
         await signInWithEmail(email, password);
       } else {
         await signUpWithEmail(email, password);
-        if (subscribeNewsletter) {
-          // Fire-and-forget opt-in — never block account creation on it.
-          fetch("/api/newsletter", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              email: email.trim().toLowerCase(),
-              source: "account_signup",
-            }),
-          }).catch(() => {});
-        }
+        // Subscription + welcome email are handled server-side for every new
+        // account (Firebase auth onCreate → /api/newsletter → beehiiv), so no
+        // client-side opt-in call is needed here.
       }
       await handlePostLogin();
     } catch (e: unknown) {
@@ -235,7 +225,7 @@ function LoginContent() {
       >
         {/* Header */}
         <div style={{ textAlign: "center", marginBottom: 40 }}>
-          {/* Brand mark — logo above "Toxome", same eye + wordmark used in
+          {/* Brand mark, logo above "Toxome", same eye + wordmark used in
               the footer */}
           <div
             style={{
@@ -305,7 +295,7 @@ function LoginContent() {
           </button>
         </div>
 
-        {/* Email — social-first; the email/password form expands on tap. */}
+        {/* Email, social-first; the email/password form expands on tap. */}
         <div style={{ marginTop: 18 }}>
           {!emailOpen ? (
             <div style={{ textAlign: "center" }}>
@@ -392,63 +382,19 @@ function LoginContent() {
               )}
 
               {mode === "signup" && (
-                <button
-                  type="button"
-                  role="checkbox"
-                  aria-checked={subscribeNewsletter}
-                  onClick={() => setSubscribeNewsletter((v) => !v)}
+                <p
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 10,
-                    width: "100%",
-                    background: "none",
-                    border: "none",
-                    padding: "2px 0",
-                    cursor: "pointer",
-                    textAlign: "left",
+                    fontFamily: "var(--sans)",
+                    fontSize: 13,
+                    lineHeight: 1.45,
+                    letterSpacing: "-0.005em",
+                    color: "var(--ink-3)",
+                    margin: "2px 0 0",
                   }}
                 >
-                  <span
-                    style={{
-                      flexShrink: 0,
-                      width: 18,
-                      height: 18,
-                      borderRadius: 5,
-                      border: `1px solid ${
-                        subscribeNewsletter ? "var(--ink)" : "var(--hairline-strong)"
-                      }`,
-                      background: subscribeNewsletter ? "var(--ink)" : "transparent",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      transition: "background 140ms ease, border-color 140ms ease",
-                    }}
-                  >
-                    {subscribeNewsletter && (
-                      <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                        <path
-                          d="M2.5 6.2l2.2 2.2 4.8-4.8"
-                          stroke="var(--white)"
-                          strokeWidth="1.6"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    )}
-                  </span>
-                  <span
-                    style={{
-                      fontFamily: "var(--sans)",
-                      fontSize: 13,
-                      lineHeight: 1.45,
-                      letterSpacing: "-0.005em",
-                      color: "var(--ink-2)",
-                    }}
-                  >
-                    subscribe to weekly newsletter
-                  </span>
-                </button>
+                  by creating an account you&rsquo;ll get our weekly report.
+                  unsubscribe anytime.
+                </p>
               )}
 
               <button type="submit" style={submitButtonStyle} disabled={submitting}>
