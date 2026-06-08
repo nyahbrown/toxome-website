@@ -1,7 +1,7 @@
 import { db } from "./firebase";
 import { collection, doc, getDocs, query, where } from "firebase/firestore";
 import type { Timestamp } from "firebase/firestore";
-import { fiberKey, fiberScore } from "./fabricScores";
+import { fiberKey, fiberScore, calcToxomeScore, scoreToRiskLevel } from "./fabricScores";
 
 // Subset of the iOS app's scans/{scan} document — only the fields we
 // actually surface on the website.
@@ -12,8 +12,8 @@ export interface ClosetScan {
   category: string;
   scanImageUrl: string;
   scanDate: Date | null;
-  overallHazardScore: number; // 0–100; lower = cleaner
-  overallHazardLevel: "low" | "moderate" | "high";
+  overallHazardScore: number; // Toxome Score, 0–100; HIGHER = cleaner (V2). Recomputed at read-time.
+  overallHazardLevel: "low" | "moderate" | "high"; // concern level (low = best)
   naturalFiberPercentage: number;
   composition: { fiber: string; percentage: number }[];
 }
@@ -52,6 +52,26 @@ export async function getClosetScans(uid: string): Promise<ClosetScan[]> {
         )
       : [];
     const ts = data.scan_date as Timestamp | undefined;
+    // Recompute the Toxome Score at read-time from the saved composition (plus
+    // any disclosed certs/finishes) so the website always reflects the current
+    // V2 rubric and the inverted (higher = better) direction — regardless of
+    // what an older app binary wrote into overallHazardScore. Firestore is not
+    // mutated, so old app versions keep reading their stored value.
+    const compMap: Record<string, number> = {};
+    for (const c of composition) {
+      if (c.fiber) compMap[c.fiber] = (compMap[c.fiber] ?? 0) + c.percentage;
+    }
+    const certifications = Array.isArray(data.certifications)
+      ? (data.certifications as unknown[]).map(String)
+      : [];
+    const finishes = Array.isArray(data.finishes)
+      ? (data.finishes as unknown[]).map(String)
+      : [];
+    const storedHazard = Number(data.overallHazardScore ?? 50);
+    const cleanScore =
+      calcToxomeScore(compMap, { certifications, descKeywords: finishes }) ??
+      Math.max(0, Math.min(100, 100 - storedHazard));
+    const cleanLevel = scoreToRiskLevel(cleanScore) ?? "moderate";
     return {
       id: d.id,
       itemDescription: String(data.itemDescription ?? ""),
@@ -59,9 +79,8 @@ export async function getClosetScans(uid: string): Promise<ClosetScan[]> {
       category: String(data.category ?? ""),
       scanImageUrl: String(data.scanImageUrl ?? ""),
       scanDate: ts && typeof ts.toDate === "function" ? ts.toDate() : null,
-      overallHazardScore: Number(data.overallHazardScore ?? 50),
-      overallHazardLevel:
-        (data.overallHazardLevel as "low" | "moderate" | "high") ?? "moderate",
+      overallHazardScore: cleanScore,
+      overallHazardLevel: cleanLevel,
       naturalFiberPercentage: Number(data.naturalFiberPercentage ?? 0),
       composition,
     };

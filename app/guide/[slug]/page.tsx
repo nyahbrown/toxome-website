@@ -89,10 +89,10 @@ export default async function FiberGuidePage({
     ? { href: "/shop", label: "Browse the shop", ghost: true }
     : { href: "/shop", label: "Browse cleaner fibers", ghost: true };
 
-  // Up to 4 cleaner sibling fibers (lowest score first) for internal linking.
+  // Up to 4 cleaner sibling fibers (highest score first) for internal linking.
   const related = FIBER_GUIDE.map(withScore)
     .filter((x) => x.slug !== f.slug)
-    .sort((a, b) => a.score - b.score)
+    .sort((a, b) => b.score - a.score)
     .slice(0, 4);
 
   const pageUrl = `${SITE}/guide/${slug}`;

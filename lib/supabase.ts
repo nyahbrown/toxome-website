@@ -80,13 +80,13 @@ export async function getCleanerAlternatives(
     .from("products")
     .select("*")
     .eq("published", true)
-    .order("toxome_score", { ascending: true, nullsFirst: false })
+    .order("toxome_score", { ascending: false, nullsFirst: false })
     .limit(limit);
 
   if (problemCategories.length > 0) {
     q = q.in("category", problemCategories);
   }
-  q = q.or("risk_level.eq.low,toxome_score.lte.30");
+  q = q.or("risk_level.eq.low,toxome_score.gte.70");
 
   const { data, error } = await q;
   if (error) {

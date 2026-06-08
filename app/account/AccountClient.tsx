@@ -644,7 +644,7 @@ function ClosetSnapshot({ stats }: { stats: ClosetStats }) {
         }}
       >
         <span style={{ position: "absolute", top: 14, right: 14 }}>
-          <InfoTip text="Your closet's average Toxome score (0–100). Lower is cleaner — it means fewer hazardous fibers and finishes across what you've scanned. Roughly: under 30 is low-risk, 30–60 moderate, 60+ high." />
+          <InfoTip text="Your closet's average Toxome Score (0–100). Higher is cleaner — it means fewer hazardous fibers and finishes across what you've scanned. Roughly: 68+ is low-risk, 40–67 moderate, under 40 high." />
         </span>
         <div
           style={{

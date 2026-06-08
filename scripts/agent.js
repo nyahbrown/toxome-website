@@ -20,7 +20,7 @@
  * Run:
  *   node --env-file=.env.local scripts/agent.js
  *   node --env-file=.env.local scripts/agent.js --dry-run --brands 4 --per-brand 3
- *   node --env-file=.env.local scripts/agent.js --max-score 25   # stricter fibers
+ *   node --env-file=.env.local scripts/agent.js --min-score 80   # stricter fibers (higher = cleaner)
  *
  * Model + cost guard:
  *   Defaults to the cheaper Haiku model (these are drafts you review before
@@ -46,7 +46,7 @@ const FLAGS = {
   dryRun: ARGV.includes("--dry-run"),
   brands: intFlag("--brands") ?? 6, // how many new similar brands to source per run
   perBrand: intFlag("--per-brand") ?? 3, // products to try per brand
-  maxScore: intFlag("--max-score") ?? 33, // fiber bar: only keep Toxome score <= this
+  minScore: intFlag("--min-score") ?? 67, // fiber bar: only keep Toxome score >= this (higher = cleaner)
   include: strFlag("--include"), // comma-separated exact brands to source from (skips auto-suggest)
   category: strFlag("--category"), // force a category on every inserted item (e.g. "Other" for home goods)
 };
@@ -275,7 +275,7 @@ async function run() {
       ? `Sourcing from ${includeBrands.length} specified brand(s): ${includeBrands.join(", ")}`
       : `Catalog has ${existingBrands.length} brands. Finding ${FLAGS.brands} similar new brands`) +
       (FLAGS.dryRun ? "  [DRY RUN — no inserts]" : "") +
-      `\nFiber bar: Toxome score <= ${FLAGS.maxScore}\n`
+      `\nFiber bar: Toxome score >= ${FLAGS.minScore}\n`
   );
 
   const requestedBrandCount = Math.min(FLAGS.brands, GUARD.maxBrands);
@@ -341,11 +341,11 @@ async function run() {
         continue;
       }
       const score = calcToxomeScore(item.fabric_composition);
-      // Fiber bar: only keep low-risk. Reject unknown or above the threshold.
-      if (score == null || score > FLAGS.maxScore) {
+      // Fiber bar: only keep low-risk (high clean score). Reject unknown or below the threshold.
+      if (score == null || score < FLAGS.minScore) {
         stats.tooSynthetic++;
         console.log(
-          `  ✗ ${item.item_name} — score ${score ?? "?"} > ${FLAGS.maxScore}, skip`
+          `  ✗ ${item.item_name} — score ${score ?? "?"} < ${FLAGS.minScore}, skip`
         );
         continue;
       }

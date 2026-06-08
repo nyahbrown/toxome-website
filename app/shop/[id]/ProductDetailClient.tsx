@@ -19,13 +19,13 @@ function RiskChip({
   score?: number | null;
   level?: "low" | "moderate" | "high" | null;
 }) {
-  // Four-word verdict, matching the Toxome browser extension (lower = cleaner):
-  // <=15 Great, <=36 Good, <=60 Okay, else Bad. Color follows the 3-band ramp.
+  // Four-word verdict, matching the Toxome browser extension (higher = cleaner):
+  // >=85 Great, >=68 Good, >=40 Okay, else Bad. Color follows the 3-band ramp.
   let m: { color: string; label: string };
   if (score != null) {
     m = {
-      label: score <= 15 ? "Great" : score <= 36 ? "Good" : score <= 60 ? "Okay" : "Bad",
-      color: score <= 36 ? "var(--risk-low)" : score <= 60 ? "var(--orange)" : "var(--red)",
+      label: score >= 85 ? "Great" : score >= 68 ? "Good" : score >= 40 ? "Okay" : "Bad",
+      color: score >= 68 ? "var(--risk-low)" : score >= 40 ? "var(--orange)" : "var(--red)",
     };
   } else {
     const fallback = {

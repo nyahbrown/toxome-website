@@ -455,11 +455,11 @@ export default function ShopClient({
         const va = a.brand_verified ? 1 : 0;
         const vb = b.brand_verified ? 1 : 0;
         if (vb !== va) return vb - va;
-        // Lower Toxome Score = cleaner, so ascending surfaces the cleanest
+        // Higher Toxome Score = cleaner, so descending surfaces the cleanest
         // verified products first. Null scores sink to the bottom.
-        const sa = a.toxome_score ?? Infinity;
-        const sb = b.toxome_score ?? Infinity;
-        if (sa !== sb) return sa - sb;
+        const sa = a.toxome_score ?? -Infinity;
+        const sb = b.toxome_score ?? -Infinity;
+        if (sa !== sb) return sb - sa;
         return (
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         );
@@ -503,9 +503,9 @@ export default function ShopClient({
         const ra = a.risk_level ? riskRank[a.risk_level] : 3;
         const rb = b.risk_level ? riskRank[b.risk_level] : 3;
         if (ra !== rb) return ra - rb;
-        const sa = a.toxome_score ?? Infinity;
-        const sb = b.toxome_score ?? Infinity;
-        return sa - sb;
+        const sa = a.toxome_score ?? -Infinity;
+        const sb = b.toxome_score ?? -Infinity;
+        return sb - sa;
       });
     }
 

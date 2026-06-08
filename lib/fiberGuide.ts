@@ -627,32 +627,32 @@ export const BAND_META: Record<
     label: "Safest choices",
     blurb:
       "Natural and clean regenerated fibers that sit well against skin. The fiber is rarely the problem here. The dyes and finishes are, so certification still matters.",
-    rangeLabel: "0 to 36",
+    rangeLabel: "68 to 100",
   },
   moderate: {
     label: "Wear with care",
     blurb:
-      "Synthetic stretch fibers you almost never wear alone. They are not the worst offenders, but they keep high-hazard chemistry pressed against your skin while you sweat.",
-    rangeLabel: "37 to 60",
+      "Chemically regenerated fibers like generic viscose, rayon, and bamboo. The fiber breathes well, but you cannot see how clean the process was, and it often carries heavy dye or wrinkle finishes. A closed-loop or certified version scores much higher.",
+    rangeLabel: "40 to 67",
   },
   high: {
     label: "Worth avoiding",
     blurb:
-      "Plastics and chrome-tanned hide at the high-concern end. Residual monomers, endocrine disruptors, disperse-dye allergens, and microplastics define this group.",
-    rangeLabel: "61 to 100",
+      "Plastics and chrome-tanned hide at the high-concern end. Microplastic shedding, endocrine disruptors, disperse-dye allergens, and residual monomers define this group.",
+    rangeLabel: "0 to 39",
   },
 };
 
 const BAND_ORDER: FiberBand[] = ["low", "moderate", "high"];
 
-/** All fibers grouped by band, each band sorted by score ascending. */
+/** All fibers grouped by band, each band sorted by score descending (cleanest first). */
 export function fibersByBand(): { band: FiberBand; fibers: GuideFiber[] }[] {
   const all = FIBER_GUIDE.map(withScore);
   return BAND_ORDER.map((band) => ({
     band,
     fibers: all
       .filter((f) => f.band === band)
-      .sort((a, b) => a.score - b.score),
+      .sort((a, b) => b.score - a.score),
   }));
 }
 
