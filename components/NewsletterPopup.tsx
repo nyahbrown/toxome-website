@@ -2,11 +2,9 @@
 
 import { useEffect, useState } from "react";
 import ConsentNote from "./ConsentNote";
+import { CONSENT_KEY, CONSENT_EVENT, consentResolved } from "@/lib/consent";
 
 const STORAGE_KEY = "toxome-newsletter-popup";
-// Mirrors CookieBanner's consent key + the event it fires when resolved.
-const CONSENT_KEY = "toxome-cookie-consent";
-const CONSENT_EVENT = "toxome-cookie-consent";
 const DELAY_MS = 8000;
 
 type State = "idle" | "submitting" | "success" | "error";
@@ -35,17 +33,9 @@ export default function NewsletterPopup() {
     }
 
     // Don't surface the popup while the cookie banner is still up — the two
-    // live in the same bottom-corner space and would overlap. Wait until the
-    // visitor has accepted/rejected cookies, then start the delay timer.
-    function consentResolved() {
-      try {
-        return !!localStorage.getItem(CONSENT_KEY);
-      } catch {
-        // Storage blocked (private mode): don't let the gate trap the popup.
-        return true;
-      }
-    }
-
+    // live in the same bottom-corner space and would overlap. For EU/UK
+    // visitors that means waiting until they've accepted/rejected; non-EU
+    // visitors get no banner, so consentResolved() is already true for them.
     if (consentResolved()) {
       scheduleShow();
       return () => {
@@ -190,7 +180,7 @@ export default function NewsletterPopup() {
             }}
           >
             Our weekly report on the state of fashion wellness, in your
-            inbox — fiber stories, new scans, and the things we&apos;re
+            inbox. Fiber stories, new scans, and the things we&apos;re
             unlearning.
           </p>
         </>
@@ -229,7 +219,7 @@ export default function NewsletterPopup() {
               margin: "0 0 14px",
             }}
           >
-            Our weekly report on the state of fashion wellness — fibers,
+            Our weekly report on the state of fashion wellness: fibers,
             dyes, and the science underneath what you wear. No spam.
           </p>
           <form

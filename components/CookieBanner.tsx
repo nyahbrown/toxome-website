@@ -2,31 +2,32 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-
-const STORAGE_KEY = "toxome-cookie-consent";
+import {
+  CONSENT_KEY,
+  CONSENT_EVENT,
+  shouldShowConsentBanner,
+} from "@/lib/consent";
 
 export default function CookieBanner() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    try {
-      const choice = localStorage.getItem(STORAGE_KEY);
-      if (!choice) setVisible(true);
-    } catch {
-      // private mode / blocked storage — keep silent, don't show
-    }
+    // Only EU/UK visitors who haven't chosen yet see the banner. Everyone else
+    // (US / rest-of-world) is tracked without a prior-consent requirement, so a
+    // banner would just be noise. Region is decided in proxy.ts.
+    if (shouldShowConsentBanner()) setVisible(true);
   }, []);
 
   function persist(choice: "accepted" | "rejected") {
     try {
-      localStorage.setItem(STORAGE_KEY, choice);
+      localStorage.setItem(CONSENT_KEY, choice);
     } catch {
       // ignore
     }
     // Let the newsletter popup know the banner is resolved so it can start its
     // delay timer instead of stacking on top of this banner.
     try {
-      window.dispatchEvent(new Event(STORAGE_KEY));
+      window.dispatchEvent(new Event(CONSENT_EVENT));
     } catch {
       // ignore
     }
@@ -69,8 +70,9 @@ export default function CookieBanner() {
             letterSpacing: "-0.005em",
           }}
         >
-          We use cookies to keep you signed in and to understand which pages
-          you visit. No ad trackers, no selling your data. Read more in our{" "}
+          Essential cookies keep you signed in. With your okay, we also use a
+          single first-party analytics id to understand which pages get visited.
+          No ad trackers, no selling your data. Read more in our{" "}
           <Link
             href="/privacy"
             style={{

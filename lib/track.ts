@@ -1,16 +1,22 @@
 // First-party, anonymous analytics → the Supabase `events` table.
 //
 // Every event carries a random device id (no PII) and, when the visitor is
-// signed in, their Firebase UID. Data goes ONLY to our own Supabase project —
-// no third-party trackers — which is why this needs no cookie wall, just the
-// disclosure in /privacy. The same `events` table powers the per-brand traffic
+// signed in, their Firebase UID. Data goes ONLY to our own Supabase project, no
+// third-party trackers. The same `events` table powers the per-brand traffic
 // reports (Brand Intelligence), so `brand` is the key field on every row.
+//
+// CONSENT: the device id lives in localStorage, which EU/UK ePrivacy rules
+// (Art 5(3)) treat as a non-essential identifier requiring PRIOR opt-in, being
+// first-party does not exempt it. So track() and the id are gated by
+// analyticsAllowed(): EU/UK visitors must accept the banner first; everyone else
+// is unaffected. See lib/consent.ts.
 
 import { supabase } from "./supabase";
+import { analyticsAllowed } from "./consent";
 
 const ANON_KEY = "toxome_anon_id";
 
-// A stable per-device id stored in localStorage. No PII — just lets us tell
+// A stable per-device id stored in localStorage. No PII, just lets us tell
 // "10 clicks from 10 people" apart from "10 clicks from 1 person" in reports.
 function getAnonId(): string {
   if (typeof window === "undefined") return "ssr";
@@ -22,7 +28,7 @@ function getAnonId(): string {
     }
     return id;
   } catch {
-    // Private mode / storage blocked — still record the event, just without a
+    // Private mode / storage blocked, still record the event, just without a
     // stable id for this visitor.
     return "no-storage";
   }
@@ -38,7 +44,7 @@ export function withUtm(url: string): string {
     u.searchParams.set("utm_medium", "referral");
     return u.toString();
   } catch {
-    // Relative or malformed URL — leave it untouched.
+    // Relative or malformed URL, leave it untouched.
     return url;
   }
 }
@@ -57,7 +63,10 @@ export type TrackPayload = {
 // into the UI, so failures are swallowed (logged in dev only).
 export function track(eventType: string, payload: TrackPayload = {}): void {
   if (typeof window === "undefined") return;
-  // Don't record events from local development — keeps the brand pitch numbers
+  // EU/UK visitors: nothing is stored or sent until they opt in via the banner.
+  // Non-EU visitors: first-party analytics needs no prior consent.
+  if (!analyticsAllowed()) return;
+  // Don't record events from local development, keeps the brand pitch numbers
   // clean so your own testing on localhost never inflates them.
   const host = window.location.hostname;
   if (host === "localhost" || host === "127.0.0.1" || host.endsWith(".local")) {

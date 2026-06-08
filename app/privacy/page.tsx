@@ -5,13 +5,13 @@ import Footer from "@/components/Footer";
 import { getShopTaxonomy } from "@/lib/supabase";
 
 export const metadata: Metadata = {
-  title: "Toxome | Privacy",
+  title: "Toxome | Privacy Policy",
   description:
-    "How Toxome collects, uses, and protects your data — across the website, the iOS app, and the browser extension.",
+    "Toxome LLC's Privacy Policy governing the collection, use, and disclosure of personal data across the Toxome website, iOS application, and browser extension.",
   alternates: { canonical: "/privacy" },
 };
 
-const LAST_UPDATED = "June 2, 2026";
+const LAST_UPDATED = "June 9, 2026";
 
 export default async function PrivacyPage() {
   const taxonomy = await getShopTaxonomy();
@@ -32,278 +32,339 @@ export default async function PrivacyPage() {
             margin: "0 auto",
             padding: "0 32px",
             color: "var(--ink)",
+            // Legal text renders in natural case (overriding the site-wide
+            // lowercase rule) so defined terms and statutory references read
+            // correctly.
+            textTransform: "none",
           }}
         >
-          <Eyebrow>privacy</Eyebrow>
-          <Title>Your data, in plain English.</Title>
+          <Eyebrow>privacy policy</Eyebrow>
+          <Title>Privacy Policy</Title>
           <UpdatedLine>Last updated {LAST_UPDATED}</UpdatedLine>
 
           <Intro>
-            This is the privacy policy for the Toxome website at{" "}
-            <a href="https://toxome.app">toxome.app</a>, the Toxome iOS app, and
-            the Toxome browser extension. They are run by{" "}
-            <strong>Toxome LLC</strong>, a New York
-            limited-liability company (&ldquo;Toxome,&rdquo;
-            &ldquo;we,&rdquo; &ldquo;us&rdquo;). We&apos;re a clothing scanner
-            and editorial shop for people who want to know what&apos;s
-            actually in their clothes.
+            This Privacy Policy (the &ldquo;Policy&rdquo;) describes how Toxome
+            LLC, a New York limited liability company (&ldquo;Toxome,&rdquo;
+            &ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;), collects,
+            uses, discloses, and otherwise processes personal data in connection
+            with the website located at{" "}
+            <a href="https://toxome.app">toxome.app</a> (the &ldquo;Site&rdquo;),
+            the Toxome iOS application (the &ldquo;App&rdquo;), and the Toxome
+            browser extension (the &ldquo;Extension,&rdquo; and together with the
+            Site and the App, the &ldquo;Services&rdquo;).
           </Intro>
 
           <Intro>
-            We try to collect the minimum data needed to make Toxome work,
-            we don&apos;t sell it, and you can ask us to delete it at any
-            time. The rest of this page tells you exactly what we collect,
-            why, who we share it with, and what your rights are.
+            This Policy forms part of, and should be read together with, our{" "}
+            <Link href="/terms">Terms of Use</Link>. By accessing or using the
+            Services, you acknowledge that you have read and understood this
+            Policy. Capitalized terms used but not defined in this Policy have
+            the meanings given to them in the Terms of Use.
           </Intro>
 
-          <H2 id="data-we-collect">What we collect</H2>
-          <P>We collect three kinds of data:</P>
-          <H3>Account info</H3>
+          <H2 id="controller">1. Data Controller</H2>
           <P>
-            When you sign up on the website or the app, we collect your
-            email address and, if you set one, your display name and photo.
-            Authentication is handled by Firebase (Google). We use this to
-            sign you in, recognize you across the web and the app, and send
-            you transactional messages (sign-in links, important changes to
-            your account or the service).
-          </P>
-          <H3>What you do in Toxome</H3>
-          <P>
-            On the <em>app</em>, when you scan a clothing label, we store
-            the photo of the label, the fabric composition we extract from
-            it, the brand and category we identify, and the Toxome Rating we
-            calculate. If you save a scan to your closet, that scan stays
-            in your account until you delete it.
-          </P>
-          <P>
-            On the <em>website</em>, we store the items you save to your
-            wishlist and the filters you apply when browsing the shop. We
-            also receive your subscription status from Apple via RevenueCat
-            so we know whether to unlock premium features.
-          </P>
-          <P>
-            During onboarding in the app you may share preferences
-            (concerns, gender, budget, focus areas). We use these to
-            personalize what you see; you can change or clear them anytime
-            in the app.
-          </P>
-          <H3>Basic usage data</H3>
-          <P>
-            Like most websites and apps, we record basic technical
-            information: device type, browser, approximate location (from
-            your IP), and which pages or screens you visit. This is
-            aggregate analytics to understand what works and what
-            doesn&apos;t. It is not tied to advertising trackers and we do
-            not enable third-party ad networks.
+            For the purposes of the EU General Data Protection Regulation
+            (Regulation (EU) 2016/679) (the &ldquo;GDPR&rdquo;) and the UK GDPR,
+            the data controller responsible for your personal data is Toxome
+            LLC, a New York limited liability company. Our contact details are
+            set out in Section 13 (Contact) below. Toxome has not appointed a
+            data protection officer, as it is not required to do so under
+            Article 37 of the GDPR.
           </P>
 
-          <H2 id="extension">The browser extension</H2>
+          <H2 id="data-we-collect">2. Personal Data We Collect</H2>
+          <P>We collect the following categories of personal data.</P>
+          <H3>2.1 Account Data</H3>
           <P>
-            The Toxome browser extension shows a garment&apos;s health score
-            right on the product page while you shop. Because it asks for broad
-            permissions, here is exactly how it handles your data.
+            When you register for an account through the Site or the App, we
+            collect your email address and, where you provide them, your display
+            name and profile photograph. Authentication is performed by Firebase
+            Authentication, a service provided by Google LLC. We use this data to
+            authenticate you, to associate your activity across the Services, and
+            to send you transactional communications, including sign-in links and
+            material notices concerning your account or the Services.
           </P>
-          <H3>What it reads</H3>
+          <H3>2.2 Service Data</H3>
           <P>
-            On a page you visit, the extension looks for a fabric composition
-            (for example, &ldquo;80% cotton, 20% polyester&rdquo;) along with
-            the product name, brand, and image. It only acts on pages that
-            actually list a fabric — on every other page it stays dormant. It
-            does <strong>not</strong> read your browsing history, track which
-            sites you visit, or build a profile of you.
+            When you use the App to scan a garment label, we collect and store
+            the photograph of the label, the fibre composition extracted from
+            it, the brand and category identified, and the corresponding Toxome
+            Rating. Scans you save to your closet are retained in your account
+            until you delete them. On the Site, we store the items you save to
+            your wishlist and the filters you apply when browsing. We receive
+            your subscription status from Apple, via RevenueCat, in order to
+            determine your entitlement to premium features. During onboarding in
+            the App, you may elect to provide preference information (including
+            concerns, gender, budget, and focus areas), which we use to
+            personalize the Services and which you may amend or delete at any
+            time.
           </P>
-          <H3>Why it needs access to the sites you shop on</H3>
+          <H3>2.3 Technical and Analytics Data</H3>
           <P>
-            Clothing is sold on thousands of different stores, so the extension
-            has to be able to run on whichever site you choose to shop. That
-            access is used for one purpose only: to find a fabric composition on
-            the page in front of you. We don&apos;t use it to collect data from
-            pages that aren&apos;t about clothing.
+            We collect technical information generated by your use of the
+            Services, including device type, browser type, approximate location
+            derived from your IP address, and the pages or screens you access.
+            The Services use a single first-party analytics identifier, stored on
+            your device, to distinguish visits within our own aggregated
+            reporting. We do not employ third-party advertising trackers and do
+            not engage in cross-site tracking. The processing of this analytics
+            identifier is subject to the consent requirements described in
+            Section 5 (Cookies and Similar Technologies).
           </P>
-          <H3>Where the scoring happens</H3>
+          <H3>2.4 Extension Data</H3>
           <P>
-            The score is calculated <em>inside the extension, on your own
-            device</em>. The fabric details on the page are not sent to Toxome
-            to generate a score. The only time product information leaves your
-            browser is when <em>you</em> choose to save an item to your wishlist
-            or closet — then the product name, brand, image, link, and score are
-            saved to your Toxome account (in Firebase), exactly like a scan in
-            the app.
-          </P>
-          <H3>Signing in and permissions</H3>
-          <P>
-            If you sign in through the extension to save items, we use the same
-            Firebase authentication as the app and website, and your login
-            session is stored locally in the browser&apos;s extension storage so
-            you stay signed in — it is never shared with the sites you visit.
-            The extension requests only these permissions: access to the product
-            pages you shop on (to read the fabric), <strong>identity</strong>
-            (for Google sign-in), and <strong>storage</strong> (to keep you
-            signed in). It shows no ads, contains no third-party trackers, and
-            never sells your data.
+            The Extension identifies the fibre composition, product name, brand,
+            and image on clothing retail pages you visit, solely in order to
+            display a garment score on the page before you. The Extension
+            operates only on pages that disclose a fibre composition and remains
+            inactive on all other pages. It does not read your browsing history,
+            monitor the sites you visit, or construct a profile of you. Scoring
+            is performed locally within the Extension, on your device; product
+            information is transmitted to Toxome only where you elect to save an
+            item to your wishlist or closet, in which case the product name,
+            brand, image, link, and score are stored in your account.
+            Authentication within the Extension uses Firebase, and your session
+            is stored locally in the browser&apos;s extension storage.
           </P>
 
-          <H2 id="how-we-use-it">How we use it</H2>
-          <P>We use your data to:</P>
-          <Ul>
-            <li>Run the service — show your closet, save your wishlist, sign you in.</li>
-            <li>
-              Personalize what you see — for example, suggesting cleaner
-              alternatives in the categories where your closet leans
-              high-risk.
-            </li>
-            <li>
-              Process subscription payments through Apple and our
-              subscription provider (RevenueCat).
-            </li>
-            <li>
-              Send you transactional emails — account confirmations, sign-in
-              codes, and important changes to the service. We do not send
-              marketing emails without your explicit opt-in.
-            </li>
-            <li>
-              Improve the product. We may look at de-identified, aggregated
-              trends (e.g. &ldquo;30% of scans this month were polyester
-              tops&rdquo;) to decide what to build next. Aggregated data
-              cannot be tied back to you.
-            </li>
-            <li>
-              Comply with the law and protect Toxome and our users from
-              abuse.
-            </li>
-          </Ul>
-
-          <H2 id="who-we-share-with">Who we share it with</H2>
+          <H2 id="legal-basis">3. Legal Bases for Processing</H2>
           <P>
-            We don&apos;t sell your data. We share it only with the
-            companies we use to run Toxome, and only as much of it as they
-            need to do their job:
+            Where the GDPR or the UK GDPR applies, we process your personal data
+            on the following legal bases:
           </P>
           <Ul>
             <li>
-              <strong>Firebase (Google)</strong> — authentication, your
-              closet, your wishlist, and the photos you upload.
+              <strong>Performance of a contract</strong> (Article 6(1)(b)): to
+              create and administer your account, authenticate you, store your
+              closet and wishlist, and provide the premium features for which you
+              have subscribed.
             </li>
             <li>
-              <strong>Supabase</strong> — our product catalog. You don&apos;t
-              have an account here; Supabase only serves the items you
-              browse on the shop.
+              <strong>Legitimate interests</strong> (Article 6(1)(f)): to
+              maintain the security and integrity of the Services, prevent abuse,
+              and analyse aggregated usage in order to operate and improve the
+              Services. We have determined that these interests are not
+              overridden by your rights and freedoms, and we limit such
+              processing to data that is minimal and non-advertising in nature.
             </li>
             <li>
-              <strong>RevenueCat + Apple App Store</strong> — subscription
-              management and payments. We never see your card details;
-              Apple does.
+              <strong>Consent</strong> (Article 6(1)(a)): to store the
+              first-party analytics identifier on your device where required by
+              applicable law, and to send marketing communications. You may
+              withdraw your consent at any time, without affecting the lawfulness
+              of processing carried out prior to such withdrawal.
             </li>
             <li>
-              <strong>Vercel</strong> — the platform our website runs on.
-              They handle hosting and basic request logs.
-            </li>
-            <li>
-              <strong>Affiliate partners</strong> — when you click
-              &ldquo;Buy at [brand]&rdquo; we send you to that brand&apos;s
-              website. Some links contain an affiliate code so we earn a
-              small commission. We don&apos;t share your Toxome account or
-              closet data with them; they only see that the click came from
-              us. We also keep our own anonymous record of which products and
-              brands get viewed and clicked &mdash; tied to a random device id,
-              never your name or email &mdash; so we can see what&apos;s
-              resonating and show brands the interest we send their way. This
-              stays inside Toxome; it isn&apos;t sold or handed to advertisers.
-            </li>
-            <li>
-              Law enforcement, if we receive a valid legal request and we
-              believe we have to comply.
+              <strong>Compliance with a legal obligation</strong> (Article
+              6(1)(c)): to retain records as required by law and to respond to
+              lawful requests from public authorities.
             </li>
           </Ul>
 
-          <H2 id="your-rights">Your data, your rights</H2>
+          <H2 id="how-we-use">4. Purposes of Processing</H2>
+          <P>We process personal data in order to:</P>
+          <Ul>
+            <li>
+              operate and maintain the Services, including displaying your closet
+              and wishlist and authenticating you;
+            </li>
+            <li>
+              personalize the Services, including by recommending lower-risk
+              alternatives in categories where your closet is assessed as higher
+              risk;
+            </li>
+            <li>
+              process subscription transactions through Apple and RevenueCat;
+            </li>
+            <li>
+              send transactional communications, and marketing communications
+              only where you have opted in;
+            </li>
+            <li>
+              analyse de-identified, aggregated trends in order to improve and
+              develop the Services; and
+            </li>
+            <li>
+              comply with applicable law and protect the rights, property, and
+              safety of Toxome and its users.
+            </li>
+          </Ul>
+          <P>We do not sell your personal data.</P>
+
+          <H2 id="cookies">5. Cookies and Similar Technologies</H2>
           <P>
-            You can see most of your data inside Toxome itself — your
-            account page shows your closet score, fiber breakdown,
-            wishlist, and email. If you want more:
+            The Site uses strictly necessary cookies to maintain your
+            authenticated session. The Site also uses a single first-party
+            analytics identifier, stored in your browser, to distinguish visits
+            within our own aggregated reporting; this identifier is not an
+            advertising tracker, is not shared with third parties, and is not
+            used for cross-site tracking. Where you access the Services from the
+            European Economic Area or the United Kingdom, we obtain your consent
+            before storing the analytics identifier on your device, in accordance
+            with applicable ePrivacy laws; where you access the Services from
+            other jurisdictions, the identifier is set without a prior consent
+            requirement, consistent with applicable law. The App relies on
+            standard identifiers provided by Apple and governed by Apple&apos;s
+            App Tracking Transparency framework; we do not request tracking
+            permission, as we do not require it.
+          </P>
+
+          <H2 id="who-we-share-with">6. Recipients and Disclosures</H2>
+          <P>
+            We do not sell your personal data. We disclose personal data only to
+            the service providers that enable us to operate the Services, and
+            only to the extent necessary for them to perform their functions:
           </P>
           <Ul>
             <li>
-              <strong>Delete your account</strong> — in the app: Settings →
-              Delete account. On the web: email{" "}
-              <a href="mailto:nyah@toxome.app">nyah@toxome.app</a> from the
-              email tied to your account. We&apos;ll delete your account and
-              all associated data within 30 days, except where the law
-              requires us to keep something (e.g. transaction records).
+              <strong>Firebase (Google LLC)</strong>: authentication and storage
+              of your closet, wishlist, and uploaded photographs.
             </li>
             <li>
-              <strong>Export your data</strong> — email us and we&apos;ll
-              send you a copy of the data we have on you.
+              <strong>Supabase</strong>: hosting of our product catalogue. No
+              user account is maintained with this provider; it serves only the
+              catalogue data presented on the Site.
             </li>
             <li>
-              <strong>Correct your data</strong> — most of it is editable
-              in-app. For anything that isn&apos;t, email us.
+              <strong>RevenueCat and the Apple App Store</strong>: subscription
+              management and payment processing. We do not receive your payment
+              card details, which are processed by Apple.
             </li>
             <li>
-              <strong>Opt out of analytics</strong> — if you don&apos;t want
-              us to use even aggregated analytics, email us and we&apos;ll
-              flag your account so we exclude it from product analytics.
+              <strong>Vercel Inc.</strong>: hosting of the Site, including the
+              handling of server request logs.
+            </li>
+            <li>
+              <strong>Affiliate partners</strong>: where you select a link to a
+              third-party brand, we direct you to that brand&apos;s website.
+              Certain links contain an affiliate code by which we may earn a
+              commission. We do not disclose your account or closet data to such
+              brands; they receive only the fact that the referral originated
+              from Toxome. We additionally maintain our own aggregated record of
+              the products and brands viewed and clicked, associated with a
+              random device identifier and not with your name or email address.
+              This record is retained within Toxome and is not sold or disclosed
+              to advertisers.
+            </li>
+            <li>
+              <strong>Public authorities and other parties</strong>: where we
+              receive a valid legal request, or where disclosure is necessary to
+              comply with applicable law, enforce our Terms of Use, or protect
+              the rights, property, or safety of Toxome or others.
+            </li>
+          </Ul>
+
+          <H2 id="retention">7. Data Retention</H2>
+          <P>
+            We retain personal data for as long as your account remains active or
+            as necessary to provide the Services. Following a request to delete
+            your account, we will delete your account and associated personal
+            data within thirty (30) days, except where retention is required to
+            comply with a legal obligation (for example, transaction records) or
+            to establish, exercise, or defend legal claims. Aggregated and
+            de-identified data, which cannot reasonably be attributed to you, may
+            be retained without time limit.
+          </P>
+
+          <H2 id="international">8. International Transfers</H2>
+          <P>
+            Our service providers store data in data centres located in the
+            United States. If you access the Services from outside the United
+            States, your personal data will be transferred to, and processed in,
+            the United States. Where personal data is transferred from the
+            European Economic Area or the United Kingdom, we rely on the European
+            Commission&apos;s Standard Contractual Clauses (and, for transfers
+            from the United Kingdom, the UK International Data Transfer Addendum),
+            together with our providers&apos; data processing agreements, as the
+            safeguard for such transfers, in accordance with applicable law.
+          </P>
+
+          <H2 id="your-rights">9. Your Rights</H2>
+          <P>
+            Subject to applicable law, you may have the right to access, rectify,
+            erase, restrict, or object to the processing of your personal data,
+            the right to data portability, and the right to withdraw consent
+            where processing is based on consent. You may exercise these rights,
+            and those set out below, by emailing{" "}
+            <a href="mailto:nyah@toxome.app">nyah@toxome.app</a> from the email
+            address associated with your account:
+          </P>
+          <Ul>
+            <li>
+              <strong>Deletion</strong>: in the App, via Settings &rarr; Delete
+              account; on the Site, by written request. We will delete your
+              account and associated data within thirty (30) days, subject to
+              Section 7 (Data Retention).
+            </li>
+            <li>
+              <strong>Access and portability</strong>: we will provide a copy of
+              the personal data we hold about you.
+            </li>
+            <li>
+              <strong>Rectification</strong>: most data is editable within the
+              App; for any data that is not, contact us.
+            </li>
+            <li>
+              <strong>Objection to analytics</strong>: we will exclude your
+              account from product analytics upon request.
             </li>
           </Ul>
           <P>
-            If you live in California, you have additional rights under the
-            CCPA, including the right not to be discriminated against for
-            exercising any of the above. If you live in the EU/UK, you have
-            additional rights under the GDPR. To exercise any of them,
-            email{" "}
-            <a href="mailto:nyah@toxome.app">nyah@toxome.app</a> from the
-            email tied to your account.
+            If you are located in California, you have additional rights under
+            the California Consumer Privacy Act, including the right not to be
+            subjected to discriminatory treatment for exercising your rights. If
+            you are located in the European Economic Area or the United Kingdom,
+            you have additional rights under the GDPR and the UK GDPR.
+          </P>
+          <P>
+            If you are located in the European Economic Area or the United
+            Kingdom and consider that our processing of your personal data
+            infringes applicable law, you have the right to lodge a complaint
+            with your competent supervisory authority &mdash; in the European
+            Economic Area, your national data protection authority; in the United
+            Kingdom, the Information Commissioner&apos;s Office. We would,
+            however, welcome the opportunity to address your concerns before you
+            do so.
           </P>
 
-          <H2 id="cookies">Cookies and similar tech</H2>
+          <H2 id="security">10. Security</H2>
           <P>
-            The website uses essential cookies (to keep you signed in) and
-            basic analytics. We do not use third-party advertising cookies
-            and we do not enable cross-site tracking. The iOS app uses the
-            standard Apple-provided identifiers governed by Apple&apos;s App
-            Tracking Transparency rules; we do not request tracking
-            permission because we don&apos;t need it.
+            We implement technical and organisational measures designed to
+            protect personal data, including the encryption of data in transit
+            between your device and our servers. Our storage providers encrypt
+            data at rest and maintain industry-standard security practices. No
+            method of transmission or storage can be guaranteed to be entirely
+            secure; in the event of a personal data breach affecting you, we will
+            notify you and the relevant authorities to the extent required by
+            applicable law.
           </P>
 
-          <H2 id="children">Children</H2>
+          <H2 id="children">11. Children</H2>
           <P>
-            Toxome is not directed at children under 13 and we don&apos;t
-            knowingly collect data from them. If you believe a child under
-            13 has signed up, email us and we&apos;ll delete the account.
+            The Services are not directed to children under the age of thirteen
+            (13), and we do not knowingly collect personal data from such
+            children. Where required by applicable law in the European Economic
+            Area or the United Kingdom, the minimum age for valid consent to
+            information society services may be higher (up to sixteen (16)). If
+            you believe that a child has provided us with personal data, please
+            contact us and we will delete the relevant account.
           </P>
 
-          <H2 id="security">Security</H2>
+          <H2 id="changes">12. Changes to this Policy</H2>
           <P>
-            Data is encrypted in transit between your device and our
-            servers. Our storage providers (Firebase, Supabase) encrypt
-            data at rest and follow industry-standard security practices.
-            No system is bullet-proof; if we ever learn of a breach that
-            affects you, we&apos;ll let you know.
+            We may amend this Policy from time to time. Where we make a material
+            change, we will notify you through the Services or by email before
+            the change takes effect. The &ldquo;Last updated&rdquo; date at the
+            top of this Policy indicates the date of the current version.
           </P>
 
-          <H2 id="international">Where your data lives</H2>
+          <H2 id="contact">13. Contact</H2>
           <P>
-            Our service providers store data in US-based data centers. If
-            you&apos;re outside the US, your data is transferred to the US
-            when you use Toxome. We rely on Standard Contractual Clauses
-            and our providers&apos; data processing agreements for cross-
-            border transfers as required by GDPR.
-          </P>
-
-          <H2 id="changes">Changes to this policy</H2>
-          <P>
-            If we make a material change, we&apos;ll let you know in-app or
-            by email before the change takes effect. The &ldquo;Last
-            updated&rdquo; date at the top of this page is the source of
-            truth for the current version.
-          </P>
-
-          <H2 id="contact">Contact</H2>
-          <P>
-            For anything privacy-related — questions, requests, complaints
-            — email{" "}
-            <a href="mailto:nyah@toxome.app">nyah@toxome.app</a>. The
-            company behind Toxome is Toxome LLC, registered in New York.
+            This Policy is issued by Toxome LLC, a limited liability company
+            registered in the State of New York. For any matter relating to
+            privacy or this Policy, including the exercise of your rights, please
+            contact us at <a href="mailto:nyah@toxome.app">nyah@toxome.app</a>.
           </P>
 
           <Related>
