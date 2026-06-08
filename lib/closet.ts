@@ -35,10 +35,15 @@ export async function getClosetScans(uid: string): Promise<ClosetScan[]> {
   // iOS app stores userId as a DocumentReference to users/{uid}, so we
   // query against that ref shape.
   const userRef = doc(db, "users", uid);
+  // The iOS app stores these as snake_case Firestore fields (see the Flutter
+  // ScansRecord schema: is_saved_to_closet / item_description / brand_name).
+  // The Dart getters are camelCase, but the raw documents are snake_case, so
+  // the query and the field reads below MUST use the snake_case names or the
+  // closet comes back empty on the web.
   const q = query(
     collection(db, "scans"),
     where("userId", "==", userRef),
-    where("isSavedToCloset", "==", true)
+    where("is_saved_to_closet", "==", true)
   );
   const snap = await getDocs(q);
   return snap.docs.map((d) => {
@@ -74,8 +79,8 @@ export async function getClosetScans(uid: string): Promise<ClosetScan[]> {
     const cleanLevel = scoreToRiskLevel(cleanScore) ?? "moderate";
     return {
       id: d.id,
-      itemDescription: String(data.itemDescription ?? ""),
-      brandName: String(data.brandName ?? ""),
+      itemDescription: String(data.item_description ?? data.itemDescription ?? ""),
+      brandName: String(data.brand_name ?? data.brandName ?? ""),
       category: String(data.category ?? ""),
       scanImageUrl: String(data.scanImageUrl ?? ""),
       scanDate: ts && typeof ts.toDate === "function" ? ts.toDate() : null,

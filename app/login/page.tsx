@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth, AccountLinkRequiredError } from "@/contexts/AuthContext";
 import ConsentNote from "@/components/ConsentNote";
 import type { Product } from "@/types/product";
 
@@ -43,7 +43,7 @@ function LoginContent() {
   const searchParams = useSearchParams();
   const returnTo = searchParams.get("return") || "/shop";
 
-  const { user, loading, signInWithGoogle, signInWithApple, signInWithEmail, signUpWithEmail, sendPasswordReset, toggleWishlist } = useAuth();
+  const { user, loading, signInWithGoogle, signInWithApple, signInWithEmail, signUpWithEmail, sendPasswordReset, toggleWishlist, pendingLink, completePendingLink, clearPendingLink } = useAuth();
 
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
@@ -51,6 +51,10 @@ function LoginContent() {
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [resetSent, setResetSent] = useState(false);
+  // Account-linking prompt state (shown when a social sign-in collides with an
+  // existing account that uses another method).
+  const [linkPassword, setLinkPassword] = useState("");
+  const [linking, setLinking] = useState(false);
   // Social-first: the email/password form is collapsed until the visitor taps
   // "or … with email".
   const [emailOpen, setEmailOpen] = useState(false);
@@ -84,6 +88,8 @@ function LoginContent() {
       await signInWithGoogle();
       await handlePostLogin();
     } catch (e: unknown) {
+      // The linking prompt renders off pendingLink, so don't show a raw error.
+      if (e instanceof AccountLinkRequiredError) return;
       if (e instanceof Error) setError(e.message);
     }
   }
@@ -94,8 +100,43 @@ function LoginContent() {
       await signInWithApple();
       await handlePostLogin();
     } catch (e: unknown) {
+      if (e instanceof AccountLinkRequiredError) return;
       if (e instanceof Error) setError(e.message);
     }
+  }
+
+  // Existing account uses email/password (the common pre-Google case).
+  const linkNeedsPassword = !pendingLink
+    ? false
+    : pendingLink.methods.length === 0 ||
+      pendingLink.methods.includes("password");
+
+  async function handleCompleteLink(e?: React.FormEvent) {
+    e?.preventDefault();
+    setError("");
+    setLinking(true);
+    try {
+      await completePendingLink(linkNeedsPassword ? linkPassword : undefined);
+      setLinkPassword("");
+      await handlePostLogin();
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        const msg = err.message;
+        if (msg.includes("wrong-password") || msg.includes("invalid-credential")) {
+          setError("Wrong password. Please try again.");
+        } else {
+          setError(msg);
+        }
+      }
+    } finally {
+      setLinking(false);
+    }
+  }
+
+  function handleCancelLink() {
+    clearPendingLink();
+    setLinkPassword("");
+    setError("");
   }
 
   async function handleForgotPassword() {
@@ -283,6 +324,76 @@ function LoginContent() {
           </p>
         </div>
 
+        {pendingLink ? (
+        /* Account-linking prompt: a social sign-in matched an existing account
+           created with another method. Connect them into one account. */
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <p
+            style={{
+              fontFamily: "var(--sans)",
+              fontSize: 14,
+              color: "var(--ink-2)",
+              margin: 0,
+              letterSpacing: "-0.005em",
+              lineHeight: 1.5,
+            }}
+          >
+            you already have a toxome account for{" "}
+            <strong style={{ color: "var(--ink)" }}>{pendingLink.email}</strong>.{" "}
+            {linkNeedsPassword
+              ? "enter your password to connect this sign-in to it."
+              : "sign in with your original method to connect this sign-in to it."}
+          </p>
+          {linkNeedsPassword ? (
+            <form
+              onSubmit={handleCompleteLink}
+              style={{ display: "flex", flexDirection: "column", gap: 10 }}
+            >
+              <input
+                type="password"
+                placeholder="password"
+                value={linkPassword}
+                onChange={(e) => setLinkPassword(e.target.value)}
+                required
+                autoFocus
+                style={inputStyle}
+              />
+              <button type="submit" style={submitButtonStyle} disabled={linking}>
+                {linking ? "..." : "connect & sign in"}
+              </button>
+            </form>
+          ) : (
+            <button
+              style={submitButtonStyle}
+              onClick={() => handleCompleteLink()}
+              disabled={linking}
+            >
+              {linking
+                ? "..."
+                : pendingLink.methods.includes("apple.com")
+                ? "continue with apple"
+                : "continue with google"}
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={handleCancelLink}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              fontFamily: "var(--sans)",
+              fontSize: 13,
+              color: "var(--ink-3)",
+              letterSpacing: "-0.005em",
+              padding: "4px 0",
+            }}
+          >
+            cancel
+          </button>
+        </div>
+        ) : (
+        <>
         {/* Social buttons */}
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           <button style={socialButtonStyle} onClick={handleGoogle}>
@@ -403,6 +514,8 @@ function LoginContent() {
             </form>
           )}
         </div>
+        </>
+        )}
 
         {error && (
           <p
