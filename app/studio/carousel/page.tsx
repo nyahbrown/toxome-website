@@ -4,10 +4,18 @@
 // Not linked anywhere; used to produce post visuals for the content dashboard.
 // Editorial reference: Headicure-style, full-bleed stat cover + minimal cream
 // interior slides with eye+wordmark lockup, one big statement each. Inter only.
+// Carousel CONTENT lives in the `carousels` Supabase table (slug + slides jsonb).
+// This file owns the DESIGN (SlideView); add/edit carousels as data, not code.
+
+import { supabaseAdmin } from "@/lib/supabaseAdmin";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 const W = 1080;
 const H = 1350;
 const PAD = 84;
+const WARM = "#FBF8F1";
 
 type Slide =
   | { kind: "cover"; hook: string; stat: string; image: string }
@@ -15,143 +23,16 @@ type Slide =
   | { kind: "quote"; quote: string }
   | { kind: "close"; headline: string; image: string };
 
-// Every carousel is exactly 6 slides. Keyed by slug for ?c=SLUG.
-const CAROUSELS: Record<string, Slide[]> = {
-  // ── The original "60% plastic closet" carousel ───────────────────────────
-  "plastic-closet": [
-    {
-      kind: "cover",
-      hook: "Up to 60% of the average closet is made from plastic.",
-      stat: "60%",
-      image: "/hero-field.jpg",
-    },
-    { kind: "statement", paras: ["Polyester is plastic, spun from petroleum.", "And most of us wear it against our skin, all day."] },
-    { kind: "statement", paras: ["It traps heat and sweat, and sheds microplastics as it wears down.", "Some finishes are even linked to hormone disruption."] },
-    { kind: "quote", quote: "“why is it so hard to find a plain shirt that isn’t made of plastic?”" },
-    { kind: "statement", paras: ["So we built the check.", "Scan any clothing label and see what’s really in it."] },
-    { kind: "close", headline: "Learn more about how your clothes are made.", image: "/app-screenshot.png" },
-  ],
-
-  // ── Educational: microplastics found in human blood (77%) ────────────────
-  // Source: Leslie et al., Environment International, 2022 (Vrije Universiteit
-  // Amsterdam). Plastic detected in 17 of 22 donors (77%); PET, the polymer
-  // spun into polyester clothing, was among the most common.
-  "microplastics-blood": [
-    {
-      kind: "cover",
-      hook: "Scientists found microplastics in the blood of nearly 8 in 10 people they tested.",
-      stat: "77%",
-      image: "/hero-field.jpg",
-    },
-    { kind: "statement", paras: ["In 2022, researchers tested blood from 22 healthy adults.", "They found plastic particles in 77% of them."] },
-    { kind: "statement", paras: ["One of the most common plastics was PET,", "the same material spun into polyester clothing."] },
-    { kind: "quote", quote: "“we are wearing plastic, washing plastic, and now carrying it inside us.”" },
-    { kind: "statement", paras: ["Your clothes are the plastic you touch most.", "So we built a way to check them."] },
-    { kind: "close", headline: "See what your clothes are really made of.", image: "/app-screenshot.png" },
-  ],
-
-  // ── Educational: microfiber shedding per wash (up to 730K) ───────────────
-  // Source: Napper & Thompson, Marine Pollution Bulletin, 2016. A single 6 kg
-  // synthetic wash load can release up to ~730,000 microfibers (acrylic
-  // highest; polyester ~496,000). Too small for most filters to catch.
-  "microfiber-shedding": [
-    {
-      kind: "cover",
-      hook: "A single load of synthetic laundry can release hundreds of thousands of plastic microfibers.",
-      stat: "730K",
-      image: "/fibers/wool-2.jpg",
-    },
-    { kind: "statement", paras: ["One synthetic wash load can shed up to 730,000 microfibers.", "Most are too small for any filter to catch."] },
-    { kind: "statement", paras: ["They travel from your laundry to the ocean,", "and back to you, through water and food."] },
-    { kind: "quote", quote: "“every time you wash polyester, it sheds a little more of itself.”" },
-    { kind: "statement", paras: ["Natural fibers don’t shed plastic.", "Knowing what you own is where it starts."] },
-    { kind: "close", headline: "Know what’s in your clothes.", image: "/app-screenshot.png" },
-  ],
-
-  // ── Educational: polyester & male fertility, Shafik study (honest) ───────
-  // Source: Ahmed Shafik, early-1990s studies. Men in the polyester group
-  // developed reduced sperm counts (some azoospermic) within months; cotton
-  // and wool groups unchanged; effect reversed after removal. Caveat: small,
-  // early study; proposed electrostatic mechanism. Presented honestly.
-  "polyester-fertility": [
-    {
-      kind: "cover",
-      hook: "In one early study, every man who switched to polyester underwear saw his fertility fall.",
-      stat: "100%",
-      image: "/fibers/silk-1.jpg",
-    },
-    { kind: "statement", paras: ["In the early 1990s, Dr. Ahmed Shafik tracked men who wore polyester, cotton, or wool underwear."] },
-    { kind: "statement", paras: ["Every man in the polyester group saw his sperm count fall, some to zero, within months."] },
-    { kind: "statement", paras: ["The cotton and wool groups saw no change.", "And when the men stopped, their fertility came back."] },
-    { kind: "quote", quote: "“it was a small, early study, but it asks a question worth sitting with.”" },
-    { kind: "close", headline: "What you wear touches more than your skin.", image: "/app-screenshot.png" },
-  ],
-
-  // ── ICP-aligned: toxins/hormones-led, accessible, save+send. From the 1,094
-  // user analysis (Toxins>Endocrine>Skin, JTBD "removing toxins from my
-  // lifestyle", mid/affordable not luxury). Send CTAs live in the post caption.
-
-  // The toxin you forgot — uses the #1 job-to-be-done verbatim.
-  "toxin-you-forgot": [
-    {
-      kind: "cover",
-      hook: "You cleaned up your skincare, your food, your water. Your clothes are the toxin you forgot.",
-      stat: "60%",
-      image: "/hero-field.jpg",
-    },
-    { kind: "statement", paras: ["Polyester is plastic, spun from petroleum.", "And it sits against your skin all day, every day."] },
-    { kind: "statement", paras: ["It traps heat and sweat as you wear it,", "and sheds microplastics you breathe in and absorb."] },
-    { kind: "statement", paras: ["You can't out-supplement what you wear.", "Removing toxins from your life has to include your closet."] },
-    { kind: "quote", quote: "“you detoxed everything but the thing touching you 24/7.”" },
-    { kind: "close", headline: "Know what's in your clothes. Scan any label, free.", image: "/app-screenshot.png" },
-  ],
-
-  // Your clothes & your hormones — endocrine angle (concern #2); Shafik study.
-  "clothes-and-hormones": [
-    {
-      kind: "cover",
-      hook: "The clothes touching your skin all day could be disrupting your hormones.",
-      stat: "100%",
-      image: "/fibers/silk-1.jpg",
-    },
-    { kind: "statement", paras: ["The fabric against your skin doesn't just sit there.", "Synthetic finishes can carry endocrine disruptors."] },
-    { kind: "statement", paras: ["In one early study, every man who switched to polyester underwear saw his fertility fall.", "It came back when he stopped."] },
-    { kind: "statement", paras: ["If you're working on your hormones,", "your closet is part of the equation."] },
-    { kind: "quote", quote: "“you'd never eat an endocrine disruptor. you're wearing one.”" },
-    { kind: "close", headline: "Know what's in your clothes.", image: "/app-screenshot.png" },
-  ],
-
-  // Read a label in 10 seconds — practical utility, high-save reference.
-  "read-a-label": [
-    {
-      kind: "cover",
-      hook: "How to read a clothing label in 10 seconds, and spot plastic instantly.",
-      stat: "10s",
-      image: "/fibers/linen.jpg",
-    },
-    { kind: "statement", paras: ["Flip past the brand tag to the fiber tag.", "That's where the truth is."] },
-    { kind: "statement", paras: ["Polyester, nylon, acrylic, elastane: that's plastic.", "Cotton, linen, wool, silk, hemp: that's natural."] },
-    { kind: "statement", paras: ["Anything mostly synthetic", "is plastic against your skin all day."] },
-    { kind: "quote", quote: "“the tag tells you more than the price ever will.”" },
-    { kind: "close", headline: "Or scan it and let Toxome read it for you, free.", image: "/app-screenshot.png" },
-  ],
-
-  // "Sustainable" materials decoded — attacks materials/claims, not brands
-  // (catalog has no villains; this is brand-safe and fully accurate).
-  "sustainable-decoded": [
-    {
-      kind: "cover",
-      hook: "5 'sustainable' materials that are actually plastic.",
-      stat: "5",
-      image: "/fibers/wool-2.jpg",
-    },
-    { kind: "statement", paras: ["Recycled polyester.", "Still plastic, still shedding microplastics into your skin and the ocean."] },
-    { kind: "statement", paras: ["Vegan leather.", "Almost always plastic, usually polyurethane or PVC."] },
-    { kind: "statement", paras: ["Bamboo viscose.", "Bamboo dissolved in harsh chemicals and re-spun into rayon."] },
-    { kind: "statement", paras: ["“Eco,” “conscious,” “responsible” blends.", "Marketing words, not materials. Check the fiber tag."] },
-    { kind: "close", headline: "Don't trust the claim. Scan the tag, free.", image: "/app-screenshot.png" },
-  ],
-};
+async function getSlides(slug: string): Promise<Slide[] | null> {
+  const { data, error } = await supabaseAdmin
+    .from("carousels")
+    .select("slides")
+    .eq("slug", slug)
+    .single();
+  if (error || !data) return null;
+  const slides = data.slides as Slide[] | null;
+  return slides && slides.length ? slides : null;
+}
 
 const DEFAULT_SLUG = "plastic-closet";
 
@@ -161,8 +42,15 @@ export default async function CarouselStudio({
   searchParams: Promise<{ i?: string; c?: string }>;
 }) {
   const sp = await searchParams;
-  const slug = sp.c && CAROUSELS[sp.c] ? sp.c : DEFAULT_SLUG;
-  const slides = CAROUSELS[slug];
+  const slug = sp.c || DEFAULT_SLUG;
+  const slides = (await getSlides(slug)) ?? (await getSlides(DEFAULT_SLUG)) ?? [];
+  if (!slides.length) {
+    return (
+      <div style={{ background: "#E9E7E1", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-sans)", color: "#1d1b17" }}>
+        No carousel found for "{slug}".
+      </div>
+    );
+  }
   const raw = sp.i;
   const showAll = raw == null;
   const i = Math.max(0, Math.min(slides.length - 1, Number(raw ?? 0)));
@@ -175,7 +63,7 @@ export default async function CarouselStudio({
         {slides.map((_, idx) => (
           <div key={idx} style={{ width: W * 0.26, height: H * 0.26, overflow: "hidden", borderRadius: 8, boxShadow: "0 8px 28px rgba(0,0,0,0.14)" }}>
             <div style={{ transform: "scale(0.26)", transformOrigin: "top left" }}>
-              <SlideView slide={slides[idx]} />
+              <SlideView slide={slides[idx]} index={idx} total={slides.length} />
             </div>
           </div>
         ))}
@@ -187,7 +75,7 @@ export default async function CarouselStudio({
   return (
     <div style={{ background: "#C9C7C1", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
       <HideChrome />
-      <SlideView slide={slides[i]} />
+      <SlideView slide={slides[i]} index={i} total={slides.length} />
     </div>
   );
 }
@@ -204,7 +92,7 @@ function HideChrome() {
   );
 }
 
-function SlideView({ slide }: { slide: Slide }) {
+function SlideView({ slide, index, total }: { slide: Slide; index: number; total: number }) {
   const frame: React.CSSProperties = {
     width: W,
     height: H,
@@ -230,9 +118,9 @@ function SlideView({ slide }: { slide: Slide }) {
         </div>
 
         {/* top hairline */}
-        <div style={{ position: "absolute", top: 132, left: PAD, right: PAD, height: 1, background: "rgba(255,255,255,0.85)" }} />
+        <div style={{ position: "absolute", top: 132, left: PAD, right: PAD, height: 1, background: "rgba(251,248,241,0.85)" }} />
         {/* hook */}
-        <div style={{ position: "absolute", top: 168, left: PAD, right: PAD, color: "#fff", fontSize: 40, lineHeight: 1.32, fontWeight: 400, letterSpacing: "-0.01em", maxWidth: 820, textShadow: "0 2px 18px rgba(0,0,0,0.35)" }}>
+        <div style={{ position: "absolute", top: 168, left: PAD, right: PAD, color: WARM, fontSize: 40, lineHeight: 1.32, fontWeight: 400, letterSpacing: "-0.01em", maxWidth: 820, textShadow: "0 2px 18px rgba(0,0,0,0.35)" }}>
           {slide.hook}
         </div>
 
@@ -240,9 +128,9 @@ function SlideView({ slide }: { slide: Slide }) {
         <StatBig stat={slide.stat} />
 
         {/* read all CTA */}
-        <div style={{ position: "absolute", right: PAD, bottom: 110, display: "flex", alignItems: "center", gap: 22, color: "#fff" }}>
+        <div style={{ position: "absolute", right: PAD, bottom: 110, display: "flex", alignItems: "center", gap: 22, color: WARM }}>
           <span style={{ fontSize: 30, fontWeight: 400 }}>Read all.</span>
-          <ArrowRing color="#fff" size={74} />
+          <ArrowRing color={WARM} size={74} />
         </div>
       </div>
     );
@@ -252,6 +140,10 @@ function SlideView({ slide }: { slide: Slide }) {
   if (slide.kind === "close") {
     return (
       <div style={{ ...frame, background: "radial-gradient(ellipse 78% 56% at 50% 40%, #FCFBF7 0%, #EFECE4 48%, #D9D4CA 100%)", color: "var(--ink, #3B3C3A)" }}>
+        {/* pagination index */}
+        <div style={{ position: "absolute", top: PAD, right: PAD, fontFamily: "var(--font-sans)", fontSize: 22, fontWeight: 500, letterSpacing: "0.08em", color: "var(--ink-3, #8A9199)" }}>
+          {`Nº ${String(index + 1).padStart(2, "0")} / ${String(total).padStart(2, "0")}`}
+        </div>
         {/* headline */}
         <div style={{ position: "absolute", top: 150, left: PAD, right: PAD, textAlign: "center", fontSize: 54, lineHeight: 1.18, letterSpacing: "-0.02em", fontWeight: 400, color: "var(--ink, #3B3C3A)" }}>
           {slide.headline}
@@ -277,18 +169,31 @@ function SlideView({ slide }: { slide: Slide }) {
         <EyeLogo size={54} />
         <span style={{ fontFamily: "var(--font-sans)", fontSize: 46, fontWeight: 500, letterSpacing: "-0.01em", color: "var(--ink, #3B3C3A)" }}>Toxome</span>
       </div>
+      {/* pagination index */}
+      <div style={{ position: "absolute", top: PAD, right: PAD, fontFamily: "var(--font-sans)", fontSize: 22, fontWeight: 500, letterSpacing: "0.08em", color: "var(--ink-3, #8A9199)" }}>
+        {`Nº ${String(index + 1).padStart(2, "0")} / ${String(total).padStart(2, "0")}`}
+      </div>
       {slide.kind === "statement" && (
         <div style={{ position: "absolute", left: PAD, right: PAD, bottom: 150, display: "flex", flexDirection: "column", gap: 40 }}>
-          {slide.paras.map((p, idx) => (
-            <div key={idx} style={{ fontSize: 56, lineHeight: 1.16, letterSpacing: "-0.015em", fontWeight: 400, maxWidth: 840, color: "var(--ink, #3B3C3A)" }}>
-              {p}
-            </div>
-          ))}
+          {slide.paras.map((p, idx) =>
+            idx === 0 ? (
+              <div key={idx} style={{ fontSize: 56, lineHeight: 1.16, letterSpacing: "-0.015em", fontWeight: 400, maxWidth: 840, color: "var(--ink, #3B3C3A)" }}>
+                {p}
+              </div>
+            ) : (
+              <div key={idx} style={{ fontSize: 40, lineHeight: 1.28, letterSpacing: "-0.012em", fontWeight: 400, maxWidth: 840, color: "var(--ink-2, #57636C)" }}>
+                {p}
+              </div>
+            )
+          )}
         </div>
       )}
 
       {slide.kind === "quote" && (
         <div style={{ position: "absolute", left: PAD, right: PAD, top: "50%", transform: "translateY(-50%)" }}>
+          <div style={{ fontFamily: "var(--font-sans)", fontSize: 140, lineHeight: 0.8, fontWeight: 400, color: "var(--ink-3, #8A9199)", marginBottom: 8, userSelect: "none" }}>
+            &ldquo;
+          </div>
           <div style={{ fontFamily: "var(--font-sans)", fontStyle: "italic", fontSize: 72, lineHeight: 1.18, letterSpacing: "-0.01em", color: "var(--ink, #3B3C3A)", maxWidth: 880 }}>
             {slide.quote}
           </div>
@@ -310,7 +215,7 @@ function StatBig({ stat }: { stat: string }) {
   const num = m ? m[1] : stat;
   const unit = m ? m[2] : "";
   return (
-    <div style={{ position: "absolute", left: PAD - 8, bottom: 96, display: "flex", alignItems: "flex-start", color: "#fff", lineHeight: 0.8, textShadow: "0 2px 24px rgba(0,0,0,0.4)" }}>
+    <div style={{ position: "absolute", left: PAD - 8, bottom: 96, display: "flex", alignItems: "flex-start", color: WARM, lineHeight: 0.8, textShadow: "0 2px 24px rgba(0,0,0,0.4)" }}>
       <span style={{ fontSize: 400, fontWeight: 500, letterSpacing: "-0.04em" }}>{num}</span>
       {unit && (
         <span style={{ fontSize: 184, fontWeight: 500, marginTop: 26, letterSpacing: "-0.02em" }}>{unit}</span>
