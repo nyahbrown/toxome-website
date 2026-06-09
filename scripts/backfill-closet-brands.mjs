@@ -219,7 +219,17 @@ async function main() {
     const hazard_level =
       (d.overallHazardLevel ?? d.hazardLevel ?? null)?.toString().trim() || null;
 
-    const uid = (d.userId ?? d.uid ?? d.user_id ?? "").toString().trim();
+    // userId is a Firestore DocumentReference (users/{uid}); its .id IS the uid.
+    // Calling .toString() on the ref yields a constant, which would collapse all
+    // closets into one — extract the real uid from the ref.
+    const ref = d.userId ?? d.uid ?? d.user_id;
+    let uid = "";
+    if (ref && typeof ref === "object") {
+      uid = ref.id || (ref.path ? String(ref.path).split("/").pop() : "");
+    } else if (typeof ref === "string") {
+      uid = ref;
+    }
+    uid = uid.trim();
     const hashed_uid = uid ? hashUid(uid) : null;
 
     // saved_at: the Firestore field is snake_case `scan_date` (a Timestamp).

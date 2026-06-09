@@ -30,9 +30,48 @@ function isSynthetic(fiber: string): boolean {
   return false;
 }
 
+// Category alias map — keys must be lowercased.
+// Normalises translated category names into English title-case equivalents.
+const CATEGORY_ALIASES: Record<string, string> = {
+  // Bottoms
+  unterteile: "Bottoms",
+  bas: "Bottoms",
+  "parte inferior": "Bottoms",
+  // Sweaters
+  pullover: "Sweaters",
+  suéteres: "Sweaters",
+  sueteres: "Sweaters",
+  pull: "Sweaters",
+  chandails: "Sweaters",
+  jersey: "Sweaters",
+  jerséis: "Sweaters",
+  // Tops
+  hauts: "Tops",
+  oberteile: "Tops",
+  "partes superiores": "Tops",
+  // Dresses
+  robes: "Dresses",
+  robe: "Dresses",
+  kleider: "Dresses",
+  vestidos: "Dresses",
+  vestido: "Dresses",
+  // Outerwear
+  vestes: "Outerwear",
+  manteaux: "Outerwear",
+  oberbekleidung: "Outerwear",
+  abrigos: "Outerwear",
+};
+
+function normalizeCategory(raw: string | null): string | null {
+  if (!raw) return null;
+  const key = raw.toLowerCase().trim();
+  return CATEGORY_ALIASES[key] ?? raw;
+}
+
 // GET /api/admin/closets
 // Query params:
-//   ?days=N  — restrict to last N days (omit for all-time)
+//   ?days=N        — restrict to last N days (omit for all-time)
+//   ?brands=all    — return ALL brands in topBrands (no cap); other data still included
 //
 // Response shape:
 // {
@@ -57,6 +96,7 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const daysParam = searchParams.get("days");
   const days = daysParam ? parseInt(daysParam, 10) : null;
+  const allBrands = searchParams.get("brands") === "all";
 
   const since =
     days && days > 0
@@ -132,7 +172,7 @@ export async function GET(req: Request) {
       else if (score >= 40) scoreBandOkay += 1;
       else scoreBandBad += 1;
     }
-    const cat = row.category as string | null;
+    const cat = normalizeCategory(row.category as string | null);
     if (cat) {
       ba.categories.set(cat, (ba.categories.get(cat) ?? 0) + 1);
       let ca = catMap.get(cat);
@@ -178,8 +218,9 @@ export async function GET(req: Request) {
         ) / 10
       : null;
 
-  // topBrands — top 40 by distinct closets
-  const topBrands = [...brandMap.values()]
+  // topBrands — sorted by distinct closets desc, then items desc.
+  // Default: top 40. When ?brands=all is set, return the full list.
+  const allBrandsSorted = [...brandMap.values()]
     .map((ba) => {
       const ba_avg =
         ba.scores.length > 0
@@ -200,8 +241,9 @@ export async function GET(req: Request) {
         top_category,
       };
     })
-    .sort((a, b) => b.closets - a.closets || b.items - a.items)
-    .slice(0, 40);
+    .sort((a, b) => b.closets - a.closets || b.items - a.items);
+
+  const topBrands = allBrands ? allBrandsSorted : allBrandsSorted.slice(0, 40);
 
   // categories
   const categories = [...catMap.entries()]

@@ -618,7 +618,7 @@ export default function AdminClosetsPage() {
             {!data && !dataLoading && <div style={emptyRowStyle}>No data yet.</div>}
             {data?.topBrands.length === 0 && <div style={emptyRowStyle}>No brands yet.</div>}
 
-            {data?.topBrands.map((b, i) => (
+            {data?.topBrands.slice(0, 10).map((b, i) => (
               <div
                 key={b.brand}
                 style={{
@@ -669,6 +669,31 @@ export default function AdminClosetsPage() {
                 </div>
               </div>
             ))}
+
+            {(data?.topBrands.length ?? 0) > 10 && (
+              <div
+                style={{
+                  borderTop: "1px solid var(--hairline)",
+                  padding: "12px 18px",
+                  background: "var(--white)",
+                }}
+              >
+                <Link
+                  href="/admin/closets/brands"
+                  style={{
+                    fontFamily: "var(--sans)",
+                    fontSize: 13,
+                    color: "var(--ink-2)",
+                    textDecoration: "none",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 4,
+                  }}
+                >
+                  See more →
+                </Link>
+              </div>
+            )}
           </div>
         </section>
 
