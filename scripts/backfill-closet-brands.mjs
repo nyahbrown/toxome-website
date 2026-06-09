@@ -34,7 +34,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { createHash } from "crypto";
 import { readFileSync } from "fs";
-import { initializeApp, cert } from "firebase-admin/app";
+import { initializeApp, cert, applicationDefault } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 
 // ---- Parse flags -------------------------------------------------------
@@ -86,18 +86,14 @@ if (process.env.FIREBASE_SERVICE_ACCOUNT) {
     );
     process.exit(1);
   }
-} else {
-  console.error(
-    "No Firebase credentials found. Set one of:\n" +
-      "  GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account.json\n" +
-      "  FIREBASE_SERVICE_ACCOUNT='{...json content...}'\n\n" +
-      "To get a service account key:\n" +
-      "  Firebase console (cleantex-ced0e) → Project settings → Service accounts → Generate new private key"
-  );
-  process.exit(1);
 }
+// else: fall through to Application Default Credentials
+// (`gcloud auth application-default login`).
 
-const firebaseApp = initializeApp({ credential: cert(serviceAccount) });
+const firebaseApp = initializeApp({
+  credential: serviceAccount ? cert(serviceAccount) : applicationDefault(),
+  projectId: process.env.GOOGLE_CLOUD_PROJECT || "cleantex-ced0e",
+});
 const db = getFirestore(firebaseApp);
 
 // ---- Supabase client ---------------------------------------------------
@@ -226,19 +222,13 @@ async function main() {
     const uid = (d.userId ?? d.uid ?? d.user_id ?? "").toString().trim();
     const hashed_uid = uid ? hashUid(uid) : null;
 
-    // saved_at: prefer scanDate, fall back to createdAt, then doc create time.
+    // saved_at: the Firestore field is snake_case `scan_date` (a Timestamp).
+    // Leave it OUT of the row when unknown so the DB default (now()) applies —
+    // the column is NOT NULL, so passing null fails.
     let saved_at = null;
-    if (d.scanDate?.toDate) {
-      saved_at = d.scanDate.toDate().toISOString();
-    } else if (d.createdAt?.toDate) {
-      saved_at = d.createdAt.toDate().toISOString();
-    } else if (d.created?.toDate) {
-      saved_at = d.created.toDate().toISOString();
-    } else if (typeof d.scanDate === "string") {
-      saved_at = d.scanDate;
-    } else if (typeof d.createdAt === "string") {
-      saved_at = d.createdAt;
-    }
+    const ts = d.scan_date ?? d.scanDate ?? d.createdAt ?? d.created;
+    if (ts?.toDate) saved_at = ts.toDate().toISOString();
+    else if (typeof ts === "string") saved_at = ts;
 
     rows.push({
       brand_name,
@@ -249,7 +239,7 @@ async function main() {
       composition,
       country: null, // not stored in Firestore scans
       hashed_uid,
-      saved_at,
+      ...(saved_at ? { saved_at } : {}),
     });
   }
 

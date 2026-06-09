@@ -30,16 +30,14 @@ const { calcToxomeScore, scoreToRiskLevel } = require("./fabricScores");
 
 const DRY = process.argv.includes("--dry-run");
 
-if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-  console.error(
-    "Missing GOOGLE_APPLICATION_CREDENTIALS. Point it at the cleantex-ced0e\n" +
-      "service-account JSON (Firebase console → Project settings → Service\n" +
-      "accounts → Generate new private key), then re-run."
-  );
-  process.exit(1);
+// Auth via Application Default Credentials: either GOOGLE_APPLICATION_CREDENTIALS
+// (a service-account JSON) OR `gcloud auth application-default login`.
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.applicationDefault(),
+    projectId: process.env.GOOGLE_CLOUD_PROJECT || "cleantex-ced0e",
+  });
 }
-
-if (!admin.apps.length) admin.initializeApp(); // uses GOOGLE_APPLICATION_CREDENTIALS
 const db = admin.firestore();
 
 // Firestore stores composition as [{fiber, percentage}]; the scorer wants
