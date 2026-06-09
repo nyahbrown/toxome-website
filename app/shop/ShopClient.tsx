@@ -604,7 +604,7 @@ export default function ShopClient({
         >
           {header
             ? category !== "All"
-              ? `${header.title} ${category.toLowerCase()}`
+              ? `${header.title} | ${category.toLowerCase()}`
               : header.title
             : "There is no wellness without what touches the skin all day."}
         </h1>
