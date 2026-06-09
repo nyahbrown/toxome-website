@@ -34,7 +34,17 @@ export async function GET(req: Request) {
   const { data, error } = await query;
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  return NextResponse.json({ drafts: data ?? [], schedulerConfigured: schedulerConfigured() });
+  // The iCal subscribe URL carries the feed token, so only hand it to the
+  // authenticated admin here (never expose the token to the public client).
+  const feedToken = process.env.CALENDAR_FEED_TOKEN;
+  const base = (process.env.NEXT_PUBLIC_SITE_URL || "https://toxome.app").replace(/\/+$/, "");
+  const calendarFeedUrl = feedToken ? `${base}/api/calendar?token=${feedToken}` : null;
+
+  return NextResponse.json({
+    drafts: data ?? [],
+    schedulerConfigured: schedulerConfigured(),
+    calendarFeedUrl,
+  });
 }
 
 // POST, create one or more drafts. Accepts a single object or an array (used by
@@ -131,6 +141,7 @@ export async function PATCH(req: Request) {
       body: updated.body,
       title: updated.title,
       media_url: updated.media_url,
+      media_type: updated.media_type,
     });
 
     if (result.ok) {

@@ -67,12 +67,55 @@ function prettyDay(iso: string | null): string {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
 }
 
-const PLATFORMS = ["instagram", "twitter", "pinterest"] as const;
+const PLATFORMS = ["instagram", "twitter", "pinterest", "tiktok"] as const;
 const PLATFORM_LABEL: Record<string, string> = {
   instagram: "Instagram",
   twitter: "Twitter / X",
   pinterest: "Pinterest",
+  tiktok: "TikTok",
 };
+
+// Each platform gets ONE in-palette accent dot so cuts are scannable at a glance
+// without breaking the monochrome editorial system. Blue = the editorial accent,
+// purple = the logo accent, two ink tones = neutral. No platform-logo brand colors.
+const PLATFORM_ACCENT: Record<string, string> = {
+  instagram: "var(--blue)",
+  twitter: "var(--ink-2)",
+  pinterest: "var(--purple)",
+  tiktok: "var(--ink)",
+};
+
+// A small dot + uppercase label, used everywhere a platform is named (Review
+// card, Board card, Calendar card). The dot carries the identity; the label
+// stays in the locked eyebrow treatment.
+function PlatformTag({ platform, size = "md" }: { platform: string; size?: "sm" | "md" }) {
+  const small = size === "sm";
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: small ? 5 : 6 }}>
+      <span
+        style={{
+          width: small ? 5 : 6,
+          height: small ? 5 : 6,
+          borderRadius: 999,
+          background: PLATFORM_ACCENT[platform] || "var(--ink-3)",
+          flexShrink: 0,
+        }}
+      />
+      <span
+        style={{
+          fontFamily: "var(--sans)",
+          fontSize: small ? 9 : 10,
+          fontWeight: 600,
+          letterSpacing: "0.13em",
+          textTransform: "uppercase",
+          color: "var(--ink-2)",
+        }}
+      >
+        {PLATFORM_LABEL[platform] || platform}
+      </span>
+    </span>
+  );
+}
 
 type Float = { id: number; text: string; tone: "pos" | "big" };
 
@@ -192,6 +235,7 @@ export default function ContentBoard({ getToken }: { getToken: () => Promise<str
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
   const [schedulerOn, setSchedulerOn] = useState(false);
+  const [calendarFeedUrl, setCalendarFeedUrl] = useState<string | null>(null);
   const [view, setView] = useState<"review" | "board" | "calendar">("review");
   const [showComposer, setShowComposer] = useState(false);
 
@@ -226,6 +270,7 @@ export default function ContentBoard({ getToken }: { getToken: () => Promise<str
       const data = await res.json();
       setDrafts(data.drafts as Draft[]);
       setSchedulerOn(!!data.schedulerConfigured);
+      setCalendarFeedUrl(data.calendarFeedUrl ?? null);
     } catch (e) {
       setErr(e instanceof Error ? e.message : String(e));
     } finally {
@@ -312,7 +357,7 @@ export default function ContentBoard({ getToken }: { getToken: () => Promise<str
             body: edits.body,
             comment: edits.comment || null,
           };
-          if (current.platform === "pinterest") updates.title = edits.title || null;
+          if (current.platform === "pinterest" || current.platform === "tiktok") updates.title = edits.title || null;
           patch(current.id, updates);
 
           const total = base + bonus;
@@ -327,7 +372,7 @@ export default function ContentBoard({ getToken }: { getToken: () => Promise<str
           spawnFloat(`+${total}${bonus ? ` (combo ×${nextCombo})` : ""}`, bonus ? "big" : "pos");
 
           if (res.goalJustHit) {
-            burstConfetti({ count: 90 });
+            burstConfetti({ count: 40 });
             spawnFloat("daily goal hit", "big");
           }
           // index stays, the approved/flagged card drops out of the queue and
@@ -353,7 +398,7 @@ export default function ContentBoard({ getToken }: { getToken: () => Promise<str
     }
     if (queue.length === 0 && hadItemsRef.current && !clearedRef.current && view === "review") {
       clearedRef.current = true;
-      burstConfetti({ count: 160 });
+      burstConfetti({ count: 70 });
       setGame((g) => ({ ...g, xp: g.xp + POINTS.clearQueue }));
     }
   }, [queue.length, loading, view]);
@@ -363,7 +408,7 @@ export default function ContentBoard({ getToken }: { getToken: () => Promise<str
       <GameStyles />
 
       {/* HUD */}
-      <GameHud game={game} todayCount={todayCount} lvl={lvl} combo={combo} queueLeft={queue.length} />
+      <GameHud game={game} todayCount={todayCount} lvl={lvl} queueLeft={queue.length} />
 
       {/* View toggle + composer */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", margin: "20px 0 18px" }}>
@@ -390,10 +435,13 @@ export default function ContentBoard({ getToken }: { getToken: () => Promise<str
 
       {showComposer && <Composer authedFetch={authedFetch} onCreated={load} />}
 
-      {err && <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--red)", marginBottom: 16 }}>{err}</div>}
+      {err && <div style={errNotice}>{err}</div>}
 
       {loading ? (
-        <span style={{ fontFamily: "var(--sans)", fontSize: 14, color: "var(--ink-3)" }}>Loading…</span>
+        <div style={{ textAlign: "center", padding: "64px 0" }}>
+          <div style={mastheadEyebrow}>Loading</div>
+          <p style={{ fontFamily: "var(--sans)", fontSize: 14, color: "var(--ink-3)", marginTop: 8 }}>Opening the board…</p>
+        </div>
       ) : view === "review" ? (
         <ReviewMode
           queue={queue}
@@ -410,72 +458,63 @@ export default function ContentBoard({ getToken }: { getToken: () => Promise<str
       ) : view === "board" ? (
         <BoardView byStatus={byStatus} onPatch={patch} onRemove={remove} schedulerOn={schedulerOn} />
       ) : (
-        <CalendarView drafts={drafts} onPatch={patch} />
+        <CalendarView drafts={drafts} onPatch={patch} feedUrl={calendarFeedUrl} />
       )}
     </div>
   );
 }
 
-// ── HUD ───────────────────────────────────────────────────────────────────
+// ── Masthead ────────────────────────────────────────────────────────────────
+// The motivation layer, read as a magazine masthead rather than a game HUD.
+// Your editorial "role" (level title) is the headline; XP rides under it as a
+// thin progress line. Streak, daily goal, and queue sit to the right as quiet
+// stats. The dopamine still lives in Review mode (floats + a small confetti
+// burst on goal) — this strip just holds the standing state, calmly.
 function GameHud({
   game,
   todayCount,
   lvl,
-  combo,
   queueLeft,
 }: {
   game: GameState;
   todayCount: number;
   lvl: ReturnType<typeof levelInfo>;
-  combo: number;
   queueLeft: number;
 }) {
   const goalPct = Math.min(1, game.dailyGoal ? todayCount / game.dailyGoal : 0);
   return (
-    <div style={hud}>
-      {/* Streak */}
-      <Stat>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <Flame active={game.streakDays > 0} />
-          <span style={statBig}>{game.streakDays}</span>
+    <div style={masthead}>
+      {/* Editorial role + XP, as the masthead nameplate */}
+      <div style={{ minWidth: 220, flex: 1 }}>
+        <div style={mastheadEyebrow}>Today’s edition</div>
+        <div style={mastheadTitle}>{lvl.title}</div>
+        <div style={mastheadSub}>
+          Lv {lvl.level} · {game.xp.toLocaleString()} XP
+          {lvl.nextAt != null ? ` · ${(lvl.nextAt - game.xp).toLocaleString()} to next` : " · top of the masthead"}
         </div>
-        <span style={statLabel}>day streak</span>
-      </Stat>
-
-      {/* Level + XP bar */}
-      <div style={{ ...statCell, flex: 1, minWidth: 220 }}>
-        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
-          <span style={{ fontFamily: "var(--sans)", fontSize: 13, fontWeight: 600, color: "var(--ink)" }}>
-            Lv {lvl.level} · {lvl.title}
-          </span>
-          <span style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)" }}>
-            {game.xp} XP{lvl.nextAt != null ? ` · ${lvl.nextAt - game.xp} to next` : " · max"}
-          </span>
-        </div>
-        <div style={xpTrack}>
-          <div style={{ ...xpFill, width: `${Math.round(lvl.pct * 100)}%` }} />
+        <div style={xpTrackThin}>
+          <div style={{ ...xpFillThin, width: `${Math.round(lvl.pct * 100)}%` }} />
         </div>
       </div>
 
-      {/* Daily goal ring */}
-      <Stat>
-        <Ring pct={goalPct} label={`${todayCount}/${game.dailyGoal}`} />
-        <span style={statLabel}>today</span>
-      </Stat>
-
-      {/* Combo */}
-      <Stat>
-        <span style={{ ...statBig, color: combo >= 2 ? "var(--orange)" : "var(--ink-3)", transform: combo >= 2 ? `scale(${Math.min(1.4, 1 + combo * 0.05)})` : "none", transition: "transform .15s" }}>
-          ×{combo}
-        </span>
-        <span style={statLabel}>combo</span>
-      </Stat>
-
-      {/* Queue left */}
-      <Stat>
-        <span style={statBig}>{queueLeft}</span>
-        <span style={statLabel}>in queue</span>
-      </Stat>
+      {/* Quiet stats */}
+      <div style={mastheadStats}>
+        <Stat>
+          <Ring pct={goalPct} label={`${todayCount}/${game.dailyGoal}`} />
+          <span style={statLabel}>reviewed today</span>
+        </Stat>
+        <Stat>
+          <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+            <Flame active={game.streakDays > 0} />
+            <span style={statBig}>{game.streakDays}</span>
+          </div>
+          <span style={statLabel}>day streak</span>
+        </Stat>
+        <Stat>
+          <span style={statBig}>{queueLeft}</span>
+          <span style={statLabel}>in queue</span>
+        </Stat>
+      </div>
     </div>
   );
 }
@@ -543,7 +582,7 @@ function ReviewMode({
     return <Cleared totalDrafts={totalDrafts} todayCount={todayCount} dailyGoal={dailyGoal} />;
   }
 
-  const isPin = current.platform === "pinterest";
+  const usesTitle = current.platform === "pinterest" || current.platform === "tiktok";
   const animStyle: React.CSSProperties =
     anim === "approve"
       ? { transform: "translateX(60px) rotate(4deg)", opacity: 0 }
@@ -558,7 +597,7 @@ function ReviewMode({
       {/* floating points */}
       <div style={{ position: "absolute", top: -6, left: 0, right: 0, display: "flex", justifyContent: "center", pointerEvents: "none", zIndex: 3 }}>
         {floats.map((f) => (
-          <span key={f.id} className="float-up" style={{ position: "absolute", fontFamily: "var(--sans)", fontWeight: 700, fontSize: f.tone === "big" ? 26 : 19, color: f.tone === "big" ? "var(--orange)" : "var(--blue)" }}>
+          <span key={f.id} className="float-up" style={{ position: "absolute", fontFamily: "var(--sans)", fontWeight: 700, fontSize: f.tone === "big" ? 26 : 19, color: f.tone === "big" ? "var(--ink)" : "var(--blue)" }}>
             {f.text}
           </span>
         ))}
@@ -566,7 +605,7 @@ function ReviewMode({
 
       <div className="card-in" key={current.id} style={{ ...reviewCard, ...animStyle }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-          <span style={platformBadge}>{PLATFORM_LABEL[current.platform] || current.platform}</span>
+          <PlatformTag platform={current.platform} />
           <button onClick={() => onRemove(current.id)} style={xBtn} title="Delete">
             ×
           </button>
@@ -595,8 +634,13 @@ function ReviewMode({
           </div>
         )}
 
-        {isPin && (
-          <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="pin title (the search query)" style={titleInput} />
+        {usesTitle && (
+          <input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder={current.platform === "pinterest" ? "pin title (the search query)" : "tiktok title (optional, ≤90 chars)"}
+            style={titleInput}
+          />
         )}
         <textarea value={body} onChange={(e) => setBody(e.target.value)} rows={6} style={bodyArea} />
         <textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={2} placeholder="your note / change request…" style={commentArea} />
@@ -621,21 +665,31 @@ function ReviewMode({
   );
 }
 
-function Cleared({ totalDrafts, todayCount, dailyGoal }: { totalDrafts: number; todayCount: number; dailyGoal: number }) {
+// Shared centered placeholder, used for the cleared queue, the empty board, and
+// any "nothing here" moment so they all read at the same level of polish.
+function EmptyState({ eyebrow, title, body }: { eyebrow: string; title: string; body: React.ReactNode }) {
   return (
     <div style={{ ...reviewCard, maxWidth: 560, margin: "0 auto", textAlign: "center", padding: "48px 28px" }}>
-      <div style={{ fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, letterSpacing: ".14em", textTransform: "uppercase", color: "var(--blue)", marginBottom: 10 }}>
-        Queue cleared
-      </div>
-      <h2 style={{ fontFamily: "var(--sans)", fontSize: 26, letterSpacing: "-0.02em", margin: "0 0 10px", color: "var(--ink)" }}>
-        {totalDrafts === 0 ? "Nothing to review yet" : "Inbox zero"}
+      <div style={{ ...mastheadEyebrow, color: "var(--blue)", marginBottom: 10 }}>{eyebrow}</div>
+      <h2 style={{ fontFamily: "var(--sans)", fontSize: 24, letterSpacing: "-0.02em", margin: "0 0 10px", color: "var(--ink)" }}>
+        {title}
       </h2>
-      <p style={{ fontFamily: "var(--sans)", fontSize: 14, color: "var(--ink-2)", margin: "0 0 6px" }}>
-        {totalDrafts === 0
-          ? "Add a draft above, or let the generator drop a batch in here."
-          : `You reviewed ${todayCount} today${todayCount >= dailyGoal ? ", goal smashed." : `, ${Math.max(0, dailyGoal - todayCount)} off today's goal.`}`}
-      </p>
+      <p style={{ fontFamily: "var(--sans)", fontSize: 14, color: "var(--ink-2)", margin: 0 }}>{body}</p>
     </div>
+  );
+}
+
+function Cleared({ totalDrafts, todayCount, dailyGoal }: { totalDrafts: number; todayCount: number; dailyGoal: number }) {
+  return (
+    <EmptyState
+      eyebrow="Queue cleared"
+      title={totalDrafts === 0 ? "Nothing to review yet" : "Inbox zero"}
+      body={
+        totalDrafts === 0
+          ? "Add a draft above, or let the generator drop a batch in here."
+          : `You reviewed ${todayCount} today${todayCount >= dailyGoal ? ", goal met." : `, ${Math.max(0, dailyGoal - todayCount)} off today's goal.`}`
+      }
+    />
   );
 }
 
@@ -658,10 +712,11 @@ function BoardView({
   const empty = cols.every((c) => byStatus[c.key].length === 0);
   if (empty) {
     return (
-      <div style={{ ...card, textAlign: "center", padding: "40px 24px" }}>
-        <p style={{ fontFamily: "var(--sans)", fontSize: 15, color: "var(--ink-2)", margin: "0 0 6px" }}>Nothing here yet.</p>
-        <p style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)", margin: 0 }}>Add a draft above to get started.</p>
-      </div>
+      <EmptyState
+        eyebrow="Empty board"
+        title="Nothing here yet"
+        body="Add a draft above, or let the generator drop a batch in here."
+      />
     );
   }
   return (
@@ -702,7 +757,7 @@ function MiniCard({
   return (
     <div style={card}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-        <span style={platformBadge}>{PLATFORM_LABEL[draft.platform] || draft.platform}</span>
+        <PlatformTag platform={draft.platform} />
         <button onClick={() => onRemove(draft.id)} style={xBtn} title="Delete">
           ×
         </button>
@@ -748,7 +803,7 @@ function MiniCard({
       {/* plan a day to post (the calendar reads this) */}
       {(draft.status === "approved" || draft.status === "scheduled") && (
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-          <span style={{ fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, letterSpacing: ".06em", textTransform: "uppercase", color: "var(--ink-3)" }}>plan</span>
+          <span style={{ fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, letterSpacing: "0.13em", textTransform: "uppercase", color: "var(--ink-3)" }}>plan</span>
           <input
             type="date"
             value={inputFromIso(draft.scheduled_at)}
@@ -787,91 +842,216 @@ function MiniCard({
 }
 
 // ── Calendar view, the planning surface ─────────────────────────────────
-// An agenda of the next 14 days built from scheduled_at, plus an "Unscheduled"
-// bucket for approved posts that still need a day. Closes the loop: each item
-// has Download · Copy · Mark posted right where you plan it.
+// A real month grid built from scheduled_at: navigate months, click a day to
+// see/act on its posts in the sidebar, and assign days to unscheduled posts.
+// "Subscribe" exposes an iCal feed so the schedule syncs into Google + Apple.
 function CalendarView({
   drafts,
   onPatch,
+  feedUrl,
 }: {
   drafts: Draft[];
   onPatch: (id: string, u: Partial<Draft>) => void;
+  feedUrl: string | null;
 }) {
-  // planning pool = approved or scheduled (ready, not yet posted)
+  const today = new Date();
+  const todayKey = ymd(today);
+  const [cursor, setCursor] = useState<{ y: number; m: number }>({ y: today.getFullYear(), m: today.getMonth() });
+  const [selected, setSelected] = useState<string>(todayKey);
+  const [showSub, setShowSub] = useState(false);
+
   const planning = drafts.filter((d) => d.status === "approved" || d.status === "scheduled");
-  const scheduled = planning.filter((d) => d.scheduled_at);
   const unscheduled = planning.filter((d) => !d.scheduled_at);
 
-  const today = new Date();
-  const days: { key: string; label: string; items: Draft[] }[] = [];
-  for (let i = 0; i < 14; i++) {
-    const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + i);
-    const key = ymd(d);
-    const items = scheduled
-      .filter((x) => inputFromIso(x.scheduled_at) === key)
-      .sort((a, b) => a.platform.localeCompare(b.platform));
-    const label =
-      i === 0 ? "Today" : i === 1 ? "Tomorrow" : d.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
-    days.push({ key, label, items });
+  // Anything with a planned day lands on the grid (incl. posted that was scheduled).
+  const byDay: Record<string, Draft[]> = {};
+  for (const d of drafts) {
+    if (!d.scheduled_at) continue;
+    const k = inputFromIso(d.scheduled_at);
+    (byDay[k] ||= []).push(d);
   }
+  for (const k in byDay) byDay[k].sort((a, b) => a.platform.localeCompare(b.platform));
 
-  // overdue: scheduled before today and not posted
-  const todayKey = ymd(today);
-  const overdue = scheduled.filter((x) => inputFromIso(x.scheduled_at) < todayKey);
+  const first = new Date(cursor.y, cursor.m, 1);
+  const startOffset = first.getDay(); // 0 = Sunday
+  const cells = Array.from({ length: 42 }, (_, i) => new Date(cursor.y, cursor.m, 1 - startOffset + i));
+  const monthLabel = first.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+  const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  const prev = () => setCursor((c) => (c.m === 0 ? { y: c.y - 1, m: 11 } : { y: c.y, m: c.m - 1 }));
+  const next = () => setCursor((c) => (c.m === 11 ? { y: c.y + 1, m: 0 } : { y: c.y, m: c.m + 1 }));
+  const goToday = () => {
+    setCursor({ y: today.getFullYear(), m: today.getMonth() });
+    setSelected(todayKey);
+  };
+
+  const selItems = byDay[selected] || [];
+  const selLabel = (() => {
+    if (selected === todayKey) return "Today";
+    const [y, m, dd] = selected.split("-").map(Number);
+    return new Date(y, m - 1, dd).toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
+  })();
+  const webcal = feedUrl ? feedUrl.replace(/^https?:/i, "webcal:") : null;
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 20, alignItems: "start" }}>
-      {/* agenda */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        {overdue.length > 0 && (
-          <div>
-            <div style={{ ...columnHeader, color: "var(--red)" }}>
-              Overdue<span style={{ color: "var(--ink-3)", fontWeight: 400 }}> · {overdue.length}</span>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {overdue.map((d) => (
-                <CalCard key={d.id} draft={d} onPatch={onPatch} />
-              ))}
-            </div>
+    <div>
+      {/* month nav + subscribe */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, flexWrap: "wrap", gap: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <button onClick={prev} style={navBtn} aria-label="Previous month">‹</button>
+          <span style={{ fontFamily: "var(--sans)", fontSize: 18, fontWeight: 600, letterSpacing: "-0.02em", minWidth: 156 }}>{monthLabel}</span>
+          <button onClick={next} style={navBtn} aria-label="Next month">›</button>
+          <button onClick={goToday} style={{ ...miniGhost, marginLeft: 4 }}>Today</button>
+        </div>
+        <button onClick={() => setShowSub((s) => !s)} style={{ ...pill, ...pillOff }}>
+          {showSub ? "Close" : "Subscribe in Google / Apple"}
+        </button>
+      </div>
+
+      {showSub && <SubscribePanel feedUrl={feedUrl} webcal={webcal} />}
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 20, alignItems: "start" }}>
+        {/* month grid */}
+        <div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 6, marginBottom: 6 }}>
+            {weekdays.map((w) => (
+              <div key={w} style={{ ...statLabel, textAlign: "center" }}>{w}</div>
+            ))}
           </div>
-        )}
-        {days.map((day) => (
-          <div key={day.key}>
-            <div style={columnHeader}>
-              {day.label}
-              {day.items.length > 0 && <span style={{ color: "var(--ink-3)", fontWeight: 400 }}> · {day.items.length}</span>}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 6 }}>
+            {cells.map((d, i) => {
+              const k = ymd(d);
+              const inMonth = d.getMonth() === cursor.m;
+              const isToday = k === todayKey;
+              const isSel = k === selected;
+              const items = byDay[k] || [];
+              return (
+                <button
+                  key={i}
+                  onClick={() => setSelected(k)}
+                  style={{
+                    ...dayCell,
+                    background: inMonth ? "var(--white)" : "var(--cream)",
+                    borderColor: isSel ? "var(--ink)" : "var(--hairline-strong)",
+                    boxShadow: isSel ? "0 0 0 1px var(--ink)" : "none",
+                    opacity: inMonth ? 1 : 0.5,
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontFamily: "var(--sans)", fontSize: 12, fontWeight: isToday ? 700 : 500, color: isToday ? "var(--blue)" : "var(--ink-2)" }}>
+                      {d.getDate()}
+                    </span>
+                    {items.length > 0 && <span style={{ fontFamily: "var(--sans)", fontSize: 10, color: "var(--ink-3)" }}>{items.length}</span>}
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 3, marginTop: 4, overflow: "hidden" }}>
+                    {items.slice(0, 3).map((it) => (
+                      <span key={it.id} style={dayChip}>
+                        <span style={{ width: 5, height: 5, borderRadius: 999, background: PLATFORM_ACCENT[it.platform] || "var(--ink-3)", flexShrink: 0 }} />
+                        <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", opacity: it.status === "posted" ? 0.55 : 1 }}>
+                          {it.status === "posted" ? "✓ " : ""}{it.title || it.source_ref || it.body}
+                        </span>
+                      </span>
+                    ))}
+                    {items.length > 3 && <span style={{ fontFamily: "var(--sans)", fontSize: 10, color: "var(--ink-3)" }}>+{items.length - 3} more</span>}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* sidebar: selected day + unscheduled */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 16, position: "sticky", top: 16 }}>
+          <div style={{ ...card, padding: 16 }}>
+            <div style={{ ...columnHeader, marginBottom: 12 }}>
+              {selLabel}
+              {selItems.length > 0 && <span style={{ color: "var(--ink-3)", fontWeight: 400 }}> · {selItems.length}</span>}
             </div>
-            {day.items.length === 0 ? (
-              <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", padding: "2px 0 6px" }}>–</div>
+            {selItems.length === 0 ? (
+              <p style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)", margin: 0 }}>
+                Nothing scheduled. Give an unscheduled post a day below.
+              </p>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {day.items.map((d) => (
-                  <CalCard key={d.id} draft={d} onPatch={onPatch} />
+                {selItems.map((d) => (
+                  <CalCard key={d.id} draft={d} onPatch={onPatch} showDate />
                 ))}
               </div>
             )}
           </div>
-        ))}
-      </div>
 
-      {/* unscheduled sidebar */}
-      <div style={{ ...card, padding: 16, position: "sticky", top: 16 }}>
-        <div style={{ ...columnHeader, marginBottom: 12 }}>
-          Unscheduled<span style={{ color: "var(--ink-3)", fontWeight: 400 }}> · {unscheduled.length}</span>
-        </div>
-        {unscheduled.length === 0 ? (
-          <p style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)", margin: 0 }}>
-            Everything approved has a day. Approve more from Review.
-          </p>
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {unscheduled.map((d) => (
-              <CalCard key={d.id} draft={d} onPatch={onPatch} showDate />
-            ))}
+          <div style={{ ...card, padding: 16 }}>
+            <div style={{ ...columnHeader, marginBottom: 12 }}>
+              Unscheduled<span style={{ color: "var(--ink-3)", fontWeight: 400 }}> · {unscheduled.length}</span>
+            </div>
+            {unscheduled.length === 0 ? (
+              <p style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)", margin: 0 }}>
+                Everything approved has a day.
+              </p>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {unscheduled.map((d) => (
+                  <CalCard key={d.id} draft={d} onPatch={onPatch} showDate />
+                ))}
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
+  );
+}
+
+// The iCal subscribe panel. The feed URL carries a secret token, so it's only
+// ever handed to the authenticated admin (via the content GET response).
+function SubscribePanel({ feedUrl, webcal }: { feedUrl: string | null; webcal: string | null }) {
+  if (!feedUrl) {
+    return (
+      <div style={{ ...card, padding: 16, marginBottom: 16 }}>
+        <p style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", margin: 0 }}>
+          Calendar sync isn’t enabled yet. Set <code>CALENDAR_FEED_TOKEN</code> in the environment to turn on the subscribe feed.
+        </p>
+      </div>
+    );
+  }
+  return (
+    <div style={{ ...card, padding: 18, marginBottom: 16 }}>
+      <div style={{ ...columnHeader, marginBottom: 10 }}>Sync to your calendar</div>
+      <p style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", margin: "0 0 14px", lineHeight: 1.5 }}>
+        Subscribe once and every scheduled post shows up in your calendar, refreshing on its own.
+      </p>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center", marginBottom: 12 }}>
+        <a href={webcal || "#"} style={{ ...miniApprove, textDecoration: "none" }}>Add to Apple Calendar</a>
+        <CopyLinkButton text={feedUrl} style={miniGhost} />
+        <span style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)" }}>
+          Google: Other calendars → From URL → paste
+        </span>
+      </div>
+      <input readOnly value={feedUrl} onFocus={(e) => e.currentTarget.select()} style={{ ...baseInput, fontSize: 12 }} />
+      <p style={{ fontFamily: "var(--sans)", fontSize: 11, color: "var(--ink-3)", margin: "8px 0 0" }}>
+        Keep this link private — it carries your feed token.
+      </p>
+    </div>
+  );
+}
+
+function CopyLinkButton({ text, style }: { text: string; style: React.CSSProperties }) {
+  const [done, setDone] = useState(false);
+  return (
+    <button
+      onClick={async () => {
+        try {
+          await navigator.clipboard.writeText(text);
+          setDone(true);
+          setTimeout(() => setDone(false), 1500);
+        } catch {
+          /* clipboard blocked, ignore */
+        }
+      }}
+      style={style}
+    >
+      {done ? "Copied ✓" : "Copy feed link"}
+    </button>
   );
 }
 
@@ -887,7 +1067,7 @@ function CalCard({ draft, onPatch, showDate }: { draft: Draft; onPatch: (id: str
       )}
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
-          <span style={{ ...platformBadge, fontSize: 9, padding: "2px 7px" }}>{PLATFORM_LABEL[draft.platform] || draft.platform}</span>
+          <PlatformTag platform={draft.platform} size="sm" />
           {draft.scheduled_at && !showDate && (
             <span style={{ fontFamily: "var(--sans)", fontSize: 10, color: "var(--ink-3)" }}>{prettyDay(draft.scheduled_at)}</span>
           )}
@@ -936,7 +1116,14 @@ function Composer({
       method: "POST",
       body: JSON.stringify({
         platform,
-        variant_type: platform === "pinterest" ? "pin" : platform === "twitter" ? "tweet_thread" : "reel_caption",
+        variant_type:
+          platform === "pinterest"
+            ? "pin"
+            : platform === "twitter"
+            ? "tweet_thread"
+            : platform === "tiktok"
+            ? "carousel"
+            : "reel_caption",
         source_ref: sourceRef || null,
         body,
         media_url: mediaUrl || null,
@@ -981,7 +1168,7 @@ function Flame({ active }: { active: boolean }) {
     <svg width="16" height="20" viewBox="0 0 16 20" fill="none" aria-hidden>
       <path
         d="M8 0.5C8 0.5 3 4.5 3 9.5C3 11 3.7 12 4.5 12.7C4.2 12 4.1 11.2 4.5 10.3C5 9 6.5 8.2 6.5 8.2C6.5 8.2 6 10 7 11.2C7.8 12.2 9 12.6 9 14C9 15 8.3 15.8 7.4 15.9C9 16.4 13 15.2 13 10.5C13 5.5 8 0.5 8 0.5Z"
-        fill={active ? "var(--orange)" : "var(--ink-3)"}
+        fill={active ? "var(--blue)" : "var(--ink-3)"}
       />
     </svg>
   );
@@ -1027,27 +1214,32 @@ function GameStyles() {
 }
 
 // ── Styles ────────────────────────────────────────────────────────────────
-const hud: React.CSSProperties = {
+const masthead: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
-  gap: 14,
+  justifyContent: "space-between",
+  gap: 24,
   flexWrap: "wrap",
   background: "var(--white)",
   border: "1px solid var(--hairline-strong)",
   borderRadius: 14,
-  padding: "14px 18px",
+  padding: "18px 22px",
 };
+const mastheadEyebrow: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 10, fontWeight: 600, letterSpacing: "0.13em", textTransform: "uppercase", color: "var(--ink-3)" };
+const mastheadTitle: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 21, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ink)", margin: "6px 0 2px" };
+const mastheadSub: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", marginBottom: 9 };
+const mastheadStats: React.CSSProperties = { display: "flex", alignItems: "center", gap: 22, flexWrap: "wrap" };
+const xpTrackThin: React.CSSProperties = { height: 4, maxWidth: 260, borderRadius: 999, background: "var(--tan)", overflow: "hidden" };
+const xpFillThin: React.CSSProperties = { height: "100%", background: "var(--blue)", borderRadius: 999, transition: "width .4s ease" };
 const statCell: React.CSSProperties = { display: "flex", flexDirection: "column", alignItems: "center", gap: 4, minWidth: 64 };
 const statBig: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em", color: "var(--ink)" };
-const statLabel: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 10, fontWeight: 600, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--ink-3)" };
-const xpTrack: React.CSSProperties = { height: 8, borderRadius: 999, background: "var(--tan)", overflow: "hidden" };
-const xpFill: React.CSSProperties = { height: "100%", background: "var(--blue)", borderRadius: 999, transition: "width .4s ease" };
+const statLabel: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 10, fontWeight: 600, letterSpacing: "0.13em", textTransform: "uppercase", color: "var(--ink-3)" };
+const errNotice: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 13, color: "var(--red)", background: "var(--white)", border: "1px solid var(--hairline-strong)", borderRadius: 10, padding: "11px 14px", marginBottom: 16 };
 
 const card: React.CSSProperties = { background: "var(--white)", border: "1px solid var(--hairline-strong)", borderRadius: 12, padding: 14 };
 const reviewCard: React.CSSProperties = { background: "var(--white)", border: "1px solid var(--hairline-strong)", borderRadius: 16, padding: 22, transition: "transform .24s ease, opacity .24s ease" };
 
-const columnHeader: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, letterSpacing: ".12em", textTransform: "uppercase", color: "var(--ink-2)", marginBottom: 12 };
-const platformBadge: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", color: "var(--blue)" };
+const columnHeader: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, letterSpacing: "0.13em", textTransform: "uppercase", color: "var(--ink-2)", marginBottom: 12 };
 const sourceLine: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 11, color: "var(--ink-3)", marginBottom: 10, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" };
 
 const media: React.CSSProperties = { width: "100%", borderRadius: 8, marginBottom: 10, display: "block", aspectRatio: "4 / 5", objectFit: "cover", background: "var(--tan)" };
@@ -1074,6 +1266,11 @@ const miniApprove: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 
 const miniGhost: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 12, padding: "7px 12px", borderRadius: 999, cursor: "pointer", background: "var(--white)", color: "var(--ink-2)", border: "1px solid var(--hairline-strong)" };
 const miniPosted: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 12, padding: "7px 12px", borderRadius: 999, cursor: "pointer", background: "var(--risk-low)", color: "var(--ink)", border: "1px solid var(--risk-low)" };
 const dateInput: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 12, padding: "5px 9px", borderRadius: 8, background: "var(--white)", color: "var(--ink)", border: "1px solid var(--hairline-strong)", cursor: "pointer" };
+
+// Month-grid calendar
+const navBtn: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 18, lineHeight: 1, width: 30, height: 30, borderRadius: 999, border: "1px solid var(--hairline-strong)", background: "var(--white)", color: "var(--ink-2)", cursor: "pointer" };
+const dayCell: React.CSSProperties = { textAlign: "left", border: "1px solid var(--hairline-strong)", borderRadius: 10, padding: "7px 8px", minHeight: 96, cursor: "pointer", display: "flex", flexDirection: "column", transition: "box-shadow .15s, border-color .15s" };
+const dayChip: React.CSSProperties = { display: "flex", alignItems: "center", gap: 5, fontFamily: "var(--sans)", fontSize: 11, color: "var(--ink-2)", lineHeight: 1.3, maxWidth: "100%" };
 
 const kbd: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 10, fontWeight: 600, padding: "2px 6px", borderRadius: 5, background: "rgba(59,60,58,0.08)", color: "var(--ink-2)" };
 const kbdDark: React.CSSProperties = { background: "rgba(59,60,58,0.18)", color: "var(--ink)" };

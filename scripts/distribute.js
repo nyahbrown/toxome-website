@@ -24,7 +24,7 @@
  *   "source_ref":  "Polyester is plastic",
  *   "variants": [
  *     {
- *       "platform": "instagram",          // instagram | twitter | pinterest
+ *       "platform": "instagram",          // instagram | twitter | pinterest | tiktok
  *       "variant_type": "carousel",       // carousel | image | post | thread | pin
  *       "title": "Polyester is plastic",  // optional
  *       "body": "<full caption / thread / pin description>",
@@ -47,7 +47,7 @@ const { createClient } = require("@supabase/supabase-js");
 const SUPABASE_URL = "https://xclvodbmllglmharezqa.supabase.co";
 const TABLE = "content_drafts";
 
-const PLATFORMS = ["instagram", "twitter", "pinterest"];
+const PLATFORMS = ["instagram", "twitter", "pinterest", "tiktok"];
 const VARIANT_TYPES = ["carousel", "image", "post", "thread", "pin"];
 const SOURCE_TYPES = ["journal", "topic", "comment", "product", "video", "manual"];
 
