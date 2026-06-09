@@ -128,6 +128,14 @@ async function pushToBlotato(draft: SchedulerDraft): Promise<PushResult> {
     target.isDraft = false;
     target.imageCoverIndex = 0;
     target.autoAddMusic = true; // photo slideshows get a TikTok-recommended track (no silent post). No effect on video.
+    // Blotato REQUIRES these interaction/disclosure flags on the TikTok target
+    // (organic post → all false). Omitting any of them is a 400.
+    target.disabledComments = false;
+    target.disabledDuet = false;
+    target.disabledStitch = false;
+    target.isBrandedContent = false;
+    target.isYourBrand = false;
+    target.isAiGenerated = false;
     if (draft.title) target.title = draft.title.slice(0, 90); // TikTok title cap
   }
   if (platform === "instagram" && draft.media_type === "video") {
