@@ -183,7 +183,7 @@ export default async function ExtensionPage() {
         >
           <Image
             src="/extension/preview.jpg"
-            alt="The Toxome extension card open on a Zara product page, showing a 70/100 'Bad' rating, a 97% polyester / 3% elastane composition breakdown, why-this-score notes, and Save to Wishlist and Add to Closet buttons."
+            alt="The Toxome extension card open on a DISSH product page, showing a 67/100 'Okay' rating, a 57% cupro / 43% viscose composition breakdown, why-this-score notes, and Save to Wishlist and Add to Closet buttons."
             width={2000}
             height={1267}
             sizes="(max-width: 1100px) 100vw, 1040px"
