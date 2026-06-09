@@ -1251,8 +1251,12 @@ function CalCard({ draft, onPatch, showDate }: { draft: Draft; onPatch: (id: str
         <div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginTop: 7 }}>
           <DownloadButton draft={draft} style={{ ...miniGhost, fontSize: 11, padding: "5px 9px" }} />
           <CopyCaptionButton text={draft.body} style={{ ...miniGhost, fontSize: 11, padding: "5px 9px" }} />
-          <button onClick={() => onPatch(draft.id, { status: "posted" })} style={{ ...miniPosted, fontSize: 11, padding: "5px 9px" }}>
-            Posted ✓
+          <button
+            onClick={() => onPatch(draft.id, { status: draft.status === "posted" ? "approved" : "posted" })}
+            style={{ ...(draft.status === "posted" ? miniPosted : miniGhost), fontSize: 11, padding: "5px 9px" }}
+            title={draft.status === "posted" ? "Posted — click to unmark" : "Mark as posted"}
+          >
+            {draft.status === "posted" ? "✓ Posted" : "Mark posted"}
           </button>
         </div>
       </div>
