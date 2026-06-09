@@ -67,12 +67,55 @@ function prettyDay(iso: string | null): string {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
 }
 
-const PLATFORMS = ["instagram", "twitter", "pinterest"] as const;
+const PLATFORMS = ["instagram", "twitter", "pinterest", "tiktok"] as const;
 const PLATFORM_LABEL: Record<string, string> = {
   instagram: "Instagram",
   twitter: "Twitter / X",
   pinterest: "Pinterest",
+  tiktok: "TikTok",
 };
+
+// Each platform gets ONE in-palette accent dot so cuts are scannable at a glance
+// without breaking the monochrome editorial system. Blue = the editorial accent,
+// purple = the logo accent, two ink tones = neutral. No platform-logo brand colors.
+const PLATFORM_ACCENT: Record<string, string> = {
+  instagram: "var(--blue)",
+  twitter: "var(--ink-2)",
+  pinterest: "var(--purple)",
+  tiktok: "var(--ink)",
+};
+
+// A small dot + uppercase label, used everywhere a platform is named (Review
+// card, Board card, Calendar card). The dot carries the identity; the label
+// stays in the locked eyebrow treatment.
+function PlatformTag({ platform, size = "md" }: { platform: string; size?: "sm" | "md" }) {
+  const small = size === "sm";
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: small ? 5 : 6 }}>
+      <span
+        style={{
+          width: small ? 5 : 6,
+          height: small ? 5 : 6,
+          borderRadius: 999,
+          background: PLATFORM_ACCENT[platform] || "var(--ink-3)",
+          flexShrink: 0,
+        }}
+      />
+      <span
+        style={{
+          fontFamily: "var(--sans)",
+          fontSize: small ? 9 : 10,
+          fontWeight: 600,
+          letterSpacing: "0.13em",
+          textTransform: "uppercase",
+          color: "var(--ink-2)",
+        }}
+      >
+        {PLATFORM_LABEL[platform] || platform}
+      </span>
+    </span>
+  );
+}
 
 type Float = { id: number; text: string; tone: "pos" | "big" };
 
@@ -312,7 +355,7 @@ export default function ContentBoard({ getToken }: { getToken: () => Promise<str
             body: edits.body,
             comment: edits.comment || null,
           };
-          if (current.platform === "pinterest") updates.title = edits.title || null;
+          if (current.platform === "pinterest" || current.platform === "tiktok") updates.title = edits.title || null;
           patch(current.id, updates);
 
           const total = base + bonus;
@@ -327,7 +370,7 @@ export default function ContentBoard({ getToken }: { getToken: () => Promise<str
           spawnFloat(`+${total}${bonus ? ` (combo ×${nextCombo})` : ""}`, bonus ? "big" : "pos");
 
           if (res.goalJustHit) {
-            burstConfetti({ count: 90 });
+            burstConfetti({ count: 40 });
             spawnFloat("daily goal hit", "big");
           }
           // index stays, the approved/flagged card drops out of the queue and
@@ -353,7 +396,7 @@ export default function ContentBoard({ getToken }: { getToken: () => Promise<str
     }
     if (queue.length === 0 && hadItemsRef.current && !clearedRef.current && view === "review") {
       clearedRef.current = true;
-      burstConfetti({ count: 160 });
+      burstConfetti({ count: 70 });
       setGame((g) => ({ ...g, xp: g.xp + POINTS.clearQueue }));
     }
   }, [queue.length, loading, view]);
@@ -363,7 +406,7 @@ export default function ContentBoard({ getToken }: { getToken: () => Promise<str
       <GameStyles />
 
       {/* HUD */}
-      <GameHud game={game} todayCount={todayCount} lvl={lvl} combo={combo} queueLeft={queue.length} />
+      <GameHud game={game} todayCount={todayCount} lvl={lvl} queueLeft={queue.length} />
 
       {/* View toggle + composer */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", margin: "20px 0 18px" }}>
@@ -390,10 +433,13 @@ export default function ContentBoard({ getToken }: { getToken: () => Promise<str
 
       {showComposer && <Composer authedFetch={authedFetch} onCreated={load} />}
 
-      {err && <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--red)", marginBottom: 16 }}>{err}</div>}
+      {err && <div style={errNotice}>{err}</div>}
 
       {loading ? (
-        <span style={{ fontFamily: "var(--sans)", fontSize: 14, color: "var(--ink-3)" }}>Loading…</span>
+        <div style={{ textAlign: "center", padding: "64px 0" }}>
+          <div style={mastheadEyebrow}>Loading</div>
+          <p style={{ fontFamily: "var(--sans)", fontSize: 14, color: "var(--ink-3)", marginTop: 8 }}>Opening the board…</p>
+        </div>
       ) : view === "review" ? (
         <ReviewMode
           queue={queue}
@@ -416,66 +462,57 @@ export default function ContentBoard({ getToken }: { getToken: () => Promise<str
   );
 }
 
-// ── HUD ───────────────────────────────────────────────────────────────────
+// ── Masthead ────────────────────────────────────────────────────────────────
+// The motivation layer, read as a magazine masthead rather than a game HUD.
+// Your editorial "role" (level title) is the headline; XP rides under it as a
+// thin progress line. Streak, daily goal, and queue sit to the right as quiet
+// stats. The dopamine still lives in Review mode (floats + a small confetti
+// burst on goal) — this strip just holds the standing state, calmly.
 function GameHud({
   game,
   todayCount,
   lvl,
-  combo,
   queueLeft,
 }: {
   game: GameState;
   todayCount: number;
   lvl: ReturnType<typeof levelInfo>;
-  combo: number;
   queueLeft: number;
 }) {
   const goalPct = Math.min(1, game.dailyGoal ? todayCount / game.dailyGoal : 0);
   return (
-    <div style={hud}>
-      {/* Streak */}
-      <Stat>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <Flame active={game.streakDays > 0} />
-          <span style={statBig}>{game.streakDays}</span>
+    <div style={masthead}>
+      {/* Editorial role + XP, as the masthead nameplate */}
+      <div style={{ minWidth: 220, flex: 1 }}>
+        <div style={mastheadEyebrow}>Today’s edition</div>
+        <div style={mastheadTitle}>{lvl.title}</div>
+        <div style={mastheadSub}>
+          Lv {lvl.level} · {game.xp.toLocaleString()} XP
+          {lvl.nextAt != null ? ` · ${(lvl.nextAt - game.xp).toLocaleString()} to next` : " · top of the masthead"}
         </div>
-        <span style={statLabel}>day streak</span>
-      </Stat>
-
-      {/* Level + XP bar */}
-      <div style={{ ...statCell, flex: 1, minWidth: 220 }}>
-        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
-          <span style={{ fontFamily: "var(--sans)", fontSize: 13, fontWeight: 600, color: "var(--ink)" }}>
-            Lv {lvl.level} · {lvl.title}
-          </span>
-          <span style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)" }}>
-            {game.xp} XP{lvl.nextAt != null ? ` · ${lvl.nextAt - game.xp} to next` : " · max"}
-          </span>
-        </div>
-        <div style={xpTrack}>
-          <div style={{ ...xpFill, width: `${Math.round(lvl.pct * 100)}%` }} />
+        <div style={xpTrackThin}>
+          <div style={{ ...xpFillThin, width: `${Math.round(lvl.pct * 100)}%` }} />
         </div>
       </div>
 
-      {/* Daily goal ring */}
-      <Stat>
-        <Ring pct={goalPct} label={`${todayCount}/${game.dailyGoal}`} />
-        <span style={statLabel}>today</span>
-      </Stat>
-
-      {/* Combo */}
-      <Stat>
-        <span style={{ ...statBig, color: combo >= 2 ? "var(--orange)" : "var(--ink-3)", transform: combo >= 2 ? `scale(${Math.min(1.4, 1 + combo * 0.05)})` : "none", transition: "transform .15s" }}>
-          ×{combo}
-        </span>
-        <span style={statLabel}>combo</span>
-      </Stat>
-
-      {/* Queue left */}
-      <Stat>
-        <span style={statBig}>{queueLeft}</span>
-        <span style={statLabel}>in queue</span>
-      </Stat>
+      {/* Quiet stats */}
+      <div style={mastheadStats}>
+        <Stat>
+          <Ring pct={goalPct} label={`${todayCount}/${game.dailyGoal}`} />
+          <span style={statLabel}>reviewed today</span>
+        </Stat>
+        <Stat>
+          <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+            <Flame active={game.streakDays > 0} />
+            <span style={statBig}>{game.streakDays}</span>
+          </div>
+          <span style={statLabel}>day streak</span>
+        </Stat>
+        <Stat>
+          <span style={statBig}>{queueLeft}</span>
+          <span style={statLabel}>in queue</span>
+        </Stat>
+      </div>
     </div>
   );
 }
@@ -543,7 +580,7 @@ function ReviewMode({
     return <Cleared totalDrafts={totalDrafts} todayCount={todayCount} dailyGoal={dailyGoal} />;
   }
 
-  const isPin = current.platform === "pinterest";
+  const usesTitle = current.platform === "pinterest" || current.platform === "tiktok";
   const animStyle: React.CSSProperties =
     anim === "approve"
       ? { transform: "translateX(60px) rotate(4deg)", opacity: 0 }
@@ -558,7 +595,7 @@ function ReviewMode({
       {/* floating points */}
       <div style={{ position: "absolute", top: -6, left: 0, right: 0, display: "flex", justifyContent: "center", pointerEvents: "none", zIndex: 3 }}>
         {floats.map((f) => (
-          <span key={f.id} className="float-up" style={{ position: "absolute", fontFamily: "var(--sans)", fontWeight: 700, fontSize: f.tone === "big" ? 26 : 19, color: f.tone === "big" ? "var(--orange)" : "var(--blue)" }}>
+          <span key={f.id} className="float-up" style={{ position: "absolute", fontFamily: "var(--sans)", fontWeight: 700, fontSize: f.tone === "big" ? 26 : 19, color: f.tone === "big" ? "var(--ink)" : "var(--blue)" }}>
             {f.text}
           </span>
         ))}
@@ -566,7 +603,7 @@ function ReviewMode({
 
       <div className="card-in" key={current.id} style={{ ...reviewCard, ...animStyle }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-          <span style={platformBadge}>{PLATFORM_LABEL[current.platform] || current.platform}</span>
+          <PlatformTag platform={current.platform} />
           <button onClick={() => onRemove(current.id)} style={xBtn} title="Delete">
             ×
           </button>
@@ -595,8 +632,13 @@ function ReviewMode({
           </div>
         )}
 
-        {isPin && (
-          <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="pin title (the search query)" style={titleInput} />
+        {usesTitle && (
+          <input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder={current.platform === "pinterest" ? "pin title (the search query)" : "tiktok title (optional, ≤90 chars)"}
+            style={titleInput}
+          />
         )}
         <textarea value={body} onChange={(e) => setBody(e.target.value)} rows={6} style={bodyArea} />
         <textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={2} placeholder="your note / change request…" style={commentArea} />
@@ -621,21 +663,31 @@ function ReviewMode({
   );
 }
 
-function Cleared({ totalDrafts, todayCount, dailyGoal }: { totalDrafts: number; todayCount: number; dailyGoal: number }) {
+// Shared centered placeholder, used for the cleared queue, the empty board, and
+// any "nothing here" moment so they all read at the same level of polish.
+function EmptyState({ eyebrow, title, body }: { eyebrow: string; title: string; body: React.ReactNode }) {
   return (
     <div style={{ ...reviewCard, maxWidth: 560, margin: "0 auto", textAlign: "center", padding: "48px 28px" }}>
-      <div style={{ fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, letterSpacing: ".14em", textTransform: "uppercase", color: "var(--blue)", marginBottom: 10 }}>
-        Queue cleared
-      </div>
-      <h2 style={{ fontFamily: "var(--sans)", fontSize: 26, letterSpacing: "-0.02em", margin: "0 0 10px", color: "var(--ink)" }}>
-        {totalDrafts === 0 ? "Nothing to review yet" : "Inbox zero"}
+      <div style={{ ...mastheadEyebrow, color: "var(--blue)", marginBottom: 10 }}>{eyebrow}</div>
+      <h2 style={{ fontFamily: "var(--sans)", fontSize: 24, letterSpacing: "-0.02em", margin: "0 0 10px", color: "var(--ink)" }}>
+        {title}
       </h2>
-      <p style={{ fontFamily: "var(--sans)", fontSize: 14, color: "var(--ink-2)", margin: "0 0 6px" }}>
-        {totalDrafts === 0
-          ? "Add a draft above, or let the generator drop a batch in here."
-          : `You reviewed ${todayCount} today${todayCount >= dailyGoal ? ", goal smashed." : `, ${Math.max(0, dailyGoal - todayCount)} off today's goal.`}`}
-      </p>
+      <p style={{ fontFamily: "var(--sans)", fontSize: 14, color: "var(--ink-2)", margin: 0 }}>{body}</p>
     </div>
+  );
+}
+
+function Cleared({ totalDrafts, todayCount, dailyGoal }: { totalDrafts: number; todayCount: number; dailyGoal: number }) {
+  return (
+    <EmptyState
+      eyebrow="Queue cleared"
+      title={totalDrafts === 0 ? "Nothing to review yet" : "Inbox zero"}
+      body={
+        totalDrafts === 0
+          ? "Add a draft above, or let the generator drop a batch in here."
+          : `You reviewed ${todayCount} today${todayCount >= dailyGoal ? ", goal met." : `, ${Math.max(0, dailyGoal - todayCount)} off today's goal.`}`
+      }
+    />
   );
 }
 
@@ -658,10 +710,11 @@ function BoardView({
   const empty = cols.every((c) => byStatus[c.key].length === 0);
   if (empty) {
     return (
-      <div style={{ ...card, textAlign: "center", padding: "40px 24px" }}>
-        <p style={{ fontFamily: "var(--sans)", fontSize: 15, color: "var(--ink-2)", margin: "0 0 6px" }}>Nothing here yet.</p>
-        <p style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)", margin: 0 }}>Add a draft above to get started.</p>
-      </div>
+      <EmptyState
+        eyebrow="Empty board"
+        title="Nothing here yet"
+        body="Add a draft above, or let the generator drop a batch in here."
+      />
     );
   }
   return (
@@ -702,7 +755,7 @@ function MiniCard({
   return (
     <div style={card}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-        <span style={platformBadge}>{PLATFORM_LABEL[draft.platform] || draft.platform}</span>
+        <PlatformTag platform={draft.platform} />
         <button onClick={() => onRemove(draft.id)} style={xBtn} title="Delete">
           ×
         </button>
@@ -748,7 +801,7 @@ function MiniCard({
       {/* plan a day to post (the calendar reads this) */}
       {(draft.status === "approved" || draft.status === "scheduled") && (
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-          <span style={{ fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, letterSpacing: ".06em", textTransform: "uppercase", color: "var(--ink-3)" }}>plan</span>
+          <span style={{ fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, letterSpacing: "0.13em", textTransform: "uppercase", color: "var(--ink-3)" }}>plan</span>
           <input
             type="date"
             value={inputFromIso(draft.scheduled_at)}
@@ -887,7 +940,7 @@ function CalCard({ draft, onPatch, showDate }: { draft: Draft; onPatch: (id: str
       )}
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
-          <span style={{ ...platformBadge, fontSize: 9, padding: "2px 7px" }}>{PLATFORM_LABEL[draft.platform] || draft.platform}</span>
+          <PlatformTag platform={draft.platform} size="sm" />
           {draft.scheduled_at && !showDate && (
             <span style={{ fontFamily: "var(--sans)", fontSize: 10, color: "var(--ink-3)" }}>{prettyDay(draft.scheduled_at)}</span>
           )}
@@ -936,7 +989,14 @@ function Composer({
       method: "POST",
       body: JSON.stringify({
         platform,
-        variant_type: platform === "pinterest" ? "pin" : platform === "twitter" ? "tweet_thread" : "reel_caption",
+        variant_type:
+          platform === "pinterest"
+            ? "pin"
+            : platform === "twitter"
+            ? "tweet_thread"
+            : platform === "tiktok"
+            ? "carousel"
+            : "reel_caption",
         source_ref: sourceRef || null,
         body,
         media_url: mediaUrl || null,
@@ -981,7 +1041,7 @@ function Flame({ active }: { active: boolean }) {
     <svg width="16" height="20" viewBox="0 0 16 20" fill="none" aria-hidden>
       <path
         d="M8 0.5C8 0.5 3 4.5 3 9.5C3 11 3.7 12 4.5 12.7C4.2 12 4.1 11.2 4.5 10.3C5 9 6.5 8.2 6.5 8.2C6.5 8.2 6 10 7 11.2C7.8 12.2 9 12.6 9 14C9 15 8.3 15.8 7.4 15.9C9 16.4 13 15.2 13 10.5C13 5.5 8 0.5 8 0.5Z"
-        fill={active ? "var(--orange)" : "var(--ink-3)"}
+        fill={active ? "var(--blue)" : "var(--ink-3)"}
       />
     </svg>
   );
@@ -1027,27 +1087,32 @@ function GameStyles() {
 }
 
 // ── Styles ────────────────────────────────────────────────────────────────
-const hud: React.CSSProperties = {
+const masthead: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
-  gap: 14,
+  justifyContent: "space-between",
+  gap: 24,
   flexWrap: "wrap",
   background: "var(--white)",
   border: "1px solid var(--hairline-strong)",
   borderRadius: 14,
-  padding: "14px 18px",
+  padding: "18px 22px",
 };
+const mastheadEyebrow: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 10, fontWeight: 600, letterSpacing: "0.13em", textTransform: "uppercase", color: "var(--ink-3)" };
+const mastheadTitle: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 21, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ink)", margin: "6px 0 2px" };
+const mastheadSub: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", marginBottom: 9 };
+const mastheadStats: React.CSSProperties = { display: "flex", alignItems: "center", gap: 22, flexWrap: "wrap" };
+const xpTrackThin: React.CSSProperties = { height: 4, maxWidth: 260, borderRadius: 999, background: "var(--tan)", overflow: "hidden" };
+const xpFillThin: React.CSSProperties = { height: "100%", background: "var(--blue)", borderRadius: 999, transition: "width .4s ease" };
 const statCell: React.CSSProperties = { display: "flex", flexDirection: "column", alignItems: "center", gap: 4, minWidth: 64 };
 const statBig: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em", color: "var(--ink)" };
-const statLabel: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 10, fontWeight: 600, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--ink-3)" };
-const xpTrack: React.CSSProperties = { height: 8, borderRadius: 999, background: "var(--tan)", overflow: "hidden" };
-const xpFill: React.CSSProperties = { height: "100%", background: "var(--blue)", borderRadius: 999, transition: "width .4s ease" };
+const statLabel: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 10, fontWeight: 600, letterSpacing: "0.13em", textTransform: "uppercase", color: "var(--ink-3)" };
+const errNotice: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 13, color: "var(--red)", background: "var(--white)", border: "1px solid var(--hairline-strong)", borderRadius: 10, padding: "11px 14px", marginBottom: 16 };
 
 const card: React.CSSProperties = { background: "var(--white)", border: "1px solid var(--hairline-strong)", borderRadius: 12, padding: 14 };
 const reviewCard: React.CSSProperties = { background: "var(--white)", border: "1px solid var(--hairline-strong)", borderRadius: 16, padding: 22, transition: "transform .24s ease, opacity .24s ease" };
 
-const columnHeader: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, letterSpacing: ".12em", textTransform: "uppercase", color: "var(--ink-2)", marginBottom: 12 };
-const platformBadge: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", color: "var(--blue)" };
+const columnHeader: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, letterSpacing: "0.13em", textTransform: "uppercase", color: "var(--ink-2)", marginBottom: 12 };
 const sourceLine: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 11, color: "var(--ink-3)", marginBottom: 10, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" };
 
 const media: React.CSSProperties = { width: "100%", borderRadius: 8, marginBottom: 10, display: "block", aspectRatio: "4 / 5", objectFit: "cover", background: "var(--tan)" };

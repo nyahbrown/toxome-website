@@ -131,6 +131,7 @@ export async function PATCH(req: Request) {
       body: updated.body,
       title: updated.title,
       media_url: updated.media_url,
+      media_type: updated.media_type,
     });
 
     if (result.ok) {

@@ -56,7 +56,7 @@ export default function AdminContentPage() {
             style={{
               fontFamily: "var(--sans)",
               fontSize: 10,
-              letterSpacing: ".14em",
+              letterSpacing: "0.13em",
               textTransform: "uppercase",
               color: "var(--ink-3)",
               marginBottom: 8,
@@ -130,7 +130,7 @@ export default function AdminContentPage() {
             style={{
               fontFamily: "var(--sans)",
               fontSize: 10,
-              letterSpacing: ".14em",
+              letterSpacing: "0.13em",
               textTransform: "uppercase",
               color: "var(--ink-3)",
             }}

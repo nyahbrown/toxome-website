@@ -1,18 +1,30 @@
 // Pluggable scheduler push adapter.
 //
 // The content dashboard works fully WITHOUT a scheduler connected: approving a
-// draft just marks it `approved` and the VA exports it manually. When you wire a
-// scheduler (set SCHEDULER_PROVIDER + its token in env), approval ALSO pushes the
-// post and flips it to `scheduled`. Flip-the-switch upgrade, no code change.
+// draft just marks it `approved` and you export it manually. When you wire a
+// scheduler (set SCHEDULER_PROVIDER + its credentials in env), approval ALSO
+// publishes the post and flips it to `scheduled`. Flip-the-switch upgrade, no
+// code change in the dashboard.
 //
 // Supported providers (set SCHEDULER_PROVIDER to one of these):
-//   - "postiz"    → POSTIZ_API_TOKEN     (+ optional POSTIZ_API_URL)
-//   - "blotato"   → BLOTATO_API_TOKEN
+//   - "blotato"   → BLOTATO_API_KEY (+ per-platform account ids, see below)
+//   - "postiz"    → POSTIZ_API_TOKEN (+ optional POSTIZ_API_URL) — UNVERIFIED stub
 //   - "none"/unset → no push; dashboard runs in approve-only mode
 //
-// Metricool's public API does not expose generic post-scheduling on lower tiers,
-// so it's intentionally not an auto-push target, use it as the analytics/manual
-// scheduler and keep the dashboard in approve-only mode for it.
+// ── Blotato setup (the live provider) ───────────────────────────────────────
+// 1. Connect Instagram (Business/Creator), X, and Pinterest inside the Blotato
+//    dashboard (Settings → connect accounts).
+// 2. Generate an API key (Settings → API) → BLOTATO_API_KEY.
+// 3. Run `node scripts/blotato-accounts.js` to print the account + board ids,
+//    then paste these into .env.local:
+//      SCHEDULER_PROVIDER=blotato
+//      BLOTATO_API_KEY=...
+//      BLOTATO_INSTAGRAM_ACCOUNT_ID=...
+//      BLOTATO_TWITTER_ACCOUNT_ID=...
+//      BLOTATO_PINTEREST_ACCOUNT_ID=...
+//      BLOTATO_PINTEREST_BOARD_ID=...
+//      NEXT_PUBLIC_SITE_URL=https://toxome.app   (used to absolutize media)
+// Blotato fetches media from public https URLs directly — no pre-upload needed.
 
 export type SchedulerDraft = {
   id: string;
@@ -20,6 +32,7 @@ export type SchedulerDraft = {
   body: string;
   title?: string | null;
   media_url?: string | null;
+  media_type?: string | null; // image | carousel | video | null
 };
 
 export type PushResult =
@@ -31,77 +44,194 @@ function provider(): string {
   return (process.env.SCHEDULER_PROVIDER || "none").toLowerCase().trim();
 }
 
+function blotatoKey(): string | undefined {
+  // Prefer the docs name; accept the legacy name so an older .env keeps working.
+  return process.env.BLOTATO_API_KEY || process.env.BLOTATO_API_TOKEN;
+}
+
 export function schedulerConfigured(): boolean {
   const p = provider();
+  if (p === "blotato") return !!blotatoKey();
   if (p === "postiz") return !!process.env.POSTIZ_API_TOKEN;
-  if (p === "blotato") return !!process.env.BLOTATO_API_TOKEN;
   return false;
 }
 
 export async function pushToScheduler(draft: SchedulerDraft): Promise<PushResult> {
   const p = provider();
-
-  if (p === "postiz") {
-    const token = process.env.POSTIZ_API_TOKEN;
-    if (!token) return { ok: false, configured: false };
-    const base = process.env.POSTIZ_API_URL || "https://api.postiz.com";
-    try {
-      const res = await fetch(`${base}/public/v1/posts`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token,
-        },
-        body: JSON.stringify({
-          type: "draft", // create as draft in Postiz; you confirm send there
-          content: draft.title ? `${draft.title}\n\n${draft.body}` : draft.body,
-          platform: draft.platform,
-          media: draft.media_url ? [{ url: draft.media_url }] : [],
-        }),
-      });
-      if (!res.ok) {
-        return { ok: false, configured: true, error: `Postiz ${res.status}: ${await safeText(res)}` };
-      }
-      const data = (await res.json()) as { id?: string; postId?: string };
-      return { ok: true, externalId: data.id || data.postId || "posted" };
-    } catch (e) {
-      return { ok: false, configured: true, error: `Postiz request failed: ${msg(e)}` };
-    }
-  }
-
-  if (p === "blotato") {
-    const token = process.env.BLOTATO_API_TOKEN;
-    if (!token) return { ok: false, configured: false };
-    try {
-      const res = await fetch("https://backend.blotato.com/v2/posts", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "blotato-api-key": token,
-        },
-        body: JSON.stringify({
-          post: {
-            target: { targetType: draft.platform },
-            content: {
-              text: draft.title ? `${draft.title}\n\n${draft.body}` : draft.body,
-              mediaUrls: draft.media_url ? [draft.media_url] : [],
-            },
-          },
-        }),
-      });
-      if (!res.ok) {
-        return { ok: false, configured: true, error: `Blotato ${res.status}: ${await safeText(res)}` };
-      }
-      const data = (await res.json()) as { id?: string };
-      return { ok: true, externalId: data.id || "posted" };
-    } catch (e) {
-      return { ok: false, configured: true, error: `Blotato request failed: ${msg(e)}` };
-    }
-  }
-
+  if (p === "blotato") return pushToBlotato(draft);
+  if (p === "postiz") return pushToPostiz(draft);
   return { ok: false, configured: false };
 }
 
+// ── Blotato ──────────────────────────────────────────────────────────────────
+const BLOTATO_BASE = "https://backend.blotato.com/v2";
+
+const BLOTATO_ACCOUNT_ENV: Record<string, string> = {
+  instagram: "BLOTATO_INSTAGRAM_ACCOUNT_ID",
+  twitter: "BLOTATO_TWITTER_ACCOUNT_ID",
+  pinterest: "BLOTATO_PINTEREST_ACCOUNT_ID",
+  tiktok: "BLOTATO_TIKTOK_ACCOUNT_ID",
+};
+
+// Platforms that cannot publish text-only (a post must carry media).
+const MEDIA_REQUIRED = new Set(["instagram", "pinterest", "tiktok"]);
+
+// Per-platform carousel ceiling, used when expanding slide-0…slide-N.
+const CAROUSEL_MAX: Record<string, number> = { instagram: 10, tiktok: 20, pinterest: 5, twitter: 4 };
+
+function blotatoAccountId(platform: string): string | undefined {
+  const key = BLOTATO_ACCOUNT_ENV[platform];
+  return key ? process.env[key] : undefined;
+}
+
+async function pushToBlotato(draft: SchedulerDraft): Promise<PushResult> {
+  const key = blotatoKey();
+  if (!key) return { ok: false, configured: false };
+
+  const platform = draft.platform; // instagram | twitter | pinterest
+  const accountId = blotatoAccountId(platform);
+  if (!accountId) {
+    return {
+      ok: false,
+      configured: true,
+      error: `No Blotato account connected for "${platform}" — set ${BLOTATO_ACCOUNT_ENV[platform] || "the account id env var"}`,
+    };
+  }
+
+  const mediaUrls = await resolveMediaUrls(draft, CAROUSEL_MAX[platform] ?? 10);
+
+  // Instagram, Pinterest, and TikTok require media; X allows text-only.
+  if (MEDIA_REQUIRED.has(platform) && mediaUrls.length === 0) {
+    return { ok: false, configured: true, error: `${platform} requires an image, but this draft has no media` };
+  }
+
+  // Pinterest and TikTok carry the title on the target and use the body as the
+  // description. Instagram/X fold a title (if any) into the post text.
+  const titleOnTarget = platform === "pinterest" || platform === "tiktok";
+  const text = titleOnTarget ? draft.body : draft.title ? `${draft.title}\n\n${draft.body}` : draft.body;
+
+  const target: Record<string, unknown> = { targetType: platform };
+  if (platform === "pinterest") {
+    const boardId = process.env.BLOTATO_PINTEREST_BOARD_ID;
+    if (!boardId) {
+      return { ok: false, configured: true, error: "Pinterest needs BLOTATO_PINTEREST_BOARD_ID" };
+    }
+    target.boardId = boardId;
+    if (draft.title) target.title = draft.title;
+    target.link = siteBase();
+  }
+  if (platform === "tiktok") {
+    // Direct Post: public, no in-app finish step. Never isDraft:true — TikTok
+    // drafts land in the app inbox AND drop the caption, which breaks automation.
+    target.privacyLevel = "PUBLIC_TO_EVERYONE";
+    target.isDraft = false;
+    target.imageCoverIndex = 0;
+    target.autoAddMusic = true; // photo slideshows get a TikTok-recommended track (no silent post). No effect on video.
+    if (draft.title) target.title = draft.title.slice(0, 90); // TikTok title cap
+  }
+  if (platform === "instagram" && draft.media_type === "video") {
+    target.mediaType = "reel"; // a single video posts as a Reel, not a feed image
+  }
+
+  try {
+    const res = await fetch(`${BLOTATO_BASE}/posts`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "blotato-api-key": key },
+      body: JSON.stringify({
+        post: {
+          accountId,
+          content: { text, mediaUrls, platform },
+          target,
+        },
+      }),
+    });
+    if (!res.ok) {
+      return { ok: false, configured: true, error: `Blotato ${res.status}: ${await safeText(res)}` };
+    }
+    const data = (await res.json()) as { postSubmissionId?: string; id?: string };
+    // Blotato publishes asynchronously; this is the submission id, not the live
+    // platform post id. Failures surface at my.blotato.com/failed.
+    return { ok: true, externalId: data.postSubmissionId || data.id || "submitted" };
+  } catch (e) {
+    return { ok: false, configured: true, error: `Blotato request failed: ${msg(e)}` };
+  }
+}
+
+// ── Media resolution ──────────────────────────────────────────────────────────
+// Drafts store media as site-relative paths (e.g. /carousel/<slug>/slide-0.png)
+// and carousels store only the cover. Blotato needs absolute public URLs and the
+// FULL set of carousel slides, so we absolutize and probe sibling slides here.
+async function resolveMediaUrls(draft: SchedulerDraft, maxSlides = 10): Promise<string[]> {
+  if (!draft.media_url) return [];
+  const cover = absolutize(draft.media_url);
+
+  if (draft.media_type === "carousel") {
+    const m = cover.match(/^(.*\/)slide-0\.(png|jpe?g|webp)$/i);
+    if (m) {
+      const [, prefix, ext] = m;
+      const urls: string[] = [];
+      // Expand slide-0…slide-N up to the platform's carousel cap; stop at the
+      // first gap (a missing slide = end of the set).
+      for (let i = 0; i < maxSlides; i++) {
+        const u = `${prefix}slide-${i}.${ext}`;
+        if (!(await urlExists(u))) break;
+        urls.push(u);
+      }
+      if (urls.length) return urls;
+    }
+  }
+  return [cover];
+}
+
+function absolutize(u: string): string {
+  if (/^https?:\/\//i.test(u)) return u;
+  return `${siteBase()}${u.startsWith("/") ? "" : "/"}${u}`;
+}
+
+function siteBase(): string {
+  const raw = process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || "https://toxome.app";
+  return raw.replace(/\/+$/, "");
+}
+
+async function urlExists(url: string): Promise<boolean> {
+  try {
+    const res = await fetch(url, { method: "HEAD" });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+// ── Postiz (UNVERIFIED stub) ──────────────────────────────────────────────────
+// Kept for the self-host path but NOT validated against the current Postiz
+// public API (which expects integration ids + an upload step). Do not rely on
+// this until it's rewritten and tested against a live instance.
+async function pushToPostiz(draft: SchedulerDraft): Promise<PushResult> {
+  const token = process.env.POSTIZ_API_TOKEN;
+  if (!token) return { ok: false, configured: false };
+  const base = process.env.POSTIZ_API_URL || "https://api.postiz.com";
+  try {
+    const res = await fetch(`${base}/public/v1/posts`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: token },
+      body: JSON.stringify({
+        type: "draft",
+        content: draft.title ? `${draft.title}\n\n${draft.body}` : draft.body,
+        platform: draft.platform,
+        media: draft.media_url ? [{ url: absolutize(draft.media_url) }] : [],
+      }),
+    });
+    if (!res.ok) {
+      return { ok: false, configured: true, error: `Postiz ${res.status}: ${await safeText(res)}` };
+    }
+    const data = (await res.json()) as { id?: string; postId?: string };
+    return { ok: true, externalId: data.id || data.postId || "posted" };
+  } catch (e) {
+    return { ok: false, configured: true, error: `Postiz request failed: ${msg(e)}` };
+  }
+}
+
+// ── helpers ────────────────────────────────────────────────────────────────
 async function safeText(res: Response): Promise<string> {
   try {
     return (await res.text()).slice(0, 200);
