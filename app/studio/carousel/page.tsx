@@ -86,6 +86,71 @@ const CAROUSELS: Record<string, Slide[]> = {
     { kind: "quote", quote: "“it was a small, early study, but it asks a question worth sitting with.”" },
     { kind: "close", headline: "What you wear touches more than your skin.", image: "/app-screenshot.png" },
   ],
+
+  // ── ICP-aligned: toxins/hormones-led, accessible, save+send. From the 1,094
+  // user analysis (Toxins>Endocrine>Skin, JTBD "removing toxins from my
+  // lifestyle", mid/affordable not luxury). Send CTAs live in the post caption.
+
+  // The toxin you forgot — uses the #1 job-to-be-done verbatim.
+  "toxin-you-forgot": [
+    {
+      kind: "cover",
+      hook: "You cleaned up your skincare, your food, your water. Your clothes are the toxin you forgot.",
+      stat: "60%",
+      image: "/hero-field.jpg",
+    },
+    { kind: "statement", paras: ["Polyester is plastic, spun from petroleum.", "And it sits against your skin all day, every day."] },
+    { kind: "statement", paras: ["It traps heat and sweat as you wear it,", "and sheds microplastics you breathe in and absorb."] },
+    { kind: "statement", paras: ["You can't out-supplement what you wear.", "Removing toxins from your life has to include your closet."] },
+    { kind: "quote", quote: "“you detoxed everything but the thing touching you 24/7.”" },
+    { kind: "close", headline: "Know what's in your clothes. Scan any label, free.", image: "/app-screenshot.png" },
+  ],
+
+  // Your clothes & your hormones — endocrine angle (concern #2); Shafik study.
+  "clothes-and-hormones": [
+    {
+      kind: "cover",
+      hook: "The clothes touching your skin all day could be disrupting your hormones.",
+      stat: "100%",
+      image: "/fibers/silk-1.jpg",
+    },
+    { kind: "statement", paras: ["The fabric against your skin doesn't just sit there.", "Synthetic finishes can carry endocrine disruptors."] },
+    { kind: "statement", paras: ["In one early study, every man who switched to polyester underwear saw his fertility fall.", "It came back when he stopped."] },
+    { kind: "statement", paras: ["If you're working on your hormones,", "your closet is part of the equation."] },
+    { kind: "quote", quote: "“you'd never eat an endocrine disruptor. you're wearing one.”" },
+    { kind: "close", headline: "Know what's in your clothes.", image: "/app-screenshot.png" },
+  ],
+
+  // Read a label in 10 seconds — practical utility, high-save reference.
+  "read-a-label": [
+    {
+      kind: "cover",
+      hook: "How to read a clothing label in 10 seconds, and spot plastic instantly.",
+      stat: "10s",
+      image: "/fibers/linen.jpg",
+    },
+    { kind: "statement", paras: ["Flip past the brand tag to the fiber tag.", "That's where the truth is."] },
+    { kind: "statement", paras: ["Polyester, nylon, acrylic, elastane: that's plastic.", "Cotton, linen, wool, silk, hemp: that's natural."] },
+    { kind: "statement", paras: ["Anything mostly synthetic", "is plastic against your skin all day."] },
+    { kind: "quote", quote: "“the tag tells you more than the price ever will.”" },
+    { kind: "close", headline: "Or scan it and let Toxome read it for you, free.", image: "/app-screenshot.png" },
+  ],
+
+  // "Sustainable" materials decoded — attacks materials/claims, not brands
+  // (catalog has no villains; this is brand-safe and fully accurate).
+  "sustainable-decoded": [
+    {
+      kind: "cover",
+      hook: "5 'sustainable' materials that are actually plastic.",
+      stat: "5",
+      image: "/fibers/wool-2.jpg",
+    },
+    { kind: "statement", paras: ["Recycled polyester.", "Still plastic, still shedding microplastics into your skin and the ocean."] },
+    { kind: "statement", paras: ["Vegan leather.", "Almost always plastic, usually polyurethane or PVC."] },
+    { kind: "statement", paras: ["Bamboo viscose.", "Bamboo dissolved in harsh chemicals and re-spun into rayon."] },
+    { kind: "statement", paras: ["“Eco,” “conscious,” “responsible” blends.", "Marketing words, not materials. Check the fiber tag."] },
+    { kind: "close", headline: "Don't trust the claim. Scan the tag, free.", image: "/app-screenshot.png" },
+  ],
 };
 
 const DEFAULT_SLUG = "plastic-closet";
