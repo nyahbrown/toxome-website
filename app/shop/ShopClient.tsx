@@ -696,12 +696,15 @@ export default function ShopClient({
               onChange={(v) => updateParams({ category: v })}
             />
           )}
+          {/* Occasion is an apparel concept — irrelevant for home goods. */}
+          {section !== "home" && (
           <FrostedSelect
             label="Occasion"
             options={OCCASIONS}
             value={occasionFilter ?? "All"}
             onChange={(v) => updateParams({ occasion: v })}
           />
+          )}
           <div className="shop-filterbar__sort">
             <FrostedSelect
               label="Sort By"
