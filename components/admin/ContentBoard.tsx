@@ -235,6 +235,7 @@ export default function ContentBoard({ getToken }: { getToken: () => Promise<str
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
   const [schedulerOn, setSchedulerOn] = useState(false);
+  const [calendarFeedUrl, setCalendarFeedUrl] = useState<string | null>(null);
   const [view, setView] = useState<"review" | "board" | "calendar">("review");
   const [showComposer, setShowComposer] = useState(false);
 
@@ -269,6 +270,7 @@ export default function ContentBoard({ getToken }: { getToken: () => Promise<str
       const data = await res.json();
       setDrafts(data.drafts as Draft[]);
       setSchedulerOn(!!data.schedulerConfigured);
+      setCalendarFeedUrl(data.calendarFeedUrl ?? null);
     } catch (e) {
       setErr(e instanceof Error ? e.message : String(e));
     } finally {
@@ -456,7 +458,7 @@ export default function ContentBoard({ getToken }: { getToken: () => Promise<str
       ) : view === "board" ? (
         <BoardView byStatus={byStatus} onPatch={patch} onRemove={remove} schedulerOn={schedulerOn} />
       ) : (
-        <CalendarView drafts={drafts} onPatch={patch} />
+        <CalendarView drafts={drafts} onPatch={patch} feedUrl={calendarFeedUrl} />
       )}
     </div>
   );
@@ -840,91 +842,216 @@ function MiniCard({
 }
 
 // ── Calendar view, the planning surface ─────────────────────────────────
-// An agenda of the next 14 days built from scheduled_at, plus an "Unscheduled"
-// bucket for approved posts that still need a day. Closes the loop: each item
-// has Download · Copy · Mark posted right where you plan it.
+// A real month grid built from scheduled_at: navigate months, click a day to
+// see/act on its posts in the sidebar, and assign days to unscheduled posts.
+// "Subscribe" exposes an iCal feed so the schedule syncs into Google + Apple.
 function CalendarView({
   drafts,
   onPatch,
+  feedUrl,
 }: {
   drafts: Draft[];
   onPatch: (id: string, u: Partial<Draft>) => void;
+  feedUrl: string | null;
 }) {
-  // planning pool = approved or scheduled (ready, not yet posted)
+  const today = new Date();
+  const todayKey = ymd(today);
+  const [cursor, setCursor] = useState<{ y: number; m: number }>({ y: today.getFullYear(), m: today.getMonth() });
+  const [selected, setSelected] = useState<string>(todayKey);
+  const [showSub, setShowSub] = useState(false);
+
   const planning = drafts.filter((d) => d.status === "approved" || d.status === "scheduled");
-  const scheduled = planning.filter((d) => d.scheduled_at);
   const unscheduled = planning.filter((d) => !d.scheduled_at);
 
-  const today = new Date();
-  const days: { key: string; label: string; items: Draft[] }[] = [];
-  for (let i = 0; i < 14; i++) {
-    const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + i);
-    const key = ymd(d);
-    const items = scheduled
-      .filter((x) => inputFromIso(x.scheduled_at) === key)
-      .sort((a, b) => a.platform.localeCompare(b.platform));
-    const label =
-      i === 0 ? "Today" : i === 1 ? "Tomorrow" : d.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
-    days.push({ key, label, items });
+  // Anything with a planned day lands on the grid (incl. posted that was scheduled).
+  const byDay: Record<string, Draft[]> = {};
+  for (const d of drafts) {
+    if (!d.scheduled_at) continue;
+    const k = inputFromIso(d.scheduled_at);
+    (byDay[k] ||= []).push(d);
   }
+  for (const k in byDay) byDay[k].sort((a, b) => a.platform.localeCompare(b.platform));
 
-  // overdue: scheduled before today and not posted
-  const todayKey = ymd(today);
-  const overdue = scheduled.filter((x) => inputFromIso(x.scheduled_at) < todayKey);
+  const first = new Date(cursor.y, cursor.m, 1);
+  const startOffset = first.getDay(); // 0 = Sunday
+  const cells = Array.from({ length: 42 }, (_, i) => new Date(cursor.y, cursor.m, 1 - startOffset + i));
+  const monthLabel = first.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+  const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  const prev = () => setCursor((c) => (c.m === 0 ? { y: c.y - 1, m: 11 } : { y: c.y, m: c.m - 1 }));
+  const next = () => setCursor((c) => (c.m === 11 ? { y: c.y + 1, m: 0 } : { y: c.y, m: c.m + 1 }));
+  const goToday = () => {
+    setCursor({ y: today.getFullYear(), m: today.getMonth() });
+    setSelected(todayKey);
+  };
+
+  const selItems = byDay[selected] || [];
+  const selLabel = (() => {
+    if (selected === todayKey) return "Today";
+    const [y, m, dd] = selected.split("-").map(Number);
+    return new Date(y, m - 1, dd).toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
+  })();
+  const webcal = feedUrl ? feedUrl.replace(/^https?:/i, "webcal:") : null;
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 20, alignItems: "start" }}>
-      {/* agenda */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        {overdue.length > 0 && (
-          <div>
-            <div style={{ ...columnHeader, color: "var(--red)" }}>
-              Overdue<span style={{ color: "var(--ink-3)", fontWeight: 400 }}> · {overdue.length}</span>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {overdue.map((d) => (
-                <CalCard key={d.id} draft={d} onPatch={onPatch} />
-              ))}
-            </div>
+    <div>
+      {/* month nav + subscribe */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, flexWrap: "wrap", gap: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <button onClick={prev} style={navBtn} aria-label="Previous month">‹</button>
+          <span style={{ fontFamily: "var(--sans)", fontSize: 18, fontWeight: 600, letterSpacing: "-0.02em", minWidth: 156 }}>{monthLabel}</span>
+          <button onClick={next} style={navBtn} aria-label="Next month">›</button>
+          <button onClick={goToday} style={{ ...miniGhost, marginLeft: 4 }}>Today</button>
+        </div>
+        <button onClick={() => setShowSub((s) => !s)} style={{ ...pill, ...pillOff }}>
+          {showSub ? "Close" : "Subscribe in Google / Apple"}
+        </button>
+      </div>
+
+      {showSub && <SubscribePanel feedUrl={feedUrl} webcal={webcal} />}
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 20, alignItems: "start" }}>
+        {/* month grid */}
+        <div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 6, marginBottom: 6 }}>
+            {weekdays.map((w) => (
+              <div key={w} style={{ ...statLabel, textAlign: "center" }}>{w}</div>
+            ))}
           </div>
-        )}
-        {days.map((day) => (
-          <div key={day.key}>
-            <div style={columnHeader}>
-              {day.label}
-              {day.items.length > 0 && <span style={{ color: "var(--ink-3)", fontWeight: 400 }}> · {day.items.length}</span>}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 6 }}>
+            {cells.map((d, i) => {
+              const k = ymd(d);
+              const inMonth = d.getMonth() === cursor.m;
+              const isToday = k === todayKey;
+              const isSel = k === selected;
+              const items = byDay[k] || [];
+              return (
+                <button
+                  key={i}
+                  onClick={() => setSelected(k)}
+                  style={{
+                    ...dayCell,
+                    background: inMonth ? "var(--white)" : "var(--cream)",
+                    borderColor: isSel ? "var(--ink)" : "var(--hairline-strong)",
+                    boxShadow: isSel ? "0 0 0 1px var(--ink)" : "none",
+                    opacity: inMonth ? 1 : 0.5,
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontFamily: "var(--sans)", fontSize: 12, fontWeight: isToday ? 700 : 500, color: isToday ? "var(--blue)" : "var(--ink-2)" }}>
+                      {d.getDate()}
+                    </span>
+                    {items.length > 0 && <span style={{ fontFamily: "var(--sans)", fontSize: 10, color: "var(--ink-3)" }}>{items.length}</span>}
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 3, marginTop: 4, overflow: "hidden" }}>
+                    {items.slice(0, 3).map((it) => (
+                      <span key={it.id} style={dayChip}>
+                        <span style={{ width: 5, height: 5, borderRadius: 999, background: PLATFORM_ACCENT[it.platform] || "var(--ink-3)", flexShrink: 0 }} />
+                        <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", opacity: it.status === "posted" ? 0.55 : 1 }}>
+                          {it.status === "posted" ? "✓ " : ""}{it.title || it.source_ref || it.body}
+                        </span>
+                      </span>
+                    ))}
+                    {items.length > 3 && <span style={{ fontFamily: "var(--sans)", fontSize: 10, color: "var(--ink-3)" }}>+{items.length - 3} more</span>}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* sidebar: selected day + unscheduled */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 16, position: "sticky", top: 16 }}>
+          <div style={{ ...card, padding: 16 }}>
+            <div style={{ ...columnHeader, marginBottom: 12 }}>
+              {selLabel}
+              {selItems.length > 0 && <span style={{ color: "var(--ink-3)", fontWeight: 400 }}> · {selItems.length}</span>}
             </div>
-            {day.items.length === 0 ? (
-              <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", padding: "2px 0 6px" }}>–</div>
+            {selItems.length === 0 ? (
+              <p style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)", margin: 0 }}>
+                Nothing scheduled. Give an unscheduled post a day below.
+              </p>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {day.items.map((d) => (
-                  <CalCard key={d.id} draft={d} onPatch={onPatch} />
+                {selItems.map((d) => (
+                  <CalCard key={d.id} draft={d} onPatch={onPatch} showDate />
                 ))}
               </div>
             )}
           </div>
-        ))}
-      </div>
 
-      {/* unscheduled sidebar */}
-      <div style={{ ...card, padding: 16, position: "sticky", top: 16 }}>
-        <div style={{ ...columnHeader, marginBottom: 12 }}>
-          Unscheduled<span style={{ color: "var(--ink-3)", fontWeight: 400 }}> · {unscheduled.length}</span>
-        </div>
-        {unscheduled.length === 0 ? (
-          <p style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)", margin: 0 }}>
-            Everything approved has a day. Approve more from Review.
-          </p>
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {unscheduled.map((d) => (
-              <CalCard key={d.id} draft={d} onPatch={onPatch} showDate />
-            ))}
+          <div style={{ ...card, padding: 16 }}>
+            <div style={{ ...columnHeader, marginBottom: 12 }}>
+              Unscheduled<span style={{ color: "var(--ink-3)", fontWeight: 400 }}> · {unscheduled.length}</span>
+            </div>
+            {unscheduled.length === 0 ? (
+              <p style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)", margin: 0 }}>
+                Everything approved has a day.
+              </p>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {unscheduled.map((d) => (
+                  <CalCard key={d.id} draft={d} onPatch={onPatch} showDate />
+                ))}
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
+  );
+}
+
+// The iCal subscribe panel. The feed URL carries a secret token, so it's only
+// ever handed to the authenticated admin (via the content GET response).
+function SubscribePanel({ feedUrl, webcal }: { feedUrl: string | null; webcal: string | null }) {
+  if (!feedUrl) {
+    return (
+      <div style={{ ...card, padding: 16, marginBottom: 16 }}>
+        <p style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", margin: 0 }}>
+          Calendar sync isn’t enabled yet. Set <code>CALENDAR_FEED_TOKEN</code> in the environment to turn on the subscribe feed.
+        </p>
+      </div>
+    );
+  }
+  return (
+    <div style={{ ...card, padding: 18, marginBottom: 16 }}>
+      <div style={{ ...columnHeader, marginBottom: 10 }}>Sync to your calendar</div>
+      <p style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", margin: "0 0 14px", lineHeight: 1.5 }}>
+        Subscribe once and every scheduled post shows up in your calendar, refreshing on its own.
+      </p>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center", marginBottom: 12 }}>
+        <a href={webcal || "#"} style={{ ...miniApprove, textDecoration: "none" }}>Add to Apple Calendar</a>
+        <CopyLinkButton text={feedUrl} style={miniGhost} />
+        <span style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)" }}>
+          Google: Other calendars → From URL → paste
+        </span>
+      </div>
+      <input readOnly value={feedUrl} onFocus={(e) => e.currentTarget.select()} style={{ ...baseInput, fontSize: 12 }} />
+      <p style={{ fontFamily: "var(--sans)", fontSize: 11, color: "var(--ink-3)", margin: "8px 0 0" }}>
+        Keep this link private — it carries your feed token.
+      </p>
+    </div>
+  );
+}
+
+function CopyLinkButton({ text, style }: { text: string; style: React.CSSProperties }) {
+  const [done, setDone] = useState(false);
+  return (
+    <button
+      onClick={async () => {
+        try {
+          await navigator.clipboard.writeText(text);
+          setDone(true);
+          setTimeout(() => setDone(false), 1500);
+        } catch {
+          /* clipboard blocked, ignore */
+        }
+      }}
+      style={style}
+    >
+      {done ? "Copied ✓" : "Copy feed link"}
+    </button>
   );
 }
 
@@ -1139,6 +1266,11 @@ const miniApprove: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 
 const miniGhost: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 12, padding: "7px 12px", borderRadius: 999, cursor: "pointer", background: "var(--white)", color: "var(--ink-2)", border: "1px solid var(--hairline-strong)" };
 const miniPosted: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 12, padding: "7px 12px", borderRadius: 999, cursor: "pointer", background: "var(--risk-low)", color: "var(--ink)", border: "1px solid var(--risk-low)" };
 const dateInput: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 12, padding: "5px 9px", borderRadius: 8, background: "var(--white)", color: "var(--ink)", border: "1px solid var(--hairline-strong)", cursor: "pointer" };
+
+// Month-grid calendar
+const navBtn: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 18, lineHeight: 1, width: 30, height: 30, borderRadius: 999, border: "1px solid var(--hairline-strong)", background: "var(--white)", color: "var(--ink-2)", cursor: "pointer" };
+const dayCell: React.CSSProperties = { textAlign: "left", border: "1px solid var(--hairline-strong)", borderRadius: 10, padding: "7px 8px", minHeight: 96, cursor: "pointer", display: "flex", flexDirection: "column", transition: "box-shadow .15s, border-color .15s" };
+const dayChip: React.CSSProperties = { display: "flex", alignItems: "center", gap: 5, fontFamily: "var(--sans)", fontSize: 11, color: "var(--ink-2)", lineHeight: 1.3, maxWidth: "100%" };
 
 const kbd: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 10, fontWeight: 600, padding: "2px 6px", borderRadius: 5, background: "rgba(59,60,58,0.08)", color: "var(--ink-2)" };
 const kbdDark: React.CSSProperties = { background: "rgba(59,60,58,0.18)", color: "var(--ink)" };
