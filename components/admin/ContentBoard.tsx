@@ -19,6 +19,7 @@ type Status = "draft" | "needs_edit" | "approved" | "scheduled" | "posted";
 
 type Draft = {
   id: string;
+  seq: number; // short human-referenceable id, shown as #N
   created_at: string;
   group_id: string;
   source_type: string;
@@ -776,8 +777,9 @@ function ReviewMode({
           const usesTitle = d.platform === "pinterest" || d.platform === "tiktok";
           return (
             <div key={d.id} style={{ marginTop: 14 }}>
-              <div style={{ marginBottom: 6 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
                 <PlatformTag platform={d.platform} />
+                <span style={idTag}>#{d.seq}</span>
               </div>
               {usesTitle && (
                 <input
@@ -922,7 +924,10 @@ function MiniCard({
   return (
     <div style={card}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-        <PlatformTag platform={draft.platform} />
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <PlatformTag platform={draft.platform} />
+          <span style={idTag}>#{draft.seq}</span>
+        </div>
         <button onClick={() => onRemove(draft.id)} style={xBtn} title="Delete">
           ×
         </button>
@@ -1233,6 +1238,7 @@ function CalCard({ draft, onPatch, showDate }: { draft: Draft; onPatch: (id: str
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
           <PlatformTag platform={draft.platform} size="sm" />
+          <span style={{ ...idTag, fontSize: 10 }}>#{draft.seq}</span>
           {draft.scheduled_at && !showDate && (
             <span style={{ fontFamily: "var(--sans)", fontSize: 10, color: "var(--ink-3)" }}>{prettyDay(draft.scheduled_at)}</span>
           )}
@@ -1410,6 +1416,7 @@ const reviewCard: React.CSSProperties = { background: "var(--white)", border: "1
 
 const columnHeader: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, letterSpacing: "0.13em", textTransform: "uppercase", color: "var(--ink-2)", marginBottom: 12 };
 const sourceLine: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 11, color: "var(--ink-3)", marginBottom: 10, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" };
+const idTag: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, color: "var(--ink-3)", fontVariantNumeric: "tabular-nums" };
 
 const media: React.CSSProperties = { width: "100%", borderRadius: 8, marginBottom: 10, display: "block", aspectRatio: "4 / 5", objectFit: "cover", background: "var(--tan)" };
 const reviewMedia: React.CSSProperties = { width: "100%", borderRadius: 10, marginBottom: 14, display: "block", aspectRatio: "4 / 5", objectFit: "cover", background: "var(--tan)" };
