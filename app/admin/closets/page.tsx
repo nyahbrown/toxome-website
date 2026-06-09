@@ -819,17 +819,28 @@ export default function AdminClosetsPage() {
                     label="Total scans"
                     value={scans.total}
                   />
-                  {totals && (
-                    <StatCard
-                      label="Keep rate"
-                      value={
-                        scans.total > 0
-                          ? `${Math.round((totals.total_items / scans.total) * 100)}%`
-                          : "—"
-                      }
-                      sub="items saved / scans"
-                    />
-                  )}
+                  {totals &&
+                    (() => {
+                      // A keep rate can't exceed 100% (you keep a subset of what
+                      // you scan). It only becomes valid once scan_events has at
+                      // least as many scans as there are saved items — until then
+                      // the closet history (incl. backfill) has no matching scans.
+                      const valid =
+                        scans.total > 0 && totals.total_items <= scans.total;
+                      return (
+                        <StatCard
+                          label="Keep rate"
+                          value={
+                            valid
+                              ? `${Math.round((totals.total_items / scans.total) * 100)}%`
+                              : "—"
+                          }
+                          sub={
+                            valid ? "items kept / scans" : "collecting scan data"
+                          }
+                        />
+                      );
+                    })()}
                 </div>
                 <div style={cardStyle}>
                   <div style={tableHeaderStyle}>
