@@ -10,11 +10,14 @@ import type { ShopTaxonomy } from "@/lib/supabase";
 const FALLBACK_TAXONOMY: ShopTaxonomy = {
   women: ["Activewear", "Bottoms", "Outerwear", "Tops"],
   men: ["Activewear", "Bottoms", "Outerwear", "Tops"],
-  home: ["Other"],
+  home: ["Bedding", "Bath", "Throws & Blankets", "Pillows"],
 };
 
 function buildShopColumns(taxonomy: ShopTaxonomy) {
-  const makeGendered = (label: "Men" | "Women", categories: string[]) => {
+  const makeDept = (
+    label: "Men" | "Women" | "Home",
+    categories: string[]
+  ) => {
     const slug = label.toLowerCase();
     return {
       heading: label,
@@ -27,14 +30,10 @@ function buildShopColumns(taxonomy: ShopTaxonomy) {
       ],
     };
   };
-  const home = {
-    heading: "Home",
-    items: [{ label: "All Home", href: "/shop/home", muted: true }],
-  };
   return [
-    makeGendered("Women", taxonomy.women),
-    makeGendered("Men", taxonomy.men),
-    home,
+    makeDept("Women", taxonomy.women),
+    makeDept("Men", taxonomy.men),
+    makeDept("Home", taxonomy.home),
   ];
 }
 

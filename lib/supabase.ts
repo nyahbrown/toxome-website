@@ -49,13 +49,12 @@ export const getShopTaxonomy = cache(async (): Promise<ShopTaxonomy> => {
 
   for (const row of data ?? []) {
     if (!row.category) continue;
-    if (row.category === "Other") {
-      bump(home, "Other");
-      continue;
-    }
+    // Department is carried on `gender` (Women / Men / Home). Home goods get
+    // their own real categories (Bedding, Bath, etc.) just like apparel.
     const g = (row.gender || "").toLowerCase();
     if (g === "women" || g === "female") bump(women, row.category);
     else if (g === "men" || g === "male") bump(men, row.category);
+    else if (g === "home") bump(home, row.category);
   }
 
   // Rank by count desc, alphabetical as a stable tiebreaker.

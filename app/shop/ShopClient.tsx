@@ -351,15 +351,18 @@ export default function ShopClient({
     : "/shop";
 
   // Section-imposed constraints (always applied, never appear as user filters).
+  // Department lives on `gender` — Home is a real department alongside Women/Men.
   const sectionGender =
-    section === "women" ? "Women" : section === "men" ? "Men" : null;
-  const sectionCategoryConstraint = section === "home" ? "Other" : null;
+    section === "women" ? "Women"
+    : section === "men" ? "Men"
+    : section === "home" ? "Home"
+    : null;
 
   // Categories selectable for the current section.
   const sectionCategories = useMemo<string[]>(() => {
     if (section === "women") return taxonomy.women;
     if (section === "men") return taxonomy.men;
-    if (section === "home") return []; // no sub-categories yet under Home
+    if (section === "home") return taxonomy.home;
     // null section = all categories, kept in relevance order (taxonomy is
     // already ranked by product count), deduped without re-alphabetizing.
     return Array.from(
@@ -428,8 +431,6 @@ export default function ShopClient({
     const q = query.toLowerCase();
     let result = products.filter((p) => {
       if (sectionGender && p.gender !== sectionGender) return false;
-      if (sectionCategoryConstraint && p.category !== sectionCategoryConstraint)
-        return false;
       if (fiberFilter) {
         // Match on the base fiber so "mulberry silk" filters under silk,
         // "european linen" under linen, etc. Organic cotton stays distinct.
@@ -514,7 +515,6 @@ export default function ShopClient({
     products,
     section,
     sectionGender,
-    sectionCategoryConstraint,
     fiberFilter,
     occasionFilter,
     category,

@@ -1701,9 +1701,12 @@ const reviewEmptyStyle: React.CSSProperties = {
 const CATEGORY_OPTIONS = [
   "Tops", "Bottoms", "Dresses", "Outerwear", "Sweaters", "Activewear",
   "Loungewear", "Pajamas", "Intimates", "Undergarments", "Footwear",
-  "Accessories", "Other",
+  "Accessories",
+  // Home department categories (gender = "Home")
+  "Bedding", "Bath", "Throws & Blankets", "Pillows",
+  "Other",
 ];
-const GENDER_OPTIONS = ["Women", "Men", "Unisex"];
+const GENDER_OPTIONS = ["Women", "Men", "Unisex", "Home"];
 const OCCASION_OPTIONS = [
   "Everyday", "Workwear", "Evening", "Special Occasion", "Vacation/Resort",
 ];
