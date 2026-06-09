@@ -33,6 +33,7 @@ export type SchedulerDraft = {
   title?: string | null;
   media_url?: string | null;
   media_type?: string | null; // image | carousel | video | null
+  scheduled_at?: string | null; // ISO; if in the future, publish then instead of now
 };
 
 export type PushResult =
@@ -133,17 +134,23 @@ async function pushToBlotato(draft: SchedulerDraft): Promise<PushResult> {
     target.mediaType = "reel"; // a single video posts as a Reel, not a feed image
   }
 
+  const payload: Record<string, unknown> = {
+    post: { accountId, content: { text, mediaUrls, platform }, target },
+  };
+  // If a future time is set, hand it to Blotato so it publishes then (omitting
+  // scheduledTime = publish now). 2-minute floor keeps "now" approvals immediate.
+  if (draft.scheduled_at) {
+    const when = new Date(draft.scheduled_at).getTime();
+    if (!Number.isNaN(when) && when > Date.now() + 2 * 60_000) {
+      payload.scheduledTime = new Date(draft.scheduled_at).toISOString();
+    }
+  }
+
   try {
     const res = await fetch(`${BLOTATO_BASE}/posts`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "blotato-api-key": key },
-      body: JSON.stringify({
-        post: {
-          accountId,
-          content: { text, mediaUrls, platform },
-          target,
-        },
-      }),
+      body: JSON.stringify(payload),
     });
     if (!res.ok) {
       return { ok: false, configured: true, error: `Blotato ${res.status}: ${await safeText(res)}` };

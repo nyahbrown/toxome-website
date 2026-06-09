@@ -142,12 +142,13 @@ export async function PATCH(req: Request) {
       title: updated.title,
       media_url: updated.media_url,
       media_type: updated.media_type,
+      scheduled_at: updated.scheduled_at,
     });
 
     if (result.ok) {
       const { data: scheduled } = await supabaseAdmin
         .from(TABLE)
-        .update({ status: "scheduled", external_id: result.externalId, push_error: null, scheduled_at: new Date().toISOString() })
+        .update({ status: "scheduled", external_id: result.externalId, push_error: null, scheduled_at: updated.scheduled_at || new Date().toISOString() })
         .eq("id", id)
         .select("*")
         .single();

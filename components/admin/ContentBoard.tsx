@@ -67,7 +67,50 @@ function prettyDay(iso: string | null): string {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
 }
 
+// Datetime scheduling (real publish time, in the user's local timezone).
+// <input type="datetime-local"> works in local time; we store ISO/UTC.
+function isoFromLocalInput(s: string): string | null {
+  if (!s) return null;
+  const d = new Date(s); // parsed as local time
+  return Number.isNaN(d.getTime()) ? null : d.toISOString();
+}
+function localInputFromIso(iso: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+function localDayKey(iso: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+function prettyDateTime(iso: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+}
+function isFuture(iso: string | null): boolean {
+  if (!iso) return false;
+  const d = new Date(iso);
+  return !Number.isNaN(d.getTime()) && d.getTime() > Date.now() + 60_000;
+}
+
 const PLATFORMS = ["instagram", "twitter", "pinterest", "tiktok"] as const;
+
+// Display order for platforms within a carousel group (the row of tags + the
+// per-platform caption editors). Lower = first.
+const PLATFORM_RANK: Record<string, number> = {
+  instagram: 0,
+  tiktok: 1,
+  pinterest: 2,
+  twitter: 3,
+};
+
 const PLATFORM_LABEL: Record<string, string> = {
   instagram: "Instagram",
   twitter: "Twitter / X",
@@ -118,6 +161,10 @@ function PlatformTag({ platform, size = "md" }: { platform: string; size?: "sm" 
 }
 
 type Float = { id: number; text: string; tone: "pos" | "big" };
+
+// A carousel idea reviewed as one card: all the platform drafts that share a
+// group_id. A draft with no siblings is just a group of one.
+type GroupQueueItem = { id: string; drafts: Draft[] };
 
 // ── Media download helpers ─────────────────────────────────────────────────
 // Lets you save the slide PNGs to disk for manual posting while auto-push is
@@ -304,14 +351,29 @@ export default function ContentBoard({ getToken }: { getToken: () => Promise<str
     [authedFetch]
   );
 
-  // The review queue = things awaiting your decision (status "draft"), oldest first.
-  const queue = useMemo(
-    () =>
-      drafts
-        .filter((d) => d.status === "draft")
-        .sort((a, b) => a.created_at.localeCompare(b.created_at)),
-    [drafts]
-  );
+  // The review queue, grouped by group_id: a carousel idea (one draft per
+  // platform, shared slides, different captions) is reviewed as a single card.
+  // We keep only groups that still have at least one draft awaiting a decision,
+  // order each group's drafts by platform, and sort groups oldest-first.
+  const groupQueue = useMemo<GroupQueueItem[]>(() => {
+    const groups = new Map<string, Draft[]>();
+    for (const d of drafts) {
+      const arr = groups.get(d.group_id);
+      if (arr) arr.push(d);
+      else groups.set(d.group_id, [d]);
+    }
+    const rank = (p: string) => (PLATFORM_RANK[p] ?? 99);
+    const out: GroupQueueItem[] = [];
+    for (const [id, members] of groups) {
+      if (!members.some((d) => d.status === "draft")) continue;
+      const ordered = [...members].sort((a, b) => rank(a.platform) - rank(b.platform));
+      out.push({ id, drafts: ordered });
+    }
+    const earliest = (g: GroupQueueItem) =>
+      g.drafts.reduce((min, d) => (d.created_at < min ? d.created_at : min), g.drafts[0].created_at);
+    out.sort((a, b) => earliest(a).localeCompare(earliest(b)));
+    return out;
+  }, [drafts]);
 
   const byStatus = useMemo(() => {
     const map: Record<Status, Draft[]> = { draft: [], needs_edit: [], approved: [], scheduled: [], posted: [] };
@@ -328,9 +390,23 @@ export default function ContentBoard({ getToken }: { getToken: () => Promise<str
   const todayCount = game.todayDate === todayStr() ? game.todayCount : 0;
   const lvl = levelInfo(game.xp);
 
-  // Apply a review decision with animation + scoring.
-  const decide = useCallback(
-    (action: "approve" | "needs_edit" | "skip", current: Draft, edits: { body: string; title: string; comment: string }) => {
+  // Delete an entire carousel group (every platform draft that shares its id).
+  const removeGroup = useCallback(
+    (group: GroupQueueItem) => {
+      for (const d of group.drafts) remove(d.id);
+    },
+    [remove]
+  );
+
+  // Apply a review decision to a whole group with animation + scoring. One
+  // click publishes every platform in the group, each with its own caption, at
+  // the same (optional) scheduled time.
+  const decideGroup = useCallback(
+    (
+      action: "approve" | "needs_edit" | "skip",
+      group: GroupQueueItem,
+      edits: { caps: Record<string, { body: string; title: string }>; comment: string; schedule: string }
+    ) => {
       if (busy.current) return;
       busy.current = true;
       const dir = action === "approve" ? "approve" : action === "needs_edit" ? "reject" : "skip";
@@ -341,26 +417,55 @@ export default function ContentBoard({ getToken }: { getToken: () => Promise<str
           setCombo(0);
           setIndex((i) => i + 1);
         } else {
+          // A "thoughtful" review = any caption was edited vs its original, or
+          // a note was left.
           const thoughtful =
-            edits.body.trim() !== current.body.trim() || edits.comment.trim().length > 0;
-          const base =
-            action === "approve" ? (thoughtful ? POINTS.approveThoughtful : POINTS.approve) : POINTS.needsEdit;
+            edits.comment.trim().length > 0 ||
+            group.drafts.some((d) => (edits.caps[d.id]?.body ?? d.body).trim() !== d.body.trim());
 
-          // Combo only builds on approvals.
-          let nextCombo = action === "approve" ? combo + 1 : 0;
+          // The whole group counts as ONE combo step.
+          const nextCombo = action === "approve" ? combo + 1 : 0;
           let bonus = 0;
           if (action === "approve" && COMBO_BONUS[nextCombo]) bonus = COMBO_BONUS[nextCombo];
           setCombo(nextCombo);
 
-          const updates: Partial<Draft> = {
-            status: action === "approve" ? "approved" : "needs_edit",
-            body: edits.body,
-            comment: edits.comment || null,
-          };
-          if (current.platform === "pinterest" || current.platform === "tiktok") updates.title = edits.title || null;
-          patch(current.id, updates);
+          let touched = 0;
+          for (const d of group.drafts) {
+            const cap = edits.caps[d.id] ?? { body: d.body, title: d.title ?? "" };
+            if (action === "approve") {
+              // Approving publishes every platform in the group; skip anything
+              // already posted.
+              if (d.status === "posted") continue;
+              const updates: Partial<Draft> = {
+                status: "approved",
+                body: cap.body,
+                comment: edits.comment || null,
+                scheduled_at: edits.schedule || null,
+              };
+              if (d.platform === "pinterest" || d.platform === "tiktok") updates.title = cap.title || null;
+              patch(d.id, updates);
+              touched += 1;
+            } else {
+              // needs_edit: flag every non-posted draft with its caption + note.
+              if (d.status === "posted") continue;
+              const updates: Partial<Draft> = {
+                status: "needs_edit",
+                body: cap.body,
+                comment: edits.comment || null,
+              };
+              if (d.platform === "pinterest" || d.platform === "tiktok") updates.title = cap.title || null;
+              patch(d.id, updates);
+              touched += 1;
+            }
+          }
 
+          // Base points scale with how many platforms were approved at once;
+          // needs_edit awards its flat rate. Combo bonus rides on top once.
+          const perPlatform =
+            action === "approve" ? (thoughtful ? POINTS.approveThoughtful : POINTS.approve) : POINTS.needsEdit;
+          const base = action === "approve" ? perPlatform * Math.max(1, touched) : perPlatform;
           const total = base + bonus;
+
           const res = registerReview(game, total);
           setGame((g) => {
             const r = registerReview(g, total);
@@ -375,8 +480,8 @@ export default function ContentBoard({ getToken }: { getToken: () => Promise<str
             burstConfetti({ count: 40 });
             spawnFloat("daily goal hit", "big");
           }
-          // index stays, the approved/flagged card drops out of the queue and
-          // the next one slides into this slot.
+          // index stays, the reviewed group drops out of the queue and the next
+          // one slides into this slot.
         }
         setAnim(null);
         busy.current = false;
@@ -391,24 +496,24 @@ export default function ContentBoard({ getToken }: { getToken: () => Promise<str
   const hadItemsRef = useRef(false);
   useEffect(() => {
     if (loading) return;
-    if (queue.length > 0) {
+    if (groupQueue.length > 0) {
       hadItemsRef.current = true;
       clearedRef.current = false;
       return;
     }
-    if (queue.length === 0 && hadItemsRef.current && !clearedRef.current && view === "review") {
+    if (groupQueue.length === 0 && hadItemsRef.current && !clearedRef.current && view === "review") {
       clearedRef.current = true;
       burstConfetti({ count: 70 });
       setGame((g) => ({ ...g, xp: g.xp + POINTS.clearQueue }));
     }
-  }, [queue.length, loading, view]);
+  }, [groupQueue.length, loading, view]);
 
   return (
     <div>
       <GameStyles />
 
       {/* HUD */}
-      <GameHud game={game} todayCount={todayCount} lvl={lvl} queueLeft={queue.length} />
+      <GameHud game={game} todayCount={todayCount} lvl={lvl} queueLeft={groupQueue.length} />
 
       {/* View toggle + composer */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", margin: "20px 0 18px" }}>
@@ -444,14 +549,14 @@ export default function ContentBoard({ getToken }: { getToken: () => Promise<str
         </div>
       ) : view === "review" ? (
         <ReviewMode
-          queue={queue}
+          groups={groupQueue}
           index={index}
           anim={anim}
           floats={floats}
           schedulerOn={schedulerOn}
           totalDrafts={drafts.length}
-          onDecide={decide}
-          onRemove={remove}
+          onDecide={decideGroup}
+          onRemoveGroup={removeGroup}
           dailyGoal={game.dailyGoal}
           todayCount={todayCount}
         />
@@ -520,69 +625,96 @@ function GameHud({
 }
 
 // ── Review mode (gamified focus) ──────────────────────────────────────────
+// Reviews a whole carousel group at once: the shared slides shown a single
+// time, one caption editor per platform, and one approve that publishes them
+// all (each with its own caption) at the same optional scheduled time.
 function ReviewMode({
-  queue,
+  groups,
   index,
   anim,
   floats,
   schedulerOn,
   totalDrafts,
   onDecide,
-  onRemove,
+  onRemoveGroup,
   dailyGoal,
   todayCount,
 }: {
-  queue: Draft[];
+  groups: GroupQueueItem[];
   index: number;
   anim: "approve" | "reject" | "skip" | null;
   floats: Float[];
   schedulerOn: boolean;
   totalDrafts: number;
-  onDecide: (a: "approve" | "needs_edit" | "skip", d: Draft, e: { body: string; title: string; comment: string }) => void;
-  onRemove: (id: string) => void;
+  onDecide: (
+    a: "approve" | "needs_edit" | "skip",
+    g: GroupQueueItem,
+    e: { caps: Record<string, { body: string; title: string }>; comment: string; schedule: string }
+  ) => void;
+  onRemoveGroup: (g: GroupQueueItem) => void;
   dailyGoal: number;
   todayCount: number;
 }) {
-  const current = queue.length ? queue[Math.min(index, queue.length - 1)] : null;
+  const group = groups.length ? groups[Math.min(index, groups.length - 1)] : null;
 
-  const [body, setBody] = useState("");
-  const [title, setTitle] = useState("");
+  // Per-platform captions, keyed by draft id. One shared comment + schedule.
+  const [caps, setCaps] = useState<Record<string, { body: string; title: string }>>({});
   const [comment, setComment] = useState("");
+  const [schedule, setSchedule] = useState("");
 
-  // Reset editable fields whenever the current card changes.
+  // Reset all editable fields whenever the current group changes. Prefill the
+  // schedule from any draft that already carries a scheduled_at.
   useEffect(() => {
-    setBody(current?.body ?? "");
-    setTitle(current?.title ?? "");
-    setComment(current?.comment ?? "");
-  }, [current?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (!group) {
+      setCaps({});
+      setComment("");
+      setSchedule("");
+      return;
+    }
+    const next: Record<string, { body: string; title: string }> = {};
+    for (const d of group.drafts) next[d.id] = { body: d.body, title: d.title ?? "" };
+    setCaps(next);
+    setComment("");
+    const existing = group.drafts.find((d) => d.scheduled_at);
+    setSchedule(existing ? localInputFromIso(existing.scheduled_at) : "");
+  }, [group?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const setCap = (id: string, patch: Partial<{ body: string; title: string }>) =>
+    setCaps((c) => ({ ...c, [id]: { body: c[id]?.body ?? "", title: c[id]?.title ?? "", ...patch } }));
 
   // Keyboard shortcuts, ignored while typing in a field.
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       const t = e.target as HTMLElement | null;
       if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
-      if (!current) return;
-      const edits = { body, title, comment };
+      if (!group) return;
+      const edits = { caps, comment, schedule };
       if (e.key === "a" || e.key === "A") {
         e.preventDefault();
-        onDecide("approve", current, edits);
+        onDecide("approve", group, edits);
       } else if (e.key === "e" || e.key === "E") {
         e.preventDefault();
-        onDecide("needs_edit", current, edits);
+        onDecide("needs_edit", group, edits);
       } else if (e.key === "s" || e.key === "S" || e.key === "ArrowRight") {
         e.preventDefault();
-        onDecide("skip", current, edits);
+        onDecide("skip", group, edits);
       }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [current, body, title, comment, onDecide]);
+  }, [group, caps, comment, schedule, onDecide]);
 
-  if (!current) {
+  if (!group) {
     return <Cleared totalDrafts={totalDrafts} todayCount={todayCount} dailyGoal={dailyGoal} />;
   }
 
-  const usesTitle = current.platform === "pinterest" || current.platform === "tiktok";
+  const edits = { caps, comment, schedule };
+  const mediaDraft = group.drafts.find((d) => d.media_url) ?? group.drafts[0];
+  const firstCap = caps[group.drafts[0].id]?.body ?? group.drafts[0].body;
+  const platformsLabel = group.drafts.map((d) => PLATFORM_LABEL[d.platform] || d.platform).join(" · ");
+  const scheduledFuture = isFuture(isoFromLocalInput(schedule));
+  const approveLabel = `${scheduledFuture ? "Schedule" : "Publish"} → ${platformsLabel}`;
+
   const animStyle: React.CSSProperties =
     anim === "approve"
       ? { transform: "translateX(60px) rotate(4deg)", opacity: 0 }
@@ -603,59 +735,92 @@ function ReviewMode({
         ))}
       </div>
 
-      <div className="card-in" key={current.id} style={{ ...reviewCard, ...animStyle }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-          <PlatformTag platform={current.platform} />
-          <button onClick={() => onRemove(current.id)} style={xBtn} title="Delete">
+      <div className="card-in" key={group.id} style={{ ...reviewCard, ...animStyle }}>
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 12 }}>
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 10 }}>
+            {group.drafts.map((d) => (
+              <PlatformTag key={d.id} platform={d.platform} />
+            ))}
+          </div>
+          <button onClick={() => onRemoveGroup(group)} style={xBtn} title="Delete this whole set">
             ×
           </button>
         </div>
-        {current.source_ref && (
-          <div style={{ ...sourceLine, marginBottom: 14 }} title={current.source_ref}>
-            {current.variant_type} · from {current.source_ref}
+        {mediaDraft.source_ref && (
+          <div style={{ ...sourceLine, marginBottom: 14 }} title={mediaDraft.source_ref}>
+            from {mediaDraft.source_ref}
           </div>
         )}
 
-        {current.media_url ? (
-          current.media_type === "video" ? (
-            <video src={current.media_url} style={reviewMedia} controls muted />
+        {mediaDraft.media_url ? (
+          mediaDraft.media_type === "video" ? (
+            <video src={mediaDraft.media_url} style={reviewMedia} controls muted />
           ) : (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={current.media_url} alt="" style={reviewMedia} />
+            <img src={mediaDraft.media_url} alt="" style={reviewMedia} />
           )
         ) : (
           <div style={{ ...reviewMedia, ...mediaEmptyInner }}>no visual yet</div>
         )}
 
-        {current.media_url && (
+        {mediaDraft.media_url && (
           <div style={{ display: "flex", gap: 8, marginTop: 10, marginBottom: 4 }}>
-            <DownloadButton draft={current} style={miniGhost} />
-            <CopyCaptionButton text={body} style={miniGhost} />
+            <DownloadButton draft={mediaDraft} style={miniGhost} />
+            <CopyCaptionButton text={firstCap} style={miniGhost} />
           </div>
         )}
 
-        {usesTitle && (
+        {/* per-platform caption editors */}
+        {group.drafts.map((d) => {
+          const cap = caps[d.id] ?? { body: d.body, title: d.title ?? "" };
+          const usesTitle = d.platform === "pinterest" || d.platform === "tiktok";
+          return (
+            <div key={d.id} style={{ marginTop: 14 }}>
+              <div style={{ marginBottom: 6 }}>
+                <PlatformTag platform={d.platform} />
+              </div>
+              {usesTitle && (
+                <input
+                  value={cap.title}
+                  onChange={(e) => setCap(d.id, { title: e.target.value })}
+                  placeholder={d.platform === "pinterest" ? "pin title (the search query)" : "tiktok title (optional, ≤90 chars)"}
+                  style={titleInput}
+                />
+              )}
+              <textarea value={cap.body} onChange={(e) => setCap(d.id, { body: e.target.value })} rows={4} style={bodyArea} />
+            </div>
+          );
+        })}
+
+        <textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={2} placeholder="your note / change request…" style={{ ...commentArea, marginTop: 14 }} />
+
+        {/* one shared schedule for the whole set */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 4 }}>
+          <span style={{ fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, letterSpacing: "0.13em", textTransform: "uppercase", color: "var(--ink-3)" }}>
+            Publish at
+          </span>
           <input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder={current.platform === "pinterest" ? "pin title (the search query)" : "tiktok title (optional, ≤90 chars)"}
-            style={titleInput}
+            type="datetime-local"
+            value={schedule}
+            onChange={(e) => setSchedule(localInputFromIso(isoFromLocalInput(e.target.value)))}
+            style={dateInput}
           />
-        )}
-        <textarea value={body} onChange={(e) => setBody(e.target.value)} rows={6} style={bodyArea} />
-        <textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={2} placeholder="your note / change request…" style={commentArea} />
+          <span style={{ fontFamily: "var(--sans)", fontSize: 11, color: "var(--ink-3)" }}>
+            {schedule ? (scheduledFuture ? prettyDateTime(isoFromLocalInput(schedule)) : "now") : "empty = now"}
+          </span>
+        </div>
       </div>
 
       {/* actions */}
-      <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 16 }}>
-        <button onClick={() => onDecide("needs_edit", current, { body, title, comment })} style={{ ...bigBtn, ...bigGhost }}>
+      <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 16, flexWrap: "wrap" }}>
+        <button onClick={() => onDecide("needs_edit", group, edits)} style={{ ...bigBtn, ...bigGhost }}>
           Needs edit <kbd style={kbd}>E</kbd>
         </button>
-        <button onClick={() => onDecide("skip", current, { body, title, comment })} style={{ ...bigBtn, ...bigGhost }}>
+        <button onClick={() => onDecide("skip", group, edits)} style={{ ...bigBtn, ...bigGhost }}>
           Skip <kbd style={kbd}>S</kbd>
         </button>
-        <button onClick={() => onDecide("approve", current, { body, title, comment })} style={{ ...bigBtn, ...bigApprove }}>
-          {schedulerOn ? "Approve + push" : "Approve"} <kbd style={{ ...kbd, ...kbdDark }}>A</kbd>
+        <button onClick={() => onDecide("approve", group, edits)} style={{ ...bigBtn, ...bigApprove }}>
+          {approveLabel} <kbd style={{ ...kbd, ...kbdDark }}>A</kbd>
         </button>
       </div>
       <p style={{ textAlign: "center", fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", marginTop: 12 }}>
