@@ -1,53 +1,78 @@
 #!/usr/bin/env node
 /**
- * render-carousel — screenshot studio carousel slides to PNGs.
+ * render-carousel — screenshot studio carousel slides and upload to Storage.
  *
- * Drives /studio/carousel?c=<slug>&i=<n> in a headless browser and writes each
- * slide to public/carousel/<slug>/slide-<n>.png at 1080×1350 (2× for crispness).
- * Commit the PNGs and they're served at /carousel/<slug>/slide-<n>.png — exactly
- * what the content dashboard + Blotato expect for a carousel.
+ * Drives /studio/carousel?c=<slug>&i=<n> in a headless browser and uploads each
+ * slide to the public Supabase Storage bucket `carousels` at
+ * carousels/<slug>/slide-<n>.png. Prints the public URLs — use the slide-0 URL
+ * as a draft's media_url (media_type: carousel) and the dashboard/Blotato expand
+ * the rest. No git commit, no deploy, no repo bloat.
  *
  * Usage:
  *   node scripts/render-carousel.js <slug> [<slug> ...]
  *   node scripts/render-carousel.js toxin-you-forgot --base http://localhost:3000
- *   node scripts/render-carousel.js read-a-label --slides 6
+ *   node scripts/render-carousel.js read-a-label --local   # also write public/ PNGs
  *
  * Defaults: --base https://toxome.app, --slides 6. Uses system Chrome
- * (override with CHROME_PATH env). Requires puppeteer-core (devDependency).
+ * (override with CHROME_PATH). Needs puppeteer-core + SUPABASE_SERVICE_ROLE_KEY
+ * (env or .env.local).
  */
 const fs = require("fs");
 const path = require("path");
 const puppeteer = require("puppeteer-core");
+const { createClient } = require("@supabase/supabase-js");
 
+const SUPABASE_URL = "https://xclvodbmllglmharezqa.supabase.co";
+const BUCKET = "carousels";
 const W = 1080;
 const H = 1350;
 const SCALE = 2;
 
 const argv = process.argv.slice(2);
+const has = (f) => argv.includes(f);
 function flag(name, def) {
   const i = argv.indexOf(name);
   return i >= 0 ? argv[i + 1] : def;
 }
-const BASE = (flag("--base", "https://toxome.app")).replace(/\/+$/, "");
+const BASE = flag("--base", "https://toxome.app").replace(/\/+$/, "");
 const SLIDES = Number(flag("--slides", "6"));
+const LOCAL = has("--local");
 const slugs = argv.filter((a, i) => !a.startsWith("--") && argv[i - 1]?.startsWith("--") !== true);
+
+function loadEnvLocal() {
+  if (process.env.SUPABASE_SERVICE_ROLE_KEY) return;
+  const envPath = path.join(__dirname, "..", ".env.local");
+  if (!fs.existsSync(envPath)) return;
+  for (const line of fs.readFileSync(envPath, "utf8").split("\n")) {
+    const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/);
+    if (!m) continue;
+    let [, k, v] = m;
+    v = v.replace(/^["']|["']$/g, "");
+    if (!(k in process.env)) process.env[k] = v;
+  }
+}
 
 function findChrome() {
   if (process.env.CHROME_PATH && fs.existsSync(process.env.CHROME_PATH)) return process.env.CHROME_PATH;
-  const candidates = [
+  return [
     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
     "/Applications/Chromium.app/Contents/MacOS/Chromium",
     "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser",
     "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
     "/usr/bin/google-chrome",
     "/usr/bin/chromium-browser",
-  ];
-  return candidates.find((p) => fs.existsSync(p));
+  ].find((p) => fs.existsSync(p));
 }
 
 async function main() {
   if (!slugs.length) {
-    console.error("Usage: node scripts/render-carousel.js <slug> [<slug> ...] [--base URL] [--slides N]");
+    console.error("Usage: node scripts/render-carousel.js <slug> [<slug> ...] [--base URL] [--slides N] [--local]");
+    process.exit(1);
+  }
+  loadEnvLocal();
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!key) {
+    console.error("✗ Missing SUPABASE_SERVICE_ROLE_KEY (env or .env.local)");
     process.exit(1);
   }
   const chrome = findChrome();
@@ -55,19 +80,21 @@ async function main() {
     console.error("✗ No Chrome found. Install Chrome or set CHROME_PATH=/path/to/chrome");
     process.exit(1);
   }
+  const supabase = createClient(SUPABASE_URL, key);
 
-  console.log(`Base: ${BASE}  ·  ${SLIDES} slides each  ·  Chrome: ${path.basename(chrome)}`);
+  console.log(`Base: ${BASE}  ·  ${SLIDES} slides  ·  → Storage bucket "${BUCKET}"${LOCAL ? " (+ local)" : ""}`);
   const browser = await puppeteer.launch({
     executablePath: chrome,
     headless: "new",
     args: ["--no-sandbox", "--force-color-profile=srgb"],
   });
 
+  const covers = {};
   try {
     for (const slug of slugs) {
-      const outDir = path.join(__dirname, "..", "public", "carousel", slug);
-      fs.mkdirSync(outDir, { recursive: true });
-      console.log(`\n${slug} → ${path.relative(path.join(__dirname, ".."), outDir)}/`);
+      console.log(`\n${slug}`);
+      const localDir = path.join(__dirname, "..", "public", "carousel", slug);
+      if (LOCAL) fs.mkdirSync(localDir, { recursive: true });
 
       for (let i = 0; i < SLIDES; i++) {
         const page = await browser.newPage();
@@ -75,24 +102,37 @@ async function main() {
         const url = `${BASE}/studio/carousel?c=${slug}&i=${i}`;
         const res = await page.goto(url, { waitUntil: "networkidle0", timeout: 60000 });
         if (!res || !res.ok()) {
-          console.error(`  ✗ slide ${i}: HTTP ${res ? res.status() : "no response"} (${url})`);
+          console.error(`  ✗ slide ${i}: HTTP ${res ? res.status() : "no response"}`);
           await page.close();
           continue;
         }
-        // Let fonts + images settle so type and photos aren't half-painted.
         await page.evaluate(() => (document.fonts ? document.fonts.ready : Promise.resolve()));
         await new Promise((r) => setTimeout(r, 350));
 
-        const file = path.join(outDir, `slide-${i}.png`);
-        await page.screenshot({ path: file, clip: { x: 0, y: 0, width: W, height: H } });
-        console.log(`  ✓ slide-${i}.png`);
+        const buf = await page.screenshot({ clip: { x: 0, y: 0, width: W, height: H } });
         await page.close();
+
+        const objectPath = `${slug}/slide-${i}.png`;
+        const { error } = await supabase.storage.from(BUCKET).upload(objectPath, buf, {
+          contentType: "image/png",
+          upsert: true,
+        });
+        if (error) {
+          console.error(`  ✗ slide-${i} upload: ${error.message}`);
+          continue;
+        }
+        if (LOCAL) fs.writeFileSync(path.join(localDir, `slide-${i}.png`), buf);
+        const publicUrl = supabase.storage.from(BUCKET).getPublicUrl(objectPath).data.publicUrl;
+        if (i === 0) covers[slug] = publicUrl;
+        console.log(`  ✓ slide-${i}.png`);
       }
     }
   } finally {
     await browser.close();
   }
-  console.log(`\nDone. Commit public/carousel/** and deploy so the slides are public.`);
+
+  console.log(`\nDone. Carousel covers (use as a draft's media_url, media_type: carousel):`);
+  for (const slug of slugs) if (covers[slug]) console.log(`  ${slug}\n    ${covers[slug]}`);
 }
 
 main().catch((e) => {
