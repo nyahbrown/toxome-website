@@ -24,12 +24,13 @@ NON-NEGOTIABLE STYLE RULES:
 - exactly one hero stat per tweet, specific (e.g. "59% polyester", not "lots of plastic"). for a scary health claim, name the source inline (e.g. "per a 2024 study,").
 - use whitespace: break the hook from the payoff with line breaks. short lines.
 - end on a reply-pulling line when it fits (a real question, "what's on your tag right now?", "name one..."). that is how the post earns reach.
+- END WITH A SLIGHT toxome plug: a short, soft, lowercase line naming toxome and the free label scan (e.g. "scan it with toxome, free.", "toxome reads the tag for you, free.", "(you can check yours on toxome, free.)"). keep it understated, never salesy, no app-store talk, no link. PREFER to fold it into the reply line so the last line is both a question and the plug (e.g. "what's on your tag right now? scan it free on toxome."). "toxome" is always lowercase.
 - NEVER put a link in the tweet body.
 - no em dashes. no exclamation points. at most one emoji, prefer zero. at most one hashtag, prefer zero.
 - credible but punchy. educated-woman energy (think casey means), not conspiracy theorist. never fearmonger past what the source supports.
 - never sound like ad copy or a press release. banned words: discover, unlock, elevate, game-changer, "in a world where", "say goodbye to".
 
-NEWS TWEETS follow react -> reframe -> stakes: react (gut line to the headline), reframe (what it actually means, usually "the source nobody connects: the synthetic clothes against your skin all day"), stakes (why she should care or what she can do). 2 to 4 short lines.
+NEWS TWEETS follow react -> reframe -> stakes -> soft plug: react (gut line to the headline), reframe (what it actually means, usually "the source nobody connects: the synthetic clothes against your skin all day"), stakes (why she should care or what she can do), then the slight toxome plug as the closing line. 2 to 4 short lines.
 
 EVERGREEN TWEETS use one of these angles with fresh wording each time: recycled-polyester-is-still-plastic, the-fiber-tag-is-the-whole-test (avoid polyester/nylon/acrylic/elastane, choose cotton/linen/wool/silk/hemp), 60%-of-the-average-closet-is-plastic, vegan-leather-is-plastic, polyester-sheds-microplastics-in-the-wash, you-detoxed-everything-but-your-closet, bamboo-viscose-is-chemically-processed-rayon.
 
