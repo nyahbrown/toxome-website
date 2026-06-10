@@ -554,8 +554,8 @@ export default function HomeClient({
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/hero-field.jpg"
-          alt="A farmer gathering grasses in a paddy field, natural fiber at its source"
+          src="/hero-yoga.jpg"
+          alt="Two women meditating outdoors on yoga mats, calm and clean against natural fiber"
           fetchPriority="high"
           style={{
             position: "absolute",
@@ -583,7 +583,7 @@ export default function HomeClient({
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            padding: "0 clamp(24px, 6vw, 40px)",
+            padding: "0 clamp(12px, 4vw, 40px)",
           }}
         >
           <div
@@ -605,35 +605,19 @@ export default function HomeClient({
             >
               <h1
                 style={{
-                  fontFamily: "var(--sans)",
+                  fontFamily: "var(--serif)",
                   fontWeight: 500,
-                  fontSize: "clamp(27px, 4.2vw, 48px)",
+                  fontSize: "clamp(20px, 5.2vw, 52px)",
                   color: "var(--white)",
                   textAlign: "center",
-                  lineHeight: 1.2,
+                  lineHeight: 1.15,
                   letterSpacing: "-0.018em",
                   margin: 0,
-                  textWrap: "balance",
+                  whiteSpace: "nowrap",
                 }}
               >
-                The average closet is 61% plastic.
+                Plastic doesn&apos;t belong on your skin
               </h1>
-              <p
-                style={{
-                  fontFamily: "var(--sans)",
-                  fontStyle: "italic",
-                  fontWeight: 400,
-                  fontSize: "clamp(18px, 2.4vw, 26px)",
-                  color: "var(--white)",
-                  opacity: 0.92,
-                  textAlign: "center",
-                  lineHeight: 1.3,
-                  letterSpacing: "-0.01em",
-                  margin: 0,
-                }}
-              >
-                yours doesn&apos;t have to be.
-              </p>
             </div>
             <Link
               href="/shop"
