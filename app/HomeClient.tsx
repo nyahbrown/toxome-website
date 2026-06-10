@@ -109,59 +109,6 @@ function ArrowIcon() {
   );
 }
 
-/* § The naming moment, plant the category flag. Pure belief, no CTA. */
-function NamingSection() {
-  return (
-    <section style={{ padding: "clamp(64px, 12vw, 112px) 0 0" }}>
-      <div className="shell">
-        <div style={{ maxWidth: 720, margin: "0 auto", textAlign: "center" }}>
-          <div className="eyebrow" style={{ marginBottom: 20 }}>
-            the next frontier
-          </div>
-          <h2
-            style={{
-              fontFamily: "var(--sans)",
-              fontWeight: 500,
-              fontSize: "clamp(30px, 4vw, 52px)",
-              lineHeight: 1.12,
-              letterSpacing: "-0.025em",
-              color: "var(--ink)",
-              margin: 0,
-            }}
-          >
-            we call it <em style={{ fontStyle: "italic" }}>fashion wellness.</em>
-          </h2>
-          <p
-            style={{
-              fontSize: 16,
-              lineHeight: 1.75,
-              color: "var(--ink-2)",
-              maxWidth: 580,
-              margin: "26px auto 0",
-            }}
-          >
-            The idea that what you wear is a health decision, like what you
-            eat, or what you put on your skin.
-          </p>
-        </div>
-      </div>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src="/fibers/linen.jpg"
-        alt="A close weave of natural linen"
-        style={{
-          display: "block",
-          width: "100%",
-          height: "min(420px, 40vw)",
-          objectFit: "cover",
-          objectPosition: "center",
-          marginTop: 72,
-        }}
-      />
-    </section>
-  );
-}
-
 /* § The Journal, proof that we publish. The loudest authority signal. */
 function JournalSection({ articles }: { articles: Article[] }) {
   if (!articles.length) return null;
@@ -643,8 +590,6 @@ export default function HomeClient({
           </div>
         </div>
       </section>
-
-      <NamingSection />
 
       <EditorsPicksSection products={products} />
 
