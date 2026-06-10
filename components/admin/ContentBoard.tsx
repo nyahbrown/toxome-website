@@ -102,6 +102,10 @@ function isFuture(iso: string | null): boolean {
 }
 
 const PLATFORMS = ["instagram", "twitter", "pinterest", "tiktok"] as const;
+// Platforms posted by hand (native), never auto-published. Mirrors MANUAL_PLATFORMS
+// in lib/scheduler. Approving still marks them ready; the card shows a native-post
+// block (slide download + copy caption) instead of pushing to the API.
+const MANUAL_PLATFORMS = new Set<string>(["tiktok"]);
 
 // Display order for platforms within a carousel group (the row of tags + the
 // per-platform caption editors). Lower = first.
@@ -712,9 +716,11 @@ function ReviewMode({
   const edits = { caps, comment, schedule };
   const mediaDraft = group.drafts.find((d) => d.media_url) ?? group.drafts[0];
   const firstCap = caps[group.drafts[0].id]?.body ?? group.drafts[0].body;
-  const platformsLabel = group.drafts.map((d) => PLATFORM_LABEL[d.platform] || d.platform).join(" · ");
+  const manualDrafts = group.drafts.filter((d) => MANUAL_PLATFORMS.has(d.platform));
+  const autoDrafts = group.drafts.filter((d) => !MANUAL_PLATFORMS.has(d.platform));
+  const autoLabel = autoDrafts.map((d) => PLATFORM_LABEL[d.platform] || d.platform).join(" · ");
   const scheduledFuture = isFuture(isoFromLocalInput(schedule));
-  const approveLabel = `${scheduledFuture ? "Schedule" : "Publish"} → ${platformsLabel}`;
+  const approveLabel = autoLabel ? `${scheduledFuture ? "Schedule" : "Publish"} → ${autoLabel}` : "Mark ready";
 
   const animStyle: React.CSSProperties =
     anim === "approve"
@@ -790,6 +796,15 @@ function ReviewMode({
                 />
               )}
               <textarea value={cap.body} onChange={(e) => setCap(d.id, { body: e.target.value })} rows={4} style={bodyArea} />
+              {MANUAL_PLATFORMS.has(d.platform) && (
+                <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, marginTop: 8 }}>
+                  <span style={{ ...sourceLine, marginBottom: 0, whiteSpace: "normal" }}>
+                    posted by hand (API throttles reach) — grab these, then post in-app:
+                  </span>
+                  <DownloadButton draft={mediaDraft} style={miniGhost} />
+                  <CopyCaptionButton text={cap.body} style={miniGhost} />
+                </div>
+              )}
             </div>
           );
         })}
@@ -825,6 +840,11 @@ function ReviewMode({
           {approveLabel} <kbd style={{ ...kbd, ...kbdDark }}>A</kbd>
         </button>
       </div>
+      {manualDrafts.length > 0 && (
+        <p style={{ textAlign: "center", fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", marginTop: 8 }}>
+          {manualDrafts.map((d) => PLATFORM_LABEL[d.platform] || d.platform).join(" · ")} is posted by hand — approving marks it ready and hands you the slides + caption above.
+        </p>
+      )}
       <p style={{ textAlign: "center", fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", marginTop: 12 }}>
         keyboard: A approve · E needs edit · S skip
       </p>

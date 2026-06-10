@@ -57,7 +57,22 @@ export function schedulerConfigured(): boolean {
   return false;
 }
 
+// Platforms we deliberately never auto-publish through the API. TikTok throttles
+// For-You distribution on third-party-API posts (a public TikTok post landed ~1
+// view in 5h), so it's posted natively by hand off the same rendered slides.
+// Approving a TikTok draft still marks it `approved` (ready to post), it just
+// never hits Blotato. Instagram + Pinterest are unaffected. Re-enable a platform
+// by removing it from this set.
+const MANUAL_PLATFORMS = new Set(["tiktok"]);
+
+export function isManualPlatform(platform: string): boolean {
+  return MANUAL_PLATFORMS.has((platform || "").toLowerCase().trim());
+}
+
 export async function pushToScheduler(draft: SchedulerDraft): Promise<PushResult> {
+  // Manual platforms skip the API entirely; the route leaves them `approved` and
+  // the dashboard shows a "post natively" block (caption + slide download).
+  if (isManualPlatform(draft.platform)) return { ok: false, configured: false };
   const p = provider();
   if (p === "blotato") return pushToBlotato(draft);
   if (p === "postiz") return pushToPostiz(draft);
@@ -122,6 +137,8 @@ async function pushToBlotato(draft: SchedulerDraft): Promise<PushResult> {
     target.link = siteBase();
   }
   if (platform === "tiktok") {
+    // NOTE: currently unreachable, TikTok is a MANUAL_PLATFORM (posted natively).
+    // Kept intact so re-enabling = dropping "tiktok" from MANUAL_PLATFORMS.
     // Direct Post: public, no in-app finish step. Never isDraft:true — TikTok
     // drafts land in the app inbox AND drop the caption, which breaks automation.
     target.privacyLevel = "PUBLIC_TO_EVERYONE";
