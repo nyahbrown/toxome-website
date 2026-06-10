@@ -398,6 +398,7 @@ function NewsletterSection() {
               </p>
               <form
                 onSubmit={handleSubmit}
+                className="nl-form"
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -415,6 +416,7 @@ function NewsletterSection() {
                   type="email"
                   required
                   placeholder="email address"
+                  aria-label="email address"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   autoComplete="email"
@@ -435,9 +437,11 @@ function NewsletterSection() {
                 />
                 <button
                   type="submit"
+                  className="nl-submit"
                   disabled={state === "submitting"}
+                  aria-busy={state === "submitting"}
                   style={{
-                    height: 42,
+                    height: 44,
                     // Hugs its label and sits inset inside the capsule.
                     flex: "0 0 auto",
                     padding: "0 22px",
@@ -454,11 +458,22 @@ function NewsletterSection() {
                     opacity: state === "submitting" ? 0.6 : 1,
                   }}
                 >
-                  {state === "submitting" ? "..." : "Subscribe"}
+                  {state === "submitting" ? "subscribing…" : "subscribe"}
                 </button>
               </form>
               {state === "error" && errorMessage && (
-                <p style={{ fontSize: 12, color: "var(--cream)", margin: "10px 0 0" }}>
+                <p
+                  role="alert"
+                  style={{
+                    display: "inline-block",
+                    fontSize: 14,
+                    color: "var(--cream)",
+                    background: "rgba(10,6,2,0.62)",
+                    padding: "6px 12px",
+                    borderRadius: 999,
+                    margin: "12px 0 0",
+                  }}
+                >
                   {errorMessage}
                 </p>
               )}
@@ -564,24 +579,13 @@ export default function HomeClient({
                 gap: 16,
               }}
             >
-              <h1
-                style={{
-                  fontFamily: "var(--serif)",
-                  fontWeight: 500,
-                  fontSize: "clamp(22px, 6.4vw, 72px)",
-                  color: "var(--white)",
-                  textAlign: "center",
-                  lineHeight: 1.15,
-                  letterSpacing: "-0.018em",
-                  margin: 0,
-                  whiteSpace: "nowrap",
-                }}
-              >
+              <h1 className="hero-h1">
                 plastic doesn&apos;t belong on your skin.
               </h1>
             </div>
             <Link
               href="/shop"
+              className="hero-cta"
               style={{
                 display: "inline-flex",
                 alignItems: "center",

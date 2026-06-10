@@ -108,6 +108,7 @@ export default function NewsletterPopup() {
       role="dialog"
       aria-modal="false"
       aria-label="Newsletter signup"
+      className="nl-pop"
       style={{
         position: "fixed",
         left: 16,
@@ -120,7 +121,6 @@ export default function NewsletterPopup() {
         padding: 22,
         boxShadow:
           "0 18px 48px -12px rgba(59,60,58,0.22), 0 4px 14px -6px rgba(59,60,58,0.12)",
-        animation: "newsletterFadeIn 280ms cubic-bezier(.22,.61,.36,1)",
       }}
     >
       <button
@@ -286,6 +286,9 @@ export default function NewsletterPopup() {
       )}
 
       <style jsx>{`
+        .nl-pop {
+          animation: newsletterFadeIn 280ms cubic-bezier(0.22, 0.61, 0.36, 1);
+        }
         @keyframes newsletterFadeIn {
           from {
             opacity: 0;
@@ -294,6 +297,11 @@ export default function NewsletterPopup() {
           to {
             opacity: 1;
             transform: none;
+          }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .nl-pop {
+            animation: none;
           }
         }
       `}</style>

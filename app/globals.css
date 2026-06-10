@@ -831,3 +831,45 @@ button { font-family: inherit; }
 @media (prefers-reduced-motion: reduce) {
   .share-btn, .share-btn:hover, .share-btn:active { transition: none; transform: none; }
 }
+
+/* ── Accessibility: visible keyboard focus ────────────────────────────────
+   No component defined a focus state, so keyboard users had no "where am I."
+   One global ring on cream surfaces; light ring overrides for dark photo bands. */
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+.hero-cta:focus-visible,
+.nl-submit:focus-visible { outline-color: #fff; outline-offset: 3px; }
+.nl-form:focus-within { outline: 2px solid #fff; outline-offset: 2px; }
+
+/* ── Hero headline ────────────────────────────────────────────────────────
+   One line on tablet/desktop; on small phones wrap to two bold lines rather
+   than shrink to a clipped single line. text-shadow guarantees legibility
+   over the brighter regions of the photo. */
+.hero-h1 {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(22px, 6.4vw, 72px);
+  line-height: 1.15;
+  letter-spacing: -0.018em;
+  color: var(--white);
+  text-align: center;
+  margin: 0;
+  white-space: nowrap;
+  text-shadow: 0 1px 26px rgba(10, 6, 2, 0.5);
+}
+@media (max-width: 520px) {
+  .hero-h1 {
+    white-space: normal;
+    text-wrap: balance;
+    font-size: clamp(30px, 8.5vw, 46px);
+  }
+}
+
+.hero-cta { transition: transform 200ms var(--ease), box-shadow 200ms var(--ease); }
+@media (hover: hover) and (pointer: fine) {
+  .hero-cta:hover { transform: translateY(-1px); box-shadow: 0 10px 26px -8px rgba(10, 6, 2, 0.45); }
+}
+@media (prefers-reduced-motion: reduce) { .hero-cta { transition: none; } }
