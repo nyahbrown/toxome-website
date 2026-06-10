@@ -100,5 +100,18 @@ export async function writeTweets(opts: {
 
   return tweets
     .filter((t) => t.body && t.body.trim())
-    .map((t) => ({ body: t.body.trim(), source_url: t.source_url || null, kind: t.kind, angle: t.angle }));
+    .map((t) => ({ body: sanitizeTweet(t.body), source_url: t.source_url || null, kind: t.kind, angle: t.angle }));
+}
+
+// Toxome bans em dashes (the #1 AI tell); the model adds them anyway, so strip
+// them deterministically. Em/en dash and "--" become a comma; hyphens in words
+// (stain-resistant, PFAS-free) are left alone. Line breaks are preserved.
+function sanitizeTweet(body: string): string {
+  return body
+    .replace(/[ \t]*[—–][ \t]*/g, ", ")
+    .replace(/[ \t]*--[ \t]*/g, ", ")
+    .replace(/,[ \t]*,/g, ",")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/[ \t]{2,}/g, " ")
+    .trim();
 }
