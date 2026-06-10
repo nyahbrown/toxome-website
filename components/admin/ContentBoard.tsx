@@ -1,18 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { burstConfetti } from "@/lib/confetti";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { zipStore, type ZipEntry } from "@/lib/zip";
-import {
-  loadGame,
-  saveGame,
-  registerReview,
-  levelInfo,
-  todayStr,
-  POINTS,
-  COMBO_BONUS,
-  type GameState,
-} from "@/lib/contentGame";
 
 // ── Types ────────────────────────────────────────────────────────────────
 type Status = "draft" | "needs_edit" | "approved" | "scheduled" | "posted";
@@ -38,41 +27,19 @@ type Draft = {
   push_error: string | null;
 };
 
-const COLUMNS: { key: Status; label: string }[] = [
-  { key: "draft", label: "Draft" },
-  { key: "needs_edit", label: "Needs edit" },
-  { key: "approved", label: "Approved" },
-  { key: "scheduled", label: "Scheduled" },
-  { key: "posted", label: "Posted" },
+// The three things you ever want to look at, in order of how often you do.
+type Filter = "review" | "scheduled" | "posted";
+const FILTERS: { key: Filter; label: string; statuses: Status[] }[] = [
+  { key: "review", label: "Needs review", statuses: ["draft", "needs_edit"] },
+  { key: "scheduled", label: "Scheduled", statuses: ["approved", "scheduled"] },
+  { key: "posted", label: "Posted", statuses: ["posted"] },
 ];
 
-// Date helpers for scheduling. We store scheduled_at as an ISO timestamp at
-// noon UTC so the calendar day never drifts across timezones.
-function ymd(d: Date): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-}
-function isoFromInput(dateStr: string): string | null {
-  if (!dateStr) return null;
-  return `${dateStr}T12:00:00.000Z`;
-}
-function inputFromIso(iso: string | null): string {
-  if (!iso) return "";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "";
-  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
-}
-function prettyDay(iso: string | null): string {
-  if (!iso) return "";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "";
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
-}
-
-// Datetime scheduling (real publish time, in the user's local timezone).
+// ── Date helpers ───────────────────────────────────────────────────────────
 // <input type="datetime-local"> works in local time; we store ISO/UTC.
 function isoFromLocalInput(s: string): string | null {
   if (!s) return null;
-  const d = new Date(s); // parsed as local time
+  const d = new Date(s);
   return Number.isNaN(d.getTime()) ? null : d.toISOString();
 }
 function localInputFromIso(iso: string | null): string {
@@ -82,18 +49,24 @@ function localInputFromIso(iso: string | null): string {
   const p = (n: number) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
 }
-function localDayKey(iso: string | null): string {
+function dayKey(iso: string | null): string {
   if (!iso) return "";
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "";
   const p = (n: number) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
 }
-function prettyDateTime(iso: string | null): string {
+function prettyDay(iso: string | null): string {
   if (!iso) return "";
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "";
-  return d.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+  return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+}
+function prettyTime(iso: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
 }
 function isFuture(iso: string | null): boolean {
   if (!iso) return false;
@@ -101,31 +74,20 @@ function isFuture(iso: string | null): boolean {
   return !Number.isNaN(d.getTime()) && d.getTime() > Date.now() + 60_000;
 }
 
+// ── Platforms & formats ─────────────────────────────────────────────────────
 const PLATFORMS = ["instagram", "twitter", "pinterest", "tiktok"] as const;
-// Platforms posted by hand (native), never auto-published. Mirrors MANUAL_PLATFORMS
-// in lib/scheduler. Approving still marks them ready; the card shows a native-post
-// block (slide download + copy caption) instead of pushing to the API.
+// Posted by hand (native), never auto-published. Mirrors MANUAL_PLATFORMS in
+// lib/scheduler. Approving marks them ready; the card shows a native-post block.
 const MANUAL_PLATFORMS = new Set<string>(["tiktok"]);
 
-// Display order for platforms within a carousel group (the row of tags + the
-// per-platform caption editors). Lower = first.
-const PLATFORM_RANK: Record<string, number> = {
-  instagram: 0,
-  tiktok: 1,
-  pinterest: 2,
-  twitter: 3,
-};
-
+const PLATFORM_RANK: Record<string, number> = { instagram: 0, tiktok: 1, pinterest: 2, twitter: 3 };
 const PLATFORM_LABEL: Record<string, string> = {
   instagram: "Instagram",
   twitter: "Twitter / X",
   pinterest: "Pinterest",
   tiktok: "TikTok",
 };
-
-// Each platform gets ONE in-palette accent dot so cuts are scannable at a glance
-// without breaking the monochrome editorial system. Blue = the editorial accent,
-// purple = the logo accent, two ink tones = neutral. No platform-logo brand colors.
+// One in-palette accent dot per platform, scannable without platform-logo colors.
 const PLATFORM_ACCENT: Record<string, string> = {
   instagram: "var(--blue)",
   twitter: "var(--ink-2)",
@@ -133,48 +95,42 @@ const PLATFORM_ACCENT: Record<string, string> = {
   tiktok: "var(--ink)",
 };
 
-// A small dot + uppercase label, used everywhere a platform is named (Review
-// card, Board card, Calendar card). The dot carries the identity; the label
-// stays in the locked eyebrow treatment.
 function PlatformTag({ platform, size = "md" }: { platform: string; size?: "sm" | "md" }) {
   const small = size === "sm";
   return (
     <span style={{ display: "inline-flex", alignItems: "center", gap: small ? 5 : 6 }}>
-      <span
-        style={{
-          width: small ? 5 : 6,
-          height: small ? 5 : 6,
-          borderRadius: 999,
-          background: PLATFORM_ACCENT[platform] || "var(--ink-3)",
-          flexShrink: 0,
-        }}
-      />
-      <span
-        style={{
-          fontFamily: "var(--sans)",
-          fontSize: small ? 9 : 10,
-          fontWeight: 600,
-          letterSpacing: "0.13em",
-          textTransform: "uppercase",
-          color: "var(--ink-2)",
-        }}
-      >
+      <span style={{ width: small ? 5 : 6, height: small ? 5 : 6, borderRadius: 999, background: PLATFORM_ACCENT[platform] || "var(--ink-3)", flexShrink: 0 }} />
+      <span style={{ fontFamily: "var(--sans)", fontSize: small ? 9 : 10, fontWeight: 600, letterSpacing: "0.13em", textTransform: "uppercase", color: "var(--ink-2)" }}>
         {PLATFORM_LABEL[platform] || platform}
       </span>
     </span>
   );
 }
 
-type Float = { id: number; text: string; tone: "pos" | "big" };
+// A carousel idea is all the platform drafts that share a group_id; a lone draft
+// is a group of one. Lanes are keyed by format/platform so the board reads the
+// way you think about it.
+type Group = { id: string; drafts: Draft[] };
 
-// A carousel idea reviewed as one card: all the platform drafts that share a
-// group_id. A draft with no siblings is just a group of one.
-type GroupQueueItem = { id: string; drafts: Draft[] };
+function laneFor(group: Group): { key: string; label: string; rank: number } {
+  if (group.drafts.some((d) => d.media_type === "carousel")) return { key: "carousel", label: "Carousels", rank: 1 };
+  const p = group.drafts[0].platform;
+  if (p === "twitter") return { key: "tweets", label: "X · Tweets", rank: 0 };
+  if (p === "instagram") return { key: "instagram", label: "Instagram · Posts", rank: 2 };
+  if (p === "pinterest") return { key: "pinterest", label: "Pinterest · Pins", rank: 3 };
+  if (p === "tiktok") return { key: "tiktok", label: "TikTok", rank: 4 };
+  return { key: p, label: PLATFORM_LABEL[p] || p, rank: 5 };
+}
+
+const formatLabel = (group: Group): string => {
+  if (group.drafts.some((d) => d.media_type === "carousel")) return "Carousel";
+  if (group.drafts.some((d) => d.media_type === "video")) return "Video";
+  if (group.drafts[0].platform === "twitter") return "Tweet";
+  if (group.drafts[0].platform === "pinterest") return "Pin";
+  return group.drafts.some((d) => d.media_url) ? "Image" : "Text";
+};
 
 // ── Media download helpers ─────────────────────────────────────────────────
-// Lets you save the slide PNGs to disk for manual posting while auto-push is
-// still dormant. Carousel covers are stored as `…/slide-0.png`; we derive the
-// sibling slides (slide-1, slide-2, …) and stop at the first one missing.
 async function fetchDownload(url: string, filename: string): Promise<boolean> {
   try {
     const res = await fetch(url);
@@ -199,19 +155,13 @@ function carouselSlideUrls(coverUrl: string): { url: string; name: string }[] | 
   if (!m) return null;
   const [, base, ext] = m;
   const slug = base.replace(/\/$/, "").split("/").pop() || "carousel";
-  // Up to 10 slides; downloader bails at the first missing file.
-  return Array.from({ length: 10 }, (_, i) => ({
-    url: `${base}slide-${i}.${ext}`,
-    name: `${slug}-slide-${i}.${ext}`,
-  }));
+  return Array.from({ length: 10 }, (_, i) => ({ url: `${base}slide-${i}.${ext}`, name: `${slug}-slide-${i}.${ext}` }));
 }
 
 async function downloadDraftMedia(draft: Draft): Promise<void> {
   if (!draft.media_url) return;
   const slides = draft.media_type === "carousel" ? carouselSlideUrls(draft.media_url) : null;
   if (slides) {
-    // Bundle every slide into ONE .zip so a carousel downloads as a single
-    // file. Fetch slides in order; stop at the first gap (end of the set).
     const slug = slides[0].name.replace(/-slide-0\.[^.]+$/, "") || "carousel";
     const entries: ZipEntry[] = [];
     for (const s of slides) {
@@ -259,7 +209,7 @@ function DownloadButton({ draft, style }: { draft: Draft; style: React.CSSProper
   );
 }
 
-function CopyCaptionButton({ text, style }: { text: string; style: React.CSSProperties }) {
+function CopyButton({ text, style, label = "Copy caption" }: { text: string; style: React.CSSProperties; label?: string }) {
   const [done, setDone] = useState(false);
   if (!text.trim()) return null;
   return (
@@ -270,46 +220,31 @@ function CopyCaptionButton({ text, style }: { text: string; style: React.CSSProp
           setDone(true);
           setTimeout(() => setDone(false), 1500);
         } catch {
-          /* clipboard blocked, ignore */
+          /* clipboard blocked */
         }
       }}
       style={style}
-      title="Copy the caption text"
+      title="Copy to clipboard"
     >
-      {done ? "Copied ✓" : "Copy caption"}
+      {done ? "Copied ✓" : label}
     </button>
   );
 }
 
-// ── Component ─────────────────────────────────────────────────────────────
+// ── Main board ──────────────────────────────────────────────────────────────
 export default function ContentBoard({ getToken }: { getToken: () => Promise<string> }) {
   const [drafts, setDrafts] = useState<Draft[]>([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
   const [schedulerOn, setSchedulerOn] = useState(false);
   const [calendarFeedUrl, setCalendarFeedUrl] = useState<string | null>(null);
-  const [view, setView] = useState<"review" | "board" | "calendar">("review");
+  const [filter, setFilter] = useState<Filter>("review");
   const [showComposer, setShowComposer] = useState(false);
-
-  // Game state (persisted to localStorage)
-  const [game, setGame] = useState<GameState>(() => loadGame());
-  useEffect(() => saveGame(game), [game]);
-
-  // Review session state
-  const [index, setIndex] = useState(0);
-  const [combo, setCombo] = useState(0);
-  const [anim, setAnim] = useState<"approve" | "reject" | "skip" | null>(null);
-  const [floats, setFloats] = useState<Float[]>([]);
-  const floatId = useRef(0);
-  const busy = useRef(false);
 
   const authedFetch = useCallback(
     async (input: string, init: RequestInit = {}) => {
       const t = await getToken();
-      return fetch(input, {
-        ...init,
-        headers: { ...(init.headers || {}), Authorization: `Bearer ${t}`, "Content-Type": "application/json" },
-      });
+      return fetch(input, { ...init, headers: { ...(init.headers || {}), Authorization: `Bearer ${t}`, "Content-Type": "application/json" } });
     },
     [getToken]
   );
@@ -356,186 +291,87 @@ export default function ContentBoard({ getToken }: { getToken: () => Promise<str
     [authedFetch]
   );
 
-  // The review queue, grouped by group_id: a carousel idea (one draft per
-  // platform, shared slides, different captions) is reviewed as a single card.
-  // We keep only groups that still have at least one draft awaiting a decision,
-  // order each group's drafts by platform, and sort groups oldest-first.
-  const groupQueue = useMemo<GroupQueueItem[]>(() => {
-    const groups = new Map<string, Draft[]>();
+  // Group every draft by group_id once; views slice these by status.
+  const groups = useMemo<Group[]>(() => {
+    const map = new Map<string, Draft[]>();
     for (const d of drafts) {
-      const arr = groups.get(d.group_id);
+      const arr = map.get(d.group_id);
       if (arr) arr.push(d);
-      else groups.set(d.group_id, [d]);
+      else map.set(d.group_id, [d]);
     }
-    const rank = (p: string) => (PLATFORM_RANK[p] ?? 99);
-    const out: GroupQueueItem[] = [];
-    for (const [id, members] of groups) {
-      if (!members.some((d) => d.status === "draft")) continue;
-      const ordered = [...members].sort((a, b) => rank(a.platform) - rank(b.platform));
-      out.push({ id, drafts: ordered });
+    const rank = (p: string) => PLATFORM_RANK[p] ?? 99;
+    const out: Group[] = [];
+    for (const [id, members] of map) {
+      out.push({ id, drafts: [...members].sort((a, b) => rank(a.platform) - rank(b.platform)) });
     }
-    const earliest = (g: GroupQueueItem) =>
-      g.drafts.reduce((min, d) => (d.created_at < min ? d.created_at : min), g.drafts[0].created_at);
-    out.sort((a, b) => earliest(a).localeCompare(earliest(b)));
     return out;
   }, [drafts]);
 
-  const byStatus = useMemo(() => {
-    const map: Record<Status, Draft[]> = { draft: [], needs_edit: [], approved: [], scheduled: [], posted: [] };
-    for (const d of drafts) map[d.status]?.push(d);
-    return map;
+  // Per-filter counts for the segmented control.
+  const counts = useMemo(() => {
+    const c: Record<Filter, number> = { review: 0, scheduled: 0, posted: 0 };
+    for (const f of FILTERS) c[f.key] = drafts.filter((d) => f.statuses.includes(d.status)).length;
+    return c;
   }, [drafts]);
 
-  const spawnFloat = useCallback((text: string, tone: "pos" | "big") => {
-    const id = ++floatId.current;
-    setFloats((f) => [...f, { id, text, tone }]);
-    setTimeout(() => setFloats((f) => f.filter((x) => x.id !== id)), 850);
-  }, []);
+  // Approve / flag / delete a whole group, no animation, no scoring.
+  const approveGroup = useCallback(
+    (group: Group, edits: GroupEdits) => {
+      for (const d of group.drafts) {
+        if (d.status === "posted") continue;
+        const cap = edits.caps[d.id] ?? { body: d.body, title: d.title ?? "" };
+        const updates: Partial<Draft> = {
+          status: "approved",
+          body: cap.body,
+          comment: edits.comment || null,
+          scheduled_at: edits.schedule ? isoFromLocalInput(edits.schedule) : null,
+        };
+        if (d.platform === "pinterest" || d.platform === "tiktok") updates.title = cap.title || null;
+        patch(d.id, updates);
+      }
+    },
+    [patch]
+  );
 
-  const todayCount = game.todayDate === todayStr() ? game.todayCount : 0;
-  const lvl = levelInfo(game.xp);
+  const flagGroup = useCallback(
+    (group: Group, edits: GroupEdits) => {
+      for (const d of group.drafts) {
+        if (d.status === "posted") continue;
+        const cap = edits.caps[d.id] ?? { body: d.body, title: d.title ?? "" };
+        const updates: Partial<Draft> = { status: "needs_edit", body: cap.body, comment: edits.comment || null };
+        if (d.platform === "pinterest" || d.platform === "tiktok") updates.title = cap.title || null;
+        patch(d.id, updates);
+      }
+    },
+    [patch]
+  );
 
-  // Delete an entire carousel group (every platform draft that shares its id).
-  const removeGroup = useCallback(
-    (group: GroupQueueItem) => {
-      for (const d of group.drafts) remove(d.id);
+  const deleteGroup = useCallback(
+    (group: Group) => {
+      if (group.drafts.length > 1 && !confirm("Delete this whole set across every platform?")) return;
+      group.drafts.forEach((d) => remove(d.id));
     },
     [remove]
   );
 
-  // Apply a review decision to a whole group with animation + scoring. One
-  // click publishes every platform in the group, each with its own caption, at
-  // the same (optional) scheduled time.
-  const decideGroup = useCallback(
-    (
-      action: "approve" | "needs_edit" | "skip",
-      group: GroupQueueItem,
-      edits: { caps: Record<string, { body: string; title: string }>; comment: string; schedule: string }
-    ) => {
-      if (busy.current) return;
-      busy.current = true;
-      const dir = action === "approve" ? "approve" : action === "needs_edit" ? "reject" : "skip";
-      setAnim(dir);
-
-      setTimeout(() => {
-        if (action === "skip") {
-          setCombo(0);
-          setIndex((i) => i + 1);
-        } else {
-          // A "thoughtful" review = any caption was edited vs its original, or
-          // a note was left.
-          const thoughtful =
-            edits.comment.trim().length > 0 ||
-            group.drafts.some((d) => (edits.caps[d.id]?.body ?? d.body).trim() !== d.body.trim());
-
-          // The whole group counts as ONE combo step.
-          const nextCombo = action === "approve" ? combo + 1 : 0;
-          let bonus = 0;
-          if (action === "approve" && COMBO_BONUS[nextCombo]) bonus = COMBO_BONUS[nextCombo];
-          setCombo(nextCombo);
-
-          let touched = 0;
-          for (const d of group.drafts) {
-            const cap = edits.caps[d.id] ?? { body: d.body, title: d.title ?? "" };
-            if (action === "approve") {
-              // Approving publishes every platform in the group; skip anything
-              // already posted.
-              if (d.status === "posted") continue;
-              const updates: Partial<Draft> = {
-                status: "approved",
-                body: cap.body,
-                comment: edits.comment || null,
-                scheduled_at: edits.schedule || null,
-              };
-              if (d.platform === "pinterest" || d.platform === "tiktok") updates.title = cap.title || null;
-              patch(d.id, updates);
-              touched += 1;
-            } else {
-              // needs_edit: flag every non-posted draft with its caption + note.
-              if (d.status === "posted") continue;
-              const updates: Partial<Draft> = {
-                status: "needs_edit",
-                body: cap.body,
-                comment: edits.comment || null,
-              };
-              if (d.platform === "pinterest" || d.platform === "tiktok") updates.title = cap.title || null;
-              patch(d.id, updates);
-              touched += 1;
-            }
-          }
-
-          // Base points scale with how many platforms were approved at once;
-          // needs_edit awards its flat rate. Combo bonus rides on top once.
-          const perPlatform =
-            action === "approve" ? (thoughtful ? POINTS.approveThoughtful : POINTS.approve) : POINTS.needsEdit;
-          const base = action === "approve" ? perPlatform * Math.max(1, touched) : perPlatform;
-          const total = base + bonus;
-
-          const res = registerReview(game, total);
-          setGame((g) => {
-            const r = registerReview(g, total);
-            const merged = { ...r.next };
-            if (nextCombo > merged.bestCombo) merged.bestCombo = nextCombo;
-            return merged;
-          });
-
-          spawnFloat(`+${total}${bonus ? ` (combo ×${nextCombo})` : ""}`, bonus ? "big" : "pos");
-
-          if (res.goalJustHit) {
-            burstConfetti({ count: 40 });
-            spawnFloat("daily goal hit", "big");
-          }
-          // index stays, the reviewed group drops out of the queue and the next
-          // one slides into this slot.
-        }
-        setAnim(null);
-        busy.current = false;
-      }, 240);
-    },
-    [combo, game, patch, spawnFloat]
+  const webcal = calendarFeedUrl ? calendarFeedUrl.replace(/^https?:/, "webcal:") : null;
+  const activeStatuses = FILTERS.find((f) => f.key === filter)!.statuses;
+  const activeGroups = useMemo(
+    () => groups.filter((g) => g.drafts.some((d) => activeStatuses.includes(d.status))),
+    [groups, activeStatuses]
   );
-
-  // Celebrate clearing the whole queue, but only when it actually drained from
-  // a non-empty state this session (not just because you opened an empty board).
-  const clearedRef = useRef(false);
-  const hadItemsRef = useRef(false);
-  useEffect(() => {
-    if (loading) return;
-    if (groupQueue.length > 0) {
-      hadItemsRef.current = true;
-      clearedRef.current = false;
-      return;
-    }
-    if (groupQueue.length === 0 && hadItemsRef.current && !clearedRef.current && view === "review") {
-      clearedRef.current = true;
-      burstConfetti({ count: 70 });
-      setGame((g) => ({ ...g, xp: g.xp + POINTS.clearQueue }));
-    }
-  }, [groupQueue.length, loading, view]);
 
   return (
     <div>
-      <GameStyles />
-
-      {/* HUD */}
-      <GameHud game={game} todayCount={todayCount} lvl={lvl} queueLeft={groupQueue.length} />
-
-      {/* View toggle + composer */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", margin: "20px 0 18px" }}>
-        <div style={{ display: "flex", gap: 6 }}>
-          {(["review", "board", "calendar"] as const).map((v) => {
-            const on = view === v;
-            const label = v === "review" ? "Review" : v === "board" ? "Board" : "Calendar";
-            return (
-              <button key={v} onClick={() => setView(v)} style={{ ...pill, ...(on ? pillOn : pillOff) }}>
-                {label}
-              </button>
-            );
-          })}
+      {/* Header: title + the one segmented control that runs everything */}
+      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 16, flexWrap: "wrap", marginBottom: 18 }}>
+        <div>
+          <div style={eyebrow}>Content</div>
+          <h1 style={pageTitle}>The board</h1>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
           <span style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)" }}>
-            {schedulerOn ? "approve → pushes to scheduler" : "approve-only mode"}
+            {schedulerOn ? "approve publishes live" : "approve-only mode"}
           </span>
           <button onClick={() => setShowComposer((s) => !s)} style={{ ...pill, ...pillPrimary }}>
             {showComposer ? "Close" : "New draft"}
@@ -543,381 +379,350 @@ export default function ContentBoard({ getToken }: { getToken: () => Promise<str
         </div>
       </div>
 
-      {showComposer && <Composer authedFetch={authedFetch} onCreated={load} />}
+      <div style={{ display: "flex", gap: 6, marginBottom: 22, flexWrap: "wrap" }}>
+        {FILTERS.map((f) => {
+          const on = filter === f.key;
+          return (
+            <button key={f.key} onClick={() => setFilter(f.key)} style={{ ...pill, ...(on ? pillOn : pillOff) }}>
+              {f.label}
+              <span style={{ marginLeft: 7, opacity: on ? 0.75 : 0.55, fontVariantNumeric: "tabular-nums" }}>{counts[f.key]}</span>
+            </button>
+          );
+        })}
+      </div>
 
+      {showComposer && <Composer authedFetch={authedFetch} onCreated={load} />}
       {err && <div style={errNotice}>{err}</div>}
 
       {loading ? (
         <div style={{ textAlign: "center", padding: "64px 0" }}>
-          <div style={mastheadEyebrow}>Loading</div>
+          <div style={eyebrow}>Loading</div>
           <p style={{ fontFamily: "var(--sans)", fontSize: 14, color: "var(--ink-3)", marginTop: 8 }}>Opening the board…</p>
         </div>
-      ) : view === "review" ? (
-        <ReviewMode
-          groups={groupQueue}
-          index={index}
-          anim={anim}
-          floats={floats}
-          schedulerOn={schedulerOn}
-          totalDrafts={drafts.length}
-          onDecide={decideGroup}
-          onRemoveGroup={removeGroup}
-          dailyGoal={game.dailyGoal}
-          todayCount={todayCount}
-        />
-      ) : view === "board" ? (
-        <BoardView byStatus={byStatus} onPatch={patch} onRemove={remove} schedulerOn={schedulerOn} />
+      ) : filter === "scheduled" ? (
+        <ScheduledView groups={activeGroups} onPatch={patch} feedUrl={calendarFeedUrl} webcal={webcal} />
+      ) : filter === "posted" ? (
+        <PostedView groups={activeGroups} onPatch={patch} />
       ) : (
-        <CalendarView drafts={drafts} onPatch={patch} feedUrl={calendarFeedUrl} />
+        <ReviewLanes groups={activeGroups} schedulerOn={schedulerOn} onApprove={approveGroup} onFlag={flagGroup} onDelete={deleteGroup} />
       )}
     </div>
   );
 }
 
-// ── Masthead ────────────────────────────────────────────────────────────────
-// The motivation layer, read as a magazine masthead rather than a game HUD.
-// Your editorial "role" (level title) is the headline; XP rides under it as a
-// thin progress line. Streak, daily goal, and queue sit to the right as quiet
-// stats. The dopamine still lives in Review mode (floats + a small confetti
-// burst on goal) — this strip just holds the standing state, calmly.
-function GameHud({
-  game,
-  todayCount,
-  lvl,
-  queueLeft,
+// ── Review: lanes by format/platform, every card actionable at once ──────────
+function ReviewLanes({
+  groups,
+  schedulerOn,
+  onApprove,
+  onFlag,
+  onDelete,
 }: {
-  game: GameState;
-  todayCount: number;
-  lvl: ReturnType<typeof levelInfo>;
-  queueLeft: number;
+  groups: Group[];
+  schedulerOn: boolean;
+  onApprove: (g: Group, e: GroupEdits) => void;
+  onFlag: (g: Group, e: GroupEdits) => void;
+  onDelete: (g: Group) => void;
 }) {
-  const goalPct = Math.min(1, game.dailyGoal ? todayCount / game.dailyGoal : 0);
-  return (
-    <div style={masthead}>
-      {/* Editorial role + XP, as the masthead nameplate */}
-      <div style={{ minWidth: 220, flex: 1 }}>
-        <div style={mastheadEyebrow}>Today’s edition</div>
-        <div style={mastheadTitle}>{lvl.title}</div>
-        <div style={mastheadSub}>
-          Lv {lvl.level} · {game.xp.toLocaleString()} XP
-          {lvl.nextAt != null ? ` · ${(lvl.nextAt - game.xp).toLocaleString()} to next` : " · top of the masthead"}
-        </div>
-        <div style={xpTrackThin}>
-          <div style={{ ...xpFillThin, width: `${Math.round(lvl.pct * 100)}%` }} />
-        </div>
-      </div>
+  const lanes = useMemo(() => {
+    const map = new Map<string, { label: string; rank: number; groups: Group[] }>();
+    for (const g of groups) {
+      const { key, label, rank } = laneFor(g);
+      const lane = map.get(key);
+      if (lane) lane.groups.push(g);
+      else map.set(key, { label, rank, groups: [g] });
+    }
+    return [...map.values()].sort((a, b) => a.rank - b.rank);
+  }, [groups]);
 
-      {/* Quiet stats */}
-      <div style={mastheadStats}>
-        <Stat>
-          <Ring pct={goalPct} label={`${todayCount}/${game.dailyGoal}`} />
-          <span style={statLabel}>reviewed today</span>
-        </Stat>
-        <Stat>
-          <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-            <Flame active={game.streakDays > 0} />
-            <span style={statBig}>{game.streakDays}</span>
+  if (!groups.length) {
+    return <Empty title="Nothing to review" line="New drafts land here, grouped by platform and format. The daily X engine fills this each morning." />;
+  }
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 26 }}>
+      {lanes.map((lane) => (
+        <Lane key={lane.label} label={lane.label} count={lane.groups.length}>
+          <div style={cardGrid}>
+            {lane.groups.map((g) => (
+              <ReviewCard key={g.id} group={g} schedulerOn={schedulerOn} onApprove={onApprove} onFlag={onFlag} onDelete={onDelete} />
+            ))}
           </div>
-          <span style={statLabel}>day streak</span>
-        </Stat>
-        <Stat>
-          <span style={statBig}>{queueLeft}</span>
-          <span style={statLabel}>in queue</span>
-        </Stat>
-      </div>
+        </Lane>
+      ))}
     </div>
   );
 }
 
-// ── Review mode (gamified focus) ──────────────────────────────────────────
-// Reviews a whole carousel group at once: the shared slides shown a single
-// time, one caption editor per platform, and one approve that publishes them
-// all (each with its own caption) at the same optional scheduled time.
-function ReviewMode({
-  groups,
-  index,
-  anim,
-  floats,
+function Lane({ label, count, children }: { label: string; count: number; children: React.ReactNode }) {
+  const [open, setOpen] = useState(true);
+  return (
+    <section>
+      <button onClick={() => setOpen((o) => !o)} style={laneHead}>
+        <span style={{ display: "inline-flex", width: 14, justifyContent: "center", color: "var(--ink-3)", transform: open ? "none" : "rotate(-90deg)", transition: "transform .15s" }}>▾</span>
+        <span style={laneLabel}>{label}</span>
+        <span style={laneCount}>{count}</span>
+      </button>
+      {open && <div style={{ marginTop: 12 }}>{children}</div>}
+    </section>
+  );
+}
+
+type GroupEdits = { caps: Record<string, { body: string; title: string }>; comment: string; schedule: string };
+
+// One reviewable card: shared media once, a caption editor per platform, a shared
+// schedule, and one Approve that publishes every platform (TikTok stays native).
+function ReviewCard({
+  group,
   schedulerOn,
-  totalDrafts,
-  onDecide,
-  onRemoveGroup,
-  dailyGoal,
-  todayCount,
+  onApprove,
+  onFlag,
+  onDelete,
 }: {
-  groups: GroupQueueItem[];
-  index: number;
-  anim: "approve" | "reject" | "skip" | null;
-  floats: Float[];
+  group: Group;
   schedulerOn: boolean;
-  totalDrafts: number;
-  onDecide: (
-    a: "approve" | "needs_edit" | "skip",
-    g: GroupQueueItem,
-    e: { caps: Record<string, { body: string; title: string }>; comment: string; schedule: string }
-  ) => void;
-  onRemoveGroup: (g: GroupQueueItem) => void;
-  dailyGoal: number;
-  todayCount: number;
+  onApprove: (g: Group, e: GroupEdits) => void;
+  onFlag: (g: Group, e: GroupEdits) => void;
+  onDelete: (g: Group) => void;
 }) {
-  const group = groups.length ? groups[Math.min(index, groups.length - 1)] : null;
-
-  // Per-platform captions, keyed by draft id. One shared comment + schedule.
-  const [caps, setCaps] = useState<Record<string, { body: string; title: string }>>({});
-  const [comment, setComment] = useState("");
-  const [schedule, setSchedule] = useState("");
-
-  // Reset all editable fields whenever the current group changes. Prefill the
-  // schedule from any draft that already carries a scheduled_at.
-  useEffect(() => {
-    if (!group) {
-      setCaps({});
-      setComment("");
-      setSchedule("");
-      return;
-    }
+  const [caps, setCaps] = useState<Record<string, { body: string; title: string }>>(() => {
     const next: Record<string, { body: string; title: string }> = {};
     for (const d of group.drafts) next[d.id] = { body: d.body, title: d.title ?? "" };
-    setCaps(next);
-    setComment("");
-    const existing = group.drafts.find((d) => d.scheduled_at);
-    setSchedule(existing ? localInputFromIso(existing.scheduled_at) : "");
-  }, [group?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+    return next;
+  });
+  const [comment, setComment] = useState("");
+  const existingSchedule = group.drafts.find((d) => d.scheduled_at);
+  const [schedule, setSchedule] = useState(existingSchedule ? localInputFromIso(existingSchedule.scheduled_at) : "");
+  const [done, setDone] = useState<null | "approved" | "flagged">(null);
 
-  const setCap = (id: string, patch: Partial<{ body: string; title: string }>) =>
-    setCaps((c) => ({ ...c, [id]: { body: c[id]?.body ?? "", title: c[id]?.title ?? "", ...patch } }));
-
-  // Keyboard shortcuts, ignored while typing in a field.
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      const t = e.target as HTMLElement | null;
-      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
-      if (!group) return;
-      const edits = { caps, comment, schedule };
-      if (e.key === "a" || e.key === "A") {
-        e.preventDefault();
-        onDecide("approve", group, edits);
-      } else if (e.key === "e" || e.key === "E") {
-        e.preventDefault();
-        onDecide("needs_edit", group, edits);
-      } else if (e.key === "s" || e.key === "S" || e.key === "ArrowRight") {
-        e.preventDefault();
-        onDecide("skip", group, edits);
-      }
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [group, caps, comment, schedule, onDecide]);
-
-  if (!group) {
-    return <Cleared totalDrafts={totalDrafts} todayCount={todayCount} dailyGoal={dailyGoal} />;
-  }
+  const setCap = (id: string, p: Partial<{ body: string; title: string }>) =>
+    setCaps((c) => ({ ...c, [id]: { body: c[id]?.body ?? "", title: c[id]?.title ?? "", ...p } }));
 
   const edits = { caps, comment, schedule };
   const mediaDraft = group.drafts.find((d) => d.media_url) ?? group.drafts[0];
-  const firstCap = caps[group.drafts[0].id]?.body ?? group.drafts[0].body;
-  const manualDrafts = group.drafts.filter((d) => MANUAL_PLATFORMS.has(d.platform));
-  const autoDrafts = group.drafts.filter((d) => !MANUAL_PLATFORMS.has(d.platform));
-  const autoLabel = autoDrafts.map((d) => PLATFORM_LABEL[d.platform] || d.platform).join(" · ");
   const scheduledFuture = isFuture(isoFromLocalInput(schedule));
-  const approveLabel = autoLabel ? `${scheduledFuture ? "Schedule" : "Publish"} → ${autoLabel}` : "Mark ready";
+  const autoPlatforms = group.drafts.filter((d) => !MANUAL_PLATFORMS.has(d.platform));
+  const manualPlatforms = group.drafts.filter((d) => MANUAL_PLATFORMS.has(d.platform));
+  const autoLabel = autoPlatforms.map((d) => PLATFORM_LABEL[d.platform] || d.platform).join(" · ");
+  const approveLabel = !schedulerOn ? "Approve" : autoLabel ? `${scheduledFuture ? "Schedule" : "Publish"} → ${autoLabel}` : "Mark ready";
 
-  const animStyle: React.CSSProperties =
-    anim === "approve"
-      ? { transform: "translateX(60px) rotate(4deg)", opacity: 0 }
-      : anim === "reject"
-      ? { transform: "translateX(-60px) rotate(-4deg)", opacity: 0 }
-      : anim === "skip"
-      ? { transform: "translateY(-30px)", opacity: 0 }
-      : { transform: "none", opacity: 1 };
+  const flagged = group.drafts.some((d) => d.status === "needs_edit");
+  const pushError = group.drafts.find((d) => d.push_error)?.push_error;
 
   return (
-    <div style={{ position: "relative", maxWidth: 560, margin: "0 auto" }}>
-      {/* floating points */}
-      <div style={{ position: "absolute", top: -6, left: 0, right: 0, display: "flex", justifyContent: "center", pointerEvents: "none", zIndex: 3 }}>
-        {floats.map((f) => (
-          <span key={f.id} className="float-up" style={{ position: "absolute", fontFamily: "var(--sans)", fontWeight: 700, fontSize: f.tone === "big" ? 26 : 19, color: f.tone === "big" ? "var(--ink)" : "var(--blue)" }}>
-            {f.text}
-          </span>
-        ))}
+    <div style={{ ...cardSurface, opacity: done ? 0.5 : 1, transition: "opacity .25s" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 10 }}>
+        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
+          {group.drafts.map((d) => (
+            <PlatformTag key={d.id} platform={d.platform} />
+          ))}
+          <span style={chip}>{formatLabel(group)}</span>
+          <span style={idTag}>#{group.drafts[0].seq}</span>
+          {flagged && <span style={{ ...chip, color: "var(--orange)", borderColor: "var(--orange)" }}>needs edit</span>}
+        </div>
+        <button onClick={() => onDelete(group)} style={xBtn} title="Delete">×</button>
       </div>
 
-      <div className="card-in" key={group.id} style={{ ...reviewCard, ...animStyle }}>
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 12 }}>
-          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 10 }}>
-            {group.drafts.map((d) => (
-              <PlatformTag key={d.id} platform={d.platform} />
-            ))}
-          </div>
-          <button onClick={() => onRemoveGroup(group)} style={xBtn} title="Delete this whole set">
-            ×
-          </button>
-        </div>
-        {mediaDraft.source_ref && (
-          <div style={{ ...sourceLine, marginBottom: 14 }} title={mediaDraft.source_ref}>
-            from {mediaDraft.source_ref}
-          </div>
-        )}
+      {mediaDraft.source_ref && <div style={sourceLine} title={mediaDraft.source_ref}>from {mediaDraft.source_ref}</div>}
 
-        {mediaDraft.media_url ? (
-          mediaDraft.media_type === "video" ? (
-            <video src={mediaDraft.media_url} style={reviewMedia} controls muted />
-          ) : (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={mediaDraft.media_url} alt="" style={reviewMedia} />
-          )
+      {mediaDraft.media_url &&
+        (mediaDraft.media_type === "video" ? (
+          <video src={mediaDraft.media_url} style={cardMedia} controls muted />
         ) : (
-          <div style={{ ...reviewMedia, ...mediaEmptyInner }}>no visual yet</div>
-        )}
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={mediaDraft.media_url} alt="" style={cardMedia} />
+        ))}
 
-        {mediaDraft.media_url && (
-          <div style={{ display: "flex", gap: 8, marginTop: 10, marginBottom: 4 }}>
-            <DownloadButton draft={mediaDraft} style={miniGhost} />
-            <CopyCaptionButton text={firstCap} style={miniGhost} />
-          </div>
-        )}
-
-        {/* per-platform caption editors */}
-        {group.drafts.map((d) => {
-          const cap = caps[d.id] ?? { body: d.body, title: d.title ?? "" };
-          const usesTitle = d.platform === "pinterest" || d.platform === "tiktok";
-          return (
-            <div key={d.id} style={{ marginTop: 14 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+      {/* a caption editor per platform */}
+      {group.drafts.map((d) => {
+        const cap = caps[d.id] ?? { body: d.body, title: d.title ?? "" };
+        const usesTitle = d.platform === "pinterest" || d.platform === "tiktok";
+        return (
+          <div key={d.id} style={{ marginTop: 12 }}>
+            {group.drafts.length > 1 && (
+              <div style={{ marginBottom: 6 }}>
                 <PlatformTag platform={d.platform} />
-                <span style={idTag}>#{d.seq}</span>
               </div>
-              {usesTitle && (
-                <input
-                  value={cap.title}
-                  onChange={(e) => setCap(d.id, { title: e.target.value })}
-                  placeholder={d.platform === "pinterest" ? "pin title (the search query)" : "tiktok title (optional, ≤90 chars)"}
-                  style={titleInput}
-                />
-              )}
-              <textarea value={cap.body} onChange={(e) => setCap(d.id, { body: e.target.value })} rows={4} style={bodyArea} />
-              {MANUAL_PLATFORMS.has(d.platform) && (
-                <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, marginTop: 8 }}>
-                  <span style={{ ...sourceLine, marginBottom: 0, whiteSpace: "normal" }}>
-                    posted by hand (API throttles reach) — grab these, then post in-app:
-                  </span>
-                  <DownloadButton draft={mediaDraft} style={miniGhost} />
-                  <CopyCaptionButton text={cap.body} style={miniGhost} />
-                </div>
-              )}
-            </div>
-          );
-        })}
+            )}
+            {usesTitle && (
+              <input
+                value={cap.title}
+                onChange={(e) => setCap(d.id, { title: e.target.value })}
+                placeholder={d.platform === "pinterest" ? "pin title (the search query)" : "tiktok title (optional, ≤90 chars)"}
+                style={titleInput}
+              />
+            )}
+            <textarea value={cap.body} onChange={(e) => setCap(d.id, { body: e.target.value })} rows={d.platform === "twitter" ? 5 : 4} style={bodyArea} />
+            {MANUAL_PLATFORMS.has(d.platform) && (
+              <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, marginTop: 8 }}>
+                <span style={{ ...sourceLine, marginBottom: 0, whiteSpace: "normal" }}>posted by hand (API throttles reach), grab these then post in-app:</span>
+                <DownloadButton draft={mediaDraft} style={miniGhost} />
+                <CopyButton text={cap.body} style={miniGhost} />
+              </div>
+            )}
+          </div>
+        );
+      })}
 
-        <textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={2} placeholder="your note / change request…" style={{ ...commentArea, marginTop: 14 }} />
+      <textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={1} placeholder="note to self (optional)…" style={{ ...commentArea, marginTop: 12 }} />
 
-        {/* one shared schedule for the whole set */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 4 }}>
-          <span style={{ fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, letterSpacing: "0.13em", textTransform: "uppercase", color: "var(--ink-3)" }}>
-            Publish at
-          </span>
-          <input
-            type="datetime-local"
-            value={schedule}
-            onChange={(e) => setSchedule(localInputFromIso(isoFromLocalInput(e.target.value)))}
-            style={dateInput}
-          />
-          <span style={{ fontFamily: "var(--sans)", fontSize: 11, color: "var(--ink-3)" }}>
-            {schedule ? (scheduledFuture ? prettyDateTime(isoFromLocalInput(schedule)) : "now") : "empty = now"}
-          </span>
-        </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 4, flexWrap: "wrap" }}>
+        <span style={miniLabel}>Publish at</span>
+        <input type="datetime-local" value={schedule} onChange={(e) => setSchedule(e.target.value)} style={dateInput} />
+        <span style={{ fontFamily: "var(--sans)", fontSize: 11, color: "var(--ink-3)" }}>{schedule ? (scheduledFuture ? "" : "now") : "now"}</span>
       </div>
 
-      {/* actions */}
-      <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 16, flexWrap: "wrap" }}>
-        <button onClick={() => onDecide("needs_edit", group, edits)} style={{ ...bigBtn, ...bigGhost }}>
-          Needs edit <kbd style={kbd}>E</kbd>
-        </button>
-        <button onClick={() => onDecide("skip", group, edits)} style={{ ...bigBtn, ...bigGhost }}>
-          Skip <kbd style={kbd}>S</kbd>
-        </button>
-        <button onClick={() => onDecide("approve", group, edits)} style={{ ...bigBtn, ...bigApprove }}>
-          {approveLabel} <kbd style={{ ...kbd, ...kbdDark }}>A</kbd>
-        </button>
-      </div>
-      {manualDrafts.length > 0 && (
-        <p style={{ textAlign: "center", fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", marginTop: 8 }}>
-          {manualDrafts.map((d) => PLATFORM_LABEL[d.platform] || d.platform).join(" · ")} is posted by hand — approving marks it ready and hands you the slides + caption above.
+      {pushError && <div style={{ ...errNotice, margin: "12px 0 0", fontSize: 12 }}>push failed: {pushError}</div>}
+      {manualPlatforms.length > 0 && (
+        <p style={{ fontFamily: "var(--sans)", fontSize: 11, color: "var(--ink-3)", margin: "10px 0 0" }}>
+          {manualPlatforms.map((d) => PLATFORM_LABEL[d.platform] || d.platform).join(" · ")} is posted by hand; approving marks it ready and hands you the slides + caption above.
         </p>
       )}
-      <p style={{ textAlign: "center", fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", marginTop: 12 }}>
-        keyboard: A approve · E needs edit · S skip
-      </p>
+
+      <div style={{ display: "flex", gap: 8, marginTop: 14, flexWrap: "wrap" }}>
+        <button
+          onClick={() => {
+            setDone("approved");
+            onApprove(group, edits);
+          }}
+          style={{ ...btn, ...btnApprove }}
+        >
+          {approveLabel}
+        </button>
+        <button
+          onClick={() => {
+            setDone("flagged");
+            onFlag(group, edits);
+          }}
+          style={{ ...btn, ...btnGhost }}
+        >
+          Needs edit
+        </button>
+      </div>
     </div>
   );
 }
 
-// Shared centered placeholder, used for the cleared queue, the empty board, and
-// any "nothing here" moment so they all read at the same level of polish.
-function EmptyState({ eyebrow, title, body }: { eyebrow: string; title: string; body: React.ReactNode }) {
-  return (
-    <div style={{ ...reviewCard, maxWidth: 560, margin: "0 auto", textAlign: "center", padding: "48px 28px" }}>
-      <div style={{ ...mastheadEyebrow, color: "var(--blue)", marginBottom: 10 }}>{eyebrow}</div>
-      <h2 style={{ fontFamily: "var(--sans)", fontSize: 24, letterSpacing: "-0.02em", margin: "0 0 10px", color: "var(--ink)" }}>
-        {title}
-      </h2>
-      <p style={{ fontFamily: "var(--sans)", fontSize: 14, color: "var(--ink-2)", margin: 0 }}>{body}</p>
-    </div>
-  );
-}
-
-function Cleared({ totalDrafts, todayCount, dailyGoal }: { totalDrafts: number; todayCount: number; dailyGoal: number }) {
-  return (
-    <EmptyState
-      eyebrow="Queue cleared"
-      title={totalDrafts === 0 ? "Nothing to review yet" : "Inbox zero"}
-      body={
-        totalDrafts === 0
-          ? "Add a draft above, or let the generator drop a batch in here."
-          : `You reviewed ${todayCount} today${todayCount >= dailyGoal ? ", goal met." : `, ${Math.max(0, dailyGoal - todayCount)} off today's goal.`}`
-      }
-    />
-  );
-}
-
-// ── Board view (Kanban) ────────────────────────────────────────────────
-function BoardView({
-  byStatus,
+// ── Scheduled: a plain upcoming list, grouped by day, plus undated approveds ──
+function ScheduledView({
+  groups,
   onPatch,
-  onRemove,
-  schedulerOn,
+  feedUrl,
+  webcal,
 }: {
-  byStatus: Record<Status, Draft[]>;
+  groups: Group[];
   onPatch: (id: string, u: Partial<Draft>) => void;
-  onRemove: (id: string) => void;
-  schedulerOn: boolean;
+  feedUrl: string | null;
+  webcal: string | null;
 }) {
-  // In approve-only (manual) mode the "Scheduled" status is never used, that's
-  // only for scheduler auto-push. Hide that column so the manual loop reads
-  // Draft → Needs edit → Approved → Posted.
-  const cols = COLUMNS.filter((c) => c.key !== "scheduled" || schedulerOn);
-  const empty = cols.every((c) => byStatus[c.key].length === 0);
-  if (empty) {
-    return (
-      <EmptyState
-        eyebrow="Empty board"
-        title="Nothing here yet"
-        body="Add a draft above, or let the generator drop a batch in here."
-      />
-    );
-  }
+  const drafts = groups.flatMap((g) => g.drafts);
+  const dated = [...drafts].filter((d) => d.scheduled_at).sort((a, b) => (a.scheduled_at || "").localeCompare(b.scheduled_at || ""));
+  const undated = drafts.filter((d) => !d.scheduled_at);
+
+  const byDay = (() => {
+    const map = new Map<string, Draft[]>();
+    for (const d of dated) {
+      const k = dayKey(d.scheduled_at);
+      const arr = map.get(k);
+      if (arr) arr.push(d);
+      else map.set(k, [d]);
+    }
+    return [...map.entries()];
+  })();
+
   return (
-    <div style={{ display: "grid", gridTemplateColumns: `repeat(${cols.length}, 1fr)`, gap: 16, alignItems: "start" }}>
-      {cols.map((col) => (
-        <div key={col.key}>
-          <div style={columnHeader}>
-            {col.label}
-            <span style={{ color: "var(--ink-3)", fontWeight: 400 }}> · {byStatus[col.key].length}</span>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            {byStatus[col.key].map((d) => (
-              <MiniCard key={d.id} draft={d} onPatch={onPatch} onRemove={onRemove} schedulerOn={schedulerOn} />
-            ))}
+    <div>
+      <SubscribePanel feedUrl={feedUrl} webcal={webcal} />
+      {drafts.length === 0 ? (
+        <Empty title="Nothing scheduled" line="Approve drafts in Needs review and they line up here. Give one a time and it publishes itself." />
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 26 }}>
+          {byDay.map(([k, items]) => (
+            <section key={k}>
+              <div style={laneHeadStatic}>
+                <span style={laneLabel}>{prettyDay(items[0].scheduled_at)}</span>
+                <span style={laneCount}>{items.length}</span>
+              </div>
+              <div style={{ ...cardGrid, marginTop: 12 }}>
+                {items.map((d) => (
+                  <ScheduleRow key={d.id} draft={d} onPatch={onPatch} />
+                ))}
+              </div>
+            </section>
+          ))}
+          {undated.length > 0 && (
+            <Lane label="No time yet" count={undated.length}>
+              <div style={cardGrid}>
+                {undated.map((d) => (
+                  <ScheduleRow key={d.id} draft={d} onPatch={onPatch} />
+                ))}
+              </div>
+            </Lane>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ScheduleRow({ draft, onPatch }: { draft: Draft; onPatch: (id: string, u: Partial<Draft>) => void }) {
+  return (
+    <div style={{ ...cardSurface, padding: 12, display: "flex", gap: 12, alignItems: "flex-start" }}>
+      {draft.media_url ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={draft.media_url} alt="" style={{ width: 48, height: 60, objectFit: "cover", borderRadius: 8, flexShrink: 0, background: "var(--tan)" }} />
+      ) : (
+        <div style={{ width: 48, height: 60, borderRadius: 8, background: "var(--tan)", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--sans)", fontSize: 9, fontWeight: 600, letterSpacing: "0.1em", color: "var(--ink-3)" }}>TXT</div>
+      )}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 5 }}>
+          <PlatformTag platform={draft.platform} size="sm" />
+          <span style={{ ...idTag, fontSize: 10 }}>#{draft.seq}</span>
+          {draft.scheduled_at && <span style={{ fontFamily: "var(--sans)", fontSize: 10, color: isFuture(draft.scheduled_at) ? "var(--ink-2)" : "var(--ink-3)" }}>{prettyTime(draft.scheduled_at)}</span>}
+        </div>
+        <div style={clamp2}>{draft.title || draft.body.slice(0, 100)}</div>
+        {draft.push_error && <div style={{ fontFamily: "var(--sans)", fontSize: 11, color: "var(--red)", marginTop: 5 }}>push failed: {draft.push_error}</div>}
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8, alignItems: "center" }}>
+          <input
+            type="datetime-local"
+            value={localInputFromIso(draft.scheduled_at)}
+            onChange={(e) => onPatch(draft.id, { scheduled_at: isoFromLocalInput(e.target.value) })}
+            style={dateInput}
+          />
+          <DownloadButton draft={draft} style={miniGhost} />
+          <CopyButton text={draft.body} style={miniGhost} />
+          <button onClick={() => onPatch(draft.id, { status: "posted" })} style={miniGhost} title="Mark as posted">Mark posted</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Posted: read-back lanes with an undo toggle ──────────────────────────────
+function PostedView({ groups, onPatch }: { groups: Group[]; onPatch: (id: string, u: Partial<Draft>) => void }) {
+  const drafts = groups.flatMap((g) => g.drafts).filter((d) => d.status === "posted");
+  drafts.sort((a, b) => (b.posted_at || b.created_at).localeCompare(a.posted_at || a.created_at));
+  if (!drafts.length) return <Empty title="Nothing posted yet" line="Once a post goes live (or you mark a native post done) it lands here." />;
+  return (
+    <div style={cardGrid}>
+      {drafts.map((d) => (
+        <div key={d.id} style={{ ...cardSurface, padding: 12, display: "flex", gap: 12, alignItems: "flex-start" }}>
+          {d.media_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={d.media_url} alt="" style={{ width: 48, height: 60, objectFit: "cover", borderRadius: 8, flexShrink: 0, background: "var(--tan)" }} />
+          ) : (
+            <div style={{ width: 48, height: 60, borderRadius: 8, background: "var(--tan)", flexShrink: 0 }} />
+          )}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 5 }}>
+              <PlatformTag platform={d.platform} size="sm" />
+              <span style={{ ...idTag, fontSize: 10 }}>#{d.seq}</span>
+              {d.posted_at && <span style={{ fontFamily: "var(--sans)", fontSize: 10, color: "var(--ink-3)" }}>{prettyDay(d.posted_at)}</span>}
+            </div>
+            <div style={clamp2}>{d.title || d.body.slice(0, 100)}</div>
+            <div style={{ marginTop: 8 }}>
+              <button onClick={() => onPatch(d.id, { status: "approved" })} style={miniPosted} title="Unmark posted">✓ Posted</button>
+            </div>
           </div>
         </div>
       ))}
@@ -925,380 +730,34 @@ function BoardView({
   );
 }
 
-function MiniCard({
-  draft,
-  onPatch,
-  onRemove,
-  schedulerOn,
-}: {
-  draft: Draft;
-  onPatch: (id: string, u: Partial<Draft>) => void;
-  onRemove: (id: string) => void;
-  schedulerOn: boolean;
-}) {
-  const [body, setBody] = useState(draft.body);
-  const [comment, setComment] = useState(draft.comment ?? "");
-  useEffect(() => setBody(draft.body), [draft.body]);
-  useEffect(() => setComment(draft.comment ?? ""), [draft.comment]);
-
-  return (
-    <div style={card}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <PlatformTag platform={draft.platform} />
-          <span style={idTag}>#{draft.seq}</span>
-        </div>
-        <button onClick={() => onRemove(draft.id)} style={xBtn} title="Delete">
-          ×
-        </button>
-      </div>
-      {draft.source_ref && (
-        <div style={sourceLine} title={draft.source_ref}>
-          {draft.variant_type} · {draft.source_ref}
-        </div>
-      )}
-      {draft.media_url ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={draft.media_url} alt="" style={media} />
-      ) : (
-        <div style={mediaEmpty}>no visual yet</div>
-      )}
-      <textarea
-        value={body}
-        onChange={(e) => setBody(e.target.value)}
-        onBlur={() => body !== draft.body && onPatch(draft.id, { body })}
-        rows={4}
-        style={bodyArea}
-      />
-      <textarea
-        value={comment}
-        onChange={(e) => setComment(e.target.value)}
-        onBlur={() => comment !== (draft.comment ?? "") && onPatch(draft.id, { comment: comment || null })}
-        rows={2}
-        placeholder="note…"
-        style={commentArea}
-      />
-      {draft.push_error && (
-        <div style={{ fontFamily: "var(--sans)", fontSize: 11, color: "var(--red)", marginBottom: 6 }}>push failed: {draft.push_error}</div>
-      )}
-      {draft.status === "scheduled" && draft.external_id && (
-        <div style={{ fontFamily: "var(--sans)", fontSize: 11, color: "var(--ink-3)", marginBottom: 6 }}>pushed · {draft.external_id}</div>
-      )}
-      {draft.status === "posted" && (
-        <div style={{ fontFamily: "var(--sans)", fontSize: 12, fontWeight: 600, color: "var(--risk-low)", marginBottom: 8 }}>
-          ✓ posted{draft.posted_at ? ` · ${prettyDay(draft.posted_at)}` : ""}
-        </div>
-      )}
-
-      {/* plan a day to post (the calendar reads this) */}
-      {(draft.status === "approved" || draft.status === "scheduled") && (
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-          <span style={{ fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, letterSpacing: "0.13em", textTransform: "uppercase", color: "var(--ink-3)" }}>plan</span>
-          <input
-            type="date"
-            value={inputFromIso(draft.scheduled_at)}
-            onChange={(e) => onPatch(draft.id, { scheduled_at: isoFromInput(e.target.value) })}
-            style={dateInput}
-          />
-        </div>
-      )}
-
-      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-        <DownloadButton draft={draft} style={miniGhost} />
-        <CopyCaptionButton text={body} style={miniGhost} />
-        {draft.status !== "approved" && draft.status !== "scheduled" && draft.status !== "posted" && (
-          <button onClick={() => onPatch(draft.id, { status: "approved" })} style={miniApprove}>
-            {schedulerOn ? "Approve + push" : "Approve"}
-          </button>
-        )}
-        {(draft.status === "approved" || draft.status === "scheduled") && (
-          <button onClick={() => onPatch(draft.id, { status: "posted" })} style={miniPosted}>
-            Mark posted ✓
-          </button>
-        )}
-        {draft.status !== "needs_edit" && draft.status !== "scheduled" && draft.status !== "posted" && (
-          <button onClick={() => onPatch(draft.id, { status: "needs_edit" })} style={miniGhost}>
-            Needs edit
-          </button>
-        )}
-        {draft.status !== "draft" && (
-          <button onClick={() => onPatch(draft.id, { status: "draft" })} style={miniGhost}>
-            Reset
-          </button>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ── Calendar view, the planning surface ─────────────────────────────────
-// A real month grid built from scheduled_at: navigate months, click a day to
-// see/act on its posts in the sidebar, and assign days to unscheduled posts.
-// "Subscribe" exposes an iCal feed so the schedule syncs into Google + Apple.
-function CalendarView({
-  drafts,
-  onPatch,
-  feedUrl,
-}: {
-  drafts: Draft[];
-  onPatch: (id: string, u: Partial<Draft>) => void;
-  feedUrl: string | null;
-}) {
-  const today = new Date();
-  const todayKey = ymd(today);
-  const [cursor, setCursor] = useState<{ y: number; m: number }>({ y: today.getFullYear(), m: today.getMonth() });
-  const [selected, setSelected] = useState<string>(todayKey);
-  const [showSub, setShowSub] = useState(false);
-
-  const planning = drafts.filter((d) => d.status === "approved" || d.status === "scheduled");
-  const unscheduled = planning.filter((d) => !d.scheduled_at);
-
-  // Anything with a planned day lands on the grid (incl. posted that was scheduled).
-  const byDay: Record<string, Draft[]> = {};
-  for (const d of drafts) {
-    if (!d.scheduled_at) continue;
-    const k = inputFromIso(d.scheduled_at);
-    (byDay[k] ||= []).push(d);
-  }
-  for (const k in byDay) byDay[k].sort((a, b) => a.platform.localeCompare(b.platform));
-
-  const first = new Date(cursor.y, cursor.m, 1);
-  const startOffset = first.getDay(); // 0 = Sunday
-  const cells = Array.from({ length: 42 }, (_, i) => new Date(cursor.y, cursor.m, 1 - startOffset + i));
-  const monthLabel = first.toLocaleDateString("en-US", { month: "long", year: "numeric" });
-  const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-  const prev = () => setCursor((c) => (c.m === 0 ? { y: c.y - 1, m: 11 } : { y: c.y, m: c.m - 1 }));
-  const next = () => setCursor((c) => (c.m === 11 ? { y: c.y + 1, m: 0 } : { y: c.y, m: c.m + 1 }));
-  const goToday = () => {
-    setCursor({ y: today.getFullYear(), m: today.getMonth() });
-    setSelected(todayKey);
-  };
-
-  const selItems = byDay[selected] || [];
-  const selLabel = (() => {
-    if (selected === todayKey) return "Today";
-    const [y, m, dd] = selected.split("-").map(Number);
-    return new Date(y, m - 1, dd).toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
-  })();
-  const webcal = feedUrl ? feedUrl.replace(/^https?:/i, "webcal:") : null;
-
-  return (
-    <div>
-      {/* month nav + subscribe */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, flexWrap: "wrap", gap: 10 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <button onClick={prev} style={navBtn} aria-label="Previous month">‹</button>
-          <span style={{ fontFamily: "var(--sans)", fontSize: 18, fontWeight: 600, letterSpacing: "-0.02em", minWidth: 156 }}>{monthLabel}</span>
-          <button onClick={next} style={navBtn} aria-label="Next month">›</button>
-          <button onClick={goToday} style={{ ...miniGhost, marginLeft: 4 }}>Today</button>
-        </div>
-        <button onClick={() => setShowSub((s) => !s)} style={{ ...pill, ...pillOff }}>
-          {showSub ? "Close" : "Subscribe in Google / Apple"}
-        </button>
-      </div>
-
-      {showSub && <SubscribePanel feedUrl={feedUrl} webcal={webcal} />}
-
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 20, alignItems: "start" }}>
-        {/* month grid */}
-        <div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 6, marginBottom: 6 }}>
-            {weekdays.map((w) => (
-              <div key={w} style={{ ...statLabel, textAlign: "center" }}>{w}</div>
-            ))}
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 6 }}>
-            {cells.map((d, i) => {
-              const k = ymd(d);
-              const inMonth = d.getMonth() === cursor.m;
-              const isToday = k === todayKey;
-              const isSel = k === selected;
-              const items = byDay[k] || [];
-              return (
-                <button
-                  key={i}
-                  onClick={() => setSelected(k)}
-                  style={{
-                    ...dayCell,
-                    background: inMonth ? "var(--white)" : "var(--cream)",
-                    borderColor: isSel ? "var(--ink)" : "var(--hairline-strong)",
-                    boxShadow: isSel ? "0 0 0 1px var(--ink)" : "none",
-                    opacity: inMonth ? 1 : 0.5,
-                  }}
-                >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontFamily: "var(--sans)", fontSize: 12, fontWeight: isToday ? 700 : 500, color: isToday ? "var(--blue)" : "var(--ink-2)" }}>
-                      {d.getDate()}
-                    </span>
-                    {items.length > 0 && <span style={{ fontFamily: "var(--sans)", fontSize: 10, color: "var(--ink-3)" }}>{items.length}</span>}
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 3, marginTop: 4, overflow: "hidden" }}>
-                    {items.slice(0, 3).map((it) => (
-                      <span key={it.id} style={dayChip}>
-                        <span style={{ width: 5, height: 5, borderRadius: 999, background: PLATFORM_ACCENT[it.platform] || "var(--ink-3)", flexShrink: 0 }} />
-                        <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", opacity: it.status === "posted" ? 0.55 : 1 }}>
-                          {it.status === "posted" ? "✓ " : ""}{it.title || it.source_ref || it.body}
-                        </span>
-                      </span>
-                    ))}
-                    {items.length > 3 && <span style={{ fontFamily: "var(--sans)", fontSize: 10, color: "var(--ink-3)" }}>+{items.length - 3} more</span>}
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* sidebar: selected day + unscheduled */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 16, position: "sticky", top: 16 }}>
-          <div style={{ ...card, padding: 16 }}>
-            <div style={{ ...columnHeader, marginBottom: 12 }}>
-              {selLabel}
-              {selItems.length > 0 && <span style={{ color: "var(--ink-3)", fontWeight: 400 }}> · {selItems.length}</span>}
-            </div>
-            {selItems.length === 0 ? (
-              <p style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)", margin: 0 }}>
-                Nothing scheduled. Give an unscheduled post a day below.
-              </p>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {selItems.map((d) => (
-                  <CalCard key={d.id} draft={d} onPatch={onPatch} showDate />
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div style={{ ...card, padding: 16 }}>
-            <div style={{ ...columnHeader, marginBottom: 12 }}>
-              Unscheduled<span style={{ color: "var(--ink-3)", fontWeight: 400 }}> · {unscheduled.length}</span>
-            </div>
-            {unscheduled.length === 0 ? (
-              <p style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)", margin: 0 }}>
-                Everything approved has a day.
-              </p>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {unscheduled.map((d) => (
-                  <CalCard key={d.id} draft={d} onPatch={onPatch} showDate />
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// The iCal subscribe panel. The feed URL carries a secret token, so it's only
-// ever handed to the authenticated admin (via the content GET response).
+// ── iCal subscribe ───────────────────────────────────────────────────────────
 function SubscribePanel({ feedUrl, webcal }: { feedUrl: string | null; webcal: string | null }) {
-  if (!feedUrl) {
-    return (
-      <div style={{ ...card, padding: 16, marginBottom: 16 }}>
-        <p style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", margin: 0 }}>
-          Calendar sync isn’t enabled yet. Set <code>CALENDAR_FEED_TOKEN</code> in the environment to turn on the subscribe feed.
-        </p>
-      </div>
-    );
-  }
+  const [open, setOpen] = useState(false);
+  if (!feedUrl) return null;
   return (
-    <div style={{ ...card, padding: 18, marginBottom: 16 }}>
-      <div style={{ ...columnHeader, marginBottom: 10 }}>Sync to your calendar</div>
-      <p style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", margin: "0 0 14px", lineHeight: 1.5 }}>
-        Subscribe once and every scheduled post shows up in your calendar, refreshing on its own.
-      </p>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center", marginBottom: 12 }}>
-        <a href={webcal || "#"} style={{ ...miniApprove, textDecoration: "none" }}>Add to Apple Calendar</a>
-        <CopyLinkButton text={feedUrl} style={miniGhost} />
-        <span style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)" }}>
-          Google: Other calendars → From URL → paste
-        </span>
-      </div>
-      <input readOnly value={feedUrl} onFocus={(e) => e.currentTarget.select()} style={{ ...baseInput, fontSize: 12 }} />
-      <p style={{ fontFamily: "var(--sans)", fontSize: 11, color: "var(--ink-3)", margin: "8px 0 0" }}>
-        Keep this link private — it carries your feed token.
-      </p>
-    </div>
-  );
-}
-
-function CopyLinkButton({ text, style }: { text: string; style: React.CSSProperties }) {
-  const [done, setDone] = useState(false);
-  return (
-    <button
-      onClick={async () => {
-        try {
-          await navigator.clipboard.writeText(text);
-          setDone(true);
-          setTimeout(() => setDone(false), 1500);
-        } catch {
-          /* clipboard blocked, ignore */
-        }
-      }}
-      style={style}
-    >
-      {done ? "Copied ✓" : "Copy feed link"}
-    </button>
-  );
-}
-
-// Compact card used inside the calendar agenda + unscheduled list.
-function CalCard({ draft, onPatch, showDate }: { draft: Draft; onPatch: (id: string, u: Partial<Draft>) => void; showDate?: boolean }) {
-  return (
-    <div style={{ ...card, padding: 10, display: "flex", gap: 10, alignItems: "flex-start" }}>
-      {draft.media_url ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={draft.media_url} alt="" style={{ width: 46, height: 58, objectFit: "cover", borderRadius: 6, flexShrink: 0 }} />
-      ) : (
-        <div style={{ width: 46, height: 58, borderRadius: 6, background: "var(--tan)", flexShrink: 0 }} />
+    <div style={{ ...cardSurface, padding: open ? 18 : 12, marginBottom: 22 }}>
+      <button onClick={() => setOpen((o) => !o)} style={{ ...laneHead, marginBottom: open ? 12 : 0 }}>
+        <span style={{ display: "inline-flex", width: 14, justifyContent: "center", color: "var(--ink-3)", transform: open ? "none" : "rotate(-90deg)", transition: "transform .15s" }}>▾</span>
+        <span style={laneLabel}>Sync to your calendar</span>
+      </button>
+      {open && (
+        <>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center", marginBottom: 12 }}>
+            <a href={webcal || "#"} style={{ ...miniPosted, textDecoration: "none" }}>Add to Apple Calendar</a>
+            <CopyButton text={feedUrl} style={miniGhost} label="Copy feed link" />
+            <span style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)" }}>Google: Other calendars → From URL → paste</span>
+          </div>
+          <input readOnly value={feedUrl} onFocus={(e) => e.currentTarget.select()} style={{ ...baseInput, fontSize: 12 }} />
+          <p style={{ fontFamily: "var(--sans)", fontSize: 11, color: "var(--ink-3)", margin: "8px 0 0" }}>Keep this link private, it carries your feed token.</p>
+        </>
       )}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
-          <PlatformTag platform={draft.platform} size="sm" />
-          <span style={{ ...idTag, fontSize: 10 }}>#{draft.seq}</span>
-          {draft.scheduled_at && !showDate && (
-            <span style={{ fontFamily: "var(--sans)", fontSize: 10, color: "var(--ink-3)" }}>{prettyDay(draft.scheduled_at)}</span>
-          )}
-        </div>
-        <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", lineHeight: 1.35, overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
-          {draft.source_ref || draft.body.slice(0, 80)}
-        </div>
-        {showDate && (
-          <input
-            type="date"
-            value={inputFromIso(draft.scheduled_at)}
-            onChange={(e) => onPatch(draft.id, { scheduled_at: isoFromInput(e.target.value) })}
-            style={{ ...dateInput, marginTop: 6 }}
-          />
-        )}
-        <div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginTop: 7 }}>
-          <DownloadButton draft={draft} style={{ ...miniGhost, fontSize: 11, padding: "5px 9px" }} />
-          <CopyCaptionButton text={draft.body} style={{ ...miniGhost, fontSize: 11, padding: "5px 9px" }} />
-          <button
-            onClick={() => onPatch(draft.id, { status: draft.status === "posted" ? "approved" : "posted" })}
-            style={{ ...(draft.status === "posted" ? miniPosted : miniGhost), fontSize: 11, padding: "5px 9px" }}
-            title={draft.status === "posted" ? "Posted — click to unmark" : "Mark as posted"}
-          >
-            {draft.status === "posted" ? "✓ Posted" : "Mark posted"}
-          </button>
-        </div>
-      </div>
     </div>
   );
 }
 
-// ── New-draft composer ──────────────────────────────────────────────────
-function Composer({
-  authedFetch,
-  onCreated,
-}: {
-  authedFetch: (input: string, init?: RequestInit) => Promise<Response>;
-  onCreated: () => void;
-}) {
-  const [platform, setPlatform] = useState<string>("instagram");
+// ── New-draft composer ──────────────────────────────────────────────────────
+function Composer({ authedFetch, onCreated }: { authedFetch: (input: string, init?: RequestInit) => Promise<Response>; onCreated: () => void }) {
+  const [platform, setPlatform] = useState<string>("twitter");
   const [sourceRef, setSourceRef] = useState("");
   const [body, setBody] = useState("");
   const [mediaUrl, setMediaUrl] = useState("");
@@ -1311,14 +770,7 @@ function Composer({
       method: "POST",
       body: JSON.stringify({
         platform,
-        variant_type:
-          platform === "pinterest"
-            ? "pin"
-            : platform === "twitter"
-            ? "tweet_thread"
-            : platform === "tiktok"
-            ? "carousel"
-            : "reel_caption",
+        variant_type: platform === "pinterest" ? "pin" : platform === "twitter" ? "post" : platform === "tiktok" ? "carousel" : "reel_caption",
         source_ref: sourceRef || null,
         body,
         media_url: mediaUrl || null,
@@ -1333,142 +785,68 @@ function Composer({
   };
 
   return (
-    <div style={{ ...card, marginBottom: 20, padding: 16 }}>
+    <div style={{ ...cardSurface, marginBottom: 22, padding: 16 }}>
       <div style={{ display: "flex", gap: 10, marginBottom: 10, flexWrap: "wrap" }}>
         <select value={platform} onChange={(e) => setPlatform(e.target.value)} style={selectInput}>
           {PLATFORMS.map((p) => (
-            <option key={p} value={p}>
-              {PLATFORM_LABEL[p]}
-            </option>
+            <option key={p} value={p}>{PLATFORM_LABEL[p]}</option>
           ))}
         </select>
-        <input value={sourceRef} onChange={(e) => setSourceRef(e.target.value)} placeholder="source (TikTok url / article title)" style={{ ...titleInput, flex: 1, marginBottom: 0 }} />
+        <input value={sourceRef} onChange={(e) => setSourceRef(e.target.value)} placeholder="source (url / article title, optional)" style={{ ...titleInput, flex: 1, marginBottom: 0 }} />
       </div>
       <textarea value={body} onChange={(e) => setBody(e.target.value)} rows={4} placeholder="post copy…" style={bodyArea} />
-      <input value={mediaUrl} onChange={(e) => setMediaUrl(e.target.value)} placeholder="image / video url (optional)" style={{ ...titleInput, marginBottom: 10 }} />
-      <button onClick={submit} disabled={saving || !body.trim()} style={{ ...pill, ...pillPrimary }}>
-        {saving ? "Saving…" : "Add to board"}
-      </button>
+      <input value={mediaUrl} onChange={(e) => setMediaUrl(e.target.value)} placeholder="image / carousel cover url (optional)" style={{ ...titleInput, marginBottom: 10 }} />
+      <button onClick={submit} disabled={saving || !body.trim()} style={{ ...pill, ...pillPrimary }}>{saving ? "Saving…" : "Add to board"}</button>
     </div>
   );
 }
 
-// ── Small UI bits ─────────────────────────────────────────────────────────
-function Stat({ children }: { children: React.ReactNode }) {
-  return <div style={statCell}>{children}</div>;
-}
-
-function Flame({ active }: { active: boolean }) {
+function Empty({ title, line }: { title: string; line: string }) {
   return (
-    <svg width="16" height="20" viewBox="0 0 16 20" fill="none" aria-hidden>
-      <path
-        d="M8 0.5C8 0.5 3 4.5 3 9.5C3 11 3.7 12 4.5 12.7C4.2 12 4.1 11.2 4.5 10.3C5 9 6.5 8.2 6.5 8.2C6.5 8.2 6 10 7 11.2C7.8 12.2 9 12.6 9 14C9 15 8.3 15.8 7.4 15.9C9 16.4 13 15.2 13 10.5C13 5.5 8 0.5 8 0.5Z"
-        fill={active ? "var(--blue)" : "var(--ink-3)"}
-      />
-    </svg>
-  );
-}
-
-function Ring({ pct, label }: { pct: number; label: string }) {
-  const size = 46;
-  const stroke = 5;
-  const r = (size - stroke) / 2;
-  const c = 2 * Math.PI * r;
-  return (
-    <svg width={size} height={size} style={{ display: "block" }}>
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--hairline-strong)" strokeWidth={stroke} />
-      <circle
-        cx={size / 2}
-        cy={size / 2}
-        r={r}
-        fill="none"
-        stroke="var(--blue)"
-        strokeWidth={stroke}
-        strokeLinecap="round"
-        strokeDasharray={c}
-        strokeDashoffset={c * (1 - pct)}
-        transform={`rotate(-90 ${size / 2} ${size / 2})`}
-        style={{ transition: "stroke-dashoffset .4s" }}
-      />
-      <text x="50%" y="50%" dominantBaseline="central" textAnchor="middle" style={{ fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, fill: "var(--ink)" }}>
-        {label}
-      </text>
-    </svg>
-  );
-}
-
-function GameStyles() {
-  return (
-    <style>{`
-      @keyframes floatUp { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(-46px); opacity: 0; } }
-      .float-up { animation: floatUp .85s ease-out forwards; }
-      @keyframes cardIn { 0% { transform: translateY(10px) scale(.985); opacity: 0; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
-      .card-in { animation: cardIn .26s ease-out; }
-    `}</style>
+    <div style={{ ...cardSurface, textAlign: "center", padding: "48px 24px" }}>
+      <div style={{ fontFamily: "var(--sans)", fontSize: 16, fontWeight: 600, color: "var(--ink)", marginBottom: 6 }}>{title}</div>
+      <p style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)", margin: "0 auto", maxWidth: 380, lineHeight: 1.5 }}>{line}</p>
+    </div>
   );
 }
 
 // ── Styles ────────────────────────────────────────────────────────────────
-const masthead: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  gap: 24,
-  flexWrap: "wrap",
-  background: "var(--white)",
-  border: "1px solid var(--hairline-strong)",
-  borderRadius: 14,
-  padding: "18px 22px",
-};
-const mastheadEyebrow: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 10, fontWeight: 600, letterSpacing: "0.13em", textTransform: "uppercase", color: "var(--ink-3)" };
-const mastheadTitle: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 21, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ink)", margin: "6px 0 2px" };
-const mastheadSub: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", marginBottom: 9 };
-const mastheadStats: React.CSSProperties = { display: "flex", alignItems: "center", gap: 22, flexWrap: "wrap" };
-const xpTrackThin: React.CSSProperties = { height: 4, maxWidth: 260, borderRadius: 999, background: "var(--tan)", overflow: "hidden" };
-const xpFillThin: React.CSSProperties = { height: "100%", background: "var(--blue)", borderRadius: 999, transition: "width .4s ease" };
-const statCell: React.CSSProperties = { display: "flex", flexDirection: "column", alignItems: "center", gap: 4, minWidth: 64 };
-const statBig: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em", color: "var(--ink)" };
-const statLabel: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 10, fontWeight: 600, letterSpacing: "0.13em", textTransform: "uppercase", color: "var(--ink-3)" };
-const errNotice: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 13, color: "var(--red)", background: "var(--white)", border: "1px solid var(--hairline-strong)", borderRadius: 10, padding: "11px 14px", marginBottom: 16 };
+const eyebrow: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 10, fontWeight: 600, letterSpacing: "0.13em", textTransform: "uppercase", color: "var(--ink-3)" };
+const pageTitle: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 24, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ink)", margin: "5px 0 0" };
 
-const card: React.CSSProperties = { background: "var(--white)", border: "1px solid var(--hairline-strong)", borderRadius: 12, padding: 14 };
-const reviewCard: React.CSSProperties = { background: "var(--white)", border: "1px solid var(--hairline-strong)", borderRadius: 16, padding: 22, transition: "transform .24s ease, opacity .24s ease" };
+const cardSurface: React.CSSProperties = { background: "var(--white)", border: "1px solid var(--hairline-strong)", borderRadius: 14, padding: 16 };
+const cardGrid: React.CSSProperties = { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 14, alignItems: "start" };
+const cardMedia: React.CSSProperties = { width: "100%", borderRadius: 10, marginTop: 4, display: "block", aspectRatio: "4 / 5", objectFit: "cover", background: "var(--tan)" };
 
-const columnHeader: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, letterSpacing: "0.13em", textTransform: "uppercase", color: "var(--ink-2)", marginBottom: 12 };
-const sourceLine: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 11, color: "var(--ink-3)", marginBottom: 10, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" };
+const laneHead: React.CSSProperties = { display: "flex", alignItems: "center", gap: 9, background: "none", border: "none", padding: 0, cursor: "pointer", textAlign: "left" };
+const laneHeadStatic: React.CSSProperties = { display: "flex", alignItems: "center", gap: 9 };
+const laneLabel: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 12, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--ink-2)" };
+const laneCount: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, color: "var(--ink-3)", fontVariantNumeric: "tabular-nums" };
+
+const sourceLine: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 11, color: "var(--ink-3)", marginBottom: 8, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" };
 const idTag: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, color: "var(--ink-3)", fontVariantNumeric: "tabular-nums" };
-
-const media: React.CSSProperties = { width: "100%", borderRadius: 8, marginBottom: 10, display: "block", aspectRatio: "4 / 5", objectFit: "cover", background: "var(--tan)" };
-const reviewMedia: React.CSSProperties = { width: "100%", borderRadius: 10, marginBottom: 14, display: "block", aspectRatio: "4 / 5", objectFit: "cover", background: "var(--tan)" };
-const mediaEmpty: React.CSSProperties = { width: "100%", aspectRatio: "4 / 5", borderRadius: 8, marginBottom: 10, background: "var(--tan)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)" };
-const mediaEmptyInner: React.CSSProperties = { display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)" };
+const chip: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 9, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--ink-3)", border: "1px solid var(--hairline-strong)", borderRadius: 999, padding: "2px 8px" };
+const miniLabel: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 10, fontWeight: 600, letterSpacing: "0.13em", textTransform: "uppercase", color: "var(--ink-3)" };
+const clamp2: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", lineHeight: 1.4, overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" };
 
 const baseInput: React.CSSProperties = { width: "100%", fontFamily: "var(--sans)", fontSize: 14, color: "var(--ink)", background: "var(--cream)", border: "1px solid var(--hairline-strong)", borderRadius: 8, padding: "10px 12px", boxSizing: "border-box" };
 const titleInput: React.CSSProperties = { ...baseInput, fontSize: 13, marginBottom: 8 };
 const selectInput: React.CSSProperties = { ...baseInput, fontSize: 13, width: "auto" };
-const bodyArea: React.CSSProperties = { ...baseInput, marginBottom: 8, resize: "vertical", lineHeight: 1.5 };
-const commentArea: React.CSSProperties = { ...baseInput, fontSize: 13, marginBottom: 10, resize: "vertical", background: "var(--white)", borderStyle: "dashed" };
+const bodyArea: React.CSSProperties = { ...baseInput, marginBottom: 0, resize: "vertical", lineHeight: 1.5 };
+const commentArea: React.CSSProperties = { ...baseInput, fontSize: 13, marginBottom: 0, resize: "vertical", background: "var(--white)", borderStyle: "dashed" };
 
 const pill: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 13, padding: "8px 16px", borderRadius: 999, cursor: "pointer", letterSpacing: "-0.005em" };
 const pillOn: React.CSSProperties = { border: "1px solid var(--ink)", background: "var(--ink)", color: "var(--white)" };
 const pillOff: React.CSSProperties = { border: "1px solid var(--hairline-strong)", background: "var(--white)", color: "var(--ink-2)" };
 const pillPrimary: React.CSSProperties = { border: "1px solid var(--ink)", background: "var(--ink)", color: "var(--white)" };
 
-const bigBtn: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 14, fontWeight: 500, padding: "12px 22px", borderRadius: 999, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8 };
-const bigGhost: React.CSSProperties = { border: "1px solid var(--hairline-strong)", background: "var(--white)", color: "var(--ink-2)" };
-const bigApprove: React.CSSProperties = { border: "1px solid var(--blue)", background: "var(--blue)", color: "var(--ink)" };
+const btn: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 13, fontWeight: 500, padding: "10px 18px", borderRadius: 999, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8 };
+const btnApprove: React.CSSProperties = { border: "1px solid var(--blue)", background: "var(--blue)", color: "var(--ink)" };
+const btnGhost: React.CSSProperties = { border: "1px solid var(--hairline-strong)", background: "var(--white)", color: "var(--ink-2)" };
 
-const miniApprove: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 12, padding: "7px 12px", borderRadius: 999, cursor: "pointer", background: "var(--blue)", color: "var(--ink)", border: "1px solid var(--blue)" };
-const miniGhost: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 12, padding: "7px 12px", borderRadius: 999, cursor: "pointer", background: "var(--white)", color: "var(--ink-2)", border: "1px solid var(--hairline-strong)" };
-const miniPosted: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 12, padding: "7px 12px", borderRadius: 999, cursor: "pointer", background: "var(--risk-low)", color: "var(--ink)", border: "1px solid var(--risk-low)" };
+const miniGhost: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 12, padding: "6px 11px", borderRadius: 999, cursor: "pointer", background: "var(--white)", color: "var(--ink-2)", border: "1px solid var(--hairline-strong)" };
+const miniPosted: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 12, padding: "6px 11px", borderRadius: 999, cursor: "pointer", background: "var(--risk-low)", color: "var(--ink)", border: "1px solid var(--risk-low)" };
 const dateInput: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 12, padding: "5px 9px", borderRadius: 8, background: "var(--white)", color: "var(--ink)", border: "1px solid var(--hairline-strong)", cursor: "pointer" };
+const xBtn: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 18, lineHeight: 1, width: 26, height: 26, flexShrink: 0, borderRadius: 999, border: "1px solid var(--hairline-strong)", background: "var(--white)", color: "var(--ink-3)", cursor: "pointer" };
 
-// Month-grid calendar
-const navBtn: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 18, lineHeight: 1, width: 30, height: 30, borderRadius: 999, border: "1px solid var(--hairline-strong)", background: "var(--white)", color: "var(--ink-2)", cursor: "pointer" };
-const dayCell: React.CSSProperties = { textAlign: "left", border: "1px solid var(--hairline-strong)", borderRadius: 10, padding: "7px 8px", minHeight: 96, cursor: "pointer", display: "flex", flexDirection: "column", transition: "box-shadow .15s, border-color .15s" };
-const dayChip: React.CSSProperties = { display: "flex", alignItems: "center", gap: 5, fontFamily: "var(--sans)", fontSize: 11, color: "var(--ink-2)", lineHeight: 1.3, maxWidth: "100%" };
-
-const kbd: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 10, fontWeight: 600, padding: "2px 6px", borderRadius: 5, background: "rgba(59,60,58,0.08)", color: "var(--ink-2)" };
-const kbdDark: React.CSSProperties = { background: "rgba(59,60,58,0.18)", color: "var(--ink)" };
-
-const xBtn: React.CSSProperties = { background: "none", border: "none", cursor: "pointer", color: "var(--ink-3)", fontSize: 18, lineHeight: 1, padding: 0 };
+const errNotice: React.CSSProperties = { fontFamily: "var(--sans)", fontSize: 13, color: "var(--red)", background: "var(--white)", border: "1px solid var(--hairline-strong)", borderRadius: 10, padding: "11px 14px", marginBottom: 16 };
