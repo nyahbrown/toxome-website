@@ -95,6 +95,9 @@ const MEDIA_REQUIRED = new Set(["instagram", "pinterest", "tiktok"]);
 // Per-platform carousel ceiling, used when expanding slide-0…slide-N.
 const CAROUSEL_MAX: Record<string, number> = { instagram: 10, tiktok: 20, pinterest: 5, twitter: 4 };
 
+// X/Twitter post character ceiling.
+const TWEET_LIMIT = 280;
+
 function blotatoAccountId(platform: string): string | undefined {
   const key = BLOTATO_ACCOUNT_ENV[platform];
   return key ? process.env[key] : undefined;
@@ -125,6 +128,19 @@ async function pushToBlotato(draft: SchedulerDraft): Promise<PushResult> {
   // description. Instagram/X fold a title (if any) into the post text.
   const titleOnTarget = platform === "pinterest" || platform === "tiktok";
   const text = titleOnTarget ? draft.body : draft.title ? `${draft.title}\n\n${draft.body}` : draft.body;
+
+  // X/Twitter hard-caps posts at 280 chars. Catch it here with an actionable
+  // message instead of letting Blotato bounce it back as an opaque 422.
+  if (platform === "twitter") {
+    const len = [...text.trim()].length;
+    if (len > TWEET_LIMIT) {
+      return {
+        ok: false,
+        configured: true,
+        error: `Tweet is ${len} characters — ${len - TWEET_LIMIT} over the ${TWEET_LIMIT} limit. Trim it and re-approve.`,
+      };
+    }
+  }
 
   const target: Record<string, unknown> = { targetType: platform };
   if (platform === "pinterest") {

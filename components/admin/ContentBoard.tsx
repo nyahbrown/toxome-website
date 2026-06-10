@@ -76,6 +76,11 @@ function isFuture(iso: string | null): boolean {
 
 // ── Platforms & formats ─────────────────────────────────────────────────────
 const PLATFORMS = ["instagram", "twitter", "pinterest", "tiktok"] as const;
+
+// X/Twitter post ceiling. Mirror lib/scheduler.ts so the counter matches what
+// actually gets sent: a title (if any) is folded in ahead of the body.
+const TWEET_LIMIT = 280;
+const tweetLen = (title: string, body: string) => [...(title ? `${title}\n\n${body}` : body).trim()].length;
 // Posted by hand (native), never auto-published. Mirrors MANUAL_PLATFORMS in
 // lib/scheduler. Approving marks them ready; the card shows a native-post block.
 const MANUAL_PLATFORMS = new Set<string>(["tiktok"]);
@@ -509,6 +514,13 @@ function ReviewCard({
   const flagged = group.drafts.some((d) => d.status === "needs_edit");
   const pushError = group.drafts.find((d) => d.push_error)?.push_error;
 
+  // Block approve if any X draft is over the 280 limit — Blotato would 422 it.
+  const overTweet = group.drafts.find((d) => {
+    if (d.platform !== "twitter") return false;
+    const cap = caps[d.id] ?? { body: d.body, title: d.title ?? "" };
+    return tweetLen(cap.title, cap.body) > TWEET_LIMIT;
+  });
+
   return (
     <div style={{ ...cardSurface, opacity: done ? 0.5 : 1, transition: "opacity .25s" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 10 }}>
@@ -553,6 +565,17 @@ function ReviewCard({
               />
             )}
             <textarea value={cap.body} onChange={(e) => setCap(d.id, { body: e.target.value })} rows={d.platform === "twitter" ? 5 : 4} style={bodyArea} />
+            {d.platform === "twitter" && (() => {
+              const len = tweetLen(cap.title, cap.body);
+              const over = len > TWEET_LIMIT;
+              return (
+                <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 4 }}>
+                  <span style={{ fontFamily: "var(--sans)", fontSize: 11, fontWeight: over ? 600 : 400, color: over ? "var(--red)" : "var(--ink-3)" }}>
+                    {len}/{TWEET_LIMIT}{over ? ` · ${len - TWEET_LIMIT} over` : ""}
+                  </span>
+                </div>
+              );
+            })()}
             {MANUAL_PLATFORMS.has(d.platform) && (
               <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, marginTop: 8 }}>
                 <span style={{ ...sourceLine, marginBottom: 0, whiteSpace: "normal" }}>posted by hand (API throttles reach), grab these then post in-app:</span>
@@ -579,13 +602,21 @@ function ReviewCard({
         </p>
       )}
 
+      {overTweet && (
+        <div style={{ ...errNotice, margin: "12px 0 0", fontSize: 12 }}>
+          tweet is over 280 characters — trim it above before publishing.
+        </div>
+      )}
+
       <div style={{ display: "flex", gap: 8, marginTop: 14, flexWrap: "wrap" }}>
         <button
           onClick={() => {
+            if (overTweet) return;
             setDone("approved");
             onApprove(group, edits);
           }}
-          style={{ ...btn, ...btnApprove }}
+          disabled={!!overTweet}
+          style={{ ...btn, ...btnApprove, ...(overTweet ? { opacity: 0.45, cursor: "not-allowed" } : {}) }}
         >
           {approveLabel}
         </button>

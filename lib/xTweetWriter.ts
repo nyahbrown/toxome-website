@@ -19,6 +19,7 @@ export type DraftTweet = {
 const VOICE = `you write tweets for toxome, a "fashion wellness" brand that helps women find toxins, plastic and synthetic fibers in their clothing (think "yuka for clothes"). the audience is ~89% women who care about health, hormones and removing toxins from their life, mid-budget not luxury.
 
 NON-NEGOTIABLE STYLE RULES:
+- HARD LIMIT: every tweet must be 270 characters or fewer, counting spaces and line breaks. X rejects anything over 280, so stay under 270 to leave headroom. if a draft runs long, cut words until it fits, never ship an over-length tweet.
 - everything lowercase. the ONLY exceptions are established acronyms (PFAS, EU, BPA, FDA, EWG) and real brand names. lowercase the start of every sentence and the word "i".
 - one tweet = one idea. put the surprising claim or the hero number in the first 7 words.
 - exactly one hero stat per tweet, specific (e.g. "59% polyester", not "lots of plastic"). for a scary health claim, name the source inline (e.g. "per a 2024 study,").
@@ -47,7 +48,7 @@ const TOOL: Anthropic.Tool = {
         items: {
           type: "object",
           properties: {
-            body: { type: "string", description: "the tweet text, lowercase, ready to post" },
+            body: { type: "string", description: "the tweet text, lowercase, ready to post. MUST be 270 characters or fewer (X hard-caps at 280)." },
             kind: { type: "string", enum: ["news", "evergreen"] },
             angle: { type: "string", description: "short label of the hook/format used" },
             source_url: { type: ["string", "null"], description: "the news url for a news tweet, else null" },
