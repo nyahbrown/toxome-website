@@ -501,8 +501,8 @@ export default function HomeClient({
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/hero-yoga.jpg"
-          alt="Two women meditating outdoors on yoga mats, calm and clean against natural fiber"
+          src="/hero-wool.jpg"
+          alt="A shepherd shearing a sheep by hand in a mountain pasture, wool at its source"
           fetchPriority="high"
           style={{
             position: "absolute",
@@ -554,7 +554,7 @@ export default function HomeClient({
                 style={{
                   fontFamily: "var(--serif)",
                   fontWeight: 500,
-                  fontSize: "clamp(20px, 5.2vw, 52px)",
+                  fontSize: "clamp(22px, 6.4vw, 72px)",
                   color: "var(--white)",
                   textAlign: "center",
                   lineHeight: 1.15,
@@ -563,7 +563,7 @@ export default function HomeClient({
                   whiteSpace: "nowrap",
                 }}
               >
-                Plastic doesn&apos;t belong on your skin
+                plastic doesn&apos;t belong on your skin.
               </h1>
             </div>
             <Link
