@@ -604,7 +604,7 @@ function ReviewCard({
 
       {overTweet && (
         <div style={{ ...errNotice, margin: "12px 0 0", fontSize: 12 }}>
-          tweet is over 280 characters — trim it above before publishing.
+          tweet is over 280 characters. trim it above before publishing.
         </div>
       )}
 

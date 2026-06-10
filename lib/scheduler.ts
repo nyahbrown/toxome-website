@@ -137,7 +137,7 @@ async function pushToBlotato(draft: SchedulerDraft): Promise<PushResult> {
       return {
         ok: false,
         configured: true,
-        error: `Tweet is ${len} characters — ${len - TWEET_LIMIT} over the ${TWEET_LIMIT} limit. Trim it and re-approve.`,
+        error: `Tweet is ${len} characters, ${len - TWEET_LIMIT} over the ${TWEET_LIMIT} limit. Trim it and re-approve.`,
       };
     }
   }
