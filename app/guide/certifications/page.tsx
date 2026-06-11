@@ -5,12 +5,14 @@ import Footer from "@/components/Footer";
 import GuideTabs from "@/components/GuideTabs";
 import CertBadge from "@/components/CertBadge";
 import CertWall from "@/components/CertWall";
+import CertLeads from "@/components/CertLeads";
 import { availableLogos } from "@/lib/certLogos";
 import { getShopTaxonomy } from "@/lib/supabase";
 import {
   CATEGORIES,
   CERTIFICATIONS,
   getCertsByCategory,
+  getHealthLeads,
   type Certification,
 } from "@/lib/certifications";
 
@@ -48,6 +50,7 @@ export const metadata: Metadata = {
 export default async function CertificationsPage() {
   const taxonomy = await getShopTaxonomy();
   const logos = availableLogos();
+  const leads = getHealthLeads();
 
   return (
     <>
@@ -141,7 +144,32 @@ export default async function CertificationsPage() {
           </div>
         </section>
 
-        {/* Category sections */}
+        {/* Start here — the few marks that do the most for the body */}
+        <section className="shell" style={{ paddingTop: 48, paddingBottom: 8 }}>
+          <div className="cert-leads__head">
+            <p className="cert-leads__eyebrow">Start here</p>
+            <h2 className="cert-leads__title">
+              If you read one thing on the label, read these.
+            </h2>
+            <p className="cert-leads__sub">
+              Sixteen marks is a lot to carry into a store. These three do the
+              most for what actually touches your skin. Everything below is the
+              full directory, for when you want it.
+            </p>
+          </div>
+          <CertLeads
+            items={leads.map((cert) => ({
+              slug: cert.slug,
+              name: cert.name,
+              abbr: cert.abbr,
+              issuer: cert.issuer,
+              leadNote: cert.leadNote ?? cert.summary,
+              logoSrc: logos.get(cert.slug),
+            }))}
+          />
+        </section>
+
+        {/* Category sections — the full directory */}
         {CATEGORIES.map((cat) => (
           <section
             key={cat.id}
@@ -211,8 +239,12 @@ function CertCard({
     <article
       id={cert.slug}
       className="cert-card"
+      data-lead={cert.healthRank ? "true" : undefined}
       style={{ scrollMarginTop: 90 }}
     >
+      {cert.healthRank && (
+        <span className="cert-card__flag">Start here</span>
+      )}
       <header className="cl-head">
         <CertBadge
           slug={cert.slug}

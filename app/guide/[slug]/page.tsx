@@ -264,7 +264,7 @@ export default async function FiberGuidePage({
                     marginTop: 3,
                   }}
                 >
-                  Health score {f.score} of 100 · lower is safer
+                  Health score {f.score} of 100 · higher is cleaner
                 </div>
               </div>
             </div>

@@ -22,6 +22,11 @@ export type Certification = {
   blindSpot: string;
   // The Toxome read.
   take: string;
+  // 1-based rank among the few marks that do the most for what touches the
+  // body. Set only on the "start here" leads; everything else stays undefined.
+  healthRank?: number;
+  // A short, plain line for the "start here" tier (why this one matters most).
+  leadNote?: string;
 };
 
 export type CategoryMeta = {
@@ -68,6 +73,9 @@ export const CERTIFICATIONS: Certification[] = [
     blindSpot:
       "It says nothing about what the fabric is made of. A garment that is 100% virgin polyester can carry Standard 100. It certifies chemical residue, not fiber, sustainability, or how the piece was made.",
     take: "The single most useful chemical label to look for. Read it as \"low tested residues,\" not \"natural\" or \"safe to live in.\"",
+    healthRank: 1,
+    leadNote:
+      "The one chemical-safety mark to look for. The finished fabric is tested for hundreds of harmful substances, against limits stricter than the law.",
   },
   {
     slug: "oeko-tex-made-in-green",
@@ -101,6 +109,9 @@ export const CERTIFICATIONS: Certification[] = [
     blindSpot:
       "It only applies to natural fibers, so a synthetic garment can never be GOTS. And the 70% grade still leaves up to 30% conventional or synthetic material in the blend.",
     take: "The closest thing to a gold standard for natural clothing, because it covers the fiber and the chemistry. Always check whether it's the 95% or the 70% grade.",
+    healthRank: 2,
+    leadNote:
+      "The gold standard for natural clothing. It covers both the fiber and the processing chemistry, from field to finished garment.",
   },
   {
     slug: "regenerative-organic-certified",
@@ -134,6 +145,9 @@ export const CERTIFICATIONS: Certification[] = [
     blindSpot:
       "\"bluesign APPROVED\" (a material or input) is not the same as a fully certified \"bluesign PRODUCT.\" The label often describes a process the brand follows, not a guarantee about the exact item in your hands.",
     take: "Strong upstream chemical control, common in technical and outdoor wear. Check whether the claim covers the product or only the brand's system.",
+    healthRank: 3,
+    leadNote:
+      "Screens harmful chemicals out at the input stage, before they ever reach the fabric you wear.",
   },
   {
     slug: "cradle-to-cradle",
@@ -322,4 +336,12 @@ export const CERTIFICATIONS: Certification[] = [
 
 export function getCertsByCategory(category: CertCategory): Certification[] {
   return CERTIFICATIONS.filter((c) => c.category === category);
+}
+
+// The "start here" leads — the few marks that do the most for what touches the
+// body, in rank order. Drives the featured tier above the full directory.
+export function getHealthLeads(): Certification[] {
+  return CERTIFICATIONS.filter((c) => c.healthRank).sort(
+    (a, b) => (a.healthRank ?? 0) - (b.healthRank ?? 0)
+  );
 }

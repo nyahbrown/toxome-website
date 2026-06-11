@@ -97,20 +97,30 @@ async function main() {
       if (LOCAL) fs.mkdirSync(localDir, { recursive: true });
 
       for (let i = 0; i < SLIDES; i++) {
-        const page = await browser.newPage();
-        await page.setViewport({ width: W, height: H, deviceScaleFactor: SCALE });
         const url = `${BASE}/studio/carousel?c=${slug}&i=${i}`;
-        const res = await page.goto(url, { waitUntil: "networkidle0", timeout: 60000 });
-        if (!res || !res.ok()) {
-          console.error(`  ✗ slide ${i}: HTTP ${res ? res.status() : "no response"}`);
-          await page.close();
+        // The DB-backed studio page is dynamic (a query per request) and can be
+        // slow on a cold function, so retry a few times before giving up.
+        let buf = null;
+        let lastErr = null;
+        for (let attempt = 1; attempt <= 3 && !buf; attempt++) {
+          const page = await browser.newPage();
+          try {
+            await page.setViewport({ width: W, height: H, deviceScaleFactor: SCALE });
+            const res = await page.goto(url, { waitUntil: "networkidle2", timeout: 90000 });
+            if (!res || !res.ok()) throw new Error(`HTTP ${res ? res.status() : "no response"}`);
+            await page.evaluate(() => (document.fonts ? document.fonts.ready : Promise.resolve()));
+            await new Promise((r) => setTimeout(r, 400));
+            buf = await page.screenshot({ clip: { x: 0, y: 0, width: W, height: H } });
+          } catch (e) {
+            lastErr = e;
+          } finally {
+            await page.close();
+          }
+        }
+        if (!buf) {
+          console.error(`  ✗ slide-${i}: ${lastErr ? lastErr.message.split("\n")[0] : "failed"} (after retries)`);
           continue;
         }
-        await page.evaluate(() => (document.fonts ? document.fonts.ready : Promise.resolve()));
-        await new Promise((r) => setTimeout(r, 350));
-
-        const buf = await page.screenshot({ clip: { x: 0, y: 0, width: W, height: H } });
-        await page.close();
 
         const objectPath = `${slug}/slide-${i}.png`;
         const { error } = await supabase.storage.from(BUCKET).upload(objectPath, buf, {
