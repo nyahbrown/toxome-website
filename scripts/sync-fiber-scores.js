@@ -92,10 +92,15 @@ function main() {
 
   const drift = [];
   const missing = []; // in app, not on website
+  // Canonical web file stores fibers as { fibers: { key: { default, floor } } };
+  // the per-fiber `default` is the hazard value that must match the app's hazardScore.
+  const webFibers = web.fibers || web.scores || {};
+  const webHazard = (k) =>
+    webFibers[k] && typeof webFibers[k] === "object" ? webFibers[k].default : webFibers[k];
   for (const [fiber, appVal] of Object.entries(appScores)) {
-    if (!(fiber in web.scores)) missing.push(`${fiber}=${appVal}`);
-    else if (web.scores[fiber] !== appVal)
-      drift.push(`${fiber}: web ${web.scores[fiber]} ≠ app ${appVal}`);
+    if (!(fiber in webFibers)) missing.push(`${fiber}=${appVal}`);
+    else if (webHazard(fiber) !== appVal)
+      drift.push(`${fiber}: web ${webHazard(fiber)} ≠ app ${appVal}`);
   }
   const constDrift = [];
   for (const k of Object.keys(app.constants))
@@ -105,7 +110,7 @@ function main() {
     if (web.thresholds[k] !== app.thresholds[k])
       constDrift.push(`${k}: web ${web.thresholds[k]} ≠ app ${app.thresholds[k]}`);
 
-  console.log(`App fibers: ${Object.keys(appScores).length} | website fibers: ${Object.keys(web.scores).length}`);
+  console.log(`App fibers: ${Object.keys(appScores).length} | website fibers: ${Object.keys(webFibers).length}`);
   console.log(`Fiber-score drift: ${drift.length} | missing on website: ${missing.length} | constant/threshold drift: ${constDrift.length}`);
   if (drift.length) console.log("  DRIFT:\n   " + drift.join("\n   "));
   if (missing.length) console.log("  MISSING (in app, not website):\n   " + missing.join("\n   "));

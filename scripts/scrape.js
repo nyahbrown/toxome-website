@@ -276,6 +276,11 @@ function parseCertifications(text) {
   const add = (v) => { if (!out.includes(v)) out.push(v); };
   if (/oeko[\s-]?tex/.test(t)) add("OEKO-TEX Standard 100");
   if (/\bgots\b|global organic textile/.test(t)) add("GOTS");
+  // ROC requires organic certification as its floor, so it's a recognized
+  // chemical-safety cert (plus soil/welfare/fairness). Match the certified mark
+  // only — bare "regenerative" is a practice claim, not this certification.
+  if (/regenerative organic certified/.test(t) || (/\broc\b/.test(t) && /regenerativ|organic|cotton/.test(t)))
+    add("Regenerative Organic Certified");
   if (/european\s*flax|masters of linen/.test(t)) add("European Flax");
   if (/bluesign/.test(t)) add("bluesign");
   if (/fair\s?trade|fairtrade/.test(t)) add("Fair Trade");

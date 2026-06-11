@@ -24,6 +24,7 @@ function fiberKey(name) {
 function resolveFiber(name) {
   const k = fiberKey(name);
   if (/recycl/.test(k) && /poly|pet/.test(k)) return "recycled_polyester";
+  if (/regenerativ/.test(k) && /cotton/.test(k)) return "regenerative_cotton";
   if (k.includes("organic") && k.includes("cotton")) return "organic_cotton";
   if (/tencel.*modal|modal.*tencel/.test(k)) return "tencel_modal";
   if (/tencel|lyocell/.test(k)) return "lyocell";
@@ -50,7 +51,7 @@ function floorUnlocked(fiberK, text, certs) {
     case "wool": return /non[-\s]?superwash|untreated|not superwash/.test(text);
     case "mohair": return /\bkid\b/.test(text);
     case "leather": return /veg[-\s]?tan|vegetable[-\s]?tan/.test(text);
-    case "cotton": return /organic/.test(text) || hasCert("gots");
+    case "cotton": return /organic/.test(text) || hasCert("gots") || hasCert("regenerative organic");
     case "viscose":
     case "rayon":
     case "bamboo": return oekoOrGots || /closed[-\s]?loop|lyocell|tencel|ecovero/.test(text);

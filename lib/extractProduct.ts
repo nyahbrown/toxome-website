@@ -331,7 +331,7 @@ const EXTRACT_TOOL: Anthropic.Tool = {
         type: "array",
         items: { type: "string" },
         description:
-          "Textile/ethical certifications explicitly mentioned (e.g. 'GOTS', 'OEKO-TEX Standard 100', 'Fair Trade', 'bluesign'). [] if none.",
+          "Textile/ethical certifications explicitly mentioned (e.g. 'GOTS', 'OEKO-TEX Standard 100', 'Regenerative Organic Certified', 'Fair Trade', 'bluesign'). [] if none.",
       },
     },
     required: [
