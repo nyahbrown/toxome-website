@@ -28,7 +28,6 @@ export async function generateMetadata({
     title: `${article.title} | Toxome`,
     description: article.dek,
     keywords: article.keywords.length ? article.keywords : undefined,
-    authors: [{ name: "Toxome Editors" }],
     alternates: { canonical: `/journal/${slug}` },
     openGraph: {
       type: "article",
@@ -145,7 +144,7 @@ export default async function ArticlePage({
               margin: 0,
             }}
           >
-            Toxome Editors · {formatDate(article.date)} · {article.readingTime}
+            {formatDate(article.date)} · {article.readingTime}
           </p>
           <div style={{ display: "flex", justifyContent: "center", marginTop: 26 }}>
             <ShareBar
