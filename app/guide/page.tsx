@@ -6,6 +6,7 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { getShopTaxonomy } from "@/lib/supabase";
 import { FIBER_GUIDE, withScore, KIND_LABEL, type GuideFiber } from "@/lib/fiberGuide";
+import GuideTabs from "@/components/GuideTabs";
 
 export const revalidate = 86400;
 
@@ -154,10 +155,13 @@ export default async function GuidePage() {
               maxWidth: 560,
             }}
           >
-            Every fiber, scored from <em>0 (clean)</em> to <em>100 (high
-            concern)</em> on what it means for your health. The fiber is rarely
-            the whole story. The dyes and finishes are.
+            Every fiber, scored from <em>0 (high concern)</em> to <em>100
+            (clean)</em> on what it means for your health. Higher is cleaner. The
+            fiber is rarely the whole story. The dyes and finishes are.
           </p>
+          <div style={{ marginBottom: 30 }}>
+            <GuideTabs active="fibers" />
+          </div>
           <div className="guide-legend">
             <span>
               <i style={{ background: "var(--risk-low)" }} />

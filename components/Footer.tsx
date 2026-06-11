@@ -34,6 +34,7 @@ const cols: FooterCol[] = [
     items: [
       { label: "Shop", href: "/shop" },
       { label: "Guide", href: "/guide" },
+      { label: "Certifications", href: "/guide/certifications" },
       { label: "Journal", href: "/journal" },
       { label: "Extension", href: "/extension" },
       { label: "Get the app", href: "/app" },

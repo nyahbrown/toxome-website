@@ -172,30 +172,21 @@ export default function Nav({
               columns={buildShopColumns(taxonomy)}
               topRow={{ label: "Shop all", href: "/shop", muted: true }}
             />
-            <Link
+            <NavDropdown
+              label="guide"
               href="/guide"
-              style={{
-                fontSize: 14,
-                fontWeight: 400,
-                letterSpacing: "-0.005em",
-                color: transparent
-                  ? "rgba(255,255,255,0.92)"
-                  : pathname === "/guide" || pathname.startsWith("/guide/")
-                  ? "var(--ink)"
-                  : "var(--ink-2)",
-                textDecoration:
-                  !transparent &&
-                  (pathname === "/guide" || pathname.startsWith("/guide/"))
-                    ? "underline"
-                    : "none",
-                textUnderlineOffset: 5,
-                textDecorationThickness: 1,
-                transition: "color 300ms ease",
-                padding: "8px 0",
-              }}
-            >
-              guide
-            </Link>
+              transparent={transparent}
+              active={pathname === "/guide" || pathname.startsWith("/guide/")}
+              columns={[
+                {
+                  heading: "Guide",
+                  items: [
+                    { label: "Fabric", href: "/guide" },
+                    { label: "Certifications", href: "/guide/certifications" },
+                  ],
+                },
+              ]}
+            />
             <Link
               href="/journal"
               style={{
@@ -498,32 +489,63 @@ export default function Nav({
                 </div>
               )}
 
-              {/* guide + journal */}
-              {[
-                { label: "guide", href: "/guide" },
-                { label: "journal", href: "/journal" },
-              ].map((link) => {
-                const active =
-                  pathname === link.href || pathname.startsWith(`${link.href}/`);
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setMenuOpen(false)}
-                    style={{
-                      fontFamily: "var(--sans)",
-                      fontSize: 26,
-                      fontWeight: 500,
-                      letterSpacing: "-0.02em",
-                      color: active ? "var(--ink)" : "var(--ink-2)",
-                      textDecoration: "none",
-                      padding: "13px 0",
-                    }}
-                  >
-                    {link.label}
-                  </Link>
-                );
-              })}
+              {/* guide → fabric + certifications */}
+              <div>
+                <div
+                  className="eyebrow"
+                  style={{ color: "var(--ink-3)", padding: "8px 0 4px" }}
+                >
+                  Guide
+                </div>
+                {[
+                  { label: "fabric", href: "/guide" },
+                  { label: "certifications", href: "/guide/certifications" },
+                ].map((link) => {
+                  const active =
+                    pathname === link.href ||
+                    (link.href !== "/guide" &&
+                      pathname.startsWith(`${link.href}/`));
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setMenuOpen(false)}
+                      style={{
+                        display: "block",
+                        fontFamily: "var(--sans)",
+                        fontSize: 22,
+                        fontWeight: 500,
+                        letterSpacing: "-0.02em",
+                        color: active ? "var(--ink)" : "var(--ink-2)",
+                        textDecoration: "none",
+                        padding: "10px 0",
+                      }}
+                    >
+                      {link.label}
+                    </Link>
+                  );
+                })}
+              </div>
+
+              {/* journal */}
+              <Link
+                href="/journal"
+                onClick={() => setMenuOpen(false)}
+                style={{
+                  fontFamily: "var(--sans)",
+                  fontSize: 26,
+                  fontWeight: 500,
+                  letterSpacing: "-0.02em",
+                  color:
+                    pathname === "/journal" || pathname.startsWith("/journal/")
+                      ? "var(--ink)"
+                      : "var(--ink-2)",
+                  textDecoration: "none",
+                  padding: "13px 0",
+                }}
+              >
+                journal
+              </Link>
             </div>
 
             {/* Utility, pinned lower */}
