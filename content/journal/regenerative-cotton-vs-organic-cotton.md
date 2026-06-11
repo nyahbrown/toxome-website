@@ -4,8 +4,8 @@ dek: "Organic tells you what a farm refused to use. Regenerative tells you what 
 date: "2026-06-10"
 pillar: "Fabric Science"
 mode: "educational"
-hero: "/fibers/cotton.jpg"
-heroAlt: "Cotton at its source — raw bolls and natural fiber in warm, raking light."
+hero: "/journal/regenerative-cotton-vs-organic-cotton.jpg"
+heroAlt: "A farmer lifting an armful of freshly harvested cotton atop a large mound of it, under a pale sky."
 keywords:
   - "regenerative cotton vs organic cotton"
   - "what is regenerative cotton"
