@@ -49,7 +49,17 @@ const FLAGS = {
   minScore: intFlag("--min-score") ?? 67, // fiber bar: only keep Toxome score >= this (higher = cleaner)
   include: strFlag("--include"), // comma-separated exact brands to source from (skips auto-suggest)
   category: strFlag("--category"), // force a category on every inserted item (e.g. "Other" for home goods)
+  requireCert: ARGV.includes("--require-cert"), // SAFETY GATE (used for Kids): only keep items whose PAGE-VERIFIED certs include a chemical-safety cert (OEKO-TEX or GOTS). No cert → dropped.
+  gender: strFlag("--gender"), // force a gender/department on every inserted item (e.g. "Kids")
+  ageBand: strFlag("--age-band"), // force an age_band on every inserted item (kids: "baby" | "kids")
 };
+
+// A real chemical-safety certification — the only marks that certify the textile
+// is tested free of harmful substances. Ethics/welfare marks (RWS, Fair Trade,
+// B Corp, bluesign) do NOT count for the Kids safety gate.
+function hasSafetyCert(certs) {
+  return Array.isArray(certs) && certs.some((c) => /oeko|gots/i.test(String(c)));
+}
 function intFlag(name) {
   const i = ARGV.indexOf(name);
   return i >= 0 && ARGV[i + 1] ? parseInt(ARGV[i + 1], 10) : null;
@@ -103,6 +113,33 @@ function isBlacklisted(brand) {
   if (!brand) return false;
   const b = String(brand).toLowerCase().trim();
   return BRAND_BLACKLIST.some((x) => b.includes(x));
+}
+
+// Normalize a brand name the SAME way the app does (app/api/admin/brand-submissions):
+// lowercase → collapse non-alphanumeric runs to a single space → trim.
+function normalizeBrand(raw) {
+  return String(raw || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+// Register a brand in the directory (`brands` table) so any newly-sourced brand
+// shows up in the app's brand picker + B2B directory. Idempotent via the unique
+// `normalized` index — existing brands are left untouched. Never throws into the
+// main loop.
+async function ensureBrandInDirectory(supabase, brandName, website) {
+  const normalized = normalizeBrand(brandName);
+  if (!normalized) return;
+  try {
+    const { error } = await supabase.from("brands").upsert(
+      { name: String(brandName).trim(), normalized, website: website || null, status: "active" },
+      { onConflict: "normalized", ignoreDuplicates: true }
+    );
+    if (error) console.warn(`  ⚠ brand-directory upsert failed for ${brandName}: ${error.message}`);
+  } catch (e) {
+    console.warn(`  ⚠ brand-directory upsert error for ${brandName}: ${e.message}`);
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -313,6 +350,7 @@ async function run() {
   const stats = {
     found: 0,
     tooSynthetic: 0,
+    noCert: 0,
     duplicate: 0,
     invalidPage: 0,
     noImage: 0,
@@ -340,22 +378,15 @@ async function run() {
         stats.duplicate++;
         continue;
       }
-      const score = calcToxomeScore(item.fabric_composition);
-      // Fiber bar: only keep low-risk (high clean score). Reject unknown or below the threshold.
-      if (score == null || score < FLAGS.minScore) {
-        stats.tooSynthetic++;
-        console.log(
-          `  ✗ ${item.item_name} — score ${score ?? "?"} < ${FLAGS.minScore}, skip`
-        );
-        continue;
-      }
-      // Guarantee an exact product-page URL and a main image that renders.
-      // This adds one page fetch + a few image checks per product — expected.
+      // Guarantee an exact product-page URL before we spend a fetch.
       if (!item.item_url) {
         stats.invalidPage++;
         console.log(`  ✗ ${item.item_name} — no item_url`);
         continue;
       }
+      // Validate the page FIRST. Composition, certs, and the score must all come
+      // from the real product page — the model fabricates fibers and invents
+      // cert badges (e.g. labeled a 100% viscose top as linen + OEKO-TEX).
       const validated = await getValidatedProduct(item.item_url);
       if (!validated.ok) {
         const reason = validated.reason || "invalid";
@@ -371,45 +402,85 @@ async function run() {
         console.log(`  ✗ ${item.item_name} — sold out, skip`);
         continue;
       }
+
+      // Composition: page-scraped wins. Fall back to the model ONLY with a
+      // visible "fiber-unverified" flag so the reviewer knows it wasn't confirmed.
+      const fiberUnverified = !validated.composition;
+      const composition = validated.composition || item.fabric_composition || null;
+      // Certs: ONLY what the page actually states. Model / brand-guessed certs
+      // are dropped entirely.
+      const certs =
+        validated.certifications && validated.certifications.length
+          ? validated.certifications
+          : null;
+      // SAFETY GATE (Kids): require a page-verified chemical-safety cert.
+      if (FLAGS.requireCert && !hasSafetyCert(certs)) {
+        stats.noCert++;
+        console.log(
+          `  ✗ ${item.item_name} — no verified safety cert (OEKO-TEX/GOTS), skip`
+        );
+        continue;
+      }
+      // Score from the real composition + the page's own care/description text
+      // (so fiber floors + finish penalties apply correctly).
+      const score = calcToxomeScore(composition, {
+        certifications: certs || [],
+        descKeywords: [validated.descText || ""],
+      });
+      // Fiber bar: only keep clean enough. A correctly-scored viscose item now
+      // falls below the bar here instead of slipping through as fake linen.
+      if (score == null || score < FLAGS.minScore) {
+        stats.tooSynthetic++;
+        console.log(
+          `  ✗ ${item.item_name} — score ${score ?? "?"} < ${FLAGS.minScore} (page-verified), skip`
+        );
+        continue;
+      }
+
       item.item_url = validated.finalUrl;
       item.item_image = validated.images[0];
       // Prefer the authoritative USD price scraped from the page over the LLM's.
       if (validated.price != null) item.item_price = validated.price;
 
-      const certs =
-        Array.isArray(item.certifications) && item.certifications.length
-          ? item.certifications
-          : Array.isArray(b.certifications) && b.certifications.length
-          ? b.certifications
-          : null;
       toInsert.push({
         item_name: item.item_name,
         brand: item.brand ?? brand,
         item_price: item.item_price ?? null,
         budget: item.budget ?? null,
         category: FLAGS.category || item.category || null,
-        gender: item.gender ?? null,
+        gender: FLAGS.gender || item.gender || null,
+        age_band: FLAGS.ageBand || null,
         item_image: item.item_image,
         item_url: item.item_url,
         images: validated.images,
         affiliate_url: null,
-        fabric_composition: item.fabric_composition ?? null,
+        fabric_composition: composition,
         certifications: certs,
         toxome_score: score,
         risk_level: scoreToRiskLevel(score),
+        tags: fiberUnverified ? ["fiber-unverified"] : null,
         published: false, // draft — approve in Supabase
         added_by: "agent",
       });
       if (item.item_url) existingUrls.add(item.item_url);
       console.log(
-        `  ✓ ${item.item_name} — score ${score} (low)${certs ? ` [${certs.join(", ")}]` : ""}`
+        `  ✓ ${item.item_name} — score ${score} (${scoreToRiskLevel(score)})` +
+          `${certs ? ` [${certs.join(", ")}]` : ""}` +
+          `${fiberUnverified ? " ⚠ fiber-unverified" : ""}`
       );
     }
 
     if (toInsert.length && !FLAGS.dryRun) {
       const { error } = await supabase.from("products").insert(toInsert);
       if (error) console.error(`  Insert failed for ${brand}:`, error.message);
-      else stats.inserted += toInsert.length;
+      else {
+        stats.inserted += toInsert.length;
+        // Whenever we add a brand's products, make sure the brand exists in the
+        // directory (so it appears in the app's brand picker / B2B directory).
+        let origin = null;
+        try { origin = new URL(toInsert[0].item_url).origin; } catch { /* no website */ }
+        await ensureBrandInDirectory(supabase, brand, origin);
+      }
     } else {
       stats.inserted += toInsert.length; // count for dry-run summary
     }

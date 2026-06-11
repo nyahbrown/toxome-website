@@ -187,6 +187,122 @@ async function imageLoads(url) {
 }
 
 // ---------------------------------------------------------------------------
+// Composition + certification extraction (page-grounded, NOT model-guessed)
+//
+// The discovery agent must NEVER trust the LLM's fabric_composition or
+// certifications — the model fabricates fibers and invents cert badges. These
+// helpers pull both from the actual product page (Shopify body_html, JSON-LD
+// description/material, then visible HTML as a fallback) so the score is real.
+// ---------------------------------------------------------------------------
+function decodeEntities(s) {
+  return String(s)
+    .replace(/&amp;/gi, "&")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&#39;|&apos;/gi, "'")
+    .replace(/&quot;/gi, '"')
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">");
+}
+
+function stripTags(html) {
+  if (!html) return "";
+  return decodeEntities(
+    String(html)
+      .replace(/<script[\s\S]*?<\/script>/gi, " ")
+      .replace(/<style[\s\S]*?<\/style>/gi, " ")
+      .replace(/<[^>]+>/g, " ")
+  ).replace(/\s+/g, " ").trim();
+}
+
+// Known fiber words — a composition match only counts when the captured name
+// contains one of these, so "20% off" / "100% cotton-free" style noise is ignored.
+const FIBER_WORDS = [
+  "linen", "flax", "cotton", "hemp", "wool", "cashmere", "alpaca", "mohair",
+  "silk", "jute", "ramie", "tencel", "lyocell", "modal", "cupro", "viscose",
+  "rayon", "bamboo", "acetate", "lenzing", "ecovero", "polyester", "nylon",
+  "polyamide", "acrylic", "elastane", "spandex", "lycra", "polyurethane",
+  "leather", "down", "modacrylic",
+];
+const FIBER_WORD_RE = new RegExp("\\b(" + FIBER_WORDS.join("|") + ")\\b", "i");
+
+/**
+ * Parse a "NN% fiber" composition out of free text. For each `NN%` token we look
+ * a short window ahead for the first fiber word — robust to symbols between the
+ * percent and the fiber (e.g. "100% European Flax® linen"). The window is kept
+ * short so unrelated numbers ("10% off", "30%offDresses") match nothing. Only
+ * the SHELL composition is kept (text is cut at the first lining/trim marker).
+ * Returns a { fiberName: pct } object or null when nothing trustworthy is found.
+ */
+function parseComposition(text) {
+  if (!text) return null;
+  const main = decodeEntities(text).split(/lining|trim\s*:|contrast\s*:/i)[0];
+  const pctRe = /(\d{1,3})\s*%/g;
+  const comp = {};
+  let m;
+  let count = 0;
+  while ((m = pctRe.exec(main)) && count < 10) {
+    const pct = Number(m[1]);
+    if (!Number.isFinite(pct) || pct <= 0 || pct > 100) continue;
+    const window = main.slice(m.index + m[0].length, m.index + m[0].length + 35);
+    const fwMatch = window.match(FIBER_WORD_RE);
+    if (!fwMatch) continue;
+    const fw = fwMatch[0].toLowerCase();
+    const before = window.slice(0, fwMatch.index + fw.length);
+    let name = fw;
+    if (fw === "flax") name = "linen";
+    else if (fw === "cotton" && /organic/i.test(before)) name = "organic cotton";
+    else if (fw === "elastane" || fw === "lycra") name = "spandex";
+    else if (fw === "polyamide") name = "nylon";
+    comp[name] = (comp[name] || 0) + pct;
+    count++;
+  }
+  const keys = Object.keys(comp);
+  if (!keys.length) return null;
+  const sum = keys.reduce((s, k) => s + comp[k], 0);
+  // Trust a clean total (~100). Otherwise only trust an unambiguous single 100%.
+  if (sum >= 90 && sum <= 110) return comp;
+  if (keys.length === 1 && comp[keys[0]] === 100) return comp;
+  return null;
+}
+
+/**
+ * Detect textile/ethical certifications actually named in the text. Conservative
+ * by design — better to miss a real badge than invent one.
+ */
+function parseCertifications(text) {
+  if (!text) return [];
+  const t = decodeEntities(text).toLowerCase();
+  const out = [];
+  const add = (v) => { if (!out.includes(v)) out.push(v); };
+  if (/oeko[\s-]?tex/.test(t)) add("OEKO-TEX Standard 100");
+  if (/\bgots\b|global organic textile/.test(t)) add("GOTS");
+  if (/european\s*flax|masters of linen/.test(t)) add("European Flax");
+  if (/bluesign/.test(t)) add("bluesign");
+  if (/fair\s?trade|fairtrade/.test(t)) add("Fair Trade");
+  if (/\bb\s?corp\b|certified b corporation/.test(t)) add("B Corp");
+  if (/global recycled standard|\bgrs\b/.test(t)) add("GRS");
+  if (/responsible wool|\brws\b/.test(t)) add("RWS");
+  return out;
+}
+
+/**
+ * Pull description-level text (where composition/certs are stated) from the
+ * authoritative product sources, preferring structured fields over raw HTML.
+ */
+function productDescText(page, shopify, prodLd) {
+  const parts = [];
+  if (shopify && typeof shopify.body_html === "string") parts.push(stripTags(shopify.body_html));
+  if (shopify && Array.isArray(shopify.tags)) parts.push(shopify.tags.join(" "));
+  if (prodLd) {
+    if (typeof prodLd.description === "string") parts.push(stripTags(prodLd.description));
+    if (prodLd.material) {
+      parts.push(typeof prodLd.material === "string" ? prodLd.material : JSON.stringify(prodLd.material));
+    }
+  }
+  return parts.filter(Boolean).join("  •  ");
+}
+
+// ---------------------------------------------------------------------------
 // Product-page heuristic
 // ---------------------------------------------------------------------------
 function ogTypeIsProduct(html) {
@@ -264,6 +380,18 @@ async function getValidatedProduct(url) {
   }
 
   const offer = extractOffer(prodLd, shopify);
+
+  // Page-grounded composition + certs (NEVER the model's guess). Prefer the
+  // structured description; fall back to visible page text for composition only
+  // (its "NN% fiber" pattern is specific enough to scan the whole page safely).
+  const descText = productDescText(page, shopify, prodLd);
+  const pageText = stripTags(page.html).slice(0, 20000);
+  const composition = parseComposition(descText) || parseComposition(pageText);
+  // Certs scanned from the structured description first, then the page — these
+  // marks rarely appear except where a brand actually claims them per-product.
+  let certifications = parseCertifications(descText);
+  if (!certifications.length) certifications = parseCertifications(pageText);
+
   return {
     ok: true,
     finalUrl,
@@ -271,6 +399,9 @@ async function getValidatedProduct(url) {
     price: offer.price, // USD only (null if non-USD or unknown)
     currency: offer.currency,
     inStock: offer.inStock, // true/false/null
+    composition, // { fiber: pct } scraped from the page, or null
+    certifications, // [] scraped cert names — never model-supplied
+    descText, // description/care text, fed to the scorer for floors/finishes
   };
 }
 
@@ -283,4 +414,8 @@ module.exports = {
   harvestImages,
   imageLoads,
   getValidatedProduct,
+  parseComposition,
+  parseCertifications,
+  productDescText,
+  stripTags,
 };
