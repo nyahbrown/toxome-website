@@ -87,6 +87,25 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     ],
   },
   {
+    slug: "regenerative_organic_cotton",
+    name: "Regenerative Organic Cotton",
+    natural: true,
+    whatItIs:
+      "Regenerative organic cotton is organic cotton grown on farms that also rebuild the soil. It starts from the organic rules, so no man-made bug sprays or fertilizers, then goes further by farming in a way that stores carbon and brings the land back to life.",
+    healthStory:
+      "For your skin, the part that counts is the *organic* part. Because the fiber starts certified organic, it carries the same low-residue, no-synthetic-pesticide story as organic cotton, which is the cleanest base a cotton can have. The label to trust is *Regenerative Organic Certified* (ROC): it requires organic first, then adds soil, animal, and farmer standards on top. One trap to know: the word *regenerative* on its own is not a promise. Without the organic part, regenerative farming is allowed to phase synthetic chemicals out slowly rather than ban them, so a plain *regenerative* tag can still mean sprayed cotton.",
+    whatToLookFor:
+      "Look for the full *Regenerative Organic Certified* mark, or a GOTS label next to the regenerative claim. Treat the word *regenerative* by itself, with no organic certification, as a marketing word rather than a health promise.",
+    environment:
+      "This is cotton at its most repairing. It skips the synthetic chemicals and farms to store carbon and rebuild soil instead of stripping it.",
+    shopFilter: "regenerative organic cotton",
+    sources: [
+      { title: "What is Regenerative Organic Certified and how is it different from USDA Certified Organic?", publisher: "Patagonia", url: "https://help.patagonia.com/s/article/What-is-Regenerative-Organic-Certified-and-how-is-it-different-from-USDA-Certified-Organic" },
+      { title: "Regenerative Organic Certified", publisher: "CCOF", url: "https://www.ccof.org/organic-certification-services/regenerative-organic-certified/" },
+      { title: "Regenerative Cotton vs Organic Cotton: Key Differences for Brands", publisher: "Regenerative Cotton Standard", url: "https://regenerative-cotton.org/media-room/regenerative-cotton-vs-organic-cotton-key-differences-for-brands" },
+    ],
+  },
+  {
     slug: "ramie",
     name: "Ramie",
     natural: true,

@@ -250,6 +250,9 @@ function parseComposition(text) {
     const before = window.slice(0, fwMatch.index + fw.length);
     let name = fw;
     if (fw === "flax") name = "linen";
+    // Only regenerative ORGANIC cotton earns the distinguished fiber; bare
+    // "regenerative" (no organic) stays conventional cotton.
+    else if (fw === "cotton" && /regenerativ/i.test(before) && /organic/i.test(before)) name = "regenerative organic cotton";
     else if (fw === "cotton" && /organic/i.test(before)) name = "organic cotton";
     else if (fw === "elastane" || fw === "lycra") name = "spandex";
     else if (fw === "polyamide") name = "nylon";
