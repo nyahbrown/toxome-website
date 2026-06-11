@@ -12,16 +12,17 @@ import { normalizeFiber } from "@/lib/fabricScores";
 import { EDITORS_PICKS, isEditorsPick } from "@/lib/editorsPicks";
 import { track } from "@/lib/track";
 
-export type ShopSection = "women" | "men" | "home" | null;
+export type ShopSection = "women" | "men" | "kids" | "home" | null;
 
 const PAGE_SIZE = 16;
 
 const SECTION_META: Record<
-  "women" | "men" | "home",
+  "women" | "men" | "kids" | "home",
   { title: string }
 > = {
   women: { title: "women's" },
   men: { title: "men's" },
+  kids: { title: "kids" },
   home: { title: "home" },
 };
 
@@ -44,6 +45,12 @@ const OCCASIONS = [
   "Special Occasion",
   "Vacation/Resort",
 ];
+
+// Kids age split, mirrors the `age_band` column values.
+const AGE_BANDS = [
+  { label: "Baby", value: "baby" },
+  { label: "Kids", value: "kids" },
+] as const;
 
 function ProductCard({
   p,
@@ -347,6 +354,7 @@ export default function ShopClient({
   const sectionPath =
     section === "women" ? "/shop/women"
     : section === "men" ? "/shop/men"
+    : section === "kids" ? "/shop/kids"
     : section === "home" ? "/shop/home"
     : "/shop";
 
@@ -355,6 +363,7 @@ export default function ShopClient({
   const sectionGender =
     section === "women" ? "Women"
     : section === "men" ? "Men"
+    : section === "kids" ? "Kids"
     : section === "home" ? "Home"
     : null;
 
@@ -362,11 +371,12 @@ export default function ShopClient({
   const sectionCategories = useMemo<string[]>(() => {
     if (section === "women") return taxonomy.women;
     if (section === "men") return taxonomy.men;
+    if (section === "kids") return taxonomy.kids;
     if (section === "home") return taxonomy.home;
     // null section = all categories, kept in relevance order (taxonomy is
     // already ranked by product count), deduped without re-alphabetizing.
     return Array.from(
-      new Set([...taxonomy.women, ...taxonomy.men, ...taxonomy.home])
+      new Set([...taxonomy.women, ...taxonomy.men, ...taxonomy.kids, ...taxonomy.home])
     );
   }, [section, taxonomy]);
 
@@ -377,6 +387,11 @@ export default function ShopClient({
     occasionRaw &&
     OCCASIONS.some((o) => o.toLowerCase() === occasionRaw.toLowerCase())
       ? OCCASIONS.find((o) => o.toLowerCase() === occasionRaw.toLowerCase())!
+      : null;
+  const ageRaw = searchParams.get("age");
+  const ageFilter =
+    ageRaw && AGE_BANDS.some((a) => a.value === ageRaw.toLowerCase())
+      ? ageRaw.toLowerCase()
       : null;
   const query = (searchParams.get("q") || "").trim();
 
@@ -440,6 +455,8 @@ export default function ShopClient({
       }
       if (category !== "All" && p.category !== category) return false;
       if (occasionFilter && !(p.occasion ?? []).includes(occasionFilter))
+        return false;
+      if (section === "kids" && ageFilter && p.age_band !== ageFilter)
         return false;
       if (q) {
         const haystack = [p.item_name, p.brand, p.category, p.gender]
@@ -517,13 +534,18 @@ export default function ShopClient({
     sectionGender,
     fiberFilter,
     occasionFilter,
+    ageFilter,
     category,
     query,
     sort,
   ]);
 
   const hasUserFilters =
-    !!fiberFilter || !!occasionFilter || category !== "All" || query.length > 0;
+    !!fiberFilter ||
+    !!occasionFilter ||
+    !!ageFilter ||
+    category !== "All" ||
+    query.length > 0;
 
   // Auto-load pagination, reveal a fresh PAGE_SIZE every time the
   // sentinel below the grid scrolls into view. Reset to first page
@@ -531,7 +553,7 @@ export default function ShopClient({
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
-  }, [section, fiberFilter, occasionFilter, category, query, sort]);
+  }, [section, fiberFilter, occasionFilter, ageFilter, category, query, sort]);
   const visible = filtered.slice(0, visibleCount);
   const hiddenCount = Math.max(0, filtered.length - visibleCount);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
@@ -696,13 +718,24 @@ export default function ShopClient({
               onChange={(v) => updateParams({ category: v })}
             />
           )}
-          {/* Occasion is an apparel concept — irrelevant for home goods. */}
-          {section !== "home" && (
+          {/* Occasion is an apparel concept, irrelevant for home goods and kids. */}
+          {section !== "home" && section !== "kids" && (
           <FrostedSelect
             label="Occasion"
             options={OCCASIONS}
             value={occasionFilter ?? "All"}
             onChange={(v) => updateParams({ occasion: v })}
+          />
+          )}
+          {/* Age split, kids only. */}
+          {section === "kids" && (
+          <FrostedSelect
+            label="Age"
+            options={["Baby", "Kids"]}
+            value={AGE_BANDS.find((a) => a.value === ageFilter)?.label ?? "All"}
+            onChange={(v) =>
+              updateParams({ age: v === "All" ? null : v.toLowerCase() })
+            }
           />
           )}
           <div className="shop-filterbar__sort">
@@ -769,6 +802,12 @@ export default function ShopClient({
               onRemove={() => updateParams({ occasion: null })}
             />
           )}
+          {ageFilter && (
+            <FilterChip
+              label={AGE_BANDS.find((a) => a.value === ageFilter)?.label ?? ageFilter}
+              onRemove={() => updateParams({ age: null })}
+            />
+          )}
           {query && (
             <FilterChip
               label={`"${query}"`}
@@ -786,6 +825,7 @@ export default function ShopClient({
                   category: null,
                   fiber: null,
                   occasion: null,
+                  age: null,
                   q: null,
                 })
               }

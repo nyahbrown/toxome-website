@@ -32,4 +32,5 @@ export interface Product {
   // Display-only: rendered as a fiber list with NO Toxome score or bars.
   fibers_present?: string[] | null;
   occasion?: string[] | null;
+  age_band?: "baby" | "kids" | null;
 }

@@ -10,12 +10,13 @@ import type { ShopTaxonomy } from "@/lib/supabase";
 const FALLBACK_TAXONOMY: ShopTaxonomy = {
   women: ["Activewear", "Bottoms", "Outerwear", "Tops"],
   men: ["Activewear", "Bottoms", "Outerwear", "Tops"],
+  kids: ["Bodysuits & Onesies", "Tops", "Bottoms", "Sleepwear"],
   home: ["Bedding", "Bath", "Throws & Blankets", "Pillows"],
 };
 
 function buildShopColumns(taxonomy: ShopTaxonomy) {
   const makeDept = (
-    label: "Men" | "Women" | "Home",
+    label: "Men" | "Women" | "Kids" | "Home",
     categories: string[]
   ) => {
     const slug = label.toLowerCase();
@@ -30,9 +31,23 @@ function buildShopColumns(taxonomy: ShopTaxonomy) {
       ],
     };
   };
+  // Kids carries an age split (Baby / Kids) ahead of its category links.
+  const kidsCol = {
+    heading: "Kids",
+    items: [
+      { label: "All Kids", href: "/shop/kids", muted: true },
+      { label: "Baby", href: "/shop/kids?age=baby" },
+      { label: "Kids", href: "/shop/kids?age=kids" },
+      ...taxonomy.kids.map((c) => ({
+        label: c,
+        href: `/shop/kids?category=${encodeURIComponent(c)}`,
+      })),
+    ],
+  };
   return [
     makeDept("Women", taxonomy.women),
     makeDept("Men", taxonomy.men),
+    kidsCol,
     makeDept("Home", taxonomy.home),
   ];
 }

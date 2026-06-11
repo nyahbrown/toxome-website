@@ -7,6 +7,7 @@ export type { Product };
 export type ShopTaxonomy = {
   women: string[];
   men: string[];
+  kids: string[];
   home: string[];
 };
 
@@ -37,13 +38,14 @@ export const getShopTaxonomy = cache(async (): Promise<ShopTaxonomy> => {
 
   if (error) {
     console.error("Supabase taxonomy fetch error:", error.message);
-    return { women: [], men: [], home: [] };
+    return { women: [], men: [], kids: [], home: [] };
   }
 
   // Count products per category so the filter dropdown can rank by relevance
   // (most-stocked categories first) instead of alphabetically.
   const women = new Map<string, number>();
   const men = new Map<string, number>();
+  const kids = new Map<string, number>();
   const home = new Map<string, number>();
   const bump = (m: Map<string, number>, k: string) => m.set(k, (m.get(k) ?? 0) + 1);
 
@@ -54,6 +56,7 @@ export const getShopTaxonomy = cache(async (): Promise<ShopTaxonomy> => {
     const g = (row.gender || "").toLowerCase();
     if (g === "women" || g === "female") bump(women, row.category);
     else if (g === "men" || g === "male") bump(men, row.category);
+    else if (g === "kids") bump(kids, row.category);
     else if (g === "home") bump(home, row.category);
   }
 
@@ -66,6 +69,7 @@ export const getShopTaxonomy = cache(async (): Promise<ShopTaxonomy> => {
   return {
     women: byRelevance(women),
     men: byRelevance(men),
+    kids: byRelevance(kids),
     home: byRelevance(home),
   };
 });
