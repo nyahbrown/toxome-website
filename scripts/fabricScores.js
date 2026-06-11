@@ -24,7 +24,10 @@ function fiberKey(name) {
 function resolveFiber(name) {
   const k = fiberKey(name);
   if (/recycl/.test(k) && /poly|pet/.test(k)) return "recycled_polyester";
-  if (/regenerativ/.test(k) && /cotton/.test(k)) return "regenerative_cotton";
+  // Only REGENERATIVE ORGANIC cotton earns the cleanest tier — "regenerative"
+  // alone permits synthetic inputs (phased reduction), so bare "regenerative
+  // cotton" falls through to conventional `cotton`.
+  if (/regenerativ/.test(k) && /organic/.test(k) && /cotton/.test(k)) return "regenerative_organic_cotton";
   if (k.includes("organic") && k.includes("cotton")) return "organic_cotton";
   if (/tencel.*modal|modal.*tencel/.test(k)) return "tencel_modal";
   if (/tencel|lyocell/.test(k)) return "lyocell";
