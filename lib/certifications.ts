@@ -6,7 +6,7 @@
 // says nothing about (usually the thing a shopper most cares about). `take` = the
 // Toxome read, reinforcing why a body-first score exists alongside the badges.
 
-export type CertCategory = "textile" | "material" | "chemical";
+export type CertCategory = "textile" | "material" | "chemical" | "ethics";
 
 export type Certification = {
   slug: string;
@@ -53,6 +53,12 @@ export const CATEGORIES: CategoryMeta[] = [
     label: "Chemical & process standards",
     blurb:
       "These govern what happens inside the mill: the dyes, the inputs, the wastewater. Most never appear on a hangtag. They are promises made between manufacturers.",
+  },
+  {
+    id: "ethics",
+    label: "Brand sustainability & ethics",
+    blurb:
+      "These certify the company behind the clothes, not the clothes themselves: how it treats workers, what it gives back, how it runs as a business. They speak to a brand's values, not to what is in the garment against your skin.",
   },
 ];
 
@@ -202,6 +208,22 @@ export const CERTIFICATIONS: Certification[] = [
     take: "Good for keeping plastic in circulation, but a recycled-plastic shirt is still a plastic shirt. The badge is about the source, not the safety.",
   },
   {
+    slug: "rcs",
+    name: "Recycled Claim Standard",
+    abbr: "RCS",
+    issuer: "Textile Exchange",
+    category: "material",
+    summary:
+      "Verifies and traces recycled material through the supply chain, confirming that a recycled-content claim is real. The lighter sister to GRS.",
+    verifies: [
+      "Recycled content from as little as 5%, traced with a chain of custody",
+      "The recycled claim on the label is independently checked",
+    ],
+    blindSpot:
+      "Unlike GRS, it sets no social, environmental, or chemical rules at all. It confirms the recycled content and nothing else, and recycled polyester is still plastic against your skin.",
+    take: "Proof the recycled claim is honest, full stop. For recycled content plus some guardrails, GRS is the stronger version.",
+  },
+  {
     slug: "ocs",
     name: "Organic Content Standard",
     abbr: "OCS",
@@ -216,6 +238,22 @@ export const CERTIFICATIONS: Certification[] = [
     blindSpot:
       "Unlike GOTS, it only confirms the organic content claim. It sets no rules for the dyes, finishes or processing chemistry that come after the farm.",
     take: "Proof the organic fiber is real, nothing more. For the full picture on processing, GOTS is the stronger label.",
+  },
+  {
+    slug: "better-cotton",
+    name: "Better Cotton",
+    issuer: "Better Cotton (BCI)",
+    category: "material",
+    summary:
+      "A farm-training program for cotton grown with less water, fewer chemicals, and better working conditions. It is now the most widespread cotton standard in the world.",
+    verifies: [
+      "Enrolled farmers are trained in more responsible water, soil, and pesticide practices",
+      "A brand has bought Better Cotton volumes equal to the cotton it uses",
+      "Improved labor conditions on participating farms",
+    ],
+    blindSpot:
+      "It runs on a mass-balance system, so the Better Cotton in your shirt is almost never the physical cotton from a better farm, just an equal amount sourced elsewhere. It is not organic, and it still allows GMO seed and synthetic pesticides.",
+    take: "A real step up from conventional cotton at scale, but a long way from organic. Read it as better, not clean, and not traceable to your garment.",
   },
   {
     slug: "rws",
@@ -252,6 +290,40 @@ export const CERTIFICATIONS: Certification[] = [
     take: "The right label to look for on down. Just remember the outer fabric is a separate question entirely.",
   },
   {
+    slug: "responsible-mohair-standard",
+    name: "Responsible Mohair Standard",
+    abbr: "RMS",
+    issuer: "Textile Exchange",
+    category: "material",
+    summary:
+      "An animal-welfare and land-management standard for mohair, the silky fiber from angora goats, covering humane treatment and how the land is managed.",
+    verifies: [
+      "Humane treatment of the goats throughout their lives",
+      "Responsible land and soil management on the farm",
+      "Chain of custody from farm to final product",
+    ],
+    blindSpot:
+      "Like its wool and down siblings, it is a farm standard, not a fabric one. It says nothing about how the mohair is later scoured, dyed, or finished.",
+    take: "The mark to look for on mohair ethics. Pair it with a chemical label if residue is your concern.",
+  },
+  {
+    slug: "responsible-alpaca-standard",
+    name: "Responsible Alpaca Standard",
+    abbr: "RAS",
+    issuer: "Textile Exchange",
+    category: "material",
+    summary:
+      "The animal-welfare and land standard for alpaca fiber, covering humane treatment of the animals and responsible management of the land they graze.",
+    verifies: [
+      "Animal welfare for the alpacas, from handling through shearing",
+      "Responsible grazing and land management",
+      "Chain of custody from farm to final product",
+    ],
+    blindSpot:
+      "It is about the farm, not the finished yarn. The standard does not reach the dyeing or finishing that comes later.",
+    take: "A meaningful welfare signal for alpaca. As with wool, the chemistry of the finished piece is a separate question.",
+  },
+  {
     slug: "fsc",
     name: "Forest Stewardship Council",
     abbr: "FSC",
@@ -266,6 +338,39 @@ export const CERTIFICATIONS: Certification[] = [
     blindSpot:
       "It certifies the forest, not the fiber. Turning pulp into viscose can still involve harsh solvents, and FSC says nothing about that chemistry or the finished fabric.",
     take: "Reassuring on sourcing for semi-synthetics. Look for closed-loop processing (as in lyocell) for the part FSC doesn't cover.",
+  },
+  {
+    slug: "pefc",
+    name: "Programme for the Endorsement of Forest Certification",
+    abbr: "PEFC",
+    issuer: "PEFC International",
+    category: "material",
+    summary:
+      "The world's largest forest-certification system. Like FSC, it verifies that wood-based materials, including the pulp behind viscose and rayon, come from responsibly managed forests.",
+    verifies: [
+      "The wood pulp originates in forests managed to PEFC's sustainability standards",
+      "Chain of custody from the forest through to the finished material",
+      "A particular focus on smallholder and family-owned forests",
+    ],
+    blindSpot:
+      "Like FSC, it certifies the forest, not the fabric. Turning that pulp into viscose still relies on harsh solvents that PEFC says nothing about.",
+    take: "A credible forestry mark, often seen as the alternative to FSC. Reassuring on where the wood came from, silent on how the fiber was made.",
+  },
+  {
+    slug: "canopystyle",
+    name: "CanopyStyle",
+    issuer: "Canopy",
+    category: "material",
+    summary:
+      "A conservation initiative that audits the viscose and rayon supply chain to keep ancient and endangered forests out of your clothing, and ranks the biggest producers on their risk.",
+    verifies: [
+      "A producer's wood-pulp sourcing is audited for ties to ancient and endangered forests",
+      "Brands and mills commit to cutting high-risk forest sources from their fabric",
+      "An annual Hot Button ranking scores the largest viscose producers",
+    ],
+    blindSpot:
+      "It is a forest-protection commitment, not a product seal. You will rarely see it on a hangtag, and it speaks to where the pulp came from, not the chemistry that turned it into fabric.",
+    take: "The sharpest watchdog on viscose and rayon sourcing. Look for it in a brand's commitments, and pair it with closed-loop processing for the part it doesn't cover.",
   },
   {
     slug: "leather-working-group",
@@ -283,6 +388,22 @@ export const CERTIFICATIONS: Certification[] = [
     blindSpot:
       "It rates the tannery, not animal welfare or the residue in the finished leather. And not all LWG-rated leather is Gold, since the bar varies by tier.",
     take: "The leading environmental audit for leather. Check the medal level, and know it isn't a welfare or chemical-safety guarantee.",
+  },
+  {
+    slug: "oeko-tex-leather-standard",
+    name: "OEKO-TEX Leather Standard",
+    issuer: "OEKO-TEX Association",
+    category: "material",
+    summary:
+      "The leather counterpart to Standard 100. Every component of a leather item is lab-tested for harmful substances against limits stricter than the law.",
+    verifies: [
+      "Leather and its components test below limits for regulated harmful chemicals",
+      "Restricted substances such as chromium VI, certain dyes, and residues",
+      "Tested by intended use, with stricter limits for items in close skin contact",
+    ],
+    blindSpot:
+      "It tests the leather for chemical residue, not how the animal was raised or how the tannery performed. That is the territory of welfare claims and Leather Working Group audits.",
+    take: "The chemical-safety mark to look for on leather. Read it as low tested residues, not a welfare or environmental verdict.",
   },
   {
     slug: "usda-organic",
@@ -331,6 +452,89 @@ export const CERTIFICATIONS: Certification[] = [
     blindSpot:
       "There's no consumer-facing seal on the garment. It's a commitment made between brands and factories, meaningful but invisible at the rack.",
     take: "A strong sign a brand is serious about manufacturing chemistry. You'll see it in sustainability reports, not on a hangtag.",
+  },
+
+  // ── Brand & ethics standards ─────────────────────────────────────────────
+  {
+    slug: "b-corp",
+    name: "Certified B Corporation",
+    abbr: "B Corp",
+    issuer: "B Lab",
+    category: "ethics",
+    summary:
+      "A company-wide certification that scores a whole business on its social and environmental performance, from how it treats workers to its environmental footprint to how it is governed.",
+    verifies: [
+      "The entire company clears a verified bar across workers, community, environment, customers and governance",
+      "A legal commitment to weigh all stakeholders, not only shareholders",
+      "Recertification every three years against an updated assessment",
+    ],
+    blindSpot:
+      "It rates the business, not the garment. A certified company can still sell virgin-polyester clothing finished with conventional chemistry. B Corp tells you about the boardroom, not the fabric against your skin.",
+    take: "A real signal that a brand takes ethics and the environment seriously as a business. It says nothing about what any single piece is made of.",
+  },
+  {
+    slug: "fair-trade",
+    name: "Fairtrade",
+    issuer: "Fairtrade International",
+    category: "ethics",
+    summary:
+      "Certifies that the people who made the product worked under safe conditions for fair pay, with extra money flowing back to their community. (Fair Trade Certified, by Fair Trade USA, is the close US equivalent.)",
+    verifies: [
+      "Safe working conditions, fair wages, and a ban on forced and child labor",
+      "A community premium paid back to the workers and farmers",
+      "Audited supply chains for the certified factories or farms",
+    ],
+    blindSpot:
+      "It is a people standard, not a materials one. Fairtrade speaks to how workers were treated, not to the fiber, the dyes, or the chemistry of the finished clothing.",
+    take: "The label to look for on labor ethics. Pair it with a fiber or chemical mark if what the garment is made of is your concern.",
+  },
+  {
+    slug: "fair-wear-foundation",
+    name: "Fair Wear Foundation",
+    abbr: "FWF",
+    issuer: "Fair Wear Foundation",
+    category: "ethics",
+    summary:
+      "A nonprofit that works with apparel brands to improve conditions in the factories that sew their clothes, auditing each brand on real progress rather than a one-time pass.",
+    verifies: [
+      "Member brands are checked against a code covering fair pay, safe conditions, and no forced or child labor",
+      "A focus on the sewing stage, where most garment labor happens",
+      "Annual public performance reviews of each member brand",
+    ],
+    blindSpot:
+      "It grades the brand's labor practices, not the garment. It tells you nothing about the fiber, the chemistry, or what the piece is made of.",
+    take: "One of the more credible labor commitments in clothing. A sign a brand takes its workers seriously, not a claim about the fabric.",
+  },
+  {
+    slug: "one-percent-for-the-planet",
+    name: "1% for the Planet",
+    issuer: "1% for the Planet",
+    category: "ethics",
+    summary:
+      "A membership commitment in which a business gives at least 1% of its annual sales, not its profit, to environmental nonprofits, certified every year.",
+    verifies: [
+      "The company donates at least 1% of yearly revenue to approved environmental causes",
+      "Giving is verified annually with proof of the contributions",
+    ],
+    blindSpot:
+      "It measures generosity, not the product. A member brand funds environmental work, but the donation says nothing about whether the clothing itself is clean, natural, or low-impact.",
+    take: "Proof a brand puts real money toward the planet. Read it as a giving pledge, not a verdict on the garment in your hands.",
+  },
+  {
+    slug: "climate-neutral-certified",
+    name: "Climate Neutral Certified",
+    issuer: "Change Climate Project",
+    category: "ethics",
+    summary:
+      "Certifies that a brand measured its entire carbon footprint, offset it for the current year, and committed to cutting emissions going forward.",
+    verifies: [
+      "The company measured its cradle-to-customer carbon emissions",
+      "Those emissions were offset through verified carbon credits",
+      "A public commitment to reduce emissions over time",
+    ],
+    blindSpot:
+      "Offsetting is not the same as not emitting, and the badge covers the company's carbon math, not the materials in any product. A carbon-neutral brand can still sell plastic clothing.",
+    take: "A sign a brand is accounting for its climate impact. Read it as carbon bookkeeping, not a verdict on what the garment is made of.",
   },
 ];
 

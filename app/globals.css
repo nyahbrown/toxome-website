@@ -155,6 +155,16 @@ button { font-family: inherit; }
   transform: scale(1.001); /* avoid sub-pixel edge gap during zoom */
   transition: transform 700ms var(--ease-out-strong);
 }
+/* Second-view photo: layered over the main image (under the scrim so text stays
+   legible) and crossfaded in on hover. */
+.fiber-tile__img--hover {
+  opacity: 0;
+  transition: opacity 600ms var(--ease-out-strong),
+    transform 700ms var(--ease-out-strong);
+}
+@media (hover: hover) and (pointer: fine) {
+  .fiber-tile:hover .fiber-tile__img--hover { opacity: 1; }
+}
 .fiber-tile__fallback {
   position: absolute;
   inset: 0;
@@ -1093,73 +1103,9 @@ button { font-family: inherit; }
   .cl-spread__badge .cert-card__issuer { margin-top: 0 !important; }
 }
 
-/* ── Guide tabs (Fibers / Certifications) ─────────────────────────────────── */
-.guide-tabs {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 30px;
-  margin: 0 auto;
-}
-.guide-tab {
-  font-family: var(--sans);
-  font-size: 15px;
-  font-weight: 500;
-  letter-spacing: -0.005em;
-  color: var(--ink-3);
-  padding: 6px 2px;
-  text-decoration: none;
-  border-bottom: 1.5px solid transparent;
-  transition: color 200ms var(--ease), border-color 200ms var(--ease);
-}
-.guide-tab:hover { color: var(--ink-2); }
-.guide-tab[data-active="true"] {
-  color: var(--ink);
-  border-bottom-color: var(--ink);
-}
-
 /* ── Certifications field guide ───────────────────────────────────────────── */
 
 /* Decoder intro */
-.cert-intro { max-width: 680px; margin: 0 auto; }
-.cert-intro__body {
-  font-size: 16px;
-  line-height: 1.72;
-  letter-spacing: -0.003em;
-  color: var(--ink);
-  margin: 0 0 22px;
-}
-.cert-intro__body:last-of-type { margin-bottom: 0; }
-
-/* "what it verifies / leaves out" legend */
-.cert-legend {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 26px;
-  margin-top: 30px;
-}
-.cert-legend span {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  font-family: var(--mono);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink-2);
-}
-.cert-legend__dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 999px;
-  display: inline-block;
-}
-.cert-legend__dot--yes { background: var(--risk-low); }
-.cert-legend__dot--no { background: var(--orange); }
-
 /* "Start here" tier — the few marks that matter most, above the directory */
 .cert-leads__head {
   max-width: 640px;
@@ -1404,21 +1350,9 @@ button { font-family: inherit; }
   letter-spacing: 0.11em;
   text-transform: uppercase;
   margin: 0 0 8px;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-}
-.cert-card__label::before {
-  content: "";
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  display: inline-block;
 }
 .cert-card__label--yes { color: var(--ink-2); }
-.cert-card__label--yes::before { background: var(--risk-low); }
 .cert-card__label--no { color: var(--ink-2); }
-.cert-card__label--no::before { background: var(--orange); }
 
 .cert-card__list {
   list-style: none;

@@ -6,7 +6,6 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { getShopTaxonomy } from "@/lib/supabase";
 import { FIBER_GUIDE, withScore, KIND_LABEL, type GuideFiber } from "@/lib/fiberGuide";
-import GuideTabs from "@/components/GuideTabs";
 
 export const revalidate = 86400;
 
@@ -65,7 +64,15 @@ function ArrowIcon() {
   );
 }
 
-function FiberTile({ fiber, hasImage }: { fiber: GuideFiber; hasImage: boolean }) {
+function FiberTile({
+  fiber,
+  hasImage,
+  hasHover,
+}: {
+  fiber: GuideFiber;
+  hasImage: boolean;
+  hasHover: boolean;
+}) {
   return (
     <Link href={`/guide/${fiber.slug}`} className="fiber-tile">
       <div className="fiber-tile__media">
@@ -79,6 +86,16 @@ function FiberTile({ fiber, hasImage }: { fiber: GuideFiber; hasImage: boolean }
           />
         ) : (
           <div className="fiber-tile__fallback" />
+        )}
+        {hasHover && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            className="fiber-tile__img fiber-tile__img--hover"
+            src={`/fibers/guide/${fiber.slug}-2.jpg`}
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+          />
         )}
         <div className="fiber-tile__scrim" />
         <div className="fiber-tile__veil" />
@@ -136,12 +153,12 @@ export default async function GuidePage() {
             style={{
               fontFamily: "var(--sans)",
               fontWeight: 500,
-              fontSize: "clamp(28px, 4vw, 46px)",
+              fontSize: "clamp(18px, 4.4vw, 46px)",
               lineHeight: 1.12,
               letterSpacing: "-0.02em",
               color: "var(--ink)",
               margin: "0 auto 20px",
-              maxWidth: 640,
+              whiteSpace: "nowrap",
             }}
           >
             Know what touches your skin all day.
@@ -159,9 +176,6 @@ export default async function GuidePage() {
             (clean)</em> on what it means for your health. Higher is cleaner. The
             fiber is rarely the whole story. The dyes and finishes are.
           </p>
-          <div style={{ marginBottom: 30 }}>
-            <GuideTabs active="fibers" />
-          </div>
           <div className="guide-legend">
             <span>
               <i style={{ background: "var(--risk-low)" }} />
@@ -186,6 +200,7 @@ export default async function GuidePage() {
                 key={f.slug}
                 fiber={f}
                 hasImage={images.has(f.slug.toLowerCase())}
+                hasHover={images.has(`${f.slug.toLowerCase()}-2`)}
               />
             ))}
           </div>

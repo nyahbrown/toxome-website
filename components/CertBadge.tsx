@@ -23,9 +23,18 @@ const DOMAIN: Record<string, string> = {
   rws: "textileexchange.org",
   rds: "textileexchange.org",
   fsc: "fsc.org",
+  pefc: "pefc.org",
+  canopystyle: "canopyplanet.org",
   "leather-working-group": "leatherworkinggroup.com",
   "usda-organic": "usda.gov",
   zdhc: "roadmaptozero.com",
+  "b-corp": "bcorporation.net",
+  "fair-trade": "fairtrade.net",
+  "one-percent-for-the-planet": "onepercentfortheplanet.org",
+  "better-cotton": "bettercotton.org",
+  "oeko-tex-leather-standard": "oeko-tex.com",
+  "fair-wear-foundation": "fairwear.org",
+  "climate-neutral-certified": "changeclimate.org",
 };
 
 function remoteCandidates(slug: string): string[] {
@@ -51,10 +60,22 @@ const MARK: Record<string, string> = {
   rws: "RWS",
   rds: "RDS",
   fsc: "FSC",
+  pefc: "PEFC",
+  canopystyle: "Canopy",
   "leather-working-group": "LWG",
   "usda-organic": "USDA",
   "oeko-tex-eco-passport": "ECO",
   zdhc: "ZDHC",
+  "b-corp": "B",
+  "fair-trade": "FT",
+  "one-percent-for-the-planet": "1%",
+  rcs: "RCS",
+  "responsible-mohair-standard": "RMS",
+  "responsible-alpaca-standard": "RAS",
+  "better-cotton": "BC",
+  "oeko-tex-leather-standard": "LS",
+  "fair-wear-foundation": "FWF",
+  "climate-neutral-certified": "CN",
 };
 
 function markFor(slug: string, abbr: string | undefined, name: string): string {

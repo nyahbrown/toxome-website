@@ -15,11 +15,11 @@ import type { Product } from "@/types/product";
 // To enable a swap for a fiber, drop a "<name>-2.jpg" into /public/fibers
 // and add a `hover` path here. Cards without `hover` keep the subtle zoom.
 const FIBERS = [
-  { name: "organic cotton", image: "/fibers/cotton-1.jpg" },
+  { name: "organic cotton", image: "/fibers/organic_cotton-1.jpg", hover: "/fibers/organic_cotton-2.jpg" },
   { name: "silk",   image: "/fibers/silk-1.jpg" },
   { name: "wool",   image: "/fibers/wool-1.jpg", hover: "/fibers/wool-2.jpg" },
-  { name: "hemp",   image: "/fibers/hemp.jpg" },
-  { name: "linen",  image: "/fibers/linen-1.jpg" },
+  { name: "hemp",   image: "/fibers/hemp-1.jpg" },
+  { name: "linen",  image: "/fibers/linen-1.jpg", hover: "/fibers/linen-2.jpg" },
 ];
 
 function FiberTile({

@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
-import GuideTabs from "@/components/GuideTabs";
 import CertBadge from "@/components/CertBadge";
 import CertWall from "@/components/CertWall";
 import CertLeads from "@/components/CertLeads";
@@ -72,18 +71,18 @@ export default async function CertificationsPage() {
             className="eyebrow"
             style={{ color: "var(--ink-3)", marginBottom: 22 }}
           >
-            The fabric guide
+            The certification guide
           </div>
           <h1
             style={{
               fontFamily: "var(--sans)",
               fontWeight: 500,
-              fontSize: "clamp(28px, 4vw, 46px)",
+              fontSize: "clamp(18px, 4.4vw, 46px)",
               lineHeight: 1.12,
               letterSpacing: "-0.02em",
               color: "var(--ink)",
               margin: "0 auto 20px",
-              maxWidth: 640,
+              whiteSpace: "nowrap",
             }}
           >
             What certifications actually mean.
@@ -100,63 +99,10 @@ export default async function CertificationsPage() {
             Every certification is a promise about one thing. The gap between what
             it covers and what you assume it covers is where most clothing hides.
           </p>
-          <GuideTabs active="certifications" />
         </div>
 
-        {/* Badge wall — every mark at a glance; tap one to scroll to its card */}
-        <section className="shell" style={{ paddingTop: 8, paddingBottom: 16 }}>
-          <CertWall
-            items={CERTIFICATIONS.map((cert) => ({
-              slug: cert.slug,
-              name: cert.name,
-              abbr: cert.abbr,
-              logoSrc: logos.get(cert.slug),
-            }))}
-          />
-        </section>
-
-        {/* Decoder intro + how-to-read legend */}
-        <section className="shell" style={{ paddingTop: 28, paddingBottom: 8 }}>
-          <div className="cert-intro">
-            <p className="cert-intro__body">
-              A label on a hangtag feels like a verdict. It rarely is. One seal
-              tests for harmful chemicals but ignores what the fabric is made of.
-              Another certifies the cotton was grown organically, then says nothing
-              about the dye. A third proves the down is humane, but not the jacket
-              it fills.
-            </p>
-            <p className="cert-intro__body">
-              None of them are lying. Each one answers a single, narrow question,
-              and shoppers fill the silence with everything the badge never
-              claimed. Below is what each one verifies, and the one thing it leaves
-              out.
-            </p>
-            <div className="cert-legend">
-              <span>
-                <i className="cert-legend__dot cert-legend__dot--yes" />
-                what it verifies
-              </span>
-              <span>
-                <i className="cert-legend__dot cert-legend__dot--no" />
-                what it leaves out
-              </span>
-            </div>
-          </div>
-        </section>
-
-        {/* Start here — the few marks that do the most for the body */}
-        <section className="shell" style={{ paddingTop: 48, paddingBottom: 8 }}>
-          <div className="cert-leads__head">
-            <p className="cert-leads__eyebrow">Start here</p>
-            <h2 className="cert-leads__title">
-              If you read one thing on the label, read these.
-            </h2>
-            <p className="cert-leads__sub">
-              Sixteen marks is a lot to carry into a store. These three do the
-              most for what actually touches your skin. Everything below is the
-              full directory, for when you want it.
-            </p>
-          </div>
+        {/* The marks that do the most for the body, lifted to the top */}
+        <section className="shell" style={{ paddingTop: 4, paddingBottom: 8 }}>
           <CertLeads
             items={leads.map((cert) => ({
               slug: cert.slug,
@@ -166,6 +112,20 @@ export default async function CertificationsPage() {
               leadNote: cert.leadNote ?? cert.summary,
               logoSrc: logos.get(cert.slug),
             }))}
+          />
+        </section>
+
+        {/* Badge wall — every mark at a glance; tap one to scroll to its card */}
+        <section className="shell" style={{ paddingTop: 36, paddingBottom: 16 }}>
+          <CertWall
+            items={CERTIFICATIONS.filter((cert) => !cert.healthRank).map(
+              (cert) => ({
+                slug: cert.slug,
+                name: cert.name,
+                abbr: cert.abbr,
+                logoSrc: logos.get(cert.slug),
+              })
+            )}
           />
         </section>
 

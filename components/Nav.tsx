@@ -181,7 +181,7 @@ export default function Nav({
                 {
                   heading: "Guide",
                   items: [
-                    { label: "Fabric", href: "/guide" },
+                    { label: "Fabrics", href: "/guide" },
                     { label: "Certifications", href: "/guide/certifications" },
                   ],
                 },
@@ -498,7 +498,7 @@ export default function Nav({
                   Guide
                 </div>
                 {[
-                  { label: "fabric", href: "/guide" },
+                  { label: "fabrics", href: "/guide" },
                   { label: "certifications", href: "/guide/certifications" },
                 ].map((link) => {
                   const active =
