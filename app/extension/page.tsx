@@ -185,7 +185,7 @@ export default async function ExtensionPage() {
             src="/extension/preview.jpg"
             alt="The Toxome extension card open on a DISSH product page, showing a 67/100 'Okay' rating, a 57% cupro / 43% viscose composition breakdown, why-this-score notes, and Save to Wishlist and Add to Closet buttons."
             width={2000}
-            height={1267}
+            height={1294}
             sizes="(max-width: 1100px) 100vw, 1040px"
             style={{ display: "block", width: "100%", height: "auto" }}
             priority
