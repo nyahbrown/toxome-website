@@ -71,6 +71,7 @@ export async function GET(
   const hSize = headline.length > 52 ? 64 : headline.length > 38 ? 74 : 86;
 
   const cormorantMedium = fontData("Cormorant-Medium.ttf");
+  const cormorantMediumItalic = fontData("Cormorant-MediumItalic.ttf");
   const interRegular = fontData("Inter-Regular.ttf");
   const interSemiBold = fontData("Inter-SemiBold.ttf");
 
@@ -203,14 +204,14 @@ export async function GET(
           {dek ? (
             <div
               style={{
-                marginTop: 26,
-                fontFamily: "Inter",
+                marginTop: 22,
+                fontFamily: "Cormorant",
                 color: "rgba(255,255,255,0.92)",
-                fontSize: 28,
-                fontWeight: 400,
+                fontSize: 38,
+                fontWeight: 500,
                 fontStyle: "italic",
-                lineHeight: 1.4,
-                letterSpacing: "-0.005em",
+                lineHeight: 1.3,
+                letterSpacing: "0",
                 maxWidth: 720,
                 textShadow: "0 1px 14px rgba(0,0,0,0.4)",
               }}
@@ -247,11 +248,9 @@ export async function GET(
       height: H,
       fonts: [
         { name: "Cormorant", data: cormorantMedium, weight: 500, style: "normal" },
+        { name: "Cormorant", data: cormorantMediumItalic, weight: 500, style: "italic" },
         { name: "Inter", data: interRegular, weight: 400, style: "normal" },
         { name: "Inter", data: interSemiBold, weight: 600, style: "normal" },
-        // Inter ships no italic master; register the roman face for the italic
-        // dek so Satori has a glyph source (text reads even without true slant).
-        { name: "Inter", data: interRegular, weight: 400, style: "italic" },
       ],
     }
   );
