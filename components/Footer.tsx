@@ -41,6 +41,16 @@ const cols: FooterCol[] = [
     ],
   },
   {
+    h: "Shop by material",
+    items: [
+      { label: "Organic Cotton", href: "/shop/collection/non-toxic-organic-cotton-clothing" },
+      { label: "Linen", href: "/shop/collection/non-toxic-linen-clothing" },
+      { label: "Silk", href: "/shop/collection/non-toxic-silk-clothing" },
+      { label: "GOTS Certified", href: "/shop/collection/gots-certified-clothing" },
+      { label: "Baby", href: "/shop/collection/non-toxic-baby-clothes" },
+    ],
+  },
+  {
     h: "Company",
     items: [
       { label: "Partnerships", href: "/partnerships" },

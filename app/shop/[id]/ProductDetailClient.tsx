@@ -11,7 +11,18 @@ import CertBadge from "@/components/CertBadge";
 // page bars in sync with the score table (alpaca/cashmere green, Lenzing green,
 // recycled synthetics red, "european linen" -> linen via keyword fallback, etc.)
 import { fiberHazardColor, prettyFiber } from "@/lib/fabricScores";
+import { collectionSlugForFiber } from "@/lib/shopPages";
 import { track, withUtm } from "@/lib/track";
+
+// Link a fiber to its dedicated collection page when one exists (a stronger SEO
+// + commerce target than the generic ?fiber= filter); otherwise fall back to
+// the filtered shop.
+function fiberHref(fiber: string): string {
+  const slug = collectionSlugForFiber(fiber);
+  return slug
+    ? `/shop/collection/${slug}`
+    : `/shop?fiber=${encodeURIComponent(fiber.toLowerCase())}`;
+}
 
 function RiskChip({
   score,
@@ -447,9 +458,7 @@ export default function ProductDetailClient({
                     {fibersPresent.map((fiber) => (
                       <Link
                         key={fiber}
-                        href={`/shop?fiber=${encodeURIComponent(
-                          fiber.toLowerCase()
-                        )}`}
+                        href={fiberHref(fiber)}
                         style={{
                           fontSize: 14,
                           color: "var(--ink)",
@@ -504,9 +513,7 @@ export default function ProductDetailClient({
                           }}
                         >
                           <Link
-                            href={`/shop?fiber=${encodeURIComponent(
-                              fiber.toLowerCase()
-                            )}`}
+                            href={fiberHref(fiber)}
                             style={{
                               color: "inherit",
                               textDecoration: "underline",

@@ -192,7 +192,176 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
       p.category === "Tops" &&
       hasFiber(p, "organic cotton"),
   },
+  {
+    slug: "non-toxic-organic-cotton-clothing",
+    title: "Non-Toxic Organic Cotton Clothing, Scored | Toxome",
+    heading: "non-toxic organic cotton clothing",
+    description:
+      "Organic cotton clothing scored by Toxome, grown without synthetic pesticides and free of the plastic fibers in conventional blends.",
+    intro:
+      "conventional cotton is one of the most pesticide-heavy crops in the world, and much of what is labeled cotton is cut with polyester to lower the price. organic cotton skips the synthetic pesticides and stays a pure, breathable natural fiber. every piece here is scored by toxome for its real fiber content.",
+    faqs: [
+      {
+        q: "Is organic cotton non-toxic?",
+        a: "Organic cotton is a natural plant fiber grown without synthetic pesticides or fertilizers, and it carries none of the plastic found in polyester blends. It is one of the cleanest everyday fibers for skin contact. Toxome scores each piece by its fiber content.",
+      },
+      {
+        q: "Is organic cotton better than regular cotton?",
+        a: "Organic cotton is grown without the synthetic pesticides and fertilizers used on conventional cotton, one of the most chemically treated crops in the world. The finished fiber is the same soft, breathable cotton, grown in a way that keeps those chemicals off the field and off your skin.",
+      },
+      {
+        q: "Why does Toxome score clothes by fiber?",
+        a: "Fiber content is what touches the skin. Toxome reads each garment's composition and rates it, so the score reflects what the clothing is made of, not a brand's marketing.",
+      },
+    ],
+    section: null,
+    match: (p) => hasFiber(p, "organic cotton"),
+  },
+  {
+    slug: "non-toxic-linen-clothing",
+    title: "Non-Toxic Linen Clothing, Scored by Fiber | Toxome",
+    heading: "non-toxic linen clothing",
+    description:
+      "Pure linen clothing scored by Toxome. Breathable flax that keeps you cool, needs little water to grow, and softens with every wash.",
+    intro:
+      "linen is spun from the flax plant, one of the oldest and lowest-impact fibers people have worn. it breathes, pulls heat off the body, and softens every time you wash it. every piece here is scored by toxome for its real fiber content, so you know you are wearing flax, not a plastic blend.",
+    faqs: [
+      {
+        q: "Is linen a non-toxic fabric?",
+        a: "Linen is a natural fiber made from the flax plant, free of the petroleum-based plastics in synthetic fabrics. It needs little water or pesticide to grow and breathes better than almost any other fiber. Toxome scores each piece by its fiber content.",
+      },
+      {
+        q: "Why is linen good for hot weather?",
+        a: "Linen is more breathable than almost any other fabric and wicks moisture away from the skin, so it feels cool and dries fast in heat and humidity. It is a natural plant fiber with no plastic content.",
+      },
+      {
+        q: "Why does Toxome score clothes by fiber?",
+        a: "Fiber content is what touches the skin. Toxome reads each garment's composition and rates it, so the score reflects what the clothing is made of, not a brand's marketing.",
+      },
+    ],
+    section: null,
+    match: (p) => hasFiber(p, "linen"),
+  },
+  {
+    slug: "non-toxic-silk-clothing",
+    title: "Non-Toxic Silk Clothing, Scored by Fiber | Toxome",
+    heading: "non-toxic silk clothing",
+    description:
+      "Real silk clothing scored by Toxome and free of the plastic fibers in synthetic 'silky' fabrics. Natural, breathable, temperature-regulating.",
+    intro:
+      "most things sold as silky are polyester, a plastic fiber that traps heat against the skin. real silk is a natural protein fiber that breathes and regulates temperature. every piece here is scored by toxome for its real fiber content, so you can tell genuine silk from a synthetic imitation.",
+    faqs: [
+      {
+        q: "Is silk a non-toxic fabric?",
+        a: "Silk is a natural protein fiber spun by silkworms, free of the petroleum-based plastics in polyester and nylon. It breathes, regulates temperature, and carries none of the microplastic shedding of synthetic 'silky' fabrics. Toxome scores each piece so you can confirm it is real silk.",
+      },
+      {
+        q: "How can I tell real silk from polyester?",
+        a: "Check the composition label: real silk lists 'silk,' while imitations list polyester, nylon, or 'satin' with no fiber named. Toxome reads the label for you and scores the garment by what it is actually made of.",
+      },
+      {
+        q: "Why does Toxome score clothes by fiber?",
+        a: "Fiber content is what touches the skin. Toxome reads each garment's composition and rates it, so the score reflects what the clothing is made of, not a brand's marketing.",
+      },
+    ],
+    section: null,
+    match: (p) => hasFiber(p, "silk"),
+  },
+  {
+    slug: "non-toxic-hemp-clothing",
+    title: "Non-Toxic Hemp Clothing, Scored by Fiber | Toxome",
+    heading: "non-toxic hemp clothing",
+    description:
+      "Hemp clothing scored by Toxome. A durable, breathable plant fiber grown with little water and no need for pesticides.",
+    intro:
+      "hemp is one of the most durable plant fibers, and it grows fast with little water and no need for pesticides. it breathes like linen and gets softer with wear. every piece here is scored by toxome for its real fiber content.",
+    faqs: [
+      {
+        q: "Is hemp fabric non-toxic?",
+        a: "Hemp is a natural plant fiber grown without the pesticides conventional cotton relies on, and it contains none of the plastic of synthetic fabrics. It is breathable, durable, and clean against the skin. Toxome scores each piece by its fiber content.",
+      },
+      {
+        q: "Is hemp clothing durable?",
+        a: "Hemp is one of the strongest natural fibers, so hemp clothing tends to outlast cotton and resist stretching. It also softens with each wash without losing strength.",
+      },
+      {
+        q: "Why does Toxome score clothes by fiber?",
+        a: "Fiber content is what touches the skin. Toxome reads each garment's composition and rates it, so the score reflects what the clothing is made of, not a brand's marketing.",
+      },
+    ],
+    section: null,
+    match: (p) => hasFiber(p, "hemp"),
+  },
+  {
+    slug: "non-toxic-cashmere",
+    title: "Non-Toxic Cashmere, Scored by Fiber | Toxome",
+    heading: "non-toxic cashmere",
+    description:
+      "Pure cashmere scored by Toxome. A natural animal fiber that insulates without the plastic of acrylic 'soft' knits.",
+    intro:
+      "many soft sweaters are acrylic, a plastic fiber that pills, traps heat, and sheds microplastics. real cashmere is a natural animal fiber that insulates and breathes. every piece here is scored by toxome for its real fiber content, so you can tell pure cashmere from a synthetic blend.",
+    faqs: [
+      {
+        q: "Is cashmere a non-toxic fabric?",
+        a: "Cashmere is a natural fiber from cashmere goats, free of the plastics in acrylic and polyester knits. It is warm, breathable, and gentle on skin. Toxome scores each piece so you can confirm it is real cashmere and not a synthetic blend.",
+      },
+      {
+        q: "Is cashmere better than acrylic?",
+        a: "Cashmere is a natural fiber that breathes and regulates warmth, while acrylic is a plastic that traps heat, pills quickly, and sheds microplastics in the wash. The two feel similar when new, but wear very differently.",
+      },
+      {
+        q: "Why does Toxome score clothes by fiber?",
+        a: "Fiber content is what touches the skin. Toxome reads each garment's composition and rates it, so the score reflects what the clothing is made of, not a brand's marketing.",
+      },
+    ],
+    section: null,
+    match: (p) => hasFiber(p, "cashmere"),
+  },
+  {
+    slug: "non-toxic-merino-wool",
+    title: "Non-Toxic Merino Wool Clothing, Scored | Toxome",
+    heading: "non-toxic merino wool",
+    description:
+      "Merino wool clothing scored by Toxome. A fine natural fiber that regulates temperature and resists odor without synthetic treatments.",
+    intro:
+      "merino wool is a fine natural fiber that keeps you warm when it is cold and cool when it is warm, and it resists odor without the chemical finishes added to synthetic activewear. every piece here is scored by toxome for its real fiber content.",
+    faqs: [
+      {
+        q: "Is merino wool non-toxic?",
+        a: "Merino wool is a natural animal fiber, free of the plastics in polyester and nylon activewear. It regulates temperature and resists odor on its own, without antimicrobial chemical treatments. Toxome scores each piece by its fiber content.",
+      },
+      {
+        q: "Is merino wool itchy?",
+        a: "Merino fibers are much finer than regular wool, so they feel soft rather than scratchy against the skin. That fineness is why merino is used for base layers worn next to the body.",
+      },
+      {
+        q: "Why does Toxome score clothes by fiber?",
+        a: "Fiber content is what touches the skin. Toxome reads each garment's composition and rates it, so the score reflects what the clothing is made of, not a brand's marketing.",
+      },
+    ],
+    section: null,
+    match: (p) => hasFiber(p, "merino"),
+  },
 ];
+
+// Maps a fiber (any key format) to its broad collection page, for linking from
+// product pages. Most specific keys first. Returns null for fibers with no page.
+const FIBER_TO_COLLECTION: [string, string][] = [
+  ["organic cotton", "non-toxic-organic-cotton-clothing"],
+  ["merino", "non-toxic-merino-wool"],
+  ["cashmere", "non-toxic-cashmere"],
+  ["linen", "non-toxic-linen-clothing"],
+  ["silk", "non-toxic-silk-clothing"],
+  ["hemp", "non-toxic-hemp-clothing"],
+];
+
+export function collectionSlugForFiber(fiber: string): string | null {
+  const k = fiber.toLowerCase().replace(/_/g, " ");
+  for (const [key, slug] of FIBER_TO_COLLECTION) {
+    if (k.includes(key)) return slug;
+  }
+  return null;
+}
 
 export function getCollection(slug: string): ShopCollection | null {
   return SHOP_COLLECTIONS.find((c) => c.slug === slug) ?? null;
