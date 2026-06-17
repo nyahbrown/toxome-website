@@ -1,6 +1,8 @@
 import Image from "next/image";
 
-type FooterLink = { label: string; href: string };
+// `spaced` adds a gap above the link (used to set off the featured collections
+// from the departments inside Shop — spacing, never a divider line).
+type FooterLink = { label: string; href: string; spaced?: boolean };
 type FooterCol = { h: string; items: FooterLink[] };
 
 // Social accounts. Real brand glyphs (Simple Icons paths), rendered in the
@@ -30,24 +32,26 @@ const socials: Social[] = [
 
 const cols: FooterCol[] = [
   {
-    h: "Index",
+    h: "Shop",
     items: [
-      { label: "Shop", href: "/shop" },
+      { label: "Women", href: "/shop/women" },
+      { label: "Men", href: "/shop/men" },
+      { label: "Kids", href: "/shop/kids" },
+      { label: "Home", href: "/shop/home" },
+      { label: "All", href: "/shop" },
+      // Featured collections, set off from the departments by spacing.
+      { label: "GOTS Certified", href: "/shop/collection/gots-certified-clothing", spaced: true },
+      { label: "Non-Toxic Baby", href: "/shop/collection/non-toxic-baby-clothes" },
+    ],
+  },
+  {
+    h: "Explore",
+    items: [
       { label: "Guide", href: "/guide" },
       { label: "Certifications", href: "/guide/certifications" },
       { label: "Journal", href: "/journal" },
       { label: "Extension", href: "/extension" },
       { label: "Get the app", href: "/app" },
-    ],
-  },
-  {
-    h: "Shop by material",
-    items: [
-      { label: "Organic Cotton", href: "/shop/collection/non-toxic-organic-cotton-clothing" },
-      { label: "Linen", href: "/shop/collection/non-toxic-linen-clothing" },
-      { label: "Silk", href: "/shop/collection/non-toxic-silk-clothing" },
-      { label: "GOTS Certified", href: "/shop/collection/gots-certified-clothing" },
-      { label: "Baby", href: "/shop/collection/non-toxic-baby-clothes" },
     ],
   },
   {
@@ -102,7 +106,7 @@ export default function Footer() {
               <div className="eyebrow" style={{ marginBottom: 16, color: "var(--ink)" }}>{c.h}</div>
               <ul className="footer-link-list" style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 10 }}>
                 {c.items.map((item) => (
-                  <li key={item.label}>
+                  <li key={item.label} style={item.spaced ? { marginTop: 8 } : undefined}>
                     <a
                       href={item.href}
                       target={item.href.startsWith("http") ? "_blank" : undefined}
