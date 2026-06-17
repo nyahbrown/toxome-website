@@ -5,6 +5,7 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import JsonLd from "@/components/JsonLd";
 import ShopClient from "../../ShopClient";
+import CollectionTracker from "./CollectionTracker";
 import { getPublishedProducts, getShopTaxonomy } from "@/lib/supabase";
 import { getCollection, allCollectionSlugs } from "@/lib/shopPages";
 
@@ -84,6 +85,7 @@ export default async function CollectionPage({
     <>
       <Nav taxonomy={taxonomy} />
       <JsonLd data={schema} />
+      <CollectionTracker slug={c.slug} itemCount={matched.length} />
 
       <Suspense fallback={null}>
         <ShopClient
