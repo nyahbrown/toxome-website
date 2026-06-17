@@ -520,21 +520,21 @@ button { font-family: inherit; }
 /* Footer grid */
 .footer-grid {
   display: grid;
-  /* Brand block flexes on the left; the three link columns are content-width
+  /* Brand block flexes on the left; the four link columns are content-width
      and cluster together on the right with even gaps (no edge-to-edge stretch). */
-  grid-template-columns: 1.4fr auto auto auto;
-  gap: 56px;
+  grid-template-columns: 1.4fr auto auto auto auto;
+  gap: 48px;
   margin-bottom: 56px;
 }
 /* Goop-style mobile footer: the brand block spans full width on top, with the
    link columns held in a dense multi-column row beneath (not stacked 1-up). */
 @media (max-width: 900px) {
-  .footer-grid { grid-template-columns: repeat(3, 1fr); gap: 36px 28px; }
+  .footer-grid { grid-template-columns: repeat(4, 1fr); gap: 36px 28px; }
   .footer-grid > :first-child { grid-column: 1 / -1; }
 }
 /* Looser link spacing on phones for comfortable tap targets. */
 @media (max-width: 768px) { .footer-link-list { gap: 16px !important; } }
-@media (max-width: 560px) { .footer-grid { gap: 30px 22px; margin-bottom: 44px; } }
+@media (max-width: 560px) { .footer-grid { grid-template-columns: repeat(2, 1fr); gap: 30px 22px; margin-bottom: 44px; } }
 @media (max-width: 380px) {
   .footer-grid { grid-template-columns: 1fr 1fr; }
   .footer-grid > :first-child { grid-column: 1 / -1; }
