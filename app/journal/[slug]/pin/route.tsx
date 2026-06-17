@@ -3,24 +3,27 @@ import fs from "fs";
 import path from "path";
 import { getArticle, getAllSlugs } from "@/lib/journal";
 
-// Tall (2:3) Pinterest pin card: the article's hero photo with the title set
-// over it, the way the Instagram posts look. ShareBar passes this URL as the
-// Pinterest pin `media`, and the article's hero carries it as `data-pin-media`,
-// so saving the page to Pinterest pins this card instead of the raw photo.
+// Tall portrait (4:5, 1080×1350) Pinterest pin that reproduces Toxome's branded
+// "teaser" social template — the eye logo + masthead, the article hero photo
+// behind warm scrims, a serif (Cormorant) headline, an italic dek, a thin rule
+// and a "Read on toxome.app →" CTA. This is the exact design rendered live in
+// app/studio/post (post.kind === "teaser"), ported into next/og so Pinterest
+// pins this card when a Journal article is saved. ShareBar passes this URL as
+// the pin `media`; the hero carries it as `data-pin-media`.
 export const contentType = "image/png";
 export const dynamic = "force-static";
 
-const WIDTH = 1000;
-const HEIGHT = 1500;
-const CREAM = "#FCFBF7";
-const INK = "59,60,58"; // --ink as rgb, used for the legibility scrim (no pure black)
+// Matches the studio teaser frame exactly.
+const W = 1080;
+const H = 1350;
+const PAD = 92;
 
 export function generateStaticParams() {
   return getAllSlugs().map((slug) => ({ slug }));
 }
 
 // Read a /public image off disk and inline it as a data URI so the card renders
-// at build time without a network fetch.
+// at build time without a network fetch. Satori cannot resolve "/path" URLs.
 function publicImageDataUri(publicPath: string): string | null {
   try {
     const rel = publicPath.replace(/^\//, "");
@@ -33,94 +36,223 @@ function publicImageDataUri(publicPath: string): string | null {
   }
 }
 
+// Bundled OFL fonts (Satori needs TTF/OTF, not woff2). Cormorant carries the
+// signature serif headline; Inter carries the eyebrow/kicker/dek/CTA.
+function fontData(file: string): Buffer {
+  return fs.readFileSync(path.join(process.cwd(), "assets", "fonts", file));
+}
+
+// First sentence (or a clean ~120-char trim) — article deks run 2 sentences,
+// a teaser wants one crisp line. Mirrors teaserDek() in app/studio/post.
+function teaserDek(dek: string): string {
+  const firstSentence = dek.match(/^.*?[.!?](?=\s|$)/);
+  const s = firstSentence ? firstSentence[0] : dek;
+  if (s.length <= 130) return s.trim();
+  return dek.slice(0, 120).trim().replace(/[\s,;:]+\S*$/, "") + "…";
+}
+
 export async function GET(
   _req: Request,
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params;
   const article = getArticle(slug);
-  const title = article?.title ?? "Toxome Journal";
-  const eyebrow = article ? `Toxome · ${article.pillar}` : "Toxome Journal";
+
+  const kicker = article?.pillar || "The Journal";
+  const headline = article?.title ?? "Toxome Journal";
+  const dek = article ? teaserDek(article.dek) : "";
+  const cta = "Read on toxome.app";
+
   const heroUri = article?.hero ? publicImageDataUri(article.hero) : null;
+  const logoUri = publicImageDataUri("/toxome-logo.png");
+  const logoSize = 58;
+
+  // Headline size mirrors the studio teaser's responsive steps.
+  const hSize = headline.length > 52 ? 64 : headline.length > 38 ? 74 : 86;
+
+  const cormorantMedium = fontData("Cormorant-Medium.ttf");
+  const interRegular = fontData("Inter-Regular.ttf");
+  const interSemiBold = fontData("Inter-SemiBold.ttf");
 
   return new ImageResponse(
     (
       <div
         style={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
           position: "relative",
-          background: CREAM,
+          width: W,
+          height: H,
+          display: "flex",
+          background: "#1d1b17",
         }}
       >
+        {/* article hero photo, full-bleed */}
         {heroUri ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={heroUri}
             alt=""
-            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+            style={{ position: "absolute", top: 0, left: 0, width: W, height: H, objectFit: "cover" }}
           />
         ) : null}
 
-        {/* Legibility scrim: transparent at top, deep warm-ink at the bottom
-            where the text block sits. Explicit dimensions (Satori ignores `inset`). */}
+        {/* gentle overall depth */}
         <div
           style={{
             position: "absolute",
             top: 0,
             left: 0,
-            width: WIDTH,
-            height: HEIGHT,
+            width: W,
+            height: H,
             display: "flex",
-            backgroundImage: `linear-gradient(to bottom, rgba(${INK},0) 45%, rgba(${INK},0.65) 72%, rgba(${INK},0.95) 100%)`,
+            backgroundImage:
+              "linear-gradient(180deg, rgba(20,19,15,0.46) 0%, rgba(20,19,15,0.06) 26%, rgba(20,19,15,0.14) 52%, rgba(20,19,15,0.40) 100%)",
+          }}
+        />
+        {/* strong bottom scrim, guarantees white text reads over any hero */}
+        <div
+          style={{
+            position: "absolute",
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: W,
+            height: Math.round(H * 0.62),
+            display: "flex",
+            backgroundImage:
+              "linear-gradient(180deg, rgba(20,19,15,0) 0%, rgba(20,19,15,0.55) 52%, rgba(20,19,15,0.92) 100%)",
           }}
         />
 
-        {/* Text block anchored to the bottom over the dark scrim, IG-style. */}
+        {/* masthead row */}
         <div
           style={{
             position: "absolute",
-            top: 0,
-            left: 0,
-            width: WIDTH,
-            height: HEIGHT,
+            top: 80,
+            left: PAD,
+            width: W - PAD * 2,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          {logoUri ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={logoUri}
+              alt="Toxome"
+              width={logoSize}
+              height={Math.round(logoSize / 1.532)}
+              style={{ objectFit: "contain" }}
+            />
+          ) : (
+            <div style={{ width: logoSize, height: Math.round(logoSize / 1.532) }} />
+          )}
+          <span
+            style={{
+              fontFamily: "Inter",
+              fontSize: 19,
+              fontWeight: 600,
+              letterSpacing: "0.30em",
+              textTransform: "uppercase",
+              color: "rgba(255,255,255,0.82)",
+            }}
+          >
+            Toxome
+          </span>
+        </div>
+
+        {/* headline block, lower third */}
+        <div
+          style={{
+            position: "absolute",
+            left: PAD,
+            bottom: 128,
+            width: W - PAD * 2,
             display: "flex",
             flexDirection: "column",
-            justifyContent: "flex-end",
-            padding: 72,
+            alignItems: "flex-start",
           }}
         >
           <div
             style={{
-              display: "flex",
-              fontSize: 25,
-              letterSpacing: "0.18em",
-              textTransform: "uppercase",
-              color: CREAM,
+              fontFamily: "Inter",
+              fontSize: 22,
               fontWeight: 600,
-              marginBottom: 22,
-              opacity: 0.92,
+              letterSpacing: "0.34em",
+              textTransform: "uppercase",
+              color: "rgba(255,255,255,0.9)",
             }}
           >
-            {eyebrow}
+            {kicker}
           </div>
           <div
             style={{
-              display: "flex",
-              fontSize: title.length > 52 ? 66 : 78,
+              marginTop: 26,
+              fontFamily: "Cormorant",
+              color: "#fff",
+              fontSize: hSize,
+              fontWeight: 500,
               lineHeight: 1.05,
-              color: CREAM,
-              fontWeight: 600,
-              letterSpacing: "-0.02em",
-              maxWidth: 856,
+              letterSpacing: "-0.01em",
+              maxWidth: 900,
+              textShadow: "0 2px 22px rgba(0,0,0,0.45)",
             }}
           >
-            {title}
+            {headline}
+          </div>
+          {dek ? (
+            <div
+              style={{
+                marginTop: 26,
+                fontFamily: "Inter",
+                color: "rgba(255,255,255,0.92)",
+                fontSize: 28,
+                fontWeight: 400,
+                fontStyle: "italic",
+                lineHeight: 1.4,
+                letterSpacing: "-0.005em",
+                maxWidth: 720,
+                textShadow: "0 1px 14px rgba(0,0,0,0.4)",
+              }}
+            >
+              {dek}
+            </div>
+          ) : null}
+          {/* thin white rule */}
+          <div style={{ marginTop: 38, height: 1, width: 92, background: "rgba(255,255,255,0.6)" }} />
+          {/* CTA row */}
+          <div style={{ marginTop: 22, display: "flex", alignItems: "center" }}>
+            <span
+              style={{
+                fontFamily: "Inter",
+                color: "#fff",
+                fontSize: 24,
+                fontWeight: 500,
+                letterSpacing: "0.01em",
+                marginRight: 16,
+              }}
+            >
+              {cta}
+            </span>
+            <svg width="40" height="14" viewBox="0 0 40 14" fill="none">
+              <path d="M0 7h36" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" />
+              <path d="M31 2l6 5-6 5" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
           </div>
         </div>
       </div>
     ),
-    { width: WIDTH, height: HEIGHT }
+    {
+      width: W,
+      height: H,
+      fonts: [
+        { name: "Cormorant", data: cormorantMedium, weight: 500, style: "normal" },
+        { name: "Inter", data: interRegular, weight: 400, style: "normal" },
+        { name: "Inter", data: interSemiBold, weight: 600, style: "normal" },
+        // Inter ships no italic master; register the roman face for the italic
+        // dek so Satori has a glyph source (text reads even without true slant).
+        { name: "Inter", data: interRegular, weight: 400, style: "italic" },
+      ],
+    }
   );
 }
