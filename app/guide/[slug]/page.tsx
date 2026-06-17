@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import RichText from "@/components/RichText";
 import JsonLd from "@/components/JsonLd";
 import { getShopTaxonomy } from "@/lib/supabase";
+import { collectionSlugForFiber } from "@/lib/shopPages";
 import {
   getFiber,
   allFiberSlugs,
@@ -79,7 +80,16 @@ export default async function FiberGuidePage({
   const [taxonomy] = await Promise.all([getShopTaxonomy()]);
   const f: GuideFiber = fiber;
 
-  const cta = f.shopFilter
+  // Prefer the dedicated collection page (a real SEO + commerce destination)
+  // over the generic ?fiber= filter when this fiber has one.
+  const collectionSlug = collectionSlugForFiber(f.slug);
+  const cta = collectionSlug
+    ? {
+        href: `/shop/collection/${collectionSlug}`,
+        label: `Shop non-toxic ${f.name.toLowerCase()}`,
+        ghost: false,
+      }
+    : f.shopFilter
     ? {
         href: `/shop?fiber=${encodeURIComponent(f.shopFilter)}`,
         label: `Shop ${f.name.toLowerCase()}`,
