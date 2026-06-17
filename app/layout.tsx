@@ -6,6 +6,8 @@ import CookieBanner from "@/components/CookieBanner";
 import JsonLd from "@/components/JsonLd";
 import Skimlinks from "@/components/Skimlinks";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 // Site-wide Organization schema, establishes Toxome as an entity and links
 // the verified social profiles (helps with brand knowledge panels).
@@ -89,6 +91,8 @@ export default function RootLayout({
         <AuthProvider>{children}</AuthProvider>
         <CookieBanner />
         <Skimlinks />
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
