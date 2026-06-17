@@ -7,6 +7,14 @@ const nextConfig: NextConfig = {
     return [
       { source: "/privacypolicy", destination: "/privacy", permanent: true },
       { source: "/privacy-policy", destination: "/privacy", permanent: true },
+      // The old /compare/* fiber-comparison pages were retired and their content
+      // moved into Journal articles. 301 the URLs Google still has indexed so the
+      // ranking signal (modal-vs-viscose pulled 100+ impressions) is reclaimed
+      // instead of leaking to a 404.
+      { source: "/compare/modal-vs-viscose", destination: "/journal/modal-vs-viscose", permanent: true },
+      { source: "/compare/polyester-vs-nylon", destination: "/journal/polyester-vs-cotton", permanent: true },
+      { source: "/compare", destination: "/journal", permanent: true },
+      { source: "/compare/:path*", destination: "/journal", permanent: true },
     ];
   },
 };
