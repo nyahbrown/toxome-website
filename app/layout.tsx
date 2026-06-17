@@ -4,6 +4,7 @@ import "./globals.css";
 import AnimationProvider from "@/components/AnimationProvider";
 import CookieBanner from "@/components/CookieBanner";
 import JsonLd from "@/components/JsonLd";
+import Skimlinks from "@/components/Skimlinks";
 import { AuthProvider } from "@/contexts/AuthContext";
 
 // Site-wide Organization schema, establishes Toxome as an entity and links
@@ -87,6 +88,7 @@ export default function RootLayout({
         <AnimationProvider />
         <AuthProvider>{children}</AuthProvider>
         <CookieBanner />
+        <Skimlinks />
       </body>
     </html>
   );
