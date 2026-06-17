@@ -16,6 +16,7 @@ import {
   OAuthProvider,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  getAdditionalUserInfo,
   sendPasswordResetEmail,
   fetchSignInMethodsForEmail,
   linkWithCredential,
@@ -34,8 +35,19 @@ import {
 } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { track } from "@/lib/track";
+import { track as vaTrack } from "@vercel/analytics";
 import type { Product } from "@/types/product";
 import type { WishlistItem } from "@/lib/firestore";
+
+// Record a signup conversion in both analytics systems: Vercel (powers the
+// funnel/visitor view in the Analytics tab) and our own Supabase events table
+// (the source of truth — no plan limits, feeds the admin dashboard). Called
+// only on genuine account creation, never on returning logins, so the
+// conversion count stays honest.
+function recordSignup(method: string, uid: string) {
+  vaTrack("signup", { method });
+  track("signup", { userId: uid, metadata: { method } });
+}
 
 // Thrown when a social sign-in (Google/Apple) uses an email that already
 // belongs to an account created with a different method. The UI catches this
@@ -122,9 +134,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (
       provider: GoogleAuthProvider | OAuthProvider,
       credentialFromError: (e: AuthError) => AuthCredential | null,
+      method: string,
     ) => {
       try {
-        await signInWithPopup(auth, provider);
+        const result = await signInWithPopup(auth, provider);
+        // Count only first-time accounts as signups, not returning logins.
+        if (getAdditionalUserInfo(result)?.isNewUser) {
+          recordSignup(method, result.user.uid);
+        }
       } catch (e) {
         const err = e as AuthError;
         if (err.code === "auth/account-exists-with-different-credential") {
@@ -150,8 +167,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithGoogle = useCallback(async () => {
     const provider = new GoogleAuthProvider();
-    await runOAuthSignIn(provider, (e) =>
-      GoogleAuthProvider.credentialFromError(e),
+    await runOAuthSignIn(
+      provider,
+      (e) => GoogleAuthProvider.credentialFromError(e),
+      "google",
     );
   }, [runOAuthSignIn]);
 
@@ -159,7 +178,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const provider = new OAuthProvider("apple.com");
     provider.addScope("email");
     provider.addScope("name");
-    await runOAuthSignIn(provider, (e) => OAuthProvider.credentialFromError(e));
+    await runOAuthSignIn(
+      provider,
+      (e) => OAuthProvider.credentialFromError(e),
+      "apple",
+    );
   }, [runOAuthSignIn]);
 
   // Finishes a pending link: sign into the existing account (password by
@@ -202,7 +225,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signUpWithEmail = useCallback(async (email: string, password: string) => {
-    await createUserWithEmailAndPassword(auth, email, password);
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    recordSignup("email", cred.user.uid);
   }, []);
 
   const sendPasswordReset = useCallback(async (email: string) => {

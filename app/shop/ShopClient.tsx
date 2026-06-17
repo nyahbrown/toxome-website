@@ -109,6 +109,8 @@ function ProductCard({
             <img
               src={imgSrc}
               alt={p.item_name}
+              loading="lazy"
+              decoding="async"
               ref={(node) => {
                 // Cached images can be complete before onLoad attaches.
                 if (node && node.complete && node.naturalWidth > 0) setLoaded(true);
@@ -133,6 +135,8 @@ function ProductCard({
                 src={hoverSrc}
                 alt=""
                 aria-hidden="true"
+                loading="lazy"
+                decoding="async"
                 onError={() => setHoverErr(true)}
                 style={{
                   position: "absolute",

@@ -49,6 +49,8 @@ function FiberTile({
           <img
             src={image}
             alt={name}
+            loading="lazy"
+            decoding="async"
             style={{
               position: "absolute",
               inset: 0,
@@ -66,6 +68,8 @@ function FiberTile({
               src={hover}
               alt=""
               aria-hidden="true"
+              loading="lazy"
+              decoding="async"
               style={{
                 position: "absolute",
                 inset: 0,
@@ -190,6 +194,7 @@ function MiniProductCard({ p }: { p: Product }) {
             src={p.item_image}
             alt={p.item_name}
             loading="lazy"
+            decoding="async"
             style={{
               position: "absolute",
               inset: 0,
@@ -514,16 +519,13 @@ export default function HomeClient({
           background: "var(--ink)",
         }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src="/hero-wool.jpg"
           alt="A shepherd shearing a sheep by hand in a mountain pasture, wool at its source"
-          fetchPriority="high"
+          fill
+          priority
+          sizes="100vw"
           style={{
-            position: "absolute",
-            inset: 0,
-            width: "100%",
-            height: "100%",
             objectFit: "cover",
             objectPosition: "center 40%",
           }}
