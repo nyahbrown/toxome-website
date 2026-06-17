@@ -108,8 +108,21 @@ export default function Footer() {
           ))}
         </div>
 
-        <div style={{
+        <p style={{
           paddingTop: 28,
+          fontSize: 11,
+          lineHeight: 1.5,
+          color: "var(--ink-3)",
+          margin: 0,
+          maxWidth: 640,
+        }}>
+          some links to brands are affiliate links. if you buy through them,
+          toxome may earn a commission at no extra cost to you. it never changes
+          a product&rsquo;s score or whether we feature it.
+        </p>
+
+        <div style={{
+          paddingTop: 20,
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
