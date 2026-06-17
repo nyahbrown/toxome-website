@@ -34,6 +34,7 @@ export type SchedulerDraft = {
   media_url?: string | null;
   media_type?: string | null; // image | carousel | video | null
   scheduled_at?: string | null; // ISO; if in the future, publish then instead of now
+  link?: string | null; // Pinterest pin destination URL (defaults to the site root)
 };
 
 export type PushResult =
@@ -150,7 +151,7 @@ async function pushToBlotato(draft: SchedulerDraft): Promise<PushResult> {
     }
     target.boardId = boardId;
     if (draft.title) target.title = draft.title;
-    target.link = siteBase();
+    target.link = draft.link ? absolutize(draft.link) : siteBase();
   }
   if (platform === "tiktok") {
     // NOTE: currently unreachable, TikTok is a MANUAL_PLATFORM (posted natively).

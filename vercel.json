@@ -1,6 +1,7 @@
 {
   "crons": [
     { "path": "/api/cron/x-daily", "schedule": "0 13 * * *" },
-    { "path": "/api/cron/weekly-checkin", "schedule": "0 16 * * 1" }
+    { "path": "/api/cron/weekly-checkin", "schedule": "0 16 * * 1" },
+    { "path": "/api/cron/journal-pinterest", "schedule": "0 17 * * *" }
   ]
 }
