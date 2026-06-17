@@ -39,15 +39,12 @@ const cols: FooterCol[] = [
       { label: "Kids", href: "/shop/kids" },
       { label: "Home", href: "/shop/home" },
       { label: "All", href: "/shop" },
-      // Featured collections, set off from the departments by spacing.
-      { label: "GOTS Certified", href: "/shop/collection/gots-certified-clothing", spaced: true },
-      { label: "Non-Toxic Baby", href: "/shop/collection/non-toxic-baby-clothes" },
     ],
   },
   {
     h: "Explore",
     items: [
-      { label: "Guide", href: "/guide" },
+      { label: "Fabric Guide", href: "/guide" },
       { label: "Certifications", href: "/guide/certifications" },
       { label: "Journal", href: "/journal" },
       { label: "Extension", href: "/extension" },
