@@ -36,8 +36,13 @@ export async function generateMetadata({
   const { slug } = await params;
   const fiber = getFiber(slug);
   if (!fiber) return { title: "Toxome | Fabric Guide" };
-  const desc = fiber.whatItIs.replace(/\*/g, "").slice(0, 155);
-  const title = `Toxome | ${fiber.name}`;
+  // Title + description target how people actually search ("is rayon toxic",
+  // "is X safe"). These live in <head> only — the visible page (H1 = fiber
+  // name, the section prose) is unchanged.
+  const title = `Is ${fiber.name} Toxic or Safe? Fiber Health Score | Toxome`;
+  const desc = plain(
+    `${fiber.name} scores ${fiber.score}/100 for wearer health. ${fiber.healthStory}`
+  ).slice(0, 158);
   return {
     title,
     description: desc,
@@ -142,6 +147,11 @@ export default async function FiberGuidePage({
         // Answers are the section prose rendered visibly below.
         "@type": "FAQPage",
         mainEntity: [
+          {
+            "@type": "Question",
+            name: `Is ${lower} toxic?`,
+            acceptedAnswer: { "@type": "Answer", text: plain(f.healthStory) },
+          },
           {
             "@type": "Question",
             name: `Is ${lower} safe to wear?`,
