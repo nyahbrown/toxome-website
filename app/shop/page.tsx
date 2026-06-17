@@ -9,7 +9,7 @@ import ShopGridFallback from "./ShopGridFallback";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "Toxome | Shop",
+  title: "Shop Non-Toxic Clothing | Toxome",
   description:
     "Non-plastic clothing, hand-curated by Toxome. Every item is low-toxin, made from cleaner natural fibers.",
   alternates: { canonical: "/shop" },

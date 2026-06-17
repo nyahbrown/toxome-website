@@ -10,7 +10,7 @@ import { FIBER_GUIDE, withScore, KIND_LABEL, type GuideFiber } from "@/lib/fiber
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: "Toxome | Fabric Guide",
+  title: "Fabric & Fiber Guide, Scored by Health | Toxome",
   description:
     "A plain-spoken guide to what your clothes are made of and how each fiber affects your health. Every fiber, scored, sourced, and ranked from safest to avoid.",
   alternates: { canonical: "/guide" },

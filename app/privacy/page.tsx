@@ -5,7 +5,7 @@ import Footer from "@/components/Footer";
 import { getShopTaxonomy } from "@/lib/supabase";
 
 export const metadata: Metadata = {
-  title: "Toxome | Privacy Policy",
+  title: "Privacy Policy | Toxome",
   description:
     "Toxome LLC's Privacy Policy governing the collection, use, and disclosure of personal data across the Toxome website, iOS application, and browser extension.",
   alternates: { canonical: "/privacy" },

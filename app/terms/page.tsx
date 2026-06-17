@@ -5,7 +5,7 @@ import Footer from "@/components/Footer";
 import { getShopTaxonomy } from "@/lib/supabase";
 
 export const metadata: Metadata = {
-  title: "Toxome | Terms of Use",
+  title: "Terms of Use | Toxome",
   description:
     "The Terms of Use governing access to and use of the Toxome website, iOS application, and browser extension, provided by Toxome LLC.",
   alternates: { canonical: "/terms" },

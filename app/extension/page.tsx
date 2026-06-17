@@ -14,7 +14,7 @@ const IS_LIVE = CHROME_STORE_URL.length > 0;
 const APP_STORE = "https://apps.apple.com/us/app/toxome/id6748622034";
 
 export const metadata: Metadata = {
-  title: "Toxome | The Chrome Extension",
+  title: "Chrome Extension: Scan Clothes as You Shop | Toxome",
   description:
     "See how healthy any garment is for you while you shop. The Toxome rating, fiber breakdown, and why it matters, right on the product page. Coming soon to Chrome.",
   alternates: { canonical: "/extension" },

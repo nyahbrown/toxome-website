@@ -4,7 +4,7 @@ import Footer from "@/components/Footer";
 import { getShopTaxonomy } from "@/lib/supabase";
 
 export const metadata: Metadata = {
-  title: "Toxome | Partnerships",
+  title: "Brand Partnerships | Toxome",
   description:
     "Partner with Toxome to reach an audience that reads the label.",
   alternates: { canonical: "/partnerships" },

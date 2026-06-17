@@ -8,7 +8,7 @@ import ShopClient from "../ShopClient";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "Toxome | Kids",
+  title: "Kids' Non-Toxic Clothing | Toxome",
   description:
     "Non-toxic baby & kids clothing, hand-curated by Toxome. Every piece is low-toxin, made from cleaner natural fibers, gentlest on growing skin.",
   alternates: { canonical: "/shop/kids" },

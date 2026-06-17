@@ -7,7 +7,7 @@ import { getShopTaxonomy } from "@/lib/supabase";
 import { getAllArticles } from "@/lib/journal";
 
 export const metadata: Metadata = {
-  title: "Toxome | Journal",
+  title: "Fashion Wellness Journal | Toxome",
   description:
     "Fiber science, slow fashion, and the invisible chemistry in your wardrobe, in plain English.",
   alternates: { canonical: "/journal" },
