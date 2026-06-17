@@ -1455,3 +1455,64 @@ button { font-family: inherit; }
 @media (max-width: 560px) {
   .cert-cta { padding: 36px 22px; }
 }
+
+/* ─── FAQ disclosure (shop collection pages) ─────────────────────────────
+   Native <details> so answers stay in the HTML (SEO) and keyboard-accessible.
+   Animated open/close via ::details-content where supported; instant + fully
+   functional fallback elsewhere. Reveal affordance is a thin rotating chevron,
+   matching the brand's bare-chevron convention. */
+:root { interpolate-size: allow-keywords; }
+
+/* No divider lines (brand rule): FAQ items are separated by spacing, not rules. */
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.faq-item summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 24px 0;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--ink);
+  transition: color 160ms var(--ease);
+}
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::marker { content: ""; }
+@media (hover: hover) and (pointer: fine) {
+  .faq-item summary:hover { color: var(--ink-2); }
+}
+.faq-chevron {
+  flex-shrink: 0;
+  color: var(--ink-3);
+  transition: transform 220ms var(--ease-out-strong);
+}
+.faq-item[open] .faq-chevron { transform: rotate(180deg); }
+.faq-a {
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--ink-2);
+  max-width: 62ch;
+  margin: 0;
+  padding-bottom: 28px;
+}
+.faq-item::details-content {
+  block-size: 0;
+  overflow: hidden;
+  transition: block-size 260ms var(--ease-out-strong), content-visibility 260ms allow-discrete;
+  content-visibility: hidden;
+}
+.faq-item[open]::details-content {
+  block-size: auto;
+  content-visibility: visible;
+}
+@media (prefers-reduced-motion: reduce) {
+  .faq-chevron,
+  .faq-item::details-content { transition: none; }
+}

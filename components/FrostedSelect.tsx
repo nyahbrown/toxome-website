@@ -10,6 +10,9 @@ type Props = {
   allLabel?: string;
   align?: "left" | "right";
   hideAll?: boolean;
+  // Render option + trigger labels in Title Case, overriding the site-wide
+  // lowercase. Used for the fiber filter so fiber names read as proper labels.
+  capitalize?: boolean;
 };
 
 function Chevron({ open }: { open: boolean }) {
@@ -75,6 +78,7 @@ export default function FrostedSelect({
   allLabel = "All",
   align = "left",
   hideAll = false,
+  capitalize = false,
 }: Props) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement | null>(null);
@@ -129,7 +133,9 @@ export default function FrostedSelect({
           transition: "background 180ms var(--ease), border-color 180ms var(--ease)",
         }}
       >
-        <span>{triggerLabel}</span>
+        <span style={capitalize ? { textTransform: "capitalize" } : undefined}>
+          {triggerLabel}
+        </span>
         <Chevron open={open} />
       </button>
 
@@ -175,6 +181,7 @@ export default function FrostedSelect({
                 setOpen(false);
               }}
               label={opt}
+              capitalize={capitalize}
             />
           ))}
         </div>
@@ -201,11 +208,13 @@ function DropdownItem({
   isSelected,
   onClick,
   muted = false,
+  capitalize = false,
 }: {
   label: string;
   isSelected: boolean;
   onClick: () => void;
   muted?: boolean;
+  capitalize?: boolean;
 }) {
   const [hovered, setHovered] = useState(false);
   return (
@@ -231,6 +240,7 @@ function DropdownItem({
         letterSpacing: "-0.005em",
         color: muted && !isSelected ? "var(--ink-3)" : "var(--ink)",
         textAlign: "left",
+        textTransform: capitalize ? "capitalize" : undefined,
         transition: "background 140ms var(--ease)",
       }}
     >

@@ -338,10 +338,15 @@ export default function ShopClient({
   products,
   taxonomy,
   section,
+  heading,
 }: {
   products: Product[];
   taxonomy: ShopTaxonomy;
   section: ShopSection;
+  // Optional H1 override for SEO collection pages (e.g. "non-toxic baby
+  // clothes"). When set it replaces the section/default title so the page has
+  // exactly one, keyword-accurate H1. Omitted everywhere else = unchanged.
+  heading?: string;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -630,11 +635,13 @@ export default function ShopClient({
                 }
           }
         >
-          {header
-            ? category !== "All"
-              ? `${header.title} | ${category.toLowerCase()}`
-              : header.title
-            : "There is no wellness without what touches the skin all day."}
+          {heading
+            ? heading
+            : header
+              ? category !== "All"
+                ? `${header.title} | ${category.toLowerCase()}`
+                : header.title
+              : "There is no wellness without what touches the skin all day."}
         </h1>
       </div>
 
@@ -729,6 +736,7 @@ export default function ShopClient({
             options={FIBERS.map((f) => f.name)}
             value={fiberValue}
             onChange={(v) => updateParams({ fiber: v === "All" ? null : v })}
+            capitalize
           />
           {/* Occasion is an apparel concept, irrelevant for home goods and kids. */}
           {section !== "home" && section !== "kids" && (

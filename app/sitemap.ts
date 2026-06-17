@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { allFiberSlugs } from "@/lib/fiberGuide";
 import { getPublishedProducts } from "@/lib/supabase";
 import { getAllSlugs, getArticle } from "@/lib/journal";
+import { allCollectionSlugs } from "@/lib/shopPages";
 
 const BASE_URL = "https://toxome.app";
 
@@ -28,6 +29,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/privacy`, lastModified: now, changeFrequency: "yearly", priority: 0.2 },
     { url: `${BASE_URL}/terms`, lastModified: now, changeFrequency: "yearly", priority: 0.2 },
   ];
+
+  // Programmatic shop collections (attribute-filtered directory pages).
+  const collectionRoutes: MetadataRoute.Sitemap = allCollectionSlugs().map((slug) => ({
+    url: `${BASE_URL}/shop/collection/${slug}`,
+    lastModified: now,
+    changeFrequency: "weekly",
+    priority: 0.7,
+  }));
 
   // Fiber guide, the proprietary glossary, one indexable page per fiber.
   const fiberRoutes: MetadataRoute.Sitemap = allFiberSlugs().map((slug) => ({
@@ -65,6 +74,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     ...staticRoutes,
+    ...collectionRoutes,
     ...fiberRoutes,
     ...journalRoutes,
     ...productRoutes,
