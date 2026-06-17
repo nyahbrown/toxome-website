@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import type { Product } from "@/types/product";
 import { useAuth } from "@/contexts/AuthContext";
 import { HeartFilled, HeartOutline } from "@/components/icons";
+import CertBadge from "@/components/CertBadge";
 // Single source of truth for fiber hazard colors + labels, keeps the product
 // page bars in sync with the score table (alpaca/cashmere green, Lenzing green,
 // recycled synthetics red, "european linen" -> linen via keyword fallback, etc.)
@@ -87,7 +88,22 @@ function Divider() {
   );
 }
 
-export default function ProductDetailClient({ product }: { product: Product }) {
+type CertBadgeItem = {
+  slug: string;
+  name: string;
+  abbr?: string;
+  label: string;
+  logoSrc?: string;
+  href?: string;
+};
+
+export default function ProductDetailClient({
+  product,
+  certBadges = [],
+}: {
+  product: Product;
+  certBadges?: CertBadgeItem[];
+}) {
   const router = useRouter();
   const { user, wishlist, toggleWishlist } = useAuth();
   const [imgError, setImgError] = useState<Record<number, boolean>>({});
@@ -543,29 +559,61 @@ export default function ProductDetailClient({ product }: { product: Product }) {
             </>
           )}
 
-          {product.certifications && product.certifications.length > 0 && (
+          {certBadges.length > 0 && (
             <>
               <Divider />
               <SectionHeading>Certifications</SectionHeading>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                {product.certifications.map((c) => (
-                  <span
-                    key={c}
-                    style={{
-                      fontSize: 12,
-                      fontFamily: "var(--mono)",
-                      letterSpacing: "0.06em",
-                      textTransform: "uppercase",
-                      color: "var(--ink-2)",
-                      background: "transparent",
-                      border: "1px solid var(--hairline-strong)",
-                      padding: "5px 12px",
-                      borderRadius: 999,
-                    }}
-                  >
-                    {c}
-                  </span>
-                ))}
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: "20px 22px",
+                }}
+              >
+                {certBadges.map((c) => {
+                  const inner = (
+                    <>
+                      <CertBadge
+                        slug={c.slug}
+                        name={c.name}
+                        abbr={c.abbr}
+                        size={64}
+                        logoSrc={c.logoSrc}
+                      />
+                      <span
+                        style={{
+                          fontFamily: "var(--mono)",
+                          fontSize: 10.5,
+                          fontWeight: 600,
+                          letterSpacing: "0.08em",
+                          textTransform: "uppercase",
+                          color: "var(--ink-3)",
+                          maxWidth: 96,
+                          lineHeight: 1.3,
+                        }}
+                      >
+                        {c.label}
+                      </span>
+                    </>
+                  );
+                  const wrap = {
+                    display: "flex",
+                    flexDirection: "column" as const,
+                    alignItems: "center",
+                    gap: 11,
+                    textAlign: "center" as const,
+                    width: 96,
+                  };
+                  return c.href ? (
+                    <Link key={c.slug} href={c.href} style={wrap}>
+                      {inner}
+                    </Link>
+                  ) : (
+                    <div key={c.slug} style={wrap}>
+                      {inner}
+                    </div>
+                  );
+                })}
               </div>
             </>
           )}

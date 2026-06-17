@@ -549,3 +549,67 @@ export function getHealthLeads(): Certification[] {
     (a, b) => (a.healthRank ?? 0) - (b.healthRank ?? 0)
   );
 }
+
+const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+// Free-form aliases → slug, for the shorthand a product feed tends to use. Only
+// needed where a bare string is ambiguous or doesn't contain the cert's name.
+const CERT_ALIASES: Record<string, string> = {
+  oekotex: "oeko-tex-standard-100",
+  oekotex100: "oeko-tex-standard-100",
+  standard100: "oeko-tex-standard-100",
+  madeingreen: "oeko-tex-made-in-green",
+  ecopassport: "oeko-tex-eco-passport",
+  globalorganictextilestandard: "gots",
+  roc: "regenerative-organic-certified",
+  c2c: "cradle-to-cradle",
+  euecolabel: "eu-ecolabel",
+  globalrecycledstandard: "grs",
+  organiccontentstandard: "ocs",
+  responsiblewoolstandard: "rws",
+  responsibledownstandard: "rds",
+  recycledclaimstandard: "rcs",
+  fairtradecertified: "fair-trade",
+  fairtrade: "fair-trade",
+  bcorp: "b-corp",
+  bcorporation: "b-corp",
+  onepercentfortheplanet: "one-percent-for-the-planet",
+  bettercottoninitiative: "better-cotton",
+  fairwear: "fair-wear-foundation",
+  climateneutral: "climate-neutral-certified",
+};
+
+// Resolve a free-form certification string from a product feed (e.g. "GOTS",
+// "OEKO-TEX Standard 100", "bluesign") to its entry in the field guide, so the
+// shop can render the same badge the guide uses. null when nothing matches.
+export function findCertification(query: string): Certification | null {
+  const q = norm(query);
+  if (!q) return null;
+
+  if (CERT_ALIASES[q]) {
+    const hit = CERTIFICATIONS.find((c) => c.slug === CERT_ALIASES[q]);
+    if (hit) return hit;
+  }
+
+  // Exact match on slug, name, or abbr.
+  for (const c of CERTIFICATIONS) {
+    if (norm(c.slug) === q || norm(c.name) === q || (c.abbr && norm(c.abbr) === q)) {
+      return c;
+    }
+  }
+
+  // Looser match only when the product string is MORE specific than the cert
+  // name — i.e. it spells out the full name (e.g. "GOTS certified" contains
+  // "gots"). We never match the other direction: a generic fragment like
+  // "organic" must not claim a specific paid mark like GOTS. Longest cert name
+  // first so "OEKO-TEX Standard 100" wins over a bare "OEKO-TEX".
+  const byLength = [...CERTIFICATIONS].sort(
+    (a, b) => norm(b.name).length - norm(a.name).length
+  );
+  for (const c of byLength) {
+    const n = norm(c.name);
+    if (n.length >= 5 && q.includes(n)) return c;
+  }
+
+  return null;
+}

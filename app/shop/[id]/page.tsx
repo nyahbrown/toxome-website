@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getProductById, getShopTaxonomy } from "@/lib/supabase";
+import { findCertification } from "@/lib/certifications";
+import { availableLogos } from "@/lib/certLogos";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import JsonLd from "@/components/JsonLd";
@@ -51,6 +53,23 @@ export default async function ProductPage({
   ]);
   if (!product) notFound();
 
+  // Resolve each free-form certification string to a guide entry so the detail
+  // page can render the same circular badge the certifications guide uses. The
+  // logo lookup needs the filesystem, so it runs here on the server.
+  const logos = availableLogos();
+  const certBadges = (product.certifications ?? []).map((raw) => {
+    const cert = findCertification(raw);
+    const slug = cert?.slug ?? raw.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    return {
+      slug,
+      name: cert?.name ?? raw,
+      abbr: cert?.abbr,
+      label: cert?.abbr ?? cert?.name ?? raw,
+      logoSrc: cert ? logos.get(cert.slug) : undefined,
+      href: cert ? `/guide/certifications#${cert.slug}` : undefined,
+    };
+  });
+
   const images = [product.item_image, ...(product.images ?? [])].filter(
     (u): u is string => !!u
   );
@@ -78,7 +97,7 @@ export default async function ProductPage({
     <>
       <JsonLd data={schema} />
       <Nav taxonomy={taxonomy} />
-      <ProductDetailClient product={product} />
+      <ProductDetailClient product={product} certBadges={certBadges} />
       <Footer />
     </>
   );
