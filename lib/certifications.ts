@@ -613,3 +613,60 @@ export function findCertification(query: string): Certification | null {
 
   return null;
 }
+
+// Text signatures for the certifications a brand routinely names in its product
+// copy. Each returns a canonical string that findCertification resolves, so a
+// detected cert renders the same badge as a feed-supplied one. Ordered so the
+// most specific OEKO-TEX variant wins before the bare Standard 100 fallback.
+const CERT_SIGNATURES: { re: RegExp; value: string }[] = [
+  { re: /\bgots\b|global organic textile standard/, value: "GOTS" },
+  { re: /oeko[\s-]?tex[\s-]?made in green|made in green/, value: "OEKO-TEX Made in Green" },
+  { re: /eco[\s-]?passport/, value: "OEKO-TEX Eco Passport" },
+  { re: /leather standard/, value: "OEKO-TEX Leather Standard" },
+  { re: /oeko[\s-]?tex/, value: "OEKO-TEX Standard 100" },
+  { re: /bluesign/, value: "bluesign" },
+  { re: /regenerative organic/, value: "Regenerative Organic Certified" },
+  { re: /global recycled standard|\bgrs\b/, value: "GRS" },
+  { re: /responsible wool standard|\brws\b/, value: "RWS" },
+  { re: /responsible down standard|\brds\b/, value: "RDS" },
+  { re: /fair[\s-]?trade/, value: "Fair Trade" },
+  { re: /\bb[\s-]?corp(oration)?\b/, value: "B Corp" },
+  { re: /cradle to cradle/, value: "Cradle to Cradle" },
+];
+
+// Scan free-form copy (description + materials text) for certifications the
+// brand explicitly names. Deterministic backstop for the extractor, which
+// otherwise depends on the model remembering to fill the structured array even
+// when the cert only appears in prose. Skips the bare OEKO-TEX fallback once a
+// more specific OEKO-TEX variant has matched.
+export function detectCertifications(text: string): string[] {
+  const t = text.toLowerCase();
+  const found: string[] = [];
+  let oekoMatched = false;
+  for (const sig of CERT_SIGNATURES) {
+    const isOeko = sig.value.startsWith("OEKO-TEX");
+    if (isOeko && oekoMatched && sig.value === "OEKO-TEX Standard 100") continue;
+    if (sig.re.test(t)) {
+      found.push(sig.value);
+      if (isOeko) oekoMatched = true;
+    }
+  }
+  return dedupeCertifications(found);
+}
+
+// Collapse a list of cert strings to one per underlying mark, preferring the
+// first (most specific) spelling. Unresolved strings (e.g. "European Flax") are
+// kept verbatim, deduped case-insensitively.
+export function dedupeCertifications(certs: string[]): string[] {
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const c of certs) {
+    if (!c) continue;
+    const cert = findCertification(c);
+    const key = cert ? `slug:${cert.slug}` : `raw:${norm(c)}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(c);
+  }
+  return out;
+}

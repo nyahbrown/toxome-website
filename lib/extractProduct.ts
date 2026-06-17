@@ -5,6 +5,7 @@
 // NEVER import this into a client component, it uses the Anthropic API key.
 import Anthropic from "@anthropic-ai/sdk";
 import { calcToxomeScore, scoreToRiskLevel } from "@/lib/fabricScores";
+import { detectCertifications, dedupeCertifications } from "@/lib/certifications";
 
 // Haiku is fast and plenty for structured extraction from text we hand it, // keeps the add-by-URL request well under the serverless timeout.
 const MODEL = "claude-haiku-4-5-20251001";
@@ -479,9 +480,17 @@ export async function extractProductFromUrl(
     fabric_composition: composition,
     materials_text: fields.materials_text || null,
     description: fields.description || null,
-    certifications: Array.isArray(fields.certifications)
-      ? fields.certifications.filter(Boolean)
-      : [],
+    // Union the model's structured certs with a deterministic scan of the copy,
+    // so a cert named only in the prose (the model sometimes skips the array)
+    // still lands in the structured field. Deduped to one entry per mark.
+    certifications: dedupeCertifications([
+      ...(Array.isArray(fields.certifications)
+        ? fields.certifications.filter(Boolean)
+        : []),
+      ...detectCertifications(
+        `${fields.materials_text || ""} ${fields.description || ""}`
+      ),
+    ]),
     toxome_score: score,
     risk_level: scoreToRiskLevel(score),
   };
