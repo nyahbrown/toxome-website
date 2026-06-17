@@ -7,9 +7,9 @@ import { getShopTaxonomy } from "@/lib/supabase";
 const APP_STORE = "https://apps.apple.com/us/app/toxome/id6748622034";
 
 export const metadata: Metadata = {
-  title: "Clothing Label Scanner App | Toxome",
+  title: "Toxic Fashion Detector: Clothing Label Scanner | Toxome",
   description:
-    "Scan any clothing label and Toxome reads it back to you: a health rating, the full fiber breakdown, and what each material does to your body. Free on iPhone.",
+    "Toxome is a toxic fashion detector in your pocket. Scan any clothing label for a health rating, the full fiber breakdown, and what each material does to your body. Free on iPhone.",
   alternates: { canonical: "/app" },
   openGraph: {
     title: "The Toxome App",

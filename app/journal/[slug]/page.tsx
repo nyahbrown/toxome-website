@@ -60,6 +60,9 @@ export default async function ArticlePage({
   const taxonomy = await getShopTaxonomy();
   const shareUrl = `${SITE}/journal/${slug}`;
   const shareImage = `${SITE}/journal/${slug}/opengraph-image`;
+  // Tall hero+title card used specifically as the Pinterest pin media.
+  const pinImage = `${SITE}/journal/${slug}/pin`;
+  const pinDescription = `${article.title}: ${article.dek}`;
 
   const articleSchema = {
     "@context": "https://schema.org",
@@ -151,7 +154,7 @@ export default async function ArticlePage({
               url={shareUrl}
               title={article.title}
               description={article.dek}
-              image={shareImage}
+              image={pinImage}
             />
           </div>
         </div>
@@ -177,6 +180,9 @@ export default async function ArticlePage({
               sizes="(max-width: 720px) 100vw, 680px"
               style={{ display: "block", width: "100%", height: "auto" }}
               priority
+              // Pinterest browser extension: pin the tall hero+title card, not the raw photo.
+              data-pin-media={pinImage}
+              data-pin-description={pinDescription}
             />
           </div>
         </figure>
@@ -244,7 +250,7 @@ export default async function ArticlePage({
               url={shareUrl}
               title={article.title}
               description={article.dek}
-              image={shareImage}
+              image={pinImage}
             />
           </div>
         </div>
