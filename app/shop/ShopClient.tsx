@@ -382,6 +382,12 @@ export default function ShopClient({
 
   // Read filters from URL (case-insensitive match against actual values).
   const fiberFilter = searchParams.get("fiber") || null;
+  // Resolve the URL fiber to its curated option so the dropdown shows it as
+  // selected regardless of casing; "All" when absent or off the curated list.
+  const fiberValue = fiberFilter
+    ? FIBERS.find((f) => f.name.toLowerCase() === fiberFilter.toLowerCase())
+        ?.name ?? "All"
+    : "All";
   const occasionRaw = searchParams.get("occasion");
   const occasionFilter =
     occasionRaw &&
@@ -718,6 +724,12 @@ export default function ShopClient({
               onChange={(v) => updateParams({ category: v })}
             />
           )}
+          <FrostedSelect
+            label="Fiber"
+            options={FIBERS.map((f) => f.name)}
+            value={fiberValue}
+            onChange={(v) => updateParams({ fiber: v === "All" ? null : v })}
+          />
           {/* Occasion is an apparel concept, irrelevant for home goods and kids. */}
           {section !== "home" && section !== "kids" && (
           <FrostedSelect
