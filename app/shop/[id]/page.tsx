@@ -6,6 +6,7 @@ import { availableLogos } from "@/lib/certLogos";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import JsonLd from "@/components/JsonLd";
+import { productSeoTitle, productSeoDescription } from "@/lib/productSeo";
 import ProductDetailClient from "./ProductDetailClient";
 
 export const revalidate = 3600;
@@ -22,10 +23,8 @@ export async function generateMetadata({
   if (!product) {
     return { title: "Toxome | Product not found" };
   }
-  const title = `Toxome | ${product.item_name}`;
-  const desc =
-    product.description ||
-    `${product.item_name} by ${product.brand}. Vetted by Toxome.`;
+  const title = productSeoTitle(product);
+  const desc = product.description || productSeoDescription(product);
   return {
     title,
     description: desc,
@@ -78,8 +77,22 @@ export default async function ProductPage({
     "@type": "Product",
     name: product.item_name,
     ...(images.length ? { image: images } : {}),
-    ...(product.description ? { description: product.description } : {}),
+    description: product.description || productSeoDescription(product),
     brand: { "@type": "Brand", name: product.brand },
+    // Surface the Toxome fiber-health score as structured data (the honest way —
+    // NOT aggregateRating, which requires real user reviews).
+    ...(typeof product.toxome_score === "number"
+      ? {
+          additionalProperty: [
+            {
+              "@type": "PropertyValue",
+              name: "Toxome fiber health score",
+              value: product.toxome_score,
+              maxValue: 100,
+            },
+          ],
+        }
+      : {}),
     ...(product.item_price != null
       ? {
           offers: {

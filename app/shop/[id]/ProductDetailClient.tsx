@@ -12,6 +12,7 @@ import CertBadge from "@/components/CertBadge";
 // recycled synthetics red, "european linen" -> linen via keyword fallback, etc.)
 import { fiberHazardColor, prettyFiber } from "@/lib/fabricScores";
 import { collectionSlugForFiber } from "@/lib/shopPages";
+import { productSeoDescription } from "@/lib/productSeo";
 import { track, withUtm } from "@/lib/track";
 
 // Link a fiber to its dedicated collection page when one exists (a stronger SEO
@@ -420,24 +421,23 @@ export default function ProductDetailClient({
             Opens in a new tab · may contain affiliate link
           </p>
 
-          {product.description && (
-            <>
-              <Divider />
-              <SectionHeading>About</SectionHeading>
-              <p
-                style={{
-                  fontSize: 15,
-                  lineHeight: 1.55,
-                  color: "var(--ink-2)",
-                  letterSpacing: "-0.005em",
-                  margin: 0,
-                  whiteSpace: "pre-wrap",
-                }}
-              >
-                {product.description}
-              </p>
-            </>
-          )}
+          {/* Always render an About paragraph: the brand-written description when
+              present, otherwise one generated from the product's own fiber/score
+              data, so no product page is left without unique body copy. */}
+          <Divider />
+          <SectionHeading>About</SectionHeading>
+          <p
+            style={{
+              fontSize: 15,
+              lineHeight: 1.55,
+              color: "var(--ink-2)",
+              letterSpacing: "-0.005em",
+              margin: 0,
+              whiteSpace: "pre-wrap",
+            }}
+          >
+            {product.description || productSeoDescription(product)}
+          </p>
 
           {(product.materials_text ||
             fabricEntries.length > 0 ||
