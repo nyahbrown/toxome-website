@@ -120,6 +120,22 @@ async function createBeehiivDraft(subject: string, html: string): Promise<string
   }
 }
 
+// Temporary safe diagnostic: GET ?debug=1 reports only presence + length of the
+// secrets (never values) so we can see what the live function actually reads.
+export async function GET(req: Request) {
+  if (new URL(req.url).searchParams.get("debug") !== "1") {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+  const n = process.env.NEWSLETTER_TRIGGER_SECRET;
+  const c = process.env.CRON_SECRET;
+  return NextResponse.json({
+    newsletterSecretPresent: typeof n === "string",
+    newsletterSecretLen: n ? n.length : 0,
+    cronSecretPresent: typeof c === "string",
+    cronSecretLen: c ? c.length : 0,
+  });
+}
+
 export async function POST(req: Request) {
   if (!authed(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
