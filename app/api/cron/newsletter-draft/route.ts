@@ -45,9 +45,11 @@ you are given this week's newest clean products. write:
 
 return ONLY valid minified JSON: {"subject": "...", "html": "..."}. the html is the email body as clean inline-styled HTML (no <style> or <link> tags, no <html>/<head> wrappers, just the body content). use the brand cream/charcoal palette sparingly. keep it scannable.`;
 
-async function draftWithClaude(products: Product[]): Promise<{ subject: string; html: string } | null> {
+type DraftResult = { subject: string; html: string } | { error: string };
+
+async function draftWithClaude(products: Product[]): Promise<DraftResult> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) return null;
+  if (!apiKey) return { error: "ANTHROPIC_API_KEY is not set in Vercel env" };
   const productLines = products
     .map(
       (p) =>
@@ -69,7 +71,10 @@ async function draftWithClaude(products: Product[]): Promise<{ subject: string; 
       messages: [{ role: "user", content: `this week's newest clean products:\n${productLines}` }],
     }),
   });
-  if (!res.ok) return null;
+  if (!res.ok) {
+    const detail = await res.text().catch(() => "");
+    return { error: `anthropic ${res.status}: ${detail.slice(0, 200)}` };
+  }
   const data = await res.json();
   const text: string = data?.content?.[0]?.text ?? "";
   try {
@@ -77,10 +82,10 @@ async function draftWithClaude(products: Product[]): Promise<{ subject: string; 
     const end = text.lastIndexOf("}");
     const parsed = JSON.parse(text.slice(start, end + 1));
     if (typeof parsed.subject === "string" && typeof parsed.html === "string") return parsed;
+    return { error: "claude returned unexpected shape" };
   } catch {
-    /* fall through */
+    return { error: `claude returned non-JSON: ${text.slice(0, 150)}` };
   }
-  return null;
 }
 
 // Best-effort beehiiv draft. Returns the post id on success, null otherwise
@@ -129,8 +134,8 @@ export async function POST(req: Request) {
 
   // 2. draft the digest
   const draft = await draftWithClaude((products ?? []) as Product[]);
-  if (!draft) {
-    return NextResponse.json({ error: "Draft generation failed (check ANTHROPIC_API_KEY)." }, { status: 502 });
+  if ("error" in draft) {
+    return NextResponse.json({ error: `Draft generation failed: ${draft.error}` }, { status: 502 });
   }
 
   // 3. save for review in /admin/content
