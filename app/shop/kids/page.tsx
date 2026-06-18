@@ -4,6 +4,7 @@ import { getPublishedProducts, getShopTaxonomy } from "@/lib/supabase";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import ShopClient from "../ShopClient";
+import ShopGridFallback from "../ShopGridFallback";
 import ShopIntro from "@/components/ShopIntro";
 
 export const revalidate = 3600;
@@ -23,7 +24,15 @@ export default async function KidsShopPage() {
   return (
     <>
       <Nav taxonomy={taxonomy} />
-      <Suspense fallback={null}>
+      <Suspense
+        fallback={
+          <ShopGridFallback
+            products={products}
+            section="kids"
+            heading="non-toxic kids' & baby clothing"
+          />
+        }
+      >
         <ShopClient
           products={products}
           taxonomy={taxonomy}

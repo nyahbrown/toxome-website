@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Product } from "@/lib/supabase";
+import type { ShopSection } from "./ShopClient";
 
 // Server-rendered product grid used as the <Suspense> fallback for the
 // client-only ShopClient (which de-opts to client rendering via
@@ -7,7 +8,34 @@ import type { Product } from "@/lib/supabase";
 // links land in the static HTML so products are never orphaned, Google can
 // discover and pass link equity to them. On the client, ShopClient hydrates
 // and replaces this with the interactive, filterable grid.
-export default function ShopGridFallback({ products }: { products: Product[] }) {
+//
+// Critical for CLS: this must reserve the same height as the hydrated grid.
+// We mirror ShopClient's section filter (gender) so the fallback renders the
+// exact same product set the client will, leaving the layout unchanged when
+// ShopClient takes over. Routes that instead pass `fallback={null}` get a
+// zero-height server render, then a full-grid pop-in that shoves everything
+// below it down (measured CLS up to ~1.0 on collection pages).
+export default function ShopGridFallback({
+  products,
+  section = null,
+  heading,
+}: {
+  products: Product[];
+  section?: ShopSection;
+  heading?: string;
+}) {
+  // Same gender constraint ShopClient applies (see ShopClient `filtered`).
+  const sectionGender =
+    section === "women" ? "Women"
+    : section === "men" ? "Men"
+    : section === "kids" ? "Kids"
+    : section === "home" ? "Home"
+    : null;
+  const items = sectionGender
+    ? products.filter((p) => p.gender === sectionGender)
+    : products;
+  const title = heading ?? "Shop non-toxic clothing by fiber";
+
   return (
     <div className="shell" style={{ paddingTop: 24, paddingBottom: 64 }}>
       {/* Crawlable heading + intro (client ShopClient replaces this on hydration). */}
@@ -23,7 +51,7 @@ export default function ShopGridFallback({ products }: { products: Product[] }) 
             margin: "0 0 14px",
           }}
         >
-          Shop non-toxic clothing by fiber
+          {title}
         </h1>
         <p
           style={{
@@ -39,7 +67,7 @@ export default function ShopGridFallback({ products }: { products: Product[] }) 
         </p>
       </header>
       <div className="product-grid">
-      {products.map((p) => {
+      {items.map((p) => {
         const img = p.item_image || p.images?.[0] || null;
         return (
           <Link
