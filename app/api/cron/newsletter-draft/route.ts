@@ -43,7 +43,10 @@ you are given this week's newest clean products. write:
 4. one fabric or health tip (2 sentences).
 5. a soft closing CTA to scan their own closet in the toxome app, and a line pointing to the journal at https://toxome.app/journal.
 
-return ONLY valid minified JSON: {"subject": "...", "html": "..."}. the html is the email body as clean inline-styled HTML (no <style> or <link> tags, no <html>/<head> wrappers, just the body content). use the brand cream/charcoal palette sparingly. keep it scannable.`;
+return your output in EXACTLY this format and nothing else (no code fences, no json):
+SUBJECT: <the subject line>
+===HTML===
+<the email body as clean inline-styled HTML: no <style> or <link> tags, no <html>/<head> wrappers, just body content. brand cream/charcoal palette used sparingly, scannable.>`;
 
 type DraftResult = { subject: string; html: string } | { error: string };
 
@@ -66,7 +69,7 @@ async function draftWithClaude(products: Product[]): Promise<DraftResult> {
     },
     body: JSON.stringify({
       model: "claude-sonnet-4-6",
-      max_tokens: 1500,
+      max_tokens: 4000,
       system: NEWSLETTER_SYSTEM,
       messages: [{ role: "user", content: `this week's newest clean products:\n${productLines}` }],
     }),
@@ -77,15 +80,15 @@ async function draftWithClaude(products: Product[]): Promise<DraftResult> {
   }
   const data = await res.json();
   const text: string = data?.content?.[0]?.text ?? "";
-  try {
-    const start = text.indexOf("{");
-    const end = text.lastIndexOf("}");
-    const parsed = JSON.parse(text.slice(start, end + 1));
-    if (typeof parsed.subject === "string" && typeof parsed.html === "string") return parsed;
-    return { error: "claude returned unexpected shape" };
-  } catch {
-    return { error: `claude returned non-JSON: ${text.slice(0, 150)}` };
-  }
+  // Delimiter format avoids fragile JSON-escaping of a large HTML body.
+  const marker = "===HTML===";
+  const idx = text.indexOf(marker);
+  if (idx === -1) return { error: `claude format off: ${text.slice(0, 150)}` };
+  const subjMatch = text.slice(0, idx).match(/SUBJECT:\s*(.+)/i);
+  const subject = subjMatch ? subjMatch[1].trim() : "";
+  const html = text.slice(idx + marker.length).trim();
+  if (!subject || !html) return { error: "claude missing subject or html" };
+  return { subject, html };
 }
 
 // Best-effort beehiiv draft. Returns the post id on success, null otherwise
