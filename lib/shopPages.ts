@@ -342,6 +342,143 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
     section: null,
     match: (p) => hasFiber(p, "merino"),
   },
+  {
+    slug: "oeko-tex-certified-clothing",
+    title: "OEKO-TEX Certified Clothing | Toxome",
+    heading: "oeko-tex certified clothing",
+    description:
+      "Every piece is OEKO-TEX certified: the finished fabric is tested for over a thousand harmful substances, so what touches your skin is screened for the chemicals conventional textiles can carry.",
+    intro:
+      "oeko-tex standard 100 is the textile world's harmful-substance test, and every piece here carries it. that means the finished fabric was checked for over a thousand chemicals, from formaldehyde and heavy metals to the azo dyes that sit in conventional clothing. toxome scores each one on top of the certification, so you see both the seal and the fiber breakdown.",
+    faqs: [
+      {
+        q: "What does OEKO-TEX certified mean?",
+        a: "OEKO-TEX Standard 100 certifies that every component of a textile, the fabric, thread, buttons, and dyes, has been tested for harmful substances and stayed under strict limits. It tests the finished product, so the label reflects what actually reaches your skin.",
+      },
+      {
+        q: "Is OEKO-TEX certified clothing safe?",
+        a: "OEKO-TEX screens for over a thousand harmful chemicals, including formaldehyde, heavy metals, and restricted azo dyes, and caps them well below legal limits. No fabric is free of all chemistry, but OEKO-TEX is strong assurance the harmful ones were tested out.",
+      },
+      {
+        q: "Is OEKO-TEX the same as GOTS?",
+        a: "No. OEKO-TEX tests a finished product for harmful substances; GOTS certifies organic fibers and a clean supply chain end to end. GOTS is the broader standard, OEKO-TEX is focused on what's in the final fabric, and many garments carry both.",
+      },
+    ],
+    section: null,
+    match: (p) => hasCert(p, "oeko"),
+  },
+  {
+    slug: "mens-organic-cotton-tops",
+    title: "Men's Organic Cotton Tops, Scored by Fiber | Toxome",
+    heading: "men's organic cotton tops",
+    description:
+      "Organic cotton tops for men, scored by Toxome and free of the plastic blends and pesticides in conventional cotton.",
+    intro:
+      "a top sits against your skin all day, so the fiber matters. conventional cotton is one of the most pesticide-heavy crops, and many 'cotton' tops are cut with polyester to lower the price. every top here is organic cotton, grown without synthetic pesticides, and scored by toxome for its real fiber content.",
+    faqs: [
+      {
+        q: "Is organic cotton better than regular cotton?",
+        a: "Organic cotton is grown without the synthetic pesticides and fertilizers used on conventional cotton, one of the most chemically treated crops in the world. The finished fiber is the same soft, breathable cotton, grown in a way that keeps those chemicals off the field and off your skin.",
+      },
+      {
+        q: "Are cotton tops non-toxic?",
+        a: "Pure cotton is a natural, breathable fiber. The catch is that many 'cotton' tops are blended with polyester, and conventional cotton is grown with heavy pesticides. Toxome scores each top by fiber content so you can choose organic cotton without the plastic blend.",
+      },
+      {
+        q: "Why does Toxome score clothes by fiber?",
+        a: "Fiber content is what touches the skin. Toxome reads each garment's composition and rates it, so the score reflects what the clothing is made of, not a brand's marketing.",
+      },
+    ],
+    section: "men",
+    match: (p) =>
+      p.gender?.toLowerCase() === "men" &&
+      p.category === "Tops" &&
+      hasFiber(p, "organic cotton"),
+  },
+  {
+    slug: "organic-cotton-bedding",
+    title: "Organic Cotton Bedding & Sheets, Scored | Toxome",
+    heading: "organic cotton bedding",
+    description:
+      "Organic cotton sheets, duvet covers, and bedding scored by Toxome. Breathable natural cotton you sleep against for hours, without the plastic of polyester microfiber.",
+    intro:
+      "you spend a third of your life against your sheets, so what they're made of matters more than almost anything else you own. a lot of bedding sold as soft is polyester microfiber, a plastic that traps heat and sheds in the wash. every piece here is organic cotton, grown without synthetic pesticides and breathable enough to actually sleep in, scored by toxome for its fiber content.",
+    faqs: [
+      {
+        q: "Is organic cotton bedding better?",
+        a: "Organic cotton sheets are breathable, grown without the synthetic pesticides used on conventional cotton, and free of the plastic in polyester microfiber bedding. Because you sleep against them for hours, the cleaner fiber matters more here than almost anywhere.",
+      },
+      {
+        q: "Is polyester or microfiber bedding bad?",
+        a: "Polyester and microfiber are plastic. They trap heat, don't breathe the way cotton does, and shed microplastics in the wash. For something you sleep against all night, a natural fiber like organic cotton is the cleaner choice.",
+      },
+      {
+        q: "Why does Toxome score bedding by fiber?",
+        a: "Fiber content is what touches your skin all night. Toxome reads each item's composition and rates it, so the score reflects what the bedding is actually made of, not a brand's marketing.",
+      },
+    ],
+    section: "home",
+    match: (p) =>
+      p.gender?.toLowerCase() === "home" &&
+      p.category === "Bedding" &&
+      hasFiber(p, "organic cotton"),
+  },
+  {
+    slug: "non-toxic-silk-tops",
+    title: "Non-Toxic Silk Tops, Scored by Fiber | Toxome",
+    heading: "non-toxic silk tops",
+    description:
+      "Real silk tops and blouses for women, scored by Toxome and free of the plastic fibers in synthetic 'silky' fabrics.",
+    intro:
+      "most blouses sold as silky are polyester, a plastic fiber that traps heat against the skin. real silk is a natural protein fiber that breathes and regulates temperature. every top here is scored by toxome for its real fiber content, so you can tell genuine silk from a synthetic imitation.",
+    faqs: [
+      {
+        q: "Is silk a non-toxic fabric?",
+        a: "Silk is a natural protein fiber spun by silkworms, free of the petroleum-based plastics in polyester and nylon. It breathes, regulates temperature, and carries none of the microplastic shedding of synthetic 'silky' fabrics. Toxome scores each piece so you can confirm it is real silk.",
+      },
+      {
+        q: "How can I tell real silk from polyester?",
+        a: "Check the composition label: real silk lists 'silk,' while imitations list polyester, nylon, or 'satin' with no fiber named. Toxome reads the label for you and scores the garment by what it is actually made of.",
+      },
+      {
+        q: "Why does Toxome score clothes by fiber?",
+        a: "Fiber content is what touches the skin. Toxome reads each garment's composition and rates it, so the score reflects what the clothing is made of, not a brand's marketing.",
+      },
+    ],
+    section: "women",
+    match: (p) =>
+      p.gender?.toLowerCase() === "women" &&
+      p.category === "Tops" &&
+      hasFiber(p, "silk"),
+  },
+  {
+    slug: "non-toxic-linen-pants",
+    title: "Non-Toxic Linen Pants, Scored by Fiber | Toxome",
+    heading: "non-toxic linen pants",
+    description:
+      "Pure linen pants and trousers for women, scored by Toxome. Breathable flax that keeps you cool, free of 'linen-look' plastic blends.",
+    intro:
+      "linen comes from the flax plant, one of the most breathable fibers you can wear, which is why it stays cool when cotton goes damp. every pair here is scored by toxome for its real fiber content, so you know you're getting flax, not a 'linen-look' polyester blend.",
+    faqs: [
+      {
+        q: "Is linen good for pants?",
+        a: "Linen is breathable, strong, and gets softer with wear, which makes it ideal for warm-weather trousers. It wrinkles more than cotton, but that relaxed crease is part of the look.",
+      },
+      {
+        q: "Is linen a non-toxic fabric?",
+        a: "Linen is a natural fiber made from the flax plant, free of the petroleum-based plastics in synthetic fabrics. It needs little water or pesticide to grow and breathes better than almost any other fiber. Toxome scores each pair by its fiber content.",
+      },
+      {
+        q: "Why does Toxome score clothes by fiber?",
+        a: "Fiber content is what touches the skin. Toxome reads each garment's composition and rates it, so the score reflects what the clothing is made of, not a brand's marketing.",
+      },
+    ],
+    section: "women",
+    match: (p) =>
+      p.gender?.toLowerCase() === "women" &&
+      p.category === "Bottoms" &&
+      hasFiber(p, "linen"),
+  },
 ];
 
 // Maps a fiber (any key format) to its broad collection page, for linking from
