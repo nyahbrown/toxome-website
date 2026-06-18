@@ -5,6 +5,7 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import ShopClient from "./ShopClient";
 import ShopGridFallback from "./ShopGridFallback";
+import ShopIntro from "@/components/ShopIntro";
 
 export const revalidate = 3600;
 
@@ -26,6 +27,7 @@ export default async function ShopPage() {
       <Suspense fallback={<ShopGridFallback products={products} />}>
         <ShopClient products={products} taxonomy={taxonomy} section={null} />
       </Suspense>
+      <ShopIntro intro="every piece in the toxome shop is read for its fiber content and scored for how it treats your body. we curate non-toxic clothing and home textiles made from cleaner natural fibers like organic cotton, linen, silk, and hemp, and skip the plastic-heavy fast fashion. filter by fiber, department, or certification to find your match." />
       <Footer />
     </>
   );

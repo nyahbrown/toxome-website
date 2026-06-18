@@ -4,6 +4,7 @@ import { getPublishedProducts, getShopTaxonomy } from "@/lib/supabase";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import ShopClient from "../ShopClient";
+import ShopIntro from "@/components/ShopIntro";
 
 export const revalidate = 3600;
 
@@ -23,8 +24,14 @@ export default async function MenShopPage() {
     <>
       <Nav taxonomy={taxonomy} />
       <Suspense fallback={null}>
-        <ShopClient products={products} taxonomy={taxonomy} section="men" />
+        <ShopClient
+          products={products}
+          taxonomy={taxonomy}
+          section="men"
+          heading="non-toxic men's clothing"
+        />
       </Suspense>
+      <ShopIntro intro="men's clothing curated for what's in the fabric, not just the look. every piece is scored by toxome for its fiber content, so you can build a wardrobe of organic cotton, linen, hemp, and merino wool instead of plastic blends. filter by fiber to shop the cleanest options." />
       <Footer />
     </>
   );

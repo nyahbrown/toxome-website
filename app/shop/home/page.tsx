@@ -4,6 +4,7 @@ import { getPublishedProducts, getShopTaxonomy } from "@/lib/supabase";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import ShopClient from "../ShopClient";
+import ShopIntro from "@/components/ShopIntro";
 
 export const revalidate = 3600;
 
@@ -23,8 +24,14 @@ export default async function HomeShopPage() {
     <>
       <Nav taxonomy={taxonomy} />
       <Suspense fallback={null}>
-        <ShopClient products={products} taxonomy={taxonomy} section="home" />
+        <ShopClient
+          products={products}
+          taxonomy={taxonomy}
+          section="home"
+          heading="non-toxic home & bedding"
+        />
       </Suspense>
+      <ShopIntro intro="the textiles you sleep in and wrap up in touch your skin for hours at a time. every home piece here is scored by toxome for its fiber content, so you can choose bedding, bath, and throws made from cleaner natural fibers instead of synthetic blends." />
       <Footer />
     </>
   );

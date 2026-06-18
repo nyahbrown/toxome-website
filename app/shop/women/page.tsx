@@ -4,6 +4,7 @@ import { getPublishedProducts, getShopTaxonomy } from "@/lib/supabase";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import ShopClient from "../ShopClient";
+import ShopIntro from "@/components/ShopIntro";
 
 export const revalidate = 3600;
 
@@ -23,8 +24,14 @@ export default async function WomenShopPage() {
     <>
       <Nav taxonomy={taxonomy} />
       <Suspense fallback={null}>
-        <ShopClient products={products} taxonomy={taxonomy} section="women" />
+        <ShopClient
+          products={products}
+          taxonomy={taxonomy}
+          section="women"
+          heading="non-toxic women's clothing"
+        />
       </Suspense>
+      <ShopIntro intro="every women's piece here is read for what it's actually made of, then scored for how it treats your skin and your body. we skip the polyester-heavy fast fashion and curate dresses, tops, and basics built from cleaner natural fibers like organic cotton, linen, and silk. filter by fiber to find your match." />
       <Footer />
     </>
   );
