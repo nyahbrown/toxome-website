@@ -69,3 +69,72 @@ export const DEV_SCANS: ClosetScan[] = (() => {
     };
   });
 })();
+
+// Four real garments Nyah scanned (label photos in /public/mockup-closet).
+// Scores are the live Toxome Score (V2, higher = cleaner) computed from each
+// piece's actual composition + care text. Used by the `?dev=closet` preview of
+// the account dashboard so the real page renders with her own closet, not the
+// generic 30-item demo above.
+export const DEV_SCANS_REAL: ClosetScan[] = (() => {
+  const today = Date.now();
+  const d = (daysAgo: number) => new Date(today - daysAgo * 86_400_000);
+  return [
+    {
+      id: "real-1",
+      itemDescription: "Embroidered white blouse",
+      brandName: "Unbranded",
+      category: "Tops",
+      scanImageUrl: "/mockup-closet/organic-cotton.jpg",
+      scanDate: d(1),
+      overallHazardScore: 92,
+      overallHazardLevel: "low",
+      naturalFiberPercentage: 100,
+      composition: [{ fiber: "organic cotton", percentage: 100 }],
+    },
+    {
+      id: "real-2",
+      itemDescription: "Taupe knit sweater",
+      brandName: "Unbranded",
+      category: "Sweaters",
+      scanImageUrl: "/mockup-closet/wool-cashmere.jpg",
+      scanDate: d(2),
+      overallHazardScore: 80,
+      overallHazardLevel: "low",
+      naturalFiberPercentage: 100,
+      composition: [
+        { fiber: "wool", percentage: 70 },
+        { fiber: "cashmere", percentage: 30 },
+      ],
+    },
+    {
+      id: "real-3",
+      itemDescription: "Brown ribbed top",
+      brandName: "Indigo Luna Store",
+      category: "Tops",
+      scanImageUrl: "/mockup-closet/indigo-luna.jpg",
+      scanDate: d(3),
+      overallHazardScore: 55,
+      overallHazardLevel: "moderate",
+      naturalFiberPercentage: 0,
+      composition: [
+        { fiber: "viscose", percentage: 90 },
+        { fiber: "spandex", percentage: 10 },
+      ],
+    },
+    {
+      id: "real-4",
+      itemDescription: "Textured white top",
+      brandName: "Unbranded",
+      category: "Tops",
+      scanImageUrl: "/mockup-closet/rayon-nylon.jpg",
+      scanDate: d(4),
+      overallHazardScore: 48,
+      overallHazardLevel: "moderate",
+      naturalFiberPercentage: 0,
+      composition: [
+        { fiber: "rayon", percentage: 74 },
+        { fiber: "nylon", percentage: 26 },
+      ],
+    },
+  ];
+})();
