@@ -107,6 +107,24 @@ button { font-family: inherit; }
   transform: translateY(-1px);
 }
 
+/* Methodology hero band scale — each segment lifts and its bar grows on hover. */
+.score-band {
+  cursor: default;
+  transition: transform 260ms var(--ease-out-strong);
+}
+.score-band__bar {
+  transform-origin: center bottom;
+  transition: transform 260ms var(--ease-out-strong),
+    box-shadow 260ms var(--ease-out-strong);
+}
+.score-band:hover {
+  transform: translateY(-5px);
+}
+.score-band:hover .score-band__bar {
+  transform: scaleY(2.6);
+  box-shadow: 0 9px 20px -6px rgba(59, 60, 58, 0.34);
+}
+
 /* Reveal animation — elements start hidden, .in fires on scroll */
 .reveal {
   opacity: 0;

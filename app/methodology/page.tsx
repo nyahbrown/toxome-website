@@ -586,8 +586,13 @@ function BandScale() {
     <div style={{ maxWidth: 420, margin: "40px auto 0" }}>
       <div style={{ display: "flex", gap: 6 }}>
         {bands.map((b) => (
-          <div key={b.label} style={{ flex: 1, textAlign: "left" }}>
+          <div
+            key={b.label}
+            className="score-band"
+            style={{ flex: 1, textAlign: "left" }}
+          >
             <div
+              className="score-band__bar"
               style={{ height: 6, borderRadius: 999, background: b.color }}
             />
             <div style={{ marginTop: 10 }}>
