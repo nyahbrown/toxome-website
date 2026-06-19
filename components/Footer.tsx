@@ -55,6 +55,7 @@ const cols: FooterCol[] = [
   {
     h: "Company",
     items: [
+      { label: "Get Verified", href: "/verify" },
       { label: "Partnerships", href: "/partnerships" },
       { label: "Contact", href: "mailto:nyah@toxome.app" },
     ],

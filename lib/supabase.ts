@@ -1,8 +1,15 @@
 import { cache } from "react";
 import { createClient } from "@supabase/supabase-js";
 import type { Product } from "@/types/product";
+import { resolveRung, healthCertBadge, type HealthCertBadge } from "@/lib/verification";
 
 export type { Product };
+
+export type VerifiedBrand = {
+  brand: string;
+  certs: HealthCertBadge[];
+  count: number;
+};
 
 export type ShopTaxonomy = {
   women: string[];
@@ -98,6 +105,53 @@ export async function getCleanerAlternatives(
   }
   return data ?? [];
 }
+
+// Brands with at least one product that resolves to the "verified" rung. Each
+// carries the set of health certs found across its published products and a
+// product count. Computed with the SAME resolver the product pages use, so the
+// directory and the pills can never drift. Sorted by count desc, then name.
+export const getVerifiedBrands = cache(async (): Promise<VerifiedBrand[]> => {
+  const { data, error } = await supabase
+    .from("products")
+    .select("brand, certifications, verification_rung")
+    .eq("published", true);
+
+  if (error) {
+    console.error("Supabase verified-brands fetch error:", error.message);
+    return [];
+  }
+
+  const byBrand = new Map<
+    string,
+    { certs: Map<string, HealthCertBadge>; count: number }
+  >();
+  for (const row of data ?? []) {
+    const brand = (row.brand || "").trim();
+    if (!brand) continue;
+    const rung = resolveRung({
+      certifications: row.certifications,
+      verification_rung: row.verification_rung,
+    });
+    if (rung !== "verified") continue;
+
+    const entry =
+      byBrand.get(brand) ?? { certs: new Map<string, HealthCertBadge>(), count: 0 };
+    entry.count += 1;
+    for (const c of row.certifications ?? []) {
+      const badge = healthCertBadge(c);
+      if (badge) entry.certs.set(badge.slug, badge); // dedupe by slug
+    }
+    byBrand.set(brand, entry);
+  }
+
+  return [...byBrand.entries()]
+    .map(([brand, e]) => ({
+      brand,
+      certs: [...e.certs.values()].sort((a, b) => a.label.localeCompare(b.label)),
+      count: e.count,
+    }))
+    .sort((a, b) => b.count - a.count || a.brand.localeCompare(b.brand));
+});
 
 export async function getProductById(id: string): Promise<Product | null> {
   const { data, error } = await supabase

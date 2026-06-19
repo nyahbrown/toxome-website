@@ -21,6 +21,31 @@ export function hasHealthCert(certs?: string[] | null): boolean {
   return !!certs && certs.some(isHealthCert);
 }
 
+// A health cert resolved to what the directory needs to render it: the display
+// label, plus the CertBadge `slug` so it shows the real logo (same component and
+// slugs the certifications page uses).
+export type HealthCertBadge = { slug: string; label: string };
+
+// Maps a raw cert string to its canonical badge (slug + label), or null if it
+// isn't a health-relevant (verifying) cert.
+export function healthCertBadge(raw: string): HealthCertBadge | null {
+  const c = raw.trim().toLowerCase();
+  if (c.includes("oeko-tex")) return { slug: "oeko-tex-standard-100", label: "OEKO-TEX" };
+  if (c === "gots") return { slug: "gots", label: "GOTS" };
+  if (c === "bluesign") return { slug: "bluesign", label: "bluesign" };
+  if (c.includes("greenguard")) return { slug: "greenguard", label: "GREENGUARD" };
+  if (c === "made safe") return { slug: "made-safe", label: "MADE SAFE" };
+  if (c.includes("nordic swan")) return { slug: "nordic-swan", label: "Nordic Swan" };
+  if (c === "eu ecolabel") return { slug: "eu-ecolabel", label: "EU Ecolabel" };
+  if (c === "gols") return { slug: "gols", label: "GOLS" };
+  return null;
+}
+
+// Display label only (kept for non-visual callers).
+export function healthCertLabel(raw: string): string | null {
+  return healthCertBadge(raw)?.label ?? null;
+}
+
 // Resolves the rung from product data. An explicit `verification_rung` field
 // (written later by the brand-disclosure intake or a lab test) always wins;
 // otherwise we derive from health-relevant certs.
@@ -59,7 +84,7 @@ export const RUNG_META: Record<
     label: "Lab-verified",
     dotColor: "var(--blue)",
     title: "Lab-tested",
-    body: "An independent lab tested the finished garment for harmful substances. Coming 2027.",
+    body: "An independent lab tested the finished garment for harmful substances.",
   },
 };
 
