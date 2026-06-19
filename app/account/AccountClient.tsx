@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
+import UpgradeButton from "@/components/UpgradeButton";
 import {
   getClosetScans,
   computeClosetStats,
@@ -20,7 +21,7 @@ import {
 } from "@/lib/firestore";
 import { getPublishedProducts, type Product } from "@/lib/supabase";
 import { EDITORS_PICKS } from "@/lib/editorsPicks";
-import { DEV_WISHLIST, DEV_SCANS } from "@/lib/devAccountData";
+import { DEV_WISHLIST, DEV_SCANS, DEV_SCANS_REAL } from "@/lib/devAccountData";
 import { hazardColor, prettyFiber } from "@/lib/fabricScores";
 import WishlistHeart from "@/components/WishlistHeart";
 
@@ -73,9 +74,12 @@ export default function AccountClient() {
   } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const devParam = searchParams.get("dev");
   const devMode =
-    searchParams.get("dev") === "1" ||
-    searchParams.get("dev") === "premium";
+    devParam === "1" || devParam === "premium" || devParam === "closet";
+  // `?dev=closet` seeds the dashboard with Nyah's 4 real scanned garments
+  // instead of the generic 30-item demo set.
+  const realCloset = devParam === "closet";
 
   const [profile, setProfile] = useState<UserProfile | null | undefined>(undefined);
   const [scans, setScans] = useState<ClosetScan[] | null>(null);
@@ -94,7 +98,7 @@ export default function AccountClient() {
     // user.
     if (devMode) {
       setProfile(DEV_PROFILE);
-      setScans(DEV_SCANS);
+      setScans(realCloset ? DEV_SCANS_REAL : DEV_SCANS);
       setWishlist(DEV_WISHLIST);
       getPublishedProducts()
         .catch(() => [])
@@ -148,7 +152,43 @@ export default function AccountClient() {
     return () => {
       cancelled = true;
     };
-  }, [user, devMode]);
+  }, [user, devMode, realCloset]);
+
+  // Called the instant a web purchase succeeds. The "Toxome Premium"
+  // entitlement is active in RevenueCat immediately, but the Firestore
+  // is_premium mirror (written by the revenueCatWebhook) lags a beat — so we
+  // flip the UI optimistically here and pull the now-unlocked closet, instead
+  // of waiting on a re-fetch that might still read "free".
+  const markPremium = useCallback(
+    (plan: "annual" | "monthly" = "annual") => {
+      if (!user) return;
+      setProfile((prev) => ({
+        uid: user.uid,
+        email: user.email ?? prev?.email ?? null,
+        displayName: user.displayName ?? prev?.displayName ?? null,
+        photoUrl: prev?.photoUrl ?? null,
+        isPremium: true,
+        subscriptionStatus: plan,
+        scanCount: prev?.scanCount ?? 0,
+      }));
+      getClosetScans(user.uid)
+        .then(setScans)
+        .catch(() => {});
+    },
+    [user],
+  );
+
+  // Returning from a successful web checkout: RevenueCat redirects to
+  // /account?upgraded=1. Flip to premium right away (the entitlement is live;
+  // the Firestore mirror may lag a beat) and strip the param so a refresh
+  // doesn't re-trigger it.
+  const upgraded = searchParams.get("upgraded") === "1";
+  useEffect(() => {
+    if (upgraded && user) {
+      markPremium();
+      router.replace("/account");
+    }
+  }, [upgraded, user, markPremium, router]);
 
   if ((loading || !user) && !devMode) {
     return (
@@ -1311,48 +1351,24 @@ function EmptyClosetCTA() {
 
 function ClosetLockedCTA({ scanCount }: { scanCount: number }) {
   return (
-    <div
-      style={{
-        position: "relative",
-        overflow: "hidden",
-      }}
-    >
-      {/* Blurred preview of the closet score behind the CTA */}
-      <div
-        aria-hidden="true"
-        style={{
-          position: "absolute",
-          inset: 0,
-          opacity: 0.18,
-          filter: "blur(6px)",
-          pointerEvents: "none",
-          userSelect: "none",
-        }}
-      >
-        <div
-          style={{
-            fontFamily: "var(--sans)",
-            fontWeight: 600,
-            fontSize: 64,
-            lineHeight: 1,
-            letterSpacing: "-0.03em",
-            color: "var(--ink)",
-            marginBottom: 20,
-          }}
+    <div className="upsell-split">
+      {/* Looping closet demo — shows free users what Premium unlocks. Muted +
+          playsInline so it autoplays on mobile; webm first, mp4 fallback. */}
+      <div className="upsell-video">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          poster="/closet-demo-poster.jpg"
+          aria-label="A look inside Toxome Premium — your closet, scored"
         >
-          ––
-        </div>
-        <div
-          style={{
-            height: 8,
-            borderRadius: 999,
-            background:
-              "linear-gradient(to right, var(--risk-low) 0 35%, var(--orange) 35% 65%, var(--red) 65% 100%)",
-          }}
-        />
+          <source src="/closet-demo.webm" type="video/webm" />
+          <source src="/closet-demo.mp4" type="video/mp4" />
+        </video>
       </div>
 
-      <div style={{ position: "relative" }}>
+      <div className="upsell-body">
         <div
           style={{
             fontFamily: "var(--mono)",
@@ -1399,15 +1415,7 @@ function ClosetLockedCTA({ scanCount }: { scanCount: number }) {
             </>
           )}
         </p>
-        <a
-          href="https://apps.apple.com/us/app/toxome/id6748622034"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="pill-cta"
-          style={{ justifyContent: "center" }}
-        >
-          Download the app to unlock
-        </a>
+        <UpgradeButton />
       </div>
     </div>
   );

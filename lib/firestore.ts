@@ -37,6 +37,9 @@ export async function getUserProfile(uid: string): Promise<UserProfile | null> {
       photoUrl: (d.photo_url as string) || null,
       isPremium:
         d.isPremium === true ||
+        // The RevenueCat webhook writes snake_case `is_premium` (this is what
+        // a web/app purchase sets). Read both so web purchases reflect here.
+        d.is_premium === true ||
         status === "monthly" ||
         status === "annual" ||
         status === "trial",
