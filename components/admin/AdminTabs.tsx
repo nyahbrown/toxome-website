@@ -11,13 +11,20 @@ const TABS = [
   { key: "content", label: "Content", href: "/admin/content" },
   { key: "analytics", label: "Brand traffic", href: "/admin/analytics" },
   { key: "brands", label: "Brands", href: "/admin/brands" },
+  { key: "disclosures", label: "Disclosures", href: "/admin/disclosures" },
   { key: "closets", label: "Closets", href: "/admin/closets" },
 ] as const;
 
 export default function AdminTabs({
   active,
 }: {
-  active: "products" | "content" | "analytics" | "brands" | "closets";
+  active:
+    | "products"
+    | "content"
+    | "analytics"
+    | "brands"
+    | "disclosures"
+    | "closets";
 }) {
   return (
     <div style={{ display: "flex", gap: 6, marginBottom: 28 }}>

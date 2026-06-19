@@ -91,7 +91,7 @@ function WishlistCard({
                   borderRadius: 999,
                 }}
               >
-                Verified
+                Featured
               </span>
             )}
             <WishlistHeart

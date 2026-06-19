@@ -183,6 +183,7 @@ export default function Nav({
                   items: [
                     { label: "Fabrics", href: "/guide" },
                     { label: "Certifications", href: "/guide/certifications" },
+                    { label: "How we score", href: "/methodology" },
                   ],
                 },
               ]}
@@ -500,6 +501,7 @@ export default function Nav({
                 {[
                   { label: "fabrics", href: "/guide" },
                   { label: "certifications", href: "/guide/certifications" },
+                  { label: "how we score", href: "/methodology" },
                 ].map((link) => {
                   const active =
                     pathname === link.href ||

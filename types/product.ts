@@ -1,3 +1,5 @@
+import type { VerificationRung } from "@/lib/verification";
+
 export type RiskLevel = "low" | "moderate" | "high";
 
 export interface Product {
@@ -28,6 +30,9 @@ export interface Product {
   description: string | null;
   materials_text: string | null;
   certifications: string[] | null;
+  // Confidence rung for the score. Null for current products (they resolve from
+  // certs); written later by the brand-disclosure intake or a lab test.
+  verification_rung?: VerificationRung | null;
   // Fibers present when no percentage breakdown is published (e.g. home goods).
   // Display-only: rendered as a fiber list with NO Toxome score or bars.
   fibers_present?: string[] | null;

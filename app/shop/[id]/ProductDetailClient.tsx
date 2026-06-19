@@ -7,6 +7,7 @@ import type { Product } from "@/types/product";
 import { useAuth } from "@/contexts/AuthContext";
 import { HeartFilled, HeartOutline } from "@/components/icons";
 import CertBadge from "@/components/CertBadge";
+import VerificationRung from "@/components/VerificationRung";
 // Single source of truth for fiber hazard colors + labels, keeps the product
 // page bars in sync with the score table (alpaca/cashmere green, Lenzing green,
 // recycled synthetics red, "european linen" -> linen via keyword fallback, etc.)
@@ -370,6 +371,10 @@ export default function ProductDetailClient({
               {(product.toxome_score != null || product.risk_level) && (
                 <RiskChip score={product.toxome_score} level={product.risk_level} />
               )}
+              <VerificationRung
+                certifications={product.certifications}
+                verification_rung={product.verification_rung}
+              />
             </div>
           )}
 
