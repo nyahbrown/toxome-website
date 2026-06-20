@@ -1297,73 +1297,131 @@ function EmptyClosetCTA() {
   );
 }
 
+// A representative (not real) closet, used purely as the blurred teaser behind
+// the locked-state unlock prompt. No user data is read for free accounts.
+const SAMPLE_CLOSET_STATS: ClosetStats = {
+  totalCount: 15,
+  avgToxomeScore: 72,
+  lastScanAt: null,
+  riskBreakdown: { low: 10, moderate: 3, high: 2 },
+  fiberDistribution: [
+    { fiber: "cotton", share: 0.36, hazardScore: 82 },
+    { fiber: "linen", share: 0.18, hazardScore: 88 },
+    { fiber: "wool", share: 0.12, hazardScore: 72 },
+    { fiber: "viscose", share: 0.14, hazardScore: 50 },
+    { fiber: "polyester", share: 0.12, hazardScore: 24 },
+    { fiber: "elastane", share: 0.08, hazardScore: 30 },
+  ],
+  problemCategories: [],
+};
+
 function ClosetLockedCTA({ scanCount }: { scanCount: number }) {
   return (
-    <div className="upsell-split">
-      {/* Looping closet demo — shows free users what Premium unlocks. Muted +
-          playsInline so it autoplays on mobile; webm first, mp4 fallback. */}
-      <div className="upsell-video">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          poster="/closet-demo-poster.jpg"
-          aria-label="A look inside Toxome Premium — your closet, scored"
-        >
-          <source src="/closet-demo.webm" type="video/webm" />
-          <source src="/closet-demo.mp4" type="video/mp4" />
-        </video>
+    <div style={{ position: "relative", minHeight: 340, borderRadius: 12, overflow: "hidden" }}>
+      {/* Blurred sample closet — a teaser of what Premium shows. Decorative;
+          aria-hidden and inert so it's skipped by AT and not interactive. */}
+      <div
+        aria-hidden
+        style={{
+          position: "absolute",
+          inset: 0,
+          display: "grid",
+          gridTemplateColumns: "minmax(0, 0.9fr) minmax(0, 1.1fr)",
+          gap: 28,
+          alignItems: "center",
+          padding: "8px 20px",
+          filter: "blur(7px)",
+          opacity: 0.5,
+          pointerEvents: "none",
+          userSelect: "none",
+        }}
+      >
+        <ClosetSnapshot stats={SAMPLE_CLOSET_STATS} />
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 14 }}>
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i}>
+              <div style={{ aspectRatio: "266 / 380", background: "var(--tan)", borderRadius: 8, marginBottom: 8 }} />
+              <div style={{ height: 9, width: "85%", background: "var(--tan)", borderRadius: 3, marginBottom: 5 }} />
+              <div style={{ height: 8, width: "55%", background: "var(--tan)", borderRadius: 3 }} />
+            </div>
+          ))}
+        </div>
       </div>
 
-      <div className="upsell-body">
+      {/* Unlock prompt — sits over the blurred sample. */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 20,
+        }}
+      >
         <div
           style={{
-            fontFamily: "var(--mono)",
-            fontSize: 10,
-            letterSpacing: "0.12em",
-            textTransform: "uppercase",
-            color: "var(--ink-3)",
-            marginBottom: 10,
+            background: "rgba(252,251,247,0.82)",
+            backdropFilter: "blur(2px)",
+            WebkitBackdropFilter: "blur(2px)",
+            border: "1px solid var(--hairline)",
+            borderRadius: 16,
+            boxShadow:
+              "0 1px 2px rgba(59,60,58,.04), 0 18px 40px rgba(59,60,58,.10)",
+            padding: "28px 30px",
+            maxWidth: 540,
+            width: "100%",
+            textAlign: "center",
           }}
         >
-          premium
+          <div
+            style={{
+              fontFamily: "var(--mono)",
+              fontSize: 10,
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              color: "var(--ink-3)",
+              marginBottom: 10,
+            }}
+          >
+            premium
+          </div>
+          <p
+            style={{
+              fontFamily: "var(--sans)",
+              fontSize: 24,
+              letterSpacing: "-0.015em",
+              color: "var(--ink)",
+              margin: "0 0 10px",
+              fontWeight: 500,
+              lineHeight: 1.2,
+            }}
+          >
+            Unlock your closet score.
+          </p>
+          <p
+            style={{
+              fontSize: 14,
+              color: "var(--ink-2)",
+              lineHeight: 1.55,
+              margin: "0 auto 22px",
+              maxWidth: 440,
+            }}
+          >
+            Toxome Premium gives you your closet&apos;s average score, the fiber
+            breakdown of everything you own, and cleaner alternatives matched to
+            the categories you wear most.
+            {scanCount > 0 && (
+              <>
+                {" "}
+                You&apos;ve already scanned {scanCount}{" "}
+                {scanCount === 1 ? "item" : "items"}. Unlock to see them all in
+                one view.
+              </>
+            )}
+          </p>
+          <UpgradeButton />
         </div>
-        <p
-          style={{
-            fontFamily: "var(--sans)",
-            fontSize: 24,
-            letterSpacing: "-0.015em",
-            color: "var(--ink)",
-            margin: "0 0 10px",
-            fontWeight: 500,
-            lineHeight: 1.2,
-          }}
-        >
-          Unlock your closet score.
-        </p>
-        <p
-          style={{
-            fontSize: 14,
-            color: "var(--ink-2)",
-            lineHeight: 1.55,
-            margin: "0 0 22px",
-            maxWidth: 460,
-          }}
-        >
-          Toxome Premium gives you your closet&apos;s average score, the fiber
-          breakdown of everything you own, and cleaner alternatives matched to
-          the categories you wear most.
-          {scanCount > 0 && (
-            <>
-              {" "}
-              You&apos;ve already scanned {scanCount}{" "}
-              {scanCount === 1 ? "item" : "items"}. Unlock to see them all in
-              one view.
-            </>
-          )}
-        </p>
-        <UpgradeButton />
       </div>
     </div>
   );
