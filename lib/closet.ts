@@ -82,7 +82,11 @@ export async function getClosetScans(uid: string): Promise<ClosetScan[]> {
       itemDescription: String(data.item_description ?? data.itemDescription ?? ""),
       brandName: String(data.brand_name ?? data.brandName ?? ""),
       category: String(data.category ?? ""),
-      scanImageUrl: String(data.scanImageUrl ?? ""),
+      // Extension-saved items can't write `scanImageUrl` (firestore.rules
+      // requires a firebase-hosted URL there), so they stash the external CDN
+      // product image on `tox_image`. Fall back to it so closet/past-scans
+      // thumbnails render for extension saves, not just in-app label photos.
+      scanImageUrl: String(data.scanImageUrl || data.tox_image || ""),
       scanDate: ts && typeof ts.toDate === "function" ? ts.toDate() : null,
       overallHazardScore: cleanScore,
       overallHazardLevel: cleanLevel,
