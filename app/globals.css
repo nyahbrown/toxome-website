@@ -88,7 +88,9 @@ button { font-family: inherit; }
   letter-spacing: -0.005em;
   border: 0;
   cursor: pointer;
-  transition: transform 200ms var(--ease), box-shadow 200ms var(--ease);
+  /* Press lands snappy (150ms) so the tap reads instantly; shadow can lag a
+     touch longer. Strong ease-out gives immediate movement on press/hover. */
+  transition: transform 150ms var(--ease-out-strong), box-shadow 220ms var(--ease-out-strong);
   box-shadow: 0 1px 0 rgba(255,255,255,.6) inset, 0 6px 22px rgba(59,60,58,.10);
   white-space: nowrap;
 }
@@ -138,7 +140,7 @@ button { font-family: inherit; }
   align-items: stretch;
   /* One soft group rise so the cards settle in rather than pop. Kept on the
      wrapper so it never clashes with each card's hover/press transform. */
-  animation: planCardsIn 360ms var(--ease-out-strong) both;
+  animation: planCardsIn 260ms var(--ease-out-strong) both;
 }
 @keyframes planCardsIn {
   from { opacity: 0; transform: translateY(8px); }
