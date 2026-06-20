@@ -57,9 +57,9 @@ const STEPS = [
 ];
 
 const NEXT = [
-  { t: "Send what you have", b: "Lab reports, supplier or dye-house disclosures, or existing certifications. No paid cert required." },
+  { t: "Submit your documents", b: "Lab reports, supplier or dye-house disclosures, or existing certifications. No paid cert required." },
   { t: "We review the evidence", b: "Checked against the same standard we hold OEKO-TEX and GOTS to." },
-  { t: "Your rung updates", b: "Verification changes how sure we are about a score. It never changes the score itself." },
+  { t: "Your score is verified", b: "Verification changes how sure we are about a score. It never changes the score itself." },
 ];
 
 const FAQ = [
@@ -125,7 +125,7 @@ export default async function VerifyPage() {
             </p>
             <div style={{ display: "flex", alignItems: "center", gap: 22, flexWrap: "wrap" }}>
               <SmoothScrollLink targetId="submit" className="pill-cta">
-                Send your documents
+                Submit your documents
               </SmoothScrollLink>
               <SmoothScrollLink
                 targetId="verified"
@@ -238,7 +238,7 @@ export default async function VerifyPage() {
           <div className="vf-two-bar" style={{ order: 2, background: "var(--hairline-strong)" }} />
 
           <div style={{ order: 1 }}>
-            <RailLabel>Where your score lands</RailLabel>
+            <RailLabel>How we score</RailLabel>
             <div style={{ display: "flex", flexDirection: "column", marginTop: 26 }}>
               {LADDER.map((rung, i) => {
                 const meta = RUNG_META[rung];
@@ -305,6 +305,21 @@ export default async function VerifyPage() {
             >
               {VERIFICATION_FIREWALL_LINE}
             </p>
+            <a
+              href="/methodology"
+              className="verify-proof-link"
+              style={{
+                display: "inline-block",
+                marginTop: 14,
+                fontFamily: "var(--sans)",
+                fontSize: 15,
+                color: "var(--ink-2)",
+                textDecoration: "underline",
+                textUnderlineOffset: 3,
+              }}
+            >
+              see the full methodology
+            </a>
           </div>
         </section>
 
@@ -335,7 +350,7 @@ export default async function VerifyPage() {
             <p className="eyebrow" style={{ marginBottom: 6 }}>
               Get verified
             </p>
-            <h2 style={{ ...h2Style, margin: "0 0 22px" }}>send your documents.</h2>
+            <h2 style={{ ...h2Style, margin: "0 0 22px" }}>submit your documents.</h2>
             <VerifyForm />
           </div>
 

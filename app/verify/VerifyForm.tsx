@@ -357,7 +357,7 @@ export default function VerifyForm() {
           cursor: submitting ? "not-allowed" : "pointer",
         }}
       >
-        {submitting ? "Sending…" : "Send for review"}
+        {submitting ? "Submitting…" : "Submit for review"}
       </button>
     </form>
   );

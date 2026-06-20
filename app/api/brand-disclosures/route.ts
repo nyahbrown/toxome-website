@@ -32,6 +32,47 @@ function isEmail(s: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
 }
 
+// Best-effort Telegram ping via the Pikey bot. Reuses Pikey's TELEGRAM_TOKEN /
+// TELEGRAM_CHAT_ID. Never throws and never blocks the submission: if the vars
+// are missing or Telegram is down, the brand's request still succeeds.
+async function notifyTelegram(p: {
+  brand_name: string;
+  contact_email: string;
+  product_name: string | null;
+  product_url: string | null;
+  claims: string[];
+  fileCount: number;
+}): Promise<void> {
+  const token = process.env.TELEGRAM_TOKEN;
+  const chatId = process.env.TELEGRAM_CHAT_ID;
+  if (!token || !chatId) return;
+
+  const lines = [
+    "🔬 New verification request",
+    `Brand: ${p.brand_name}`,
+    `Email: ${p.contact_email}`,
+  ];
+  if (p.product_name) lines.push(`Product: ${p.product_name}`);
+  if (p.product_url) lines.push(`URL: ${p.product_url}`);
+  lines.push(`Claims: ${p.claims.length ? p.claims.join(", ") : "none"}`);
+  lines.push(`Files: ${p.fileCount}`);
+  lines.push("Review: https://toxome.app/admin/disclosures");
+
+  try {
+    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: lines.join("\n"),
+        disable_web_page_preview: true,
+      }),
+    });
+  } catch {
+    // best-effort: swallow
+  }
+}
+
 // Strip path traversal + keep a readable, safe filename.
 function safeName(name: string): string {
   const base = name.split(/[\\/]/).pop() || "file";
@@ -143,6 +184,15 @@ export async function POST(req: Request) {
   if (insertError) {
     return NextResponse.json({ error: insertError.message }, { status: 500 });
   }
+
+  await notifyTelegram({
+    brand_name,
+    contact_email,
+    product_name,
+    product_url,
+    claims,
+    fileCount: document_paths.length,
+  });
 
   return NextResponse.json({ ok: true });
 }
