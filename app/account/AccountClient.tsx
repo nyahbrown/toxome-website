@@ -6,6 +6,7 @@ import Link from "next/link";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
+import type { User } from "firebase/auth";
 import UpgradeButton from "@/components/UpgradeButton";
 import {
   getClosetScans,
@@ -28,6 +29,26 @@ import WishlistHeart from "@/components/WishlistHeart";
 // Accounts comped to Premium on the web, full closet access regardless of
 // any App Store subscription. The founder / admin account.
 const COMPED_PREMIUM_EMAILS = ["nyah@toxome.app"];
+
+// Ask our server route for the LIVE RevenueCat "Toxome Premium" entitlement.
+// source "revenuecat" → `premium` is authoritative; any other source
+// ("unavailable" when the key isn't set, "error") means fall back to the
+// cached Firestore flag so a real subscriber is never locked out.
+async function checkRevenueCatPremium(
+  user: User,
+): Promise<{ premium: boolean; source: string }> {
+  try {
+    const idToken = await user.getIdToken();
+    const res = await fetch("/api/premium-status", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${idToken}` },
+    });
+    if (!res.ok) return { premium: false, source: "error" };
+    return (await res.json()) as { premium: boolean; source: string };
+  } catch {
+    return { premium: false, source: "error" };
+  }
+}
 
 const DEV_PROFILE: UserProfile = {
   uid: "dev-preview",
@@ -127,6 +148,17 @@ export default function AccountClient() {
       const comped =
         !!user.email &&
         COMPED_PREMIUM_EMAILS.includes(user.email.toLowerCase());
+
+      // Authoritative premium = the live RevenueCat entitlement (verified
+      // server-side), so a stale Firestore is_premium flag can't grant web
+      // access. Falls back to the cached flag only if the check is unavailable.
+      let livePremium = p?.isPremium === true;
+      if (!comped) {
+        const rc = await checkRevenueCatPremium(user);
+        if (cancelled) return;
+        if (rc.source === "revenuecat") livePremium = rc.premium;
+      }
+
       const effProfile: UserProfile | null = comped
         ? {
             uid: user.uid,
@@ -137,7 +169,19 @@ export default function AccountClient() {
             subscriptionStatus: p?.isPremium ? p.subscriptionStatus : "annual",
             scanCount: p?.scanCount ?? 0,
           }
-        : p;
+        : p
+          ? { ...p, isPremium: livePremium }
+          : livePremium
+            ? {
+                uid: user.uid,
+                email: user.email ?? null,
+                displayName: user.displayName ?? null,
+                photoUrl: null,
+                isPremium: true,
+                subscriptionStatus: "monthly",
+                scanCount: 0,
+              }
+            : null;
 
       setProfile(effProfile);
       setWishlist(w);
