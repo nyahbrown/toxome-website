@@ -762,17 +762,11 @@ function ClosetSnapshot({ stats }: { stats: ClosetStats }) {
 /* ──────────────────────────────────────────────────────────────── */
 
 function FiberDonut({ stats, size = 180 }: { stats: ClosetStats; size?: number }) {
+  // Show the top 5 fibers by share, with their true percentages. No "other"
+  // bucket — the remaining share reads as the neutral donut track behind the
+  // arcs, instead of a big uninformative "other" slice.
   const TOP_N = 5;
-  const top = stats.fiberDistribution.slice(0, TOP_N);
-  const otherShare =
-    1 - top.reduce((sum, f) => sum + f.share, 0);
-  const slices =
-    otherShare > 0.005
-      ? [
-          ...top,
-          { fiber: "other", share: otherShare, hazardScore: 50 },
-        ]
-      : top;
+  const slices = stats.fiberDistribution.slice(0, TOP_N);
 
   const stroke = Math.round(size * 0.12);
   const radius = (size - stroke) / 2;
