@@ -1010,7 +1010,8 @@ function RecentScansLockedCTA() {
       style={{
         display: "flex",
         alignItems: "center",
-        gap: 18,
+        justifyContent: "space-between",
+        gap: 24,
         flexWrap: "wrap",
       }}
     >
@@ -1080,15 +1081,46 @@ function RecentScansLockedCTA() {
           Your scan history lives in the app. Unlock to keep them all in one
           view here.
         </p>
-        <a
-          href="https://apps.apple.com/us/app/toxome/id6748622034"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="pill-cta"
-          style={{ height: 40, padding: "0 18px" }}
+      </div>
+      {/* QR to the App Store listing — scan to download, on the right. */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 9,
+          flexShrink: 0,
+        }}
+      >
+        <div
+          style={{
+            background: "var(--white)",
+            border: "1px solid var(--hairline)",
+            borderRadius: 14,
+            padding: 11,
+            lineHeight: 0,
+          }}
         >
-          Download the app
-        </a>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/app-store-qr.svg"
+            alt="Scan to download the Toxome app from the App Store"
+            width={112}
+            height={112}
+            style={{ display: "block", width: 112, height: 112 }}
+          />
+        </div>
+        <span
+          style={{
+            fontFamily: "var(--mono)",
+            fontSize: 10,
+            letterSpacing: "0.12em",
+            textTransform: "uppercase",
+            color: "var(--ink-3)",
+          }}
+        >
+          scan to download
+        </span>
       </div>
     </div>
   );

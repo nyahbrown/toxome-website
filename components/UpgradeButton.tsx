@@ -59,7 +59,31 @@ export default function UpgradeButton() {
   }
 
   // PremiumPlans' own `.plan-cards` entrance animation plays the reveal.
-  return <PremiumPlans uid={user.uid} />;
+  return (
+    <div style={{ textAlign: "left" }}>
+      <button
+        type="button"
+        className="plan-back"
+        onClick={() => setShowPlans(false)}
+      >
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M15 18l-6-6 6-6" />
+        </svg>
+        back
+      </button>
+      <PremiumPlans uid={user.uid} />
+    </div>
+  );
 }
 
 // The two on-brand plan cards. Exported so the upgrade-preview page renders the

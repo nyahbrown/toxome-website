@@ -183,6 +183,25 @@ button { font-family: inherit; }
   .plan-cards { animation: none; }
   .plan-card { transition: none; }
 }
+/* Back affordance above the revealed plans — returns to the single CTA. */
+.plan-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 12px;
+  padding: 4px 6px 4px 2px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  transition: color 150ms var(--ease-out-strong), transform 150ms var(--ease-out-strong);
+}
+.plan-back:hover { color: var(--ink-2); }
+.plan-back:active { transform: scale(0.96); }
 
 /* Account upgrade upsell: looping closet demo on the left, plan picker right. */
 .upsell-split {
