@@ -150,14 +150,14 @@ export default async function AppPage() {
               background: "var(--ink)",
             }}
           >
-            <Image
-              src="/app-screenshot.png"
-              alt="The Toxome app showing a scanned garment: a 72 'High' hazard level, a composition breakdown of 50% acrylic, 30% nylon, and 20% wool, and a health-impact list flagging endocrine disruption, breathability, and skin irritation."
-              width={1125}
-              height={2436}
-              sizes="(max-width: 360px) 100vw, 280px"
+            <video
+              src="/app-demo.mp4"
+              autoPlay
+              loop
+              muted
+              playsInline
+              aria-label="A walkthrough of the Toxome app scanning a clothing label and showing the health rating, fiber breakdown, and what each material does to your body."
               style={{ display: "block", width: "100%", height: "auto" }}
-              priority
             />
             {/* Dynamic Island */}
             <div
