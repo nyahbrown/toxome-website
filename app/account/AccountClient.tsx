@@ -1349,7 +1349,18 @@ const SAMPLE_CLOSET_STATS: ClosetStats = {
 
 function ClosetLockedCTA({ scanCount }: { scanCount: number }) {
   return (
-    <div style={{ position: "relative", minHeight: 340, borderRadius: 12, overflow: "hidden" }}>
+    <div
+      style={{
+        position: "relative",
+        minHeight: 340,
+        borderRadius: 12,
+        overflow: "hidden",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 20,
+      }}
+    >
       {/* Blurred sample closet — a teaser of what Premium shows. Decorative;
           aria-hidden and inert so it's skipped by AT and not interactive. */}
       <div
@@ -1380,19 +1391,12 @@ function ClosetLockedCTA({ scanCount }: { scanCount: number }) {
         </div>
       </div>
 
-      {/* Unlock prompt — sits over the blurred sample. */}
+      {/* Unlock prompt — in normal flow so the card (and this container) grows
+          with the revealed plans instead of clipping them. */}
       <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: 20,
-        }}
-      >
-        <div
           style={{
+            position: "relative",
+            zIndex: 1,
             background: "rgba(252,251,247,0.82)",
             backdropFilter: "blur(2px)",
             WebkitBackdropFilter: "blur(2px)",
@@ -1453,7 +1457,6 @@ function ClosetLockedCTA({ scanCount }: { scanCount: number }) {
             )}
           </p>
           <UpgradeButton />
-        </div>
       </div>
     </div>
   );
