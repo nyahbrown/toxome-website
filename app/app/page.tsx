@@ -106,11 +106,11 @@ export default async function AppPage() {
             }}
           >
             <a
+              className="app-badge"
               href={APP_STORE}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Download Toxome on the App Store"
-              style={{ display: "inline-flex" }}
             >
               <Image
                 src="/app-store-badge.svg"
@@ -130,6 +130,7 @@ export default async function AppPage() {
       {/* Phone screenshot, the proof shot, framed as an iPhone */}
       <section className="shell" style={{ paddingTop: 56 }}>
         <div
+          className="reveal"
           style={{
             position: "relative",
             width: "100%",
@@ -179,7 +180,7 @@ export default async function AppPage() {
 
       {/* How it works */}
       <section className="shell" style={{ paddingTop: 110 }}>
-        <div style={{ maxWidth: 720, margin: "0 auto 48px", textAlign: "center" }}>
+        <div className="reveal" style={{ maxWidth: 720, margin: "0 auto 48px", textAlign: "center" }}>
           <p className="eyebrow" style={{ margin: "0 0 16px" }}>
             How it works
           </p>
@@ -206,8 +207,12 @@ export default async function AppPage() {
             margin: "0 auto",
           }}
         >
-          {STEPS.map((s) => (
-            <div key={s.n}>
+          {STEPS.map((s, i) => (
+            <div
+              key={s.n}
+              className="reveal"
+              data-reveal-delay={i * 70}
+            >
               <p
                 style={{
                   fontFamily: "var(--mono)",
@@ -249,7 +254,7 @@ export default async function AppPage() {
 
       {/* What you get */}
       <section className="shell" style={{ paddingTop: 110 }}>
-        <div style={{ maxWidth: 720, margin: "0 auto 48px", textAlign: "center" }}>
+        <div className="reveal" style={{ maxWidth: 720, margin: "0 auto 48px", textAlign: "center" }}>
           <p className="eyebrow" style={{ margin: "0 0 16px" }}>
             In your pocket
           </p>
@@ -276,8 +281,12 @@ export default async function AppPage() {
             margin: "0 auto",
           }}
         >
-          {FEATURES.map((f) => (
-            <div key={f.label}>
+          {FEATURES.map((f, i) => (
+            <div
+              key={f.label}
+              className="reveal"
+              data-reveal-delay={i * 70}
+            >
               <h3
                 style={{
                   fontFamily: "var(--sans)",
@@ -307,7 +316,7 @@ export default async function AppPage() {
 
       {/* Closing CTA, badge + scan-to-download QR */}
       <section className="shell" style={{ paddingTop: 110, paddingBottom: 130 }}>
-        <div style={{ maxWidth: 620, margin: "0 auto", textAlign: "center" }}>
+        <div className="reveal" style={{ maxWidth: 620, margin: "0 auto", textAlign: "center" }}>
           <h2
             style={{
               fontFamily: "var(--sans)",
@@ -346,11 +355,11 @@ export default async function AppPage() {
               Scan to download
             </span>
             <a
+              className="app-badge"
               href={APP_STORE}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Download Toxome on the App Store"
-              style={{ display: "inline-flex" }}
             >
               <Image
                 src="/app-store-badge.svg"

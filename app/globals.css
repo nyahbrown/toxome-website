@@ -111,6 +111,23 @@ button { font-family: inherit; }
 .pill-cta:active,
 .pill-cta.ghost:active { transform: translateY(0) scale(0.97); }
 
+/* App Store download badge — a primary conversion, so it must feel responsive
+   to press. Hover lift on pointer devices only; scale-on-press everywhere.
+   Transform/shadow only, so it stays on the GPU. */
+.app-badge {
+  display: inline-flex;
+  border-radius: 12px;
+  transition: transform 200ms var(--ease-out-strong),
+    box-shadow 200ms var(--ease-out-strong);
+}
+.app-badge:active { transform: scale(0.97); }
+@media (hover: hover) and (pointer: fine) {
+  .app-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px -14px rgba(59, 60, 58, 0.32);
+  }
+}
+
 /* Premium plan picker (account upgrade). A pressable decision surface: soft
    rest state, hover lift on pointer devices only, scale-on-press feedback.
    Transitions are scoped to transform/shadow/border so they stay on the GPU. */
@@ -634,8 +651,55 @@ button { font-family: inherit; }
 .account-cell--closet   { grid-column: 1 / -1; order: 1; }
 .account-cell--recent   { grid-column: 1 / -1; order: 3; }
 .account-cell--saved    { grid-column: 1 / -1; order: 4; }
-.account-cell--alts     { grid-column: 1 / 2;  order: 5; }
-.account-cell--settings { grid-column: 2 / 3;  order: 6; }
+.account-cell--settings { grid-column: 1 / -1; order: 6; }
+
+/* The "your closet" card holds two inner cards: the donut + cleaner alts. */
+.closet-snapshot-grid {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 14px;
+  align-items: stretch;
+}
+/* Closet card is a fixed square; alternatives fills the remaining width.
+   Explicit height (not just aspect-ratio) so the grid's stretch can't pull it
+   taller than the alternatives card beside it. */
+.closet-card {
+  width: 330px;
+  height: 330px;
+  align-self: start;
+}
+/* Alternatives card matches the closet square's height; its product images
+   flex to fill whatever vertical space is left under the header. */
+.alts-card {
+  height: 330px;
+}
+@media (max-width: 720px) {
+  .closet-snapshot-grid { grid-template-columns: 1fr; }
+  .closet-card { width: auto; height: auto; align-self: auto; }
+  .alts-card { height: auto; }
+}
+
+/* Account cards (alternatives, scans, saved): a quiet hover image-zoom on
+   pointer devices and a press scale, so each pressable card confirms it heard
+   the tap. The zoom is contained by the thumb's overflow:hidden so nothing
+   spills; everything is transform-only to stay on the GPU. */
+.acct-card {
+  transition: transform 140ms var(--ease-out-strong);
+}
+.acct-card .acct-thumb img {
+  transition: transform 480ms var(--ease-out-strong);
+  will-change: transform;
+}
+@media (hover: hover) and (pointer: fine) {
+  .acct-card:hover .acct-thumb img { transform: scale(1.045); }
+}
+/* Press is snappier than the hover zoom so the tap reads instantly. */
+.acct-card:active { transform: scale(0.98); }
+@media (prefers-reduced-motion: reduce) {
+  .acct-card,
+  .acct-card .acct-thumb img { transition: none; }
+  .acct-card:hover .acct-thumb img { transform: none; }
+}
 
 @media (max-width: 900px) {
   .account-grid { grid-template-columns: 1fr; }
