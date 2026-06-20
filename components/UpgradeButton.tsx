@@ -10,6 +10,7 @@
 // Until the purchase link is configured (NEXT_PUBLIC_REVENUECAT_PURCHASE_LINK
 // unset) or for a logged-out edge case, this falls back to the App Store CTA so
 // the page is never broken.
+import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   purchaseLinkForUser,
@@ -23,6 +24,9 @@ const APP_STORE_URL = "https://apps.apple.com/us/app/toxome/id6748622034";
 
 export default function UpgradeButton() {
   const { user } = useAuth();
+  // Plans stay hidden behind a single CTA until the user opts in — one clear
+  // action first, the annual/monthly choice second.
+  const [showPlans, setShowPlans] = useState(false);
 
   if (!webBillingEnabled || !user) {
     return (
@@ -38,6 +42,23 @@ export default function UpgradeButton() {
     );
   }
 
+  if (!showPlans) {
+    return (
+      <button
+        type="button"
+        className="pill-cta"
+        style={{ justifyContent: "center" }}
+        onClick={() => {
+          track("web_upgrade_plans_shown", { userId: user.uid });
+          setShowPlans(true);
+        }}
+      >
+        Upgrade to Premium
+      </button>
+    );
+  }
+
+  // PremiumPlans' own `.plan-cards` entrance animation plays the reveal.
   return <PremiumPlans uid={user.uid} />;
 }
 
