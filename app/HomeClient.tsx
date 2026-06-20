@@ -20,6 +20,7 @@ const FIBERS = [
   { name: "wool",   image: "/fibers/wool-1.jpg", hover: "/fibers/wool-2.jpg" },
   { name: "hemp",   image: "/fibers/hemp-1.jpg" },
   { name: "linen",  image: "/fibers/linen-1.jpg", hover: "/fibers/linen-2.jpg" },
+  { name: "ramie",  image: "/fibers/guide/ramie.jpg" },
 ];
 
 function FiberTile({
@@ -582,7 +583,7 @@ export default function HomeClient({
               }}
             >
               <h1 className="hero-h1">
-                plastic doesn&apos;t belong on your skin.
+                know what&apos;s in your clothes.
               </h1>
             </div>
             <Link
