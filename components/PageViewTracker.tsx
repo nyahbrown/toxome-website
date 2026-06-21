@@ -9,6 +9,7 @@
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { mpTrack, mpRegisterUtm } from "@/lib/mixpanel";
+import { track } from "@/lib/track";
 
 export default function PageViewTracker() {
   const pathname = usePathname();
@@ -23,6 +24,22 @@ export default function PageViewTracker() {
     if (!pathname) return;
     mpTrack("page_view", { path: pathname });
   }, [pathname]);
+
+  // App Store CTA clicks = the website's REAL conversion (visitor → install).
+  // There are ~10 App Store links across the site; one capturing-phase listener
+  // catches every one (current and future) without touching each component.
+  // Goes through track() so it lands in BOTH Mixpanel (boards) and Supabase
+  // (source of truth / weekly check-in).
+  useEffect(() => {
+    function onClick(e: MouseEvent) {
+      const el = e.target as HTMLElement | null;
+      if (el?.closest?.("a[href*='apps.apple.com']")) {
+        track("app_store_click", { metadata: { path: window.location.pathname } });
+      }
+    }
+    document.addEventListener("click", onClick, true);
+    return () => document.removeEventListener("click", onClick, true);
+  }, []);
 
   return null;
 }
