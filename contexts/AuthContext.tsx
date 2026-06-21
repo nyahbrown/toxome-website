@@ -35,6 +35,7 @@ import {
 } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { track } from "@/lib/track";
+import { mpIdentify, mpReset } from "@/lib/mixpanel";
 import { track as vaTrack } from "@vercel/analytics";
 import type { Product } from "@/types/product";
 import type { WishlistItem } from "@/lib/firestore";
@@ -106,7 +107,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsubAuth = onAuthStateChanged(auth, (u) => {
       setUser(u);
       setLoading(false);
-      if (!u) {
+      // Stitch web events to the same Mixpanel identity the app uses (Firebase
+      // UID = distinct_id), so a person's web + app activity is one funnel.
+      if (u) {
+        mpIdentify(u.uid);
+      } else {
+        mpReset();
         setWishlist(new Set());
         setWishlistItems([]);
       }

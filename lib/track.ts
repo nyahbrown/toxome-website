@@ -13,6 +13,7 @@
 
 import { supabase } from "./supabase";
 import { analyticsAllowed } from "./consent";
+import { mpTrack } from "./mixpanel";
 
 const ANON_KEY = "toxome_anon_id";
 
@@ -91,4 +92,17 @@ export function track(eventType: string, payload: TrackPayload = {}): void {
         console.warn("track() failed:", error.message);
       }
     });
+
+  // Mirror the same event into Mixpanel (one project shared with the app) so a
+  // signed-in user threads web + app into a single funnel. Same consent/dev
+  // gates already applied above; mpTrack re-checks them defensively.
+  mpTrack(eventType, {
+    brand: payload.brand ?? undefined,
+    product_id: payload.productId ?? undefined,
+    product_name: payload.productName ?? undefined,
+    category: payload.category ?? undefined,
+    score_at_time: payload.scoreAtTime ?? undefined,
+    source: "web",
+    ...(payload.metadata ?? {}),
+  });
 }
