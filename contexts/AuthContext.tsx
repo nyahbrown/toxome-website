@@ -35,7 +35,7 @@ import {
 } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { track } from "@/lib/track";
-import { mpIdentify, mpReset } from "@/lib/mixpanel";
+import { mpIdentify, mpReset, mpSetPeople } from "@/lib/mixpanel";
 import { track as vaTrack } from "@vercel/analytics";
 import type { Product } from "@/types/product";
 import type { WishlistItem } from "@/lib/firestore";
@@ -111,6 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // UID = distinct_id), so a person's web + app activity is one funnel.
       if (u) {
         mpIdentify(u.uid);
+        mpSetPeople({ $email: u.email ?? undefined, $name: u.displayName ?? undefined });
       } else {
         mpReset();
         setWishlist(new Set());

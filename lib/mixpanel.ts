@@ -106,6 +106,17 @@ export function mpRegisterUtm(): void {
   });
 }
 
+// Set profile properties (call after identify). Mirrors the app, which sets
+// $email/$name on the people profile at signup — without this, web-only users
+// have a Mixpanel profile keyed by UID but no email attached.
+export function mpSetPeople(props: Record<string, unknown>): void {
+  if (!allowed()) return;
+  void ensureClient().then((mp) => {
+    const c = clean(props);
+    if (Object.keys(c).length) mp?.people.set(c);
+  });
+}
+
 // Tie events to the canonical user (Firebase UID = the app's distinct_id).
 export function mpIdentify(uid: string): void {
   if (!uid || !allowed()) return;
