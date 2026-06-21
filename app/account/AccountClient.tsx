@@ -8,6 +8,7 @@ import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 import type { User } from "firebase/auth";
 import UpgradeButton from "@/components/UpgradeButton";
+import { track } from "@/lib/track";
 import {
   getClosetScans,
   computeClosetStats,
@@ -236,6 +237,9 @@ export default function AccountClient() {
   const upgraded = searchParams.get("upgraded") === "1";
   useEffect(() => {
     if (upgraded && user) {
+      // The web subscription funnel's success event (RevenueCat redirects here
+      // on a completed checkout). Goes to Mixpanel + Supabase via track().
+      track("web_purchase_completed", { userId: user.uid });
       markPremium();
       router.replace("/account");
     }

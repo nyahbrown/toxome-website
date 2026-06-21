@@ -6,6 +6,7 @@ import CookieBanner from "@/components/CookieBanner";
 import JsonLd from "@/components/JsonLd";
 import Skimlinks from "@/components/Skimlinks";
 import { AuthProvider } from "@/contexts/AuthContext";
+import PageViewTracker from "@/components/PageViewTracker";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
@@ -89,7 +90,10 @@ export default function RootLayout({
       <body>
         <JsonLd data={organizationSchema} />
         <AnimationProvider />
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <PageViewTracker />
+          {children}
+        </AuthProvider>
         <CookieBanner />
         <Skimlinks />
         <Analytics />

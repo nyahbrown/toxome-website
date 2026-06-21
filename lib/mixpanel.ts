@@ -72,6 +72,40 @@ export function mpTrack(event: string, props?: Record<string, unknown>): void {
   void ensureClient().then((mp) => mp?.track(event, clean(props)));
 }
 
+// Register super properties — attached to every future event.
+export function mpRegister(props: Record<string, unknown>): void {
+  if (!allowed()) return;
+  void ensureClient().then((mp) => {
+    const c = clean(props);
+    if (Object.keys(c).length) mp?.register(c);
+  });
+}
+
+// Capture inbound campaign attribution from the landing URL once: as super
+// properties (so every event carries the acquisition source) and first-touch on
+// the profile. Lets you answer "which channel drives signups/purchases".
+export function mpRegisterUtm(): void {
+  if (typeof window === "undefined" || !allowed()) return;
+  const q = new URLSearchParams(window.location.search);
+  const utm: Record<string, string> = {};
+  for (const k of [
+    "utm_source",
+    "utm_medium",
+    "utm_campaign",
+    "utm_term",
+    "utm_content",
+  ]) {
+    const v = q.get(k);
+    if (v) utm[k] = v;
+  }
+  if (!Object.keys(utm).length) return;
+  void ensureClient().then((mp) => {
+    if (!mp) return;
+    mp.register(utm); // every subsequent event carries the source
+    mp.people.set_once(utm); // first-touch attribution on the profile
+  });
+}
+
 // Tie events to the canonical user (Firebase UID = the app's distinct_id).
 export function mpIdentify(uid: string): void {
   if (!uid || !allowed()) return;
