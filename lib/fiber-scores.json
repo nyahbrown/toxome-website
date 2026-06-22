@@ -39,6 +39,6 @@
     "rpet": { "default": 74 },
     "acrylic": { "default": 72 },
     "polyurethane": { "default": 72 },
-    "leather": { "default": 68, "floor": 30 }
+    "leather": { "default": 40, "floor": 30 }
   }
 }
