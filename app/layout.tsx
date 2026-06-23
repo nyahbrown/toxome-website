@@ -58,7 +58,8 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   // Site-wide social defaults. The og:image / twitter:image come automatically
-  // from app/opengraph-image.tsx (Next.js file convention) on every route.
+  // from app/opengraph-image.png + app/twitter-image.png (Next.js file
+  // convention) on every route without its own card.
   openGraph: {
     type: "website",
     siteName: "Toxome",
