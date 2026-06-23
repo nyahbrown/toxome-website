@@ -11,6 +11,9 @@ import { getShopTaxonomy } from "@/lib/supabase";
 import { getAllSlugs, getArticle, formatDate } from "@/lib/journal";
 
 const SITE = "https://toxome.app";
+// Site-wide share image (the shepherd/wool photo). Articles point og:image,
+// twitter:image, and JSON-LD at this so shared links show it too.
+const OG_IMAGE = `${SITE}/opengraph-image.png`;
 
 export function generateStaticParams() {
   return getAllSlugs().map((slug) => ({ slug }));
@@ -39,11 +42,13 @@ export async function generateMetadata({
       modifiedTime: article.date,
       section: article.pillar,
       tags: article.keywords,
+      images: [OG_IMAGE],
     },
     twitter: {
       card: "summary_large_image",
       title: article.title,
       description: article.dek,
+      images: [OG_IMAGE],
     },
   };
 }
@@ -59,7 +64,7 @@ export default async function ArticlePage({
 
   const taxonomy = await getShopTaxonomy();
   const shareUrl = `${SITE}/journal/${slug}`;
-  const shareImage = `${SITE}/journal/${slug}/opengraph-image.png`;
+  const shareImage = OG_IMAGE;
   // Tall hero+title card used specifically as the Pinterest pin media.
   const pinImage = `${SITE}/journal/${slug}/pin`;
   const pinDescription = `${article.title}: ${article.dek}`;
