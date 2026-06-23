@@ -43,7 +43,7 @@ const DEFAULT_SLUG = "plastic-closet";
 export default async function CarouselStudio({
   searchParams,
 }: {
-  searchParams: Promise<{ i?: string; c?: string }>;
+  searchParams: Promise<{ i?: string; c?: string; style?: string }>;
 }) {
   const sp = await searchParams;
   const slug = sp.c || DEFAULT_SLUG;
