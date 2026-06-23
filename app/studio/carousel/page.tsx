@@ -18,20 +18,24 @@ const PAD = 84;
 const WARM = "#FBF8F1";
 
 type Slide =
-  | { kind: "cover"; hook: string; stat: string; image: string }
+  | { kind: "cover"; hook: string; stat: string; image: string; kicker?: string; headline?: string; standfirst?: string }
   | { kind: "statement"; paras: string[] }
-  | { kind: "quote"; quote: string }
+  | { kind: "quote"; quote: string; attrib?: string }
   | { kind: "close"; headline: string; image: string };
 
-async function getSlides(slug: string): Promise<Slide[] | null> {
+type Variant = "educational" | "editorial";
+
+async function getCarousel(slug: string): Promise<{ slides: Slide[]; style: Variant } | null> {
   const { data, error } = await supabaseAdmin
     .from("carousels")
-    .select("slides")
+    .select("slides, style")
     .eq("slug", slug)
     .single();
   if (error || !data) return null;
   const slides = data.slides as Slide[] | null;
-  return slides && slides.length ? slides : null;
+  if (!slides || !slides.length) return null;
+  const style = (data.style as Variant) || "educational";
+  return { slides, style };
 }
 
 const DEFAULT_SLUG = "plastic-closet";
@@ -43,7 +47,9 @@ export default async function CarouselStudio({
 }) {
   const sp = await searchParams;
   const slug = sp.c || DEFAULT_SLUG;
-  const slides = (await getSlides(slug)) ?? (await getSlides(DEFAULT_SLUG)) ?? [];
+  const carousel = (await getCarousel(slug)) ?? (await getCarousel(DEFAULT_SLUG));
+  const slides = carousel?.slides ?? [];
+  const variant: Variant = (sp.style as Variant) || carousel?.style || "educational";
   if (!slides.length) {
     return (
       <div style={{ background: "#E9E7E1", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-sans)", color: "#1d1b17" }}>
@@ -63,7 +69,7 @@ export default async function CarouselStudio({
         {slides.map((_, idx) => (
           <div key={idx} style={{ width: W * 0.26, height: H * 0.26, overflow: "hidden", borderRadius: 8, boxShadow: "0 8px 28px rgba(0,0,0,0.14)" }}>
             <div style={{ transform: "scale(0.26)", transformOrigin: "top left" }}>
-              <SlideView slide={slides[idx]} index={idx} total={slides.length} />
+              <SlideView slide={slides[idx]} index={idx} total={slides.length} variant={variant} />
             </div>
           </div>
         ))}
@@ -75,7 +81,7 @@ export default async function CarouselStudio({
   return (
     <div style={{ background: "#C9C7C1", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
       <HideChrome />
-      <SlideView slide={slides[i]} index={i} total={slides.length} />
+      <SlideView slide={slides[i]} index={i} total={slides.length} variant={variant} />
     </div>
   );
 }
@@ -92,7 +98,10 @@ function HideChrome() {
   );
 }
 
-function SlideView({ slide, index, total }: { slide: Slide; index: number; total: number }) {
+function SlideView({ slide, index, total, variant = "educational" }: { slide: Slide; index: number; total: number; variant?: Variant }) {
+  if (variant === "editorial") {
+    return <EditorialSlide slide={slide} index={index} total={total} />;
+  }
   const frame: React.CSSProperties = {
     width: W,
     height: H,
@@ -204,6 +213,116 @@ function SlideView({ slide, index, total }: { slide: Slide; index: number; total
       <div style={{ position: "absolute", right: PAD, bottom: 132 }}>
         <ArrowRing color="var(--ink, #3B3C3A)" size={74} />
       </div>
+    </div>
+  );
+}
+
+// Editorial / NYT-style design (style="editorial"): a Journal teaser that drives
+// traffic to the article. Serif (Cormorant) headlines, photo + headline-overlay
+// cover, attributed pull-quote, cream interiors, article CTA close. No stat, no ring.
+function EditorialSlide({ slide, index, total }: { slide: Slide; index: number; total: number }) {
+  const frame: React.CSSProperties = {
+    width: W,
+    height: H,
+    position: "relative",
+    overflow: "hidden",
+    boxSizing: "border-box",
+    fontFamily: "var(--font-sans)",
+    textTransform: "none",
+    WebkitFontSmoothing: "antialiased",
+  };
+  const serif = "var(--font-serif, Georgia, 'Times New Roman', serif)";
+  const kicker: React.CSSProperties = {
+    fontFamily: "var(--font-sans)",
+    fontSize: 22,
+    fontWeight: 600,
+    letterSpacing: "0.18em",
+    textTransform: "uppercase",
+  };
+  const pageStyle: React.CSSProperties = {
+    fontFamily: "var(--font-sans)",
+    fontSize: 22,
+    fontWeight: 500,
+    letterSpacing: "0.08em",
+    color: "var(--ink-3, #8A9199)",
+  };
+  const pageTag = `Nº ${String(index + 1).padStart(2, "0")} / ${String(total).padStart(2, "0")}`;
+
+  // COVER, full-bleed photo + serif headline and standfirst over a bottom scrim.
+  if (slide.kind === "cover") {
+    return (
+      <div style={{ ...frame, background: "#1d1b17" }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={slide.image} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(20,19,15,0.20) 0%, rgba(20,19,15,0.04) 30%, rgba(20,19,15,0.52) 64%, rgba(20,19,15,0.90) 100%)" }} />
+        <div style={{ position: "absolute", left: PAD, right: PAD, bottom: 92 }}>
+          <div style={{ ...kicker, color: WARM }}>{slide.kicker ?? "The Journal"}</div>
+          <div style={{ fontFamily: serif, color: WARM, fontSize: 84, lineHeight: 1.05, letterSpacing: "-0.01em", fontWeight: 500, marginTop: 22, maxWidth: 900, textShadow: "0 2px 22px rgba(0,0,0,0.45)" }}>
+            {slide.headline ?? slide.hook}
+          </div>
+          {slide.standfirst && (
+            <div style={{ color: "rgba(251,248,241,0.88)", fontSize: 30, lineHeight: 1.42, marginTop: 24, maxWidth: 800, textShadow: "0 1px 14px rgba(0,0,0,0.4)" }}>
+              {slide.standfirst}
+            </div>
+          )}
+          <div style={{ width: 148, height: 1, background: "rgba(251,248,241,0.8)", marginTop: 32 }} />
+          <div style={{ display: "flex", alignItems: "center", gap: 14, marginTop: 26 }}>
+            <EyeLogo size={46} />
+            <span style={{ fontSize: 40, fontWeight: 500, letterSpacing: "-0.01em", color: WARM }}>Toxome</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // CLOSE, cream, centered, drives the reader to the article on the website.
+  if (slide.kind === "close") {
+    const [head, ...rest] = slide.headline.split(". ");
+    const sub = rest.join(". ");
+    return (
+      <div style={{ ...frame, background: "var(--cream, #FCFBF7)", color: "var(--ink, #3B3C3A)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: PAD }}>
+        <div style={{ position: "absolute", top: PAD, right: PAD, ...pageStyle }}>{pageTag}</div>
+        <EyeLogo size={120} />
+        <div style={{ fontFamily: serif, fontSize: 76, lineHeight: 1.1, letterSpacing: "-0.01em", fontWeight: 500, marginTop: 40, maxWidth: 840 }}>
+          {head}{rest.length ? "." : ""}
+        </div>
+        {sub && (
+          <div style={{ fontSize: 32, lineHeight: 1.4, color: "var(--ink-2, #57636C)", marginTop: 26, maxWidth: 760 }}>{sub}</div>
+        )}
+      </div>
+    );
+  }
+
+  // INTERIOR, cream, eye+wordmark lockup, serif lead line, Inter support.
+  return (
+    <div style={{ ...frame, background: "var(--cream, #FCFBF7)", color: "var(--ink, #3B3C3A)" }}>
+      <div style={{ position: "absolute", top: PAD, left: PAD, display: "flex", alignItems: "center", gap: 14 }}>
+        <EyeLogo size={50} />
+        <span style={{ fontSize: 42, fontWeight: 500, letterSpacing: "-0.01em" }}>Toxome</span>
+      </div>
+      <div style={{ position: "absolute", top: PAD, right: PAD, ...pageStyle }}>{pageTag}</div>
+
+      {slide.kind === "statement" && (
+        <div style={{ position: "absolute", left: PAD, right: PAD, bottom: 150, display: "flex", flexDirection: "column", gap: 34 }}>
+          {slide.paras.map((p, idx) =>
+            idx === 0 ? (
+              <div key={idx} style={{ fontFamily: serif, fontSize: 68, lineHeight: 1.12, letterSpacing: "-0.015em", fontWeight: 500, maxWidth: 880 }}>{p}</div>
+            ) : (
+              <div key={idx} style={{ fontSize: 38, lineHeight: 1.34, letterSpacing: "-0.01em", color: "var(--ink-2, #57636C)", maxWidth: 840 }}>{p}</div>
+            )
+          )}
+        </div>
+      )}
+
+      {slide.kind === "quote" && (
+        <div style={{ position: "absolute", left: PAD, right: PAD, top: "50%", transform: "translateY(-50%)" }}>
+          <div style={{ fontFamily: serif, fontSize: 150, lineHeight: 0.7, color: "var(--ink-3, #8A9199)", marginBottom: 4, userSelect: "none" }}>&ldquo;</div>
+          <div style={{ fontFamily: serif, fontStyle: "italic", fontSize: 66, lineHeight: 1.22, letterSpacing: "-0.01em", maxWidth: 900 }}>{slide.quote}</div>
+          {slide.attrib && (
+            <div style={{ fontFamily: "var(--font-sans)", fontSize: 28, fontWeight: 500, letterSpacing: "0.02em", color: "var(--ink-3, #8A9199)", marginTop: 36 }}>{slide.attrib}</div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
