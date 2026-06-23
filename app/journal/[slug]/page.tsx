@@ -59,7 +59,7 @@ export default async function ArticlePage({
 
   const taxonomy = await getShopTaxonomy();
   const shareUrl = `${SITE}/journal/${slug}`;
-  const shareImage = `${SITE}/journal/${slug}/opengraph-image`;
+  const shareImage = `${SITE}/journal/${slug}/opengraph-image.png`;
   // Tall hero+title card used specifically as the Pinterest pin media.
   const pinImage = `${SITE}/journal/${slug}/pin`;
   const pinDescription = `${article.title}: ${article.dek}`;
