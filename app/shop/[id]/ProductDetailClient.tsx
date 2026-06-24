@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Product } from "@/types/product";
@@ -110,6 +110,120 @@ type CertBadgeItem = {
   href?: string;
 };
 
+function ProductGallery({ images, alt }: { images: string[]; alt: string }) {
+  const [active, setActive] = useState(0);
+  const [errored, setErrored] = useState<Set<string>>(new Set());
+  const touchX = useRef<number | null>(null);
+
+  const visible = images.filter((src) => !errored.has(src));
+  const cur = visible.length ? Math.min(active, visible.length - 1) : 0;
+
+  const go = (n: number) => {
+    const len = visible.length;
+    if (!len) return;
+    setActive(((n % len) + len) % len);
+  };
+
+  if (visible.length === 0) {
+    return (
+      <div
+        style={{
+          position: "relative",
+          aspectRatio: "266 / 334",
+          background: "var(--tan)",
+          borderRadius: 10,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontFamily: "var(--mono)",
+          fontSize: 10,
+          letterSpacing: ".1em",
+          textTransform: "uppercase",
+          color: "var(--ink-3)",
+        }}
+      >
+        No image
+      </div>
+    );
+  }
+
+  return (
+    <div className="pdp-gallery">
+      <div className="pdp-thumbs">
+        {visible.map((src, i) => (
+          <button
+            key={src}
+            className={i === cur ? "pdp-thumb is-active" : "pdp-thumb"}
+            aria-label={`View image ${i + 1}`}
+            aria-current={i === cur}
+            onClick={() => setActive(i)}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={src}
+              alt=""
+              onError={() => setErrored((p) => new Set(p).add(src))}
+            />
+          </button>
+        ))}
+      </div>
+
+      <div
+        className="pdp-main"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "ArrowRight") { e.preventDefault(); go(cur + 1); }
+          if (e.key === "ArrowLeft") { e.preventDefault(); go(cur - 1); }
+        }}
+        onTouchStart={(e) => { touchX.current = e.touches[0].clientX; }}
+        onTouchEnd={(e) => {
+          const dx = e.changedTouches[0].clientX - (touchX.current ?? 0);
+          if (Math.abs(dx) > 40) go(dx < 0 ? cur + 1 : cur - 1);
+          touchX.current = null;
+        }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={visible[cur]}
+          alt={alt}
+          onError={() => setErrored((p) => new Set(p).add(visible[cur]))}
+        />
+
+        {visible.length > 1 && (
+          <>
+            <button
+              className="pdp-arrow pdp-arrow-left"
+              aria-label="Previous image"
+              onClick={() => go(cur - 1)}
+            >
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="14 5 8 11 14 17" />
+              </svg>
+            </button>
+            <button
+              className="pdp-arrow pdp-arrow-right"
+              aria-label="Next image"
+              onClick={() => go(cur + 1)}
+            >
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="8 5 14 11 8 17" />
+              </svg>
+            </button>
+          </>
+        )}
+
+        {visible.length > 1 && (
+          <div className="pdp-dots">
+            {visible.map((_, i) => (
+              <span key={i} className={i === cur ? "pdp-dot is-active" : "pdp-dot"} />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function ProductDetailClient({
   product,
   certBadges = [],
@@ -119,8 +233,6 @@ export default function ProductDetailClient({
 }) {
   const router = useRouter();
   const { user, wishlist, toggleWishlist } = useAuth();
-  const [imgError, setImgError] = useState<Record<number, boolean>>({});
-
   const isWishlisted = wishlist.has(product.id);
   const buyUrl = product.affiliate_url || product.item_url || null;
   // UTM-tagged so the brand can verify Toxome-referred traffic in their own GA.
@@ -186,65 +298,11 @@ export default function ProductDetailClient({
           margin: "0 auto",
           padding: "0 32px",
           display: "grid",
-          gridTemplateColumns: "minmax(0, 1fr)",
-          gap: 32,
         }}
         className="product-detail-grid"
       >
         {/* Image column */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          {images.length === 0 ? (
-            <div
-              style={{
-                position: "relative",
-                aspectRatio: "266 / 334",
-                background: "var(--tan)",
-                borderRadius: 10,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontFamily: "var(--mono)",
-                fontSize: 10,
-                letterSpacing: ".1em",
-                textTransform: "uppercase",
-                color: "var(--ink-3)",
-              }}
-            >
-              No image
-            </div>
-          ) : (
-            images.map((src, i) =>
-              imgError[i] ? null : (
-                <div
-                  key={src + i}
-                  style={{
-                    position: "relative",
-                    aspectRatio: "266 / 334",
-                    background: "var(--tan)",
-                    borderRadius: 10,
-                    overflow: "hidden",
-                  }}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={src}
-                    alt={`${product.item_name}, image ${i + 1}`}
-                    onError={() =>
-                      setImgError((prev) => ({ ...prev, [i]: true }))
-                    }
-                    style={{
-                      position: "absolute",
-                      inset: 0,
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                    }}
-                  />
-                </div>
-              )
-            )
-          )}
-        </div>
+        <ProductGallery images={images} alt={product.item_name} />
 
         {/* Info column */}
         <div className="product-detail-info">
@@ -634,20 +692,9 @@ export default function ProductDetailClient({
 
       <style jsx>{`
         @media (min-width: 900px) {
-          :global(.product-detail-grid) {
-            grid-template-columns: minmax(0, 1fr) 420px !important;
-            gap: 56px !important;
-            align-items: start;
-          }
           :global(.product-detail-info) {
             position: sticky;
             top: 96px;
-          }
-        }
-        @media (min-width: 1200px) {
-          :global(.product-detail-grid) {
-            grid-template-columns: minmax(0, 1fr) 460px !important;
-            gap: 72px !important;
           }
         }
       `}</style>
