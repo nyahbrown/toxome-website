@@ -11,10 +11,29 @@ import WishlistHeart from "@/components/WishlistHeart";
 import { normalizeFiber } from "@/lib/fabricScores";
 import { EDITORS_PICKS, isEditorsPick } from "@/lib/editorsPicks";
 import { track } from "@/lib/track";
+import { resolveRung, type VerificationRung } from "@/lib/verification";
 
 export type ShopSection = "women" | "men" | "kids" | "home" | null;
 
 const PAGE_SIZE = 16;
+
+// Numeric rank for the verification ladder so the filter can express a minimum
+// trust threshold. lab_verified is internal-only — it ranks as "verified or
+// better" for matching but is never shown as a public label.
+const RUNG_RANK: Record<VerificationRung, number> = {
+  undisclosed: 0,
+  self_disclosed: 1,
+  verified: 2,
+  lab_verified: 3,
+};
+function productRungRank(p: Product): number {
+  return RUNG_RANK[
+    resolveRung({ certifications: p.certifications, verification_rung: p.verification_rung })
+  ];
+}
+
+// Public verification filter options (lab_verified intentionally excluded).
+const VERIFICATION_OPTIONS = ["Verified", "Self-disclosed or better"];
 
 const SECTION_META: Record<
   "women" | "men" | "kids" | "home",
@@ -258,6 +277,27 @@ function ProductCard({
             </>
           )}
         </p>
+        {productRungRank(p) >= 2 && (
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              fontFamily: "var(--mono)",
+              fontSize: 10,
+              fontWeight: 600,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              color: "var(--ink-2)",
+            }}
+          >
+            <span
+              aria-hidden
+              style={{ width: 6, height: 6, borderRadius: 999, background: "var(--risk-low)" }}
+            />
+            Verified
+          </span>
+        )}
       </div>
     </Link>
   );
@@ -410,6 +450,18 @@ export default function ShopClient({
       : null;
   const query = (searchParams.get("q") || "").trim();
 
+  // Verification trust threshold: "verified" keeps rank >= 2 (verified or above),
+  // "self_disclosed" keeps rank >= 1 (self-disclosed or above).
+  const verificationRaw = searchParams.get("verification");
+  const verificationThreshold =
+    verificationRaw === "verified" ? 2 : verificationRaw === "self_disclosed" ? 1 : null;
+  const verificationValue =
+    verificationThreshold === 2
+      ? "Verified"
+      : verificationThreshold === 1
+        ? "Self-disclosed or better"
+        : "All";
+
   // Record committed searches (debounced so we log the settled term, not every
   // keystroke), a free read on what shoppers want, including gaps we don't stock.
   useEffect(() => {
@@ -469,6 +521,8 @@ export default function ShopClient({
         if (!fibers.includes(target)) return false;
       }
       if (category !== "All" && p.category !== category) return false;
+      if (verificationThreshold !== null && productRungRank(p) < verificationThreshold)
+        return false;
       if (occasionFilter && !(p.occasion ?? []).includes(occasionFilter))
         return false;
       if (section === "kids" && ageFilter && p.age_band !== ageFilter)
@@ -553,6 +607,7 @@ export default function ShopClient({
     category,
     query,
     sort,
+    verificationThreshold,
   ]);
 
   const hasUserFilters =
@@ -560,7 +615,8 @@ export default function ShopClient({
     !!occasionFilter ||
     !!ageFilter ||
     category !== "All" ||
-    query.length > 0;
+    query.length > 0 ||
+    verificationThreshold !== null;
 
   // Auto-load pagination, reveal a fresh PAGE_SIZE every time the
   // sentinel below the grid scrolls into view. Reset to first page
@@ -568,7 +624,7 @@ export default function ShopClient({
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
-  }, [section, fiberFilter, occasionFilter, ageFilter, category, query, sort]);
+  }, [section, fiberFilter, occasionFilter, ageFilter, category, query, sort, verificationThreshold]);
   const visible = filtered.slice(0, visibleCount);
   const hiddenCount = Math.max(0, filtered.length - visibleCount);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
@@ -742,6 +798,21 @@ export default function ShopClient({
             onChange={(v) => updateParams({ fiber: v === "All" ? null : v })}
             capitalize
           />
+          <FrostedSelect
+            label="Verification"
+            options={VERIFICATION_OPTIONS}
+            value={verificationValue}
+            onChange={(v) =>
+              updateParams({
+                verification:
+                  v === "Verified"
+                    ? "verified"
+                    : v === "Self-disclosed or better"
+                      ? "self_disclosed"
+                      : null,
+              })
+            }
+          />
           {/* Occasion is an apparel concept, irrelevant for home goods and kids. */}
           {section !== "home" && section !== "kids" && (
           <FrostedSelect
@@ -820,6 +891,12 @@ export default function ShopClient({
               onRemove={() => updateParams({ fiber: null })}
             />
           )}
+          {verificationThreshold !== null && (
+            <FilterChip
+              label={verificationValue}
+              onRemove={() => updateParams({ verification: null })}
+            />
+          )}
           {occasionFilter && (
             <FilterChip
               label={occasionFilter}
@@ -851,6 +928,7 @@ export default function ShopClient({
                   occasion: null,
                   age: null,
                   q: null,
+                  verification: null,
                 })
               }
             />
