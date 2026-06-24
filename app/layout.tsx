@@ -49,9 +49,9 @@ const SITE_DESCRIPTION =
 export const metadata: Metadata = {
   // Resolves all relative canonical / OpenGraph URLs to absolute ones.
   metadataBase: new URL("https://toxome.app"),
-  title: "Toxic Fashion Detector: Scan Your Clothes for Toxins | Toxome",
+  title: "Toxic Fashion Detector: Know What's in Your Clothes | Toxome",
   description:
-    "Toxome is the toxic fashion detector for your closet. Scan any clothing tag to see the fibers and chemicals inside and find non-toxic clothing. Free to scan.",
+    "Toxic fashion detector for your closet. Scan any clothing tag to see the fibers and chemicals inside and what they do to your body. Free to scan.",
   // Self-referencing canonical for the homepage. Every other route overrides
   // this with its own path.
   alternates: {
