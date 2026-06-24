@@ -243,6 +243,35 @@ function ProductCard({
           onClick={() => onToggle(p)}
           stopPropagation
         />
+        {productRungRank(p) >= 2 && (
+          <span
+            style={{
+              position: "absolute",
+              bottom: 14,
+              left: 14,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              fontFamily: "var(--mono)",
+              fontSize: 10,
+              fontWeight: 600,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              color: "var(--ink)",
+              background: "rgba(252,251,247,0.85)",
+              backdropFilter: "blur(8px) saturate(150%)",
+              WebkitBackdropFilter: "blur(8px) saturate(150%)",
+              padding: "4px 10px",
+              borderRadius: 999,
+            }}
+          >
+            <span
+              aria-hidden
+              style={{ width: 6, height: 6, borderRadius: 999, background: "var(--risk-low)" }}
+            />
+            Verified
+          </span>
+        )}
       </div>
 
       {/* Info below card */}
@@ -277,27 +306,6 @@ function ProductCard({
             </>
           )}
         </p>
-        {productRungRank(p) >= 2 && (
-          <span
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 6,
-              fontFamily: "var(--mono)",
-              fontSize: 10,
-              fontWeight: 600,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              color: "var(--ink-2)",
-            }}
-          >
-            <span
-              aria-hidden
-              style={{ width: 6, height: 6, borderRadius: 999, background: "var(--risk-low)" }}
-            />
-            Verified
-          </span>
-        )}
       </div>
     </Link>
   );
