@@ -217,7 +217,7 @@ function ProductCard({
               borderRadius: 999,
             }}
           >
-            Editor&apos;s Pick
+            Featured
           </span>
         ) : isNew ? (
           <span
