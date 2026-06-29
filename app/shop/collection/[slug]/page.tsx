@@ -12,7 +12,7 @@ import { getCollection, allCollectionSlugs } from "@/lib/shopPages";
 
 const BASE_URL = "https://toxome.app";
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 export async function generateStaticParams() {
   return allCollectionSlugs().map((slug) => ({ slug }));
