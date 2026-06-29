@@ -80,6 +80,9 @@ export const metadata: Metadata = {
   // Toxome iOS app.
   other: {
     "apple-itunes-app": "app-id=6748622034",
+    // Pinterest domain claim — verifies toxome.app for the Toxome | Fashion
+    // Wellness business account (unlocks Rich Pins + catalog + attribution).
+    "p:domain_verify": "8fafc09d263580931f4ed15c10197d03",
   },
 };
 
