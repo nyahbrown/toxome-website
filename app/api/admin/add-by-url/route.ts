@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
+import { revalidateProductSurfaces } from "@/lib/revalidate";
 import { verifyAdmin } from "@/lib/adminAuth";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { isBlacklisted } from "@/lib/brandBlacklist";
@@ -96,11 +96,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  // Make it appear on the shop grid right away.
-  for (const p of ["/shop", "/shop/women", "/shop/men", "/shop/kids", "/shop/home"]) {
-    revalidatePath(p);
-  }
-  if (data?.id) revalidatePath(`/shop/${data.id}`);
+  // Make it appear across the catalog right away (on-demand revalidation).
+  revalidateProductSurfaces(data?.id);
 
   return NextResponse.json({ product: data });
 }

@@ -9,7 +9,7 @@ import JsonLd from "@/components/JsonLd";
 import { productSeoTitle, productSeoDescription } from "@/lib/productSeo";
 import ProductDetailClient from "./ProductDetailClient";
 
-export const revalidate = 86400;
+export const revalidate = 604800; // weekly backstop; on-demand revalidation keeps it fresh on change
 
 const SITE = "https://toxome.app";
 
