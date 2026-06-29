@@ -8,7 +8,6 @@ import JsonLd from "@/components/JsonLd";
 import ShareBar from "@/components/ShareBar";
 import ArticleCta, { type CtaVariant } from "@/components/ArticleCta";
 import JournalNewsletterCard from "@/components/JournalNewsletterCard";
-import NewsletterPopup from "@/components/NewsletterPopup";
 import { getShopTaxonomy } from "@/lib/supabase";
 import { getAllSlugs, getArticle, formatDate } from "@/lib/journal";
 
@@ -119,11 +118,12 @@ export default async function ArticlePage({
           </Link>
           <h1
             style={{
-              fontFamily: "var(--serif)",
-              fontWeight: 300,
-              fontSize: "clamp(32px, 4.4vw, 54px)",
-              lineHeight: 1.1,
-              letterSpacing: "-0.025em",
+              fontFamily: "var(--sans)",
+              fontWeight: 600,
+              fontSize: "clamp(30px, 4.1vw, 50px)",
+              lineHeight: 1.12,
+              letterSpacing: "-0.02em",
+              textTransform: "none",
               color: "var(--ink)",
               margin: "0 0 22px",
             }}
@@ -137,6 +137,7 @@ export default async function ArticlePage({
               fontWeight: 600,
               fontSize: 16,
               lineHeight: 1.5,
+              textTransform: "none",
               color: "var(--ink-2)",
               margin: "0 auto 26px",
               maxWidth: 560,
@@ -264,7 +265,6 @@ export default async function ArticlePage({
         </div>
       </section>
 
-      <NewsletterPopup source="journal_popup" />
       <Footer />
     </main>
   );

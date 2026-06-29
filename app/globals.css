@@ -875,7 +875,7 @@ button { font-family: inherit; }
   font-size: clamp(15px, 1.6vw, 19px); /* 5pt smaller than before */
   line-height: 1.2;
   letter-spacing: -0.015em;
-  text-transform: lowercase; /* lowercase on the index; normal case on the article */
+  text-transform: none; /* normal capitalization on the journal index titles */
   color: var(--ink);
   margin: 0 0 6px;
   transition: color 200ms var(--ease);
@@ -888,6 +888,7 @@ button { font-family: inherit; }
   font-size: 13px;
   line-height: 1.45;
   letter-spacing: -0.003em;
+  text-transform: none; /* normal capitalization on the journal index subtitles */
   color: var(--ink-3);
   margin: 0;
   display: -webkit-box;
@@ -897,7 +898,8 @@ button { font-family: inherit; }
 }
 
 /* Article reading column (width container only) */
-.j-article { max-width: 680px; margin: 0 auto; }
+.j-article { max-width: 960px; margin: 0 auto; }
+@media (max-width: 1000px) { .j-article { max-width: 680px; } }
 
 /* Prose exception — restore natural sentence case inside article body */
 .j-prose { text-transform: none; }

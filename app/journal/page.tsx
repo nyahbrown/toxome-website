@@ -43,12 +43,12 @@ export default async function JournalPage() {
             >
               <h1
                 style={{
-                  fontFamily: "var(--serif)",
-                  fontWeight: 300,
-                  fontSize: "clamp(32px, 4.2vw, 54px)",
-                  lineHeight: 1.08,
-                  letterSpacing: "-0.025em",
-                  textTransform: "lowercase",
+                  fontFamily: "var(--sans)",
+                  fontWeight: 600,
+                  fontSize: "clamp(30px, 4.1vw, 50px)",
+                  lineHeight: 1.12,
+                  letterSpacing: "-0.02em",
+                  textTransform: "none",
                   color: "var(--ink)",
                   margin: 0,
                 }}
@@ -65,6 +65,7 @@ export default async function JournalPage() {
                 fontWeight: 600,
                 fontSize: 16,
                 lineHeight: 1.55,
+                textTransform: "none",
                 color: "var(--ink-2)",
                 maxWidth: 540,
                 margin: "22px auto 0",
