@@ -6,9 +6,9 @@ import { allCollectionSlugs } from "@/lib/shopPages";
 
 const BASE_URL = "https://toxome.app";
 
-// Regenerate hourly so newly published products / guide entries get picked up
+// Regenerate daily so newly published products / guide entries get picked up
 // without a full redeploy.
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
