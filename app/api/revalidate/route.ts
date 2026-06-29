@@ -5,6 +5,9 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /**
+ * Requires REVALIDATE_SECRET to be set in the environment AND a deploy created
+ * after it was set — env vars only take effect on deployments built afterward.
+ *
  * On-demand revalidation hook for product writes that DON'T go through the admin
  * API — backfill scripts, the app, or direct Supabase edits. Point a Supabase
  * Database Webhook (products table; insert/update/delete) at this route with the
