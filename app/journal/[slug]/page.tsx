@@ -7,6 +7,8 @@ import Footer from "@/components/Footer";
 import JsonLd from "@/components/JsonLd";
 import ShareBar from "@/components/ShareBar";
 import ArticleCta, { type CtaVariant } from "@/components/ArticleCta";
+import JournalNewsletterCard from "@/components/JournalNewsletterCard";
+import NewsletterPopup from "@/components/NewsletterPopup";
 import { getShopTaxonomy } from "@/lib/supabase";
 import { getAllSlugs, getArticle, formatDate } from "@/lib/journal";
 
@@ -200,6 +202,7 @@ export default async function ArticlePage({
           dangerouslySetInnerHTML={{ __html: article.html }}
         />
         <div className="j-article">
+          <JournalNewsletterCard />
           <ArticleCta variant={(article.cta as CtaVariant) || "app"} />
         </div>
       </article>
@@ -261,6 +264,7 @@ export default async function ArticlePage({
         </div>
       </section>
 
+      <NewsletterPopup source="journal_popup" />
       <Footer />
     </main>
   );

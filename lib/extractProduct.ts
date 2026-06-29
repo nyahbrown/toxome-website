@@ -6,6 +6,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { calcToxomeScore, scoreToRiskLevel } from "@/lib/fabricScores";
 import { detectCertifications, dedupeCertifications } from "@/lib/certifications";
+import { cleanSizes } from "@/lib/kidsSizes";
 
 // Haiku is fast and plenty for structured extraction from text we hand it, // keeps the add-by-URL request well under the serverless timeout.
 const MODEL = "claude-haiku-4-5-20251001";
@@ -41,6 +42,9 @@ export type ProductDraft = {
   certifications: string[];
   toxome_score: number | null;
   risk_level: "low" | "moderate" | "high" | null;
+  // Distinct size labels from the source (Shopify variants). Powers the kids
+  // age-band filter once gender is set to Kids. Empty for one-size/non-Shopify.
+  sizes: string[];
 };
 
 type PageFetch = {
@@ -125,6 +129,13 @@ async function shopifyProduct(url: string): Promise<ShopifyProduct | null> {
   } catch {
     return null;
   }
+}
+
+/** Distinct size labels from a Shopify product's size-named option. */
+function shopifySizes(shopify: ShopifyProduct | null): string[] {
+  const options = (shopify?.options as { name?: string; values?: string[] }[]) || [];
+  const sizeOpt = options.find((o) => /\bsize\b/i.test(o?.name || ""));
+  return sizeOpt?.values?.length ? cleanSizes(sizeOpt.values) : [];
 }
 
 // ---------------------------------------------------------------------------
@@ -493,6 +504,7 @@ export async function extractProductFromUrl(
     ]),
     toxome_score: score,
     risk_level: scoreToRiskLevel(score),
+    sizes: shopifySizes(shopify),
   };
 
   return { ok: true, product };

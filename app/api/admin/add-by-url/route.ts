@@ -4,6 +4,7 @@ import { verifyAdmin } from "@/lib/adminAuth";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { isBlacklisted } from "@/lib/brandBlacklist";
 import { extractProductFromUrl } from "@/lib/extractProduct";
+import { guardCategory } from "@/lib/categoryGuard";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -48,6 +49,16 @@ export async function POST(req: Request) {
   }
   const product = result.product;
 
+  // Correct title-fooled categories before insert (e.g. a rug added by URL that
+  // the extractor left uncategorized → Home/Home).
+  const guard = guardCategory({
+    item_name: product.item_name,
+    category: product.category,
+    gender: product.gender,
+  });
+  product.category = guard.category;
+  product.gender = guard.gender;
+
   if (isBlacklisted(product.brand)) {
     return NextResponse.json(
       { error: `${product.brand} is blacklisted` },
@@ -86,7 +97,7 @@ export async function POST(req: Request) {
   }
 
   // Make it appear on the shop grid right away.
-  for (const p of ["/shop", "/shop/women", "/shop/men", "/shop/home"]) {
+  for (const p of ["/shop", "/shop/women", "/shop/men", "/shop/kids", "/shop/home"]) {
     revalidatePath(p);
   }
   if (data?.id) revalidatePath(`/shop/${data.id}`);

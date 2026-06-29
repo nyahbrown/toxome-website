@@ -52,6 +52,7 @@ const FLAGS = {
   requireCert: ARGV.includes("--require-cert"), // SAFETY GATE (used for Kids): only keep items whose PAGE-VERIFIED certs include a chemical-safety cert (OEKO-TEX or GOTS). No cert → dropped.
   gender: strFlag("--gender"), // force a gender/department on every inserted item (e.g. "Kids")
   ageBand: strFlag("--age-band"), // force an age_band on every inserted item (kids: "baby" | "kids")
+  focus: strFlag("--focus"), // narrow the per-brand search to one product type (e.g. "socks") so it doesn't wander into general apparel
 };
 
 // A real chemical-safety certification — the only marks that certify the textile
@@ -104,6 +105,8 @@ function reserveModelCall() {
 // Toxome scoring — shared with enrich-products.js (mirror in lib/fabricScores.ts)
 // ---------------------------------------------------------------------------
 const { calcToxomeScore, scoreToRiskLevel } = require("./fabricScores");
+// Last-mile category/department corrector (mirror in lib/categoryGuard.ts).
+const { guardCategory } = require("./categoryGuard");
 
 // Brands Toxome will never source (shared with the admin add-by-URL feature).
 const BRAND_BLACKLIST = require("../lib/brandBlacklist.json").map((b) =>
@@ -242,7 +245,10 @@ PRICE PRIORITY: Strongly prioritize mid-range prices — roughly $50–$150, wit
 Return ONLY a valid JSON array, no markdown.`;
 
 async function findProductsForBrand(client, brand, perBrand) {
-  const prompt = `Search ${brand}'s website and find ${perBrand} specific products made from natural / low-tox fabrics, prioritizing ones that state fabric composition and hold certifications. Give the DIRECT product-page URL for each (not the homepage or a collection page). After researching, your FINAL message must be ONLY the JSON array — no prose, no markdown fences.`;
+  const focusClause = FLAGS.focus
+    ? ` IMPORTANT: only return ${FLAGS.focus} — ignore every other product type. They must be MOSTLY natural fiber (organic cotton, wool, linen) with only LOW percentages of any synthetic: a small amount of nylon/elastane for fit is fine (roughly ≤15% combined), but anything with a high synthetic share will be rejected. Prefer the highest natural-fiber content available and always report the exact composition percentages.`
+    : "";
+  const prompt = `Search ${brand}'s website and find ${perBrand} specific products made from natural / low-tox fabrics, prioritizing ones that state fabric composition and hold certifications.${focusClause} Give the DIRECT product-page URL for each (not the homepage or a collection page). After researching, your FINAL message must be ONLY the JSON array — no prose, no markdown fences.`;
   // web_search often leaves the final message as prose; parse all text blocks
   // robustly and retry once if no array comes back.
   for (let attempt = 0; attempt < 2; attempt++) {
@@ -442,14 +448,28 @@ async function run() {
       // Prefer the authoritative USD price scraped from the page over the LLM's.
       if (validated.price != null) item.item_price = validated.price;
 
+      // Correct title-fooled categories before insert (rug→Home, "…Set"→Rompers
+      // & Sets, etc.) so compound names don't keep landing in the wrong place.
+      const guard = guardCategory({
+        item_name: item.item_name,
+        category: FLAGS.category || item.category || null,
+        gender: FLAGS.gender || item.gender || null,
+        age_band: FLAGS.ageBand || null,
+      });
+      if (guard.changed) {
+        console.log(
+          `  ↳ recategorized "${item.item_name}" → ${guard.gender}/${guard.category} (${guard.reason})`
+        );
+      }
+
       toInsert.push({
         item_name: item.item_name,
         brand: item.brand ?? brand,
         item_price: item.item_price ?? null,
         budget: item.budget ?? null,
-        category: FLAGS.category || item.category || null,
-        gender: FLAGS.gender || item.gender || null,
-        age_band: FLAGS.ageBand || null,
+        category: guard.category,
+        gender: guard.gender,
+        age_band: guard.age_band,
         item_image: item.item_image,
         item_url: item.item_url,
         images: validated.images,

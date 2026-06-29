@@ -9,7 +9,7 @@ const DELAY_MS = 8000;
 
 type State = "idle" | "submitting" | "success" | "error";
 
-export default function NewsletterPopup() {
+export default function NewsletterPopup({ source = "homepage_popup" }: { source?: string }) {
   const [visible, setVisible] = useState(false);
   const [email, setEmail] = useState("");
   const [state, setState] = useState<State>("idle");
@@ -80,7 +80,7 @@ export default function NewsletterPopup() {
       const res = await fetch("/api/newsletter", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: trimmed, source: "homepage_popup" }),
+        body: JSON.stringify({ email: trimmed, source }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => null);

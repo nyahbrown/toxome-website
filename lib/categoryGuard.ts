@@ -1,0 +1,85 @@
+// Deterministic category/department guard for the sourcing pipeline.
+//
+// The LLM-based importers pick a category from the product TITLE and get fooled
+// by compound names: a "Hand-loomed Large Rug" became Tops, a "Jacket, Bodysuit
+// & Pant 3 Piece Set" became Bodysuits & Onesies, "Playpen Sheet" landed in Kids.
+// This is a last-mile guard run at every insert point. It only OVERRIDES when the
+// title carries an unambiguous signal; otherwise it passes the proposed values
+// through untouched.
+//
+// NOTE: keep this in sync with scripts/categoryGuard.js (CommonJS mirror used by
+// the node sourcing scripts, which can't import TypeScript).
+
+export type GuardInput = {
+  item_name: string;
+  category: string | null;
+  gender: string | null;
+  age_band?: string | null;
+};
+
+export type GuardResult = {
+  category: string | null;
+  gender: string | null;
+  age_band: string | null;
+  changed: boolean;
+  reason?: string;
+};
+
+// Standalone home/bedding nouns. Deliberately conservative — excludes ambiguous
+// apparel-adjacent words like "blanket" (swaddle blankets) and "scarf".
+const HOME_RE =
+  /\b(rugs?|towels?|washcloths?|wash cloths?|duvets?|comforters?|coverlets?|quilts?|pillowcases?|pillow shams?|shams?|napkins?|tablecloths?|table runners?|curtains?|bath mats?|crib sheets?|crib skirts?|playard sheets?|playpen sheets?|fitted sheets?|sheet sets?)\b/;
+
+// Multi-piece signals (kids): a set is never a single garment category.
+const SET_RE = /\b(set|sets)\b/;
+const PIECE_RE = /\bpiece\b/;
+
+// One-piece infant garments — unambiguous when present and not a set.
+const BODYSUIT_RE = /\b(bodysuit|bodysuits|onesie|onesies|coverall|coveralls)\b/;
+
+export function guardCategory(input: GuardInput): GuardResult {
+  const name = (input.item_name || "").toLowerCase();
+  const category = input.category;
+  const gender = input.gender;
+  const age_band = input.age_band ?? null;
+
+  // 1) Home goods mis-filed as apparel — force the Home department + category,
+  //    and clear any age band that an apparel mis-tag left behind.
+  if (HOME_RE.test(name)) {
+    return {
+      category: "Home",
+      gender: "Home",
+      age_band: null,
+      changed: category !== "Home" || gender !== "Home" || age_band !== null,
+      reason: "home-good",
+    };
+  }
+
+  // Kids-only corrections (department is carried on `gender`).
+  if ((gender || "").toLowerCase() === "kids") {
+    const isSet = SET_RE.test(name) || PIECE_RE.test(name);
+    // 2) Multi-piece sets → Rompers & Sets (checked before bodysuit so a
+    //    "Jacket, Bodysuit & Pant Set" lands as a set, not a bodysuit).
+    if (isSet) {
+      return {
+        category: "Rompers & Sets",
+        gender,
+        age_band,
+        changed: category !== "Rompers & Sets",
+        reason: "kids-set",
+      };
+    }
+    // 3) Single one-piece infant garments → Bodysuits & Onesies.
+    if (BODYSUIT_RE.test(name)) {
+      return {
+        category: "Bodysuits & Onesies",
+        gender,
+        age_band,
+        changed: category !== "Bodysuits & Onesies",
+        reason: "kids-bodysuit",
+      };
+    }
+  }
+
+  return { category, gender, age_band, changed: false };
+}

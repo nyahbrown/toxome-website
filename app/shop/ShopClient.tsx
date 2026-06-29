@@ -12,6 +12,7 @@ import { normalizeFiber } from "@/lib/fabricScores";
 import { EDITORS_PICKS, isEditorsPick } from "@/lib/editorsPicks";
 import { track } from "@/lib/track";
 import { resolveRung, type VerificationRung } from "@/lib/verification";
+import { KIDS_AGE_BANDS, sizesToBands, type KidsAgeBand } from "@/lib/kidsSizes";
 
 export type ShopSection = "women" | "men" | "kids" | "home" | null;
 
@@ -65,10 +66,16 @@ const OCCASIONS = [
   "Vacation/Resort",
 ];
 
-// Kids age split, mirrors the `age_band` column values.
-const AGE_BANDS = [
-  { label: "Baby", value: "baby" },
-  { label: "Kids", value: "kids" },
+// Kids age bands (Newborn / Baby / Toddler / Kids) are derived from each
+// product's `sizes` at filter time via lib/kidsSizes — KIDS_AGE_BANDS is the
+// canonical list. A product spans every band its size range covers.
+
+// Kids price bands (kids-only filter). Match is min <= price < max so a price
+// landing exactly on a boundary falls into the higher band.
+const KIDS_PRICE_BANDS = [
+  { label: "Under $25", value: "under-25", min: 0, max: 25 },
+  { label: "$25 – $50", value: "25-50", min: 25, max: 50 },
+  { label: "$50 & Up", value: "50-up", min: 50, max: Infinity },
 ] as const;
 
 function ProductCard({
@@ -453,8 +460,8 @@ export default function ShopClient({
       : null;
   const ageRaw = searchParams.get("age");
   const ageFilter =
-    ageRaw && AGE_BANDS.some((a) => a.value === ageRaw.toLowerCase())
-      ? ageRaw.toLowerCase()
+    ageRaw && KIDS_AGE_BANDS.some((a) => a.value === ageRaw.toLowerCase())
+      ? (ageRaw.toLowerCase() as KidsAgeBand)
       : null;
   const query = (searchParams.get("q") || "").trim();
 
@@ -493,6 +500,31 @@ export default function ShopClient({
           (c) => c.toLowerCase() === categoryRaw.toLowerCase()
         )!
       : "All";
+
+  // Brands available in the current section, ranked by stock (kids only for now).
+  // Lets parents narrow to the baby brands they already trust.
+  const sectionBrands = useMemo<string[]>(() => {
+    if (section !== "kids") return [];
+    const m = new Map<string, number>();
+    for (const p of products) {
+      if (p.gender === "Kids" && p.brand) m.set(p.brand, (m.get(p.brand) ?? 0) + 1);
+    }
+    return [...m.entries()]
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .map(([b]) => b);
+  }, [products, section]);
+
+  const brandRaw = searchParams.get("brand");
+  const brandFilter =
+    brandRaw && sectionBrands.some((b) => b.toLowerCase() === brandRaw.toLowerCase())
+      ? sectionBrands.find((b) => b.toLowerCase() === brandRaw.toLowerCase())!
+      : null;
+
+  const priceRaw = searchParams.get("price");
+  const priceBand =
+    section === "kids"
+      ? KIDS_PRICE_BANDS.find((b) => b.value === priceRaw) ?? null
+      : null;
 
   // Push a partial URL update, replace so we don't pollute history per pill click.
   function updateParams(updates: Record<string, string | null>) {
@@ -533,8 +565,17 @@ export default function ShopClient({
         return false;
       if (occasionFilter && !(p.occasion ?? []).includes(occasionFilter))
         return false;
-      if (section === "kids" && ageFilter && p.age_band !== ageFilter)
+      if (
+        section === "kids" &&
+        ageFilter &&
+        !sizesToBands(p.sizes).includes(ageFilter)
+      )
         return false;
+      if (brandFilter && p.brand !== brandFilter) return false;
+      if (priceBand) {
+        const pr = p.item_price;
+        if (pr == null || pr < priceBand.min || pr >= priceBand.max) return false;
+      }
       if (q) {
         const haystack = [p.item_name, p.brand, p.category, p.gender]
           .filter(Boolean)
@@ -616,12 +657,16 @@ export default function ShopClient({
     query,
     sort,
     verificationThreshold,
+    brandFilter,
+    priceBand,
   ]);
 
   const hasUserFilters =
     !!fiberFilter ||
     !!occasionFilter ||
     !!ageFilter ||
+    !!brandFilter ||
+    !!priceBand ||
     category !== "All" ||
     query.length > 0 ||
     verificationThreshold !== null;
@@ -632,7 +677,7 @@ export default function ShopClient({
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
-  }, [section, fiberFilter, occasionFilter, ageFilter, category, query, sort, verificationThreshold]);
+  }, [section, fiberFilter, occasionFilter, ageFilter, category, query, sort, verificationThreshold, brandFilter, priceBand]);
   const visible = filtered.slice(0, visibleCount);
   const hiddenCount = Math.max(0, filtered.length - visibleCount);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
@@ -712,6 +757,27 @@ export default function ShopClient({
               : "There is no wellness without what touches the skin all day."}
         </h1>
       </div>
+
+      {/* Kids trust banner: the catalog is uniformly GOTS organic cotton, so we
+          state it as a guarantee instead of offering a one-option fiber filter. */}
+      {section === "kids" && (
+        <div
+          className="shell"
+          style={{ textAlign: "center", paddingBottom: 28, marginTop: -8 }}
+        >
+          <p
+            style={{
+              fontSize: 16,
+              color: "var(--ink-2)",
+              textTransform: "none",
+              margin: "0 auto",
+              maxWidth: 520,
+            }}
+          >
+            every piece in the kids edit is GOTS-certified organic cotton.
+          </p>
+        </div>
+      )}
 
       {/* Browse by fiber, horizontal scrollable rail, only on /shop default */}
       {!section && (
@@ -797,15 +863,23 @@ export default function ShopClient({
               options={sectionCategories}
               value={category}
               onChange={(v) => updateParams({ category: v })}
+              stickyLabel
             />
           )}
+          {/* Fiber + Verification are uniform across the kids catalog (all
+              organic cotton, none rung-verified yet), so they'd be dead filters
+              there — hidden in favor of Brand + Price below. */}
+          {section !== "kids" && (
           <FrostedSelect
             label="Fiber"
             options={FIBERS.map((f) => f.name)}
             value={fiberValue}
             onChange={(v) => updateParams({ fiber: v === "All" ? null : v })}
             capitalize
+            stickyLabel
           />
+          )}
+          {section !== "kids" && (
           <FrostedSelect
             label="Verification"
             options={VERIFICATION_OPTIONS}
@@ -820,7 +894,36 @@ export default function ShopClient({
                       : null,
               })
             }
+            stickyLabel
           />
+          )}
+          {/* Brand + Price, kids only — the variables that actually differ
+              across an otherwise uniformly clean baby catalog. */}
+          {section === "kids" && sectionBrands.length > 0 && (
+          <FrostedSelect
+            label="Brand"
+            options={sectionBrands}
+            value={brandFilter ?? "All"}
+            onChange={(v) => updateParams({ brand: v === "All" ? null : v })}
+            stickyLabel
+          />
+          )}
+          {section === "kids" && (
+          <FrostedSelect
+            label="Price"
+            options={KIDS_PRICE_BANDS.map((b) => b.label)}
+            value={priceBand?.label ?? "All"}
+            onChange={(v) =>
+              updateParams({
+                price:
+                  v === "All"
+                    ? null
+                    : KIDS_PRICE_BANDS.find((b) => b.label === v)?.value ?? null,
+              })
+            }
+            stickyLabel
+          />
+          )}
           {/* Occasion is an apparel concept, irrelevant for home goods and kids. */}
           {section !== "home" && section !== "kids" && (
           <FrostedSelect
@@ -828,17 +931,24 @@ export default function ShopClient({
             options={OCCASIONS}
             value={occasionFilter ?? "All"}
             onChange={(v) => updateParams({ occasion: v })}
+            stickyLabel
           />
           )}
           {/* Age split, kids only. */}
           {section === "kids" && (
           <FrostedSelect
             label="Age"
-            options={["Baby", "Kids"]}
-            value={AGE_BANDS.find((a) => a.value === ageFilter)?.label ?? "All"}
+            options={KIDS_AGE_BANDS.map((b) => b.label)}
+            value={KIDS_AGE_BANDS.find((b) => b.value === ageFilter)?.label ?? "All"}
             onChange={(v) =>
-              updateParams({ age: v === "All" ? null : v.toLowerCase() })
+              updateParams({
+                age:
+                  v === "All"
+                    ? null
+                    : KIDS_AGE_BANDS.find((b) => b.label === v)?.value ?? null,
+              })
             }
+            stickyLabel
           />
           )}
           <div className="shop-filterbar__sort">
@@ -913,8 +1023,20 @@ export default function ShopClient({
           )}
           {ageFilter && (
             <FilterChip
-              label={AGE_BANDS.find((a) => a.value === ageFilter)?.label ?? ageFilter}
+              label={KIDS_AGE_BANDS.find((b) => b.value === ageFilter)?.label ?? ageFilter}
               onRemove={() => updateParams({ age: null })}
+            />
+          )}
+          {brandFilter && (
+            <FilterChip
+              label={brandFilter}
+              onRemove={() => updateParams({ brand: null })}
+            />
+          )}
+          {priceBand && (
+            <FilterChip
+              label={priceBand.label}
+              onRemove={() => updateParams({ price: null })}
             />
           )}
           {query && (
@@ -937,6 +1059,8 @@ export default function ShopClient({
                   age: null,
                   q: null,
                   verification: null,
+                  brand: null,
+                  price: null,
                 })
               }
             />

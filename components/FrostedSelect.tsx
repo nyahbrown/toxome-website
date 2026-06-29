@@ -13,6 +13,10 @@ type Props = {
   // Render option + trigger labels in Title Case, overriding the site-wide
   // lowercase. Used for the fiber filter so fiber names read as proper labels.
   capitalize?: boolean;
+  // Keep the static label on the trigger even when a value is selected (the
+  // active selection is shown by a removable chip below instead). The trigger
+  // still picks up the "active" styling as a subtle cue.
+  stickyLabel?: boolean;
 };
 
 function Chevron({ open }: { open: boolean }) {
@@ -79,6 +83,7 @@ export default function FrostedSelect({
   align = "left",
   hideAll = false,
   capitalize = false,
+  stickyLabel = false,
 }: Props) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement | null>(null);
@@ -100,7 +105,7 @@ export default function FrostedSelect({
     };
   }, [open]);
 
-  const triggerLabel = isActive ? value : label;
+  const triggerLabel = isActive && !stickyLabel ? value : label;
 
   return (
     <div

@@ -38,4 +38,7 @@ export interface Product {
   fibers_present?: string[] | null;
   occasion?: string[] | null;
   age_band?: "baby" | "kids" | null;
+  // Raw distinct size labels from the source (e.g. ["0-3M","2T","5/6"]).
+  // Kids age bands for the shop filter are derived from this via lib/kidsSizes.
+  sizes?: string[] | null;
 }
