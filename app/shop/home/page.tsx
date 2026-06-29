@@ -7,7 +7,7 @@ import ShopClient from "../ShopClient";
 import ShopGridFallback from "../ShopGridFallback";
 import ShopIntro from "@/components/ShopIntro";
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 export const metadata: Metadata = {
   title: "Non-Toxic Home & Bedding | Toxome",
