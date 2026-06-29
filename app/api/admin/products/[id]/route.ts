@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
+import { revalidateProductSurfaces } from "@/lib/revalidate";
 import { verifyAdmin } from "@/lib/adminAuth";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { calcToxomeScore, scoreToRiskLevel } from "@/lib/fabricScores";
@@ -129,13 +129,9 @@ export async function PATCH(
     return NextResponse.json({ error: "Product not found" }, { status: 404 });
   }
 
-  // Any successful mutation can change a product's visibility, so refresh the
-  // ISR-cached shop grid pages and the product detail page immediately.
-  revalidatePath("/shop");
-  revalidatePath("/shop/women");
-  revalidatePath("/shop/men");
-  revalidatePath("/shop/home");
-  revalidatePath(`/shop/${id}`);
+  // Any successful mutation can change a product's visibility, so flush every
+  // cached surface that renders product data immediately (on-demand revalidation).
+  revalidateProductSurfaces(id);
 
   return NextResponse.json({ product: data });
 }
