@@ -11,7 +11,7 @@ const BASE_URL = "https://toxome.app";
 
 // Regenerate hourly so newly scored products shift a brand's verdict without a
 // full redeploy.
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 // Pre-render every brand that clears the scored-product guardrail at build time.
 export async function generateStaticParams() {
