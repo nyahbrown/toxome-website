@@ -180,18 +180,35 @@ export default async function ArticlePage({
               animationDelay: "120ms",
             }}
           >
-            <Image
-              src={article.hero}
-              alt={article.heroAlt || article.dek || article.title}
-              width={735}
-              height={887}
-              sizes="(max-width: 720px) 100vw, 680px"
-              style={{ display: "block", width: "100%", height: "auto" }}
-              priority
-              // Pinterest browser extension: pin the tall hero+title card, not the raw photo.
-              data-pin-media={pinImage}
-              data-pin-description={pinDescription}
-            />
+            {article.heroVideo ? (
+              <video
+                src={article.heroVideo}
+                poster={article.hero}
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="metadata"
+                aria-label={article.heroAlt || article.title}
+                style={{ display: "block", width: "100%", height: "auto" }}
+                // Pinterest browser extension: pin the poster card, not the video.
+                data-pin-media={pinImage}
+                data-pin-description={pinDescription}
+              />
+            ) : (
+              <Image
+                src={article.hero}
+                alt={article.heroAlt || article.dek || article.title}
+                width={735}
+                height={887}
+                sizes="(max-width: 1000px) 100vw, 960px"
+                style={{ display: "block", width: "100%", height: "auto" }}
+                priority
+                // Pinterest browser extension: pin the tall hero+title card, not the raw photo.
+                data-pin-media={pinImage}
+                data-pin-description={pinDescription}
+              />
+            )}
           </div>
         </figure>
       )}

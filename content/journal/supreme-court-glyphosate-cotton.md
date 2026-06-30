@@ -7,7 +7,8 @@ mode: "news"
 pinned: false
 date: "2026-06-29"
 hero: "/journal/supreme-court-glyphosate-cotton.jpg"
-heroAlt: "Macro close-up of a raw cotton boll on the plant in warm raking light — white fiber bursting from a dried brown husk, on a soft cream ground."
+heroVideo: "/journal/supreme-court-glyphosate-cotton.mp4"
+heroAlt: "Aerial view of a tractor moving through a cotton field, its spray booms misting the rows of white bolls."
 keywords:
   - "glyphosate in cotton"
   - "roundup cancer ruling"
