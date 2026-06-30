@@ -6,7 +6,7 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import JsonLd from "@/components/JsonLd";
 import ShareBar from "@/components/ShareBar";
-import ArticleCta, { type CtaVariant } from "@/components/ArticleCta";
+import ArticleCta from "@/components/ArticleCta";
 import JournalNewsletterCard from "@/components/JournalNewsletterCard";
 import { getShopTaxonomy } from "@/lib/supabase";
 import { getAllSlugs, getArticle, formatDate } from "@/lib/journal";
@@ -62,6 +62,11 @@ export default async function ArticlePage({
   const { slug } = await params;
   const article = getArticle(slug);
   if (!article) notFound();
+
+  // One end-of-article CTA, chosen by article type. Honors the frontmatter
+  // `cta` (app | shop | guide | newsletter); falls back to a sensible default
+  // derived from the article's mode/pillar when it isn't set.
+  const bottomCta = resolveBottomCta(article);
 
   const taxonomy = await getShopTaxonomy();
   const shareUrl = `${SITE}/journal/${slug}`;
@@ -220,8 +225,11 @@ export default async function ArticlePage({
           dangerouslySetInnerHTML={{ __html: article.html }}
         />
         <div className="j-article">
-          <JournalNewsletterCard />
-          <ArticleCta variant={(article.cta as CtaVariant) || "app"} />
+          {bottomCta === "newsletter" ? (
+            <JournalNewsletterCard />
+          ) : (
+            <ArticleCta variant={bottomCta} />
+          )}
         </div>
       </article>
 
@@ -285,6 +293,36 @@ export default async function ArticlePage({
       <Footer />
     </main>
   );
+}
+
+type BottomCta = "app" | "shop" | "guide" | "newsletter";
+
+// Pick the single end-of-article CTA from the article's type. An explicit
+// frontmatter `cta` always wins; otherwise we default by mode/pillar:
+// news drives installs (app), shoppable pillars send to the edit (shop),
+// fabric/explainer pieces send to the guide, brand/manifesto capture email.
+function resolveBottomCta(article: {
+  cta?: string;
+  mode?: string;
+  pillar?: string;
+}): BottomCta {
+  const explicit = (article.cta || "").toLowerCase();
+  if (
+    explicit === "app" ||
+    explicit === "shop" ||
+    explicit === "guide" ||
+    explicit === "newsletter"
+  ) {
+    return explicit;
+  }
+
+  const pillar = (article.pillar || "").toLowerCase();
+  if (article.mode === "news") return "app";
+  if (pillar.includes("clean edit") || pillar.includes("brand")) return "shop";
+  if (pillar.includes("fabric") || pillar.includes("scan")) return "guide";
+  if (pillar.includes("manifesto") || pillar.includes("fashion wellness"))
+    return "newsletter";
+  return "app";
 }
 
 function ArrowLeftIcon() {
