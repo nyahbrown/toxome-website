@@ -18,16 +18,44 @@ type Row = {
   brand: string | null;
   toxome_score: number | null;
   item_image: string | null;
+  category: string | null;
+  age_band: string | null;
+  fabric_composition: Record<string, number> | null;
+  fibers_present: string[] | null;
 };
 
-// Pinterest is a search engine. The 2026 ranking rules drive the copy:
-//   - Front-load the primary long-tail keyword: only the first ~50 chars show
-//     in search, so "non-toxic clothing" leads every description.
-//   - Full sentences, written for humans, NOT hashtag stuffing (near-worthless).
-//   - Weave the niche's long-tail search terms (natural fiber, organic cotton,
-//     sensitive skin) naturally; close with a value prop + soft CTA.
-// The title also carries a keyword (Pinterest weighs it), product-led so the
-// account isn't hundreds of identically-prefixed pins.
+// Map a product to the keyword cluster people ACTUALLY search (from live
+// Pinterest autocomplete research): baby, activewear (the one place "PFAS-free"
+// genuinely sells), linen, organic cotton, else the generic head term. `tag`
+// rides on the title (Pinterest weighs it); `lead` front-loads the description
+// (only the first ~50 chars show in search). Health jargon (formaldehyde-free,
+// endocrine-safe) is the body hook, never the keyword.
+function cluster(p: Row): { tag: string; lead: string } {
+  const hay = `${p.item_name || ""} ${p.category || ""}`.toLowerCase();
+  const fibers = [
+    ...Object.keys(p.fabric_composition || {}),
+    ...(p.fibers_present || []),
+  ]
+    .join(" ")
+    .toLowerCase();
+
+  const isBaby =
+    p.age_band === "baby" ||
+    p.age_band === "kids" ||
+    /\b(baby|newborn|toddler|kids?|onesie|romper)\b/.test(hay);
+  const isActive =
+    /\b(legging|sports bra|activewear|workout|athletic|yoga|running|active|bike short)\b/.test(hay);
+
+  if (isBaby) return { tag: "Organic Cotton Baby Clothes", lead: "Organic cotton baby clothes" };
+  if (isActive) return { tag: "Non-Toxic Activewear", lead: "Non-toxic workout clothes, PFAS-free" };
+  if (fibers.includes("linen")) return { tag: "Linen Clothing", lead: "Linen outfit, non-toxic" };
+  if (fibers.includes("cotton")) return { tag: "Organic Cotton Clothing", lead: "Organic cotton clothing" };
+  return { tag: "Non-Toxic Clothing", lead: "Non-toxic clothing, scored" };
+}
+
+// Pinterest is a search engine. 2026 ranking rules drive the copy: front-load
+// the validated keyword (first ~50 chars are all that show in search), full
+// sentences not hashtags, value prop + soft CTA. The cluster picks the term.
 function pinCaption(p: Row): string {
   const brand = (p.brand || "").trim();
   const who = brand ? `${p.item_name} by ${brand}` : p.item_name || "this piece";
@@ -36,15 +64,15 @@ function pinCaption(p: Row): string {
       ? ` It earns a Toxome score of ${p.toxome_score}/100 for what its fibers do to your body.`
       : "";
   return (
-    `Non-toxic clothing, scored: ${who}.${score} ` +
-    "Shop natural-fiber, organic-cotton fashion for sensitive skin on toxome.app, and know what's in your clothes."
+    `${cluster(p).lead}: ${who}.${score} ` +
+    "Shop natural-fiber, non-toxic fashion on toxome.app, and know what's in your clothes."
   );
 }
 
 function pinTitle(p: Row): string {
   const name = p.item_name || "Toxome";
-  // Product-led with the primary keyword for search; varies per pin.
-  return `${name} | Non-Toxic Clothing`;
+  // Product-led + the validated category keyword; varies per pin.
+  return `${name} | ${cluster(p).tag}`;
 }
 
 // Daily Vercel Cron. Auto-pins published products to Pinterest exactly once
@@ -73,7 +101,7 @@ export async function GET(req: Request) {
   // Candidate products: published, with an image + score, newest first.
   const { data: products, error: prodErr } = await supabaseAdmin
     .from("products")
-    .select("id, item_name, brand, toxome_score, item_image")
+    .select("id, item_name, brand, toxome_score, item_image, category, age_band, fabric_composition, fibers_present")
     .eq("published", true)
     .not("item_image", "is", null)
     .not("toxome_score", "is", null)
