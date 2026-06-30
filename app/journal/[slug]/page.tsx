@@ -176,7 +176,7 @@ export default async function ArticlePage({
 
       {/* Lead image, leads the essay, magazine-style */}
       {article.hero && (
-        <figure className="shell" style={{ margin: 0, paddingTop: 44 }}>
+        <figure className="shell" style={{ margin: 0, paddingTop: 56 }}>
           <div
             className="j-article j-rise"
             style={{
@@ -220,18 +220,23 @@ export default async function ArticlePage({
       )}
 
       {/* Body */}
-      <article className="shell" style={{ paddingTop: 56, paddingBottom: 40 }}>
+      <article className="shell" style={{ paddingTop: 56, paddingBottom: 48 }}>
         <div
           className="j-article j-prose"
           dangerouslySetInnerHTML={{ __html: article.html }}
         />
-        <div className="j-article">
-          {bottomCta === "newsletter" ? (
-            <JournalNewsletterCard />
-          ) : (
-            <ArticleCta variant={bottomCta} />
-          )}
-        </div>
+        {/* In-body CTA. Skipped for "shop" articles: the end-of-article
+            "Shop the edit" product rail is the single, stronger shop moment,
+            so we don't double up on shopping prompts. */}
+        {bottomCta !== "shop" && (
+          <div className="j-article">
+            {bottomCta === "newsletter" ? (
+              <JournalNewsletterCard />
+            ) : (
+              <ArticleCta variant={bottomCta} />
+            )}
+          </div>
+        )}
       </article>
 
       {/* Sources + share + back */}
@@ -273,8 +278,7 @@ export default async function ArticlePage({
               justifyContent: "space-between",
               flexWrap: "wrap",
               gap: 20,
-              marginTop: 44,
-              paddingTop: 32,
+              marginTop: 56,
             }}
           >
             <Link href="/journal" className="pill-cta ghost">
