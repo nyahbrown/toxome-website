@@ -7,6 +7,7 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import NewsletterPopup from "@/components/NewsletterPopup";
 import ConsentNote from "@/components/ConsentNote";
+import MiniProductCard from "@/components/MiniProductCard";
 import type { ShopTaxonomy } from "@/lib/supabase";
 import type { Article } from "@/lib/journal";
 import type { Product } from "@/types/product";
@@ -170,68 +171,6 @@ function JournalSection({ articles }: { articles: Article[] }) {
         ))}
       </div>
     </section>
-  );
-}
-
-/* Minimal product card, image card with info below (locked Flamingo style). */
-function MiniProductCard({ p }: { p: Product }) {
-  return (
-    <Link
-      href={`/shop/${p.id}`}
-      style={{ textDecoration: "none", display: "block" }}
-    >
-      <div
-        style={{
-          position: "relative",
-          paddingBottom: "125.56%",
-          borderRadius: 10,
-          overflow: "hidden",
-          background: "var(--tan)",
-        }}
-      >
-        {p.item_image && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={p.item_image}
-            alt={p.item_name}
-            loading="lazy"
-            decoding="async"
-            style={{
-              position: "absolute",
-              inset: 0,
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-            }}
-          />
-        )}
-      </div>
-      <div style={{ paddingTop: 16 }}>
-        <div
-          style={{
-            fontFamily: "var(--sans)",
-            fontSize: 14,
-            fontWeight: 700,
-            lineHeight: 1.3,
-            letterSpacing: "-0.005em",
-            color: "var(--ink)",
-          }}
-        >
-          {p.item_name}
-        </div>
-        <div
-          style={{
-            fontFamily: "var(--sans)",
-            fontSize: 14,
-            color: "var(--ink-2)",
-            marginTop: 5,
-          }}
-        >
-          {p.brand}
-          {p.item_price != null && <> · ${p.item_price.toLocaleString()}</>}
-        </div>
-      </div>
-    </Link>
   );
 }
 

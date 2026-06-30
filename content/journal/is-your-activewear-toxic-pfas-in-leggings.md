@@ -15,6 +15,11 @@ keywords:
   - "non-toxic activewear"
   - "pfas in activewear"
 cta: "shop"
+products:
+  - "b687db64-4f71-45a1-8b65-30906ca2c608"  # Arms of Andes Alpaca Wool Sports Bra (92)
+  - "9d64fdc9-8bc5-4513-8322-d8c54a652873"  # Woolly Clothing Co Women's Merino Flex Legging (80)
+  - "ef4d217c-563a-48f6-990d-560fe383488c"  # MATE the Label Organic Midi Legging (77)
+  - "fe64c69c-7915-4ed1-9895-fe26e5abad2e"  # MATE the Label Organic Sports Bra (77)
 sources:
   - label: "Ragnarsdóttir, O., Harrad, S., et al. (2024). Dermal uptake of perfluoroalkyl substances in human skin. Environment International."
     href: "https://doi.org/10.1016/j.envint.2024.108772"

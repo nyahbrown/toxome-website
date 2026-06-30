@@ -23,6 +23,10 @@ export type ArticleMeta = {
   heroAlt?: string; // alt text for the hero/lead image
   keywords: string[]; // SEO keywords
   cta: string; // end-of-article CTA variant: app | shop | guide
+  // Optional curated override for the end-of-article "Shop the edit" rail:
+  // an ordered list of /shop product IDs. When absent, products auto-match
+  // the article topic. See components/ShopTheEdit.tsx.
+  products?: string[];
   readingTime: string;
   sources: Source[];
 };
@@ -66,6 +70,9 @@ function readArticle(slug: string): Article | null {
     heroAlt: data.heroAlt ? String(data.heroAlt) : undefined,
     keywords: Array.isArray(data.keywords) ? data.keywords.map(String) : [],
     cta: String(data.cta ?? "app"),
+    products: Array.isArray(data.products)
+      ? data.products.map(String).filter(Boolean)
+      : undefined,
     readingTime: `${minutes} min read`,
     sources: normalizeSources(data.sources),
     html,

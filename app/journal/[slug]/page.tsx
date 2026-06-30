@@ -8,6 +8,7 @@ import JsonLd from "@/components/JsonLd";
 import ShareBar from "@/components/ShareBar";
 import ArticleCta from "@/components/ArticleCta";
 import JournalNewsletterCard from "@/components/JournalNewsletterCard";
+import ShopTheEdit from "@/components/ShopTheEdit";
 import { getShopTaxonomy } from "@/lib/supabase";
 import { getAllSlugs, getArticle, formatDate } from "@/lib/journal";
 
@@ -234,7 +235,7 @@ export default async function ArticlePage({
       </article>
 
       {/* Sources + share + back */}
-      <section className="shell" style={{ paddingBottom: 120 }}>
+      <section className="shell" style={{ paddingBottom: 96 }}>
         <div className="j-article">
           {article.sources.length > 0 && (
             <>
@@ -289,6 +290,9 @@ export default async function ArticlePage({
           </div>
         </div>
       </section>
+
+      {/* Shop the edit — non-toxic women's pieces matched to the article */}
+      <ShopTheEdit article={article} />
 
       <Footer />
     </main>

@@ -153,6 +153,26 @@ export const getVerifiedBrands = cache(async (): Promise<VerifiedBrand[]> => {
     .sort((a, b) => b.count - a.count || a.brand.localeCompare(b.brand));
 });
 
+// Fetch a fixed set of published products by ID, preserving the order of the
+// `ids` argument (Supabase `.in()` returns rows in arbitrary order). Missing or
+// unpublished IDs are silently dropped. Used by the curated "Shop the edit"
+// override on Journal articles.
+export async function getProductsByIds(ids: string[]): Promise<Product[]> {
+  if (!ids.length) return [];
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .in("id", ids)
+    .eq("published", true);
+
+  if (error) {
+    console.error("Supabase products-by-ids fetch error:", error.message);
+    return [];
+  }
+  const byId = new Map((data ?? []).map((p) => [p.id, p]));
+  return ids.map((id) => byId.get(id)).filter((p): p is Product => !!p);
+}
+
 export async function getProductById(id: string): Promise<Product | null> {
   const { data, error } = await supabase
     .from("products")
