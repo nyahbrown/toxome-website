@@ -96,7 +96,7 @@ export default async function ShopTheEdit({ article }: { article: Article }) {
   if (products.length === 0) return null;
 
   return (
-    <section className="shell" style={{ paddingBottom: 120 }}>
+    <section className="shell" style={{ paddingTop: 8, paddingBottom: 80 }}>
       <div className="j-article" style={{ marginBottom: 30 }}>
         <div className="eyebrow" style={{ marginBottom: 12 }}>
           Shop the edit
@@ -110,16 +110,22 @@ export default async function ShopTheEdit({ article }: { article: Article }) {
             letterSpacing: "-0.018em",
             color: "var(--ink)",
             margin: 0,
-            maxWidth: 560,
+            maxWidth: 720,
+            textWrap: "balance",
           }}
         >
           non-toxic pieces worth reaching for.
         </h2>
       </div>
-      <div className="product-grid">
-        {products.map((p) => (
-          <MiniProductCard key={p.id} p={p} showScore />
-        ))}
+      {/* Constrained to the article column and capped so the cards read ~half
+          the full-bleed size, aligned to the body/heading rather than spanning
+          the whole page. Reuses .product-grid's responsive column logic. */}
+      <div className="j-article">
+        <div className="product-grid" style={{ maxWidth: 720, columnGap: 20 }}>
+          {products.map((p) => (
+            <MiniProductCard key={p.id} p={p} showScore />
+          ))}
+        </div>
       </div>
     </section>
   );

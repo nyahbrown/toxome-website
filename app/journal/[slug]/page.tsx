@@ -220,7 +220,7 @@ export default async function ArticlePage({
       )}
 
       {/* Body */}
-      <article className="shell" style={{ paddingTop: 56, paddingBottom: 48 }}>
+      <article className="shell" style={{ paddingTop: 56, paddingBottom: 64 }}>
         <div
           className="j-article j-prose"
           dangerouslySetInnerHTML={{ __html: article.html }}
@@ -239,7 +239,10 @@ export default async function ArticlePage({
         )}
       </article>
 
-      {/* Sources + share + back */}
+      {/* Shop the edit — non-toxic women's pieces, right after the read */}
+      <ShopTheEdit article={article} />
+
+      {/* Sources + share + back, the de-emphasized reference tail */}
       <section className="shell" style={{ paddingBottom: 96 }}>
         <div className="j-article">
           {article.sources.length > 0 && (
@@ -294,9 +297,6 @@ export default async function ArticlePage({
           </div>
         </div>
       </section>
-
-      {/* Shop the edit — non-toxic women's pieces matched to the article */}
-      <ShopTheEdit article={article} />
 
       <Footer />
     </main>
