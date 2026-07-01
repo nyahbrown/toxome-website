@@ -49,7 +49,7 @@ function matchCount(p: Product, terms: string[]): number {
   ).length;
 }
 
-// Select up to 4 women's/unisex products for the article's "Shop the edit".
+// Select up to 5 women's/unisex products for the article's "Shop the edit".
 //  1. Frontmatter `products:` override → those IDs, in order (curated already).
 //  2. Else auto-match by topic among published women's/unisex items that have
 //     an image + score, ranked by match strength then score.
@@ -58,7 +58,7 @@ function matchCount(p: Product, terms: string[]): number {
 async function selectEditProducts(article: Article): Promise<Product[]> {
   if (article.products && article.products.length > 0) {
     const picked = await getProductsByIds(article.products);
-    return picked.slice(0, 4);
+    return picked.slice(0, 5);
   }
 
   const pool = (await getPublishedProducts()).filter(
@@ -77,7 +77,7 @@ async function selectEditProducts(article: Article): Promise<Product[]> {
     )
     .map((s) => s.p);
 
-  if (topic.length >= 2) return topic.slice(0, 4);
+  if (topic.length >= 2) return topic.slice(0, 5);
 
   // Fill from highest-scored women's/unisex, keeping any single topic match.
   const result = [...topic];
@@ -85,10 +85,10 @@ async function selectEditProducts(article: Article): Promise<Product[]> {
     (a, b) => (b.toxome_score ?? 0) - (a.toxome_score ?? 0)
   );
   for (const p of byScore) {
-    if (result.length >= 4) break;
+    if (result.length >= 5) break;
     if (!result.some((r) => r.id === p.id)) result.push(p);
   }
-  return result.slice(0, 4);
+  return result.slice(0, 5);
 }
 
 export default async function ShopTheEdit({ article }: { article: Article }) {
@@ -117,11 +117,10 @@ export default async function ShopTheEdit({ article }: { article: Article }) {
           non-toxic pieces worth reaching for.
         </h2>
       </div>
-      {/* Constrained to the article column and capped so the cards read ~half
-          the full-bleed size, aligned to the body/heading rather than spanning
-          the whole page. Reuses .product-grid's responsive column logic. */}
+      {/* Constrained to the article column: a 5-up rail of small cards that
+          aligns to the body/heading instead of spanning the whole page. */}
       <div className="j-article">
-        <div className="product-grid" style={{ maxWidth: 720, columnGap: 20 }}>
+        <div className="edit-rail">
           {products.map((p) => (
             <MiniProductCard key={p.id} p={p} showScore />
           ))}
