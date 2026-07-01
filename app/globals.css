@@ -634,17 +634,23 @@ button { font-family: inherit; }
 @media (max-width: 640px)  { .product-grid { grid-template-columns: repeat(2, 1fr); column-gap: 14px; row-gap: 34px; } }
 @media (max-width: 380px)  { .product-grid { column-gap: 12px; row-gap: 28px; } }
 
-/* Journal "Shop the edit" rail — 5 small cards, aligned to the body column
-   (not full-bleed). Collapses gracefully on narrower viewports. */
+/* Journal "Shop the edit" rail — a horizontal strip of small (~half-size)
+   cards, single row, aligned to the body column. Fits 5 across on desktop;
+   scrolls horizontally on narrower viewports instead of wrapping. */
 .edit-rail {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  column-gap: 18px;
-  row-gap: 48px;
-  max-width: 850px;
+  display: flex;
+  gap: 18px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
-@media (max-width: 1024px) { .edit-rail { grid-template-columns: repeat(3, 1fr); row-gap: 40px; } }
-@media (max-width: 640px)  { .edit-rail { grid-template-columns: repeat(2, 1fr); column-gap: 14px; row-gap: 32px; } }
+.edit-rail::-webkit-scrollbar { display: none; }
+.edit-rail > * { flex: 0 0 160px; }
+@media (max-width: 640px) {
+  .edit-rail { gap: 14px; }
+  .edit-rail > * { flex-basis: 150px; }
+}
 
 /* Login: email/password form revealed when "or … with email" is tapped. */
 @keyframes auth-email-reveal {
