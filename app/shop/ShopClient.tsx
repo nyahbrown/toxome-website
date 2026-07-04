@@ -107,8 +107,14 @@ function ProductCard({
   // Skeleton shimmer until the primary image decodes; reset if the src changes
   // (e.g. an onError fallback advances to the next candidate).
   const [loaded, setLoaded] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
   useEffect(() => {
-    setLoaded(false);
+    // Cached / fast-decoding images are often already `complete` before onLoad
+    // ever fires. This reset MUST re-check that, or the card stays stuck at
+    // opacity 0 (grey) forever. Show immediately when the current src is already
+    // decoded; otherwise wait for onLoad.
+    const node = imgRef.current;
+    setLoaded(!!(node && node.complete && node.naturalWidth > 0));
   }, [imgSrc]);
 
   return (
@@ -138,10 +144,7 @@ function ProductCard({
               alt={p.item_name}
               loading="lazy"
               decoding="async"
-              ref={(node) => {
-                // Cached images can be complete before onLoad attaches.
-                if (node && node.complete && node.naturalWidth > 0) setLoaded(true);
-              }}
+              ref={imgRef}
               onLoad={() => setLoaded(true)}
               onError={() => setImgIdx((i) => i + 1)}
               style={{
@@ -199,14 +202,16 @@ function ProductCard({
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
+              padding: "0 18px",
+              textAlign: "center",
               fontFamily: "var(--mono)",
-              fontSize: 10,
-              letterSpacing: ".1em",
-              textTransform: "uppercase",
+              fontSize: 11,
+              lineHeight: 1.4,
+              letterSpacing: ".04em",
               color: "var(--ink-3)",
             }}
           >
-            No image
+            {p.item_name}
           </div>
         )}
         {editorsPick ? (
