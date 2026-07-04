@@ -8,6 +8,7 @@ import type { ShopTaxonomy } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import FrostedSelect from "@/components/FrostedSelect";
 import WishlistHeart from "@/components/WishlistHeart";
+import ScoreBadge from "@/components/ScoreBadge";
 import { normalizeFiber } from "@/lib/fabricScores";
 import { EDITORS_PICKS, isEditorsPick } from "@/lib/editorsPicks";
 import { track } from "@/lib/track";
@@ -250,12 +251,23 @@ function ProductCard({
           onClick={() => onToggle(p)}
           stopPropagation
         />
+        {/* Toxome verdict — the moat, surfaced on every card while browsing.
+            Same GREAT/GOOD/OKAY/BAD treatment as the product page (ScoreBadge),
+            with the numeric 0–100 score appended. */}
+        {(p.toxome_score != null || p.risk_level) && (
+          <ScoreBadge
+            score={p.toxome_score}
+            level={p.risk_level}
+            showScore
+            overlay
+          />
+        )}
         {productRungRank(p) >= 2 && (
           <span
             style={{
               position: "absolute",
               bottom: 14,
-              left: 14,
+              right: 14,
               display: "inline-flex",
               alignItems: "center",
               gap: 6,

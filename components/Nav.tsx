@@ -222,37 +222,31 @@ export default function Nav({
           <span className="nav-desktop-only" style={{ display: "inline-flex" }}>
             <NavSearch transparent={transparent} />
           </span>
+          {/* Secondary text link — the app is now a secondary feature, so this
+              is toned down from the old filled pill to match the other nav
+              items (shop + newsletter lead). */}
           <Link
             className="nav-desktop-only"
             href="/app"
             style={{
                 display: "inline-flex",
                 alignItems: "center",
-                height: 32,
-                padding: "0 16px",
-                borderRadius: 999,
-                background: transparent
-                  ? "rgba(255,255,255,0.14)"
-                  : "var(--ink)",
-                border: transparent
-                  ? "1px solid rgba(255,255,255,0.32)"
-                  : "1px solid var(--ink)",
-                color: transparent
-                  ? "rgba(255,255,255,0.96)"
-                  : "var(--white)",
-                fontSize: 13,
+                fontSize: 14,
+                fontWeight: 400,
                 letterSpacing: "-0.005em",
+                color: transparent
+                  ? "rgba(255,255,255,0.92)"
+                  : "var(--ink-2)",
                 textDecoration: "none",
-                transition:
-                  "background 200ms ease, border-color 200ms ease, color 200ms ease",
+                transition: "color 300ms ease",
                 gap: 6,
                 whiteSpace: "nowrap",
               }}
             >
               download app
               <svg
-                width="13"
-                height="13"
+                width="12"
+                height="12"
                 viewBox="0 0 384 512"
                 fill="currentColor"
                 aria-hidden="true"
@@ -583,23 +577,19 @@ export default function Nav({
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
-                  justifyContent: "center",
-                  width: "100%",
-                  height: 48,
-                  borderRadius: 999,
-                  background: "var(--ink)",
-                  color: "var(--white)",
                   fontSize: 15,
-                  fontWeight: 500,
+                  fontWeight: 400,
                   letterSpacing: "-0.005em",
+                  color: "var(--ink-2)",
                   textDecoration: "none",
+                  padding: "10px 0 18px",
                   gap: 7,
                 }}
               >
                 download app
                 <svg
-                  width="15"
-                  height="15"
+                  width="12"
+                  height="12"
                   viewBox="0 0 384 512"
                   fill="currentColor"
                   aria-hidden="true"

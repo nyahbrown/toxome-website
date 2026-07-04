@@ -44,14 +44,14 @@ const inter = Inter({
 });
 
 const SITE_DESCRIPTION =
-  "Photograph the composition tag on any garment. Toxome reads the fibers and tells you exactly what they do to your body, and to the world.";
+  "Toxome is the curated directory of non-toxic fashion. Every piece scored for what it does to your body. Know what's in your clothes.";
 
 export const metadata: Metadata = {
   // Resolves all relative canonical / OpenGraph URLs to absolute ones.
   metadataBase: new URL("https://toxome.app"),
-  title: "Toxic Fashion Detector: Know What's in Your Clothes | Toxome",
+  title: "Toxome: Know What's in Your Clothes | Non-Toxic Fashion, Scored",
   description:
-    "Toxic fashion detector for your closet. Scan any clothing tag to see the fibers and chemicals inside and what they do to your body. Free to scan.",
+    "Toxome is the curated directory of non-toxic clothing. Every piece scored for what it does to your body. Know what's in your clothes.",
   // Self-referencing canonical for the homepage. Every other route overrides
   // this with its own path.
   alternates: {
