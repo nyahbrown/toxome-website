@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { HeartFilled, HeartOutline } from "@/components/icons";
 import CertBadge from "@/components/CertBadge";
 import VerificationRung from "@/components/VerificationRung";
+import ScoreBadge from "@/components/ScoreBadge";
 // Single source of truth for fiber hazard colors + labels, keeps the product
 // page bars in sync with the score table (alpaca/cashmere green, Lenzing green,
 // recycled synthetics red, "european linen" -> linen via keyword fallback, etc.)
@@ -24,51 +25,6 @@ function fiberHref(fiber: string): string {
   return slug
     ? `/shop/collection/${slug}`
     : `/shop?fiber=${encodeURIComponent(fiber.toLowerCase())}`;
-}
-
-function RiskChip({
-  score,
-  level,
-}: {
-  score?: number | null;
-  level?: "low" | "moderate" | "high" | null;
-}) {
-  // Four-word verdict, matching the Toxome browser extension (higher = cleaner):
-  // >=85 Great, >=68 Good, >=40 Okay, else Bad. Color follows the 3-band ramp.
-  let m: { color: string; label: string };
-  if (score != null) {
-    m = {
-      label: score >= 85 ? "Great" : score >= 68 ? "Good" : score >= 40 ? "Okay" : "Bad",
-      color: score >= 68 ? "var(--risk-low)" : score >= 40 ? "var(--orange)" : "var(--red)",
-    };
-  } else {
-    const fallback = {
-      low: { color: "var(--risk-low)", label: "Good" },
-      moderate: { color: "var(--orange)", label: "Okay" },
-      high: { color: "var(--red)", label: "Bad" },
-    } as const;
-    m = fallback[level ?? "low"];
-  }
-  return (
-    <span
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 6,
-        fontFamily: "var(--mono)",
-        fontSize: 11,
-        fontWeight: 500,
-        letterSpacing: "0.08em",
-        textTransform: "uppercase",
-        color: "var(--ink)",
-        background: m.color,
-        padding: "5px 11px",
-        borderRadius: 999,
-      }}
-    >
-      {m.label}
-    </span>
-  );
 }
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
@@ -427,7 +383,7 @@ export default function ProductDetailClient({
                 </span>
               )}
               {(product.toxome_score != null || product.risk_level) && (
-                <RiskChip score={product.toxome_score} level={product.risk_level} />
+                <ScoreBadge score={product.toxome_score} level={product.risk_level} />
               )}
               <VerificationRung
                 certifications={product.certifications}

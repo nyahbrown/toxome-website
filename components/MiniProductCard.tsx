@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Product } from "@/types/product";
+import ScoreBadge from "@/components/ScoreBadge";
 
 // Minimal product card, image card with info below (locked Flamingo style).
 // Shared by the homepage Editor's Picks and the Journal "Shop the edit" rail so
@@ -42,43 +43,13 @@ export default function MiniProductCard({
             }}
           />
         )}
-        {showScore && p.toxome_score != null && (
-          <span
-            style={{
-              position: "absolute",
-              bottom: 12,
-              left: 12,
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 6,
-              fontFamily: "var(--mono)",
-              fontSize: 11,
-              fontWeight: 600,
-              letterSpacing: "0.06em",
-              color: "var(--ink)",
-              background: "rgba(252,251,247,0.9)",
-              backdropFilter: "blur(8px) saturate(150%)",
-              WebkitBackdropFilter: "blur(8px) saturate(150%)",
-              padding: "4px 10px",
-              borderRadius: 999,
-            }}
-          >
-            <span
-              aria-hidden
-              style={{
-                width: 6,
-                height: 6,
-                borderRadius: 999,
-                background:
-                  p.toxome_score >= 68
-                    ? "var(--risk-low)"
-                    : p.toxome_score >= 40
-                      ? "var(--orange)"
-                      : "var(--red)",
-              }}
-            />
-            {p.toxome_score}
-          </span>
+        {showScore && (p.toxome_score != null || p.risk_level) && (
+          <ScoreBadge
+            score={p.toxome_score}
+            level={p.risk_level}
+            showScore
+            overlay
+          />
         )}
       </div>
       <div style={{ paddingTop: 16 }}>
