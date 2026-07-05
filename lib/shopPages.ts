@@ -419,9 +419,11 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
     ],
     section: "home",
     match: (p) =>
-      p.gender?.toLowerCase() === "home" &&
-      p.category === "Bedding" &&
-      hasFiber(p, "organic cotton"),
+      p.category === "Home" &&
+      hasFiber(p, "organic cotton") &&
+      /(sheet|duvet|pillow|sham|bedding|comforter|quilt|coverlet|mattress|blanket)/i.test(
+        p.item_name
+      ),
   },
   {
     slug: "non-toxic-silk-tops",
@@ -478,6 +480,180 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
       p.gender?.toLowerCase() === "women" &&
       p.category === "Bottoms" &&
       hasFiber(p, "linen"),
+  },
+  {
+    slug: "non-toxic-organic-cotton-dresses",
+    title: "Non-Toxic Organic Cotton Dresses, Scored | Toxome",
+    heading: "non-toxic organic cotton dresses",
+    description:
+      "Organic cotton dresses for women, scored by Toxome and free of the plastic blends and pesticides in conventional cotton. Breathable, everyday-soft, clean against the skin.",
+    intro:
+      "a dress moves with you all day, so the fiber against your skin matters. conventional cotton is one of the most pesticide-heavy crops, and plenty of 'cotton' dresses are cut with polyester to drop the price. every dress here is organic cotton, grown without synthetic pesticides, and scored by toxome for its real fiber content.",
+    faqs: [
+      {
+        q: "Are organic cotton dresses non-toxic?",
+        a: "Organic cotton is a natural plant fiber grown without synthetic pesticides or fertilizers, and it carries none of the plastic found in polyester blends. It breathes and stays soft against the skin. Toxome scores each dress by its fiber content so you can confirm it is organic cotton and not a synthetic blend.",
+      },
+      {
+        q: "Is organic cotton better than regular cotton?",
+        a: "Organic cotton is grown without the synthetic pesticides and fertilizers used on conventional cotton, one of the most chemically treated crops in the world. The finished fiber is the same soft, breathable cotton, grown in a way that keeps those chemicals off the field and off your skin.",
+      },
+      {
+        q: "Why does Toxome score clothes by fiber?",
+        a: "Fiber content is what touches the skin. Toxome reads each garment's composition and rates it, so the score reflects what the clothing is made of, not a brand's marketing.",
+      },
+    ],
+    section: "women",
+    match: (p) =>
+      p.gender?.toLowerCase() === "women" &&
+      p.category === "Dresses" &&
+      hasFiber(p, "organic cotton"),
+  },
+  {
+    slug: "non-toxic-linen-tops",
+    title: "Non-Toxic Linen Tops, Scored by Fiber | Toxome",
+    heading: "non-toxic linen tops",
+    description:
+      "Pure linen tops and blouses for women, scored by Toxome. Breathable flax that stays cool, free of the 'linen-look' polyester blends on most racks.",
+    intro:
+      "linen comes from the flax plant, the most breathable fiber you can wear, which is why a linen top stays cool when a synthetic one turns clammy. every top here is scored by toxome for its real fiber content, so you know you are getting flax, not a 'linen-look' plastic blend.",
+    faqs: [
+      {
+        q: "Is linen a non-toxic fabric?",
+        a: "Linen is a natural fiber made from the flax plant, free of the petroleum-based plastics in synthetic fabrics. It needs little water or pesticide to grow and breathes better than almost any other fiber. Toxome scores each top by its fiber content.",
+      },
+      {
+        q: "Is linen good for hot weather?",
+        a: "Linen is more breathable than almost any other fabric and wicks moisture away from the skin, so it feels cool and dries fast in heat and humidity. It is a natural plant fiber with no plastic content.",
+      },
+      {
+        q: "Why does Toxome score clothes by fiber?",
+        a: "Fiber content is what touches the skin. Toxome reads each garment's composition and rates it, so the score reflects what the clothing is made of, not a brand's marketing.",
+      },
+    ],
+    section: "women",
+    match: (p) =>
+      p.gender?.toLowerCase() === "women" &&
+      p.category === "Tops" &&
+      hasFiber(p, "linen"),
+  },
+  {
+    slug: "organic-cotton-underwear",
+    title: "Organic Cotton Underwear for Women, Scored | Toxome",
+    heading: "organic cotton underwear",
+    description:
+      "Organic cotton underwear and intimates for women, scored by Toxome. Breathable natural cotton where it matters most, without polyester or synthetic finishes.",
+    intro:
+      "underwear sits against the most absorbent skin on your body all day, so the fiber matters more here than almost anywhere. most 'everyday' underwear is polyester or nylon with synthetic finishes. every piece here is organic cotton, grown without synthetic pesticides and breathable where it counts, scored by toxome for its real fiber content.",
+    faqs: [
+      {
+        q: "Is organic cotton underwear better?",
+        a: "Underwear sits against sensitive, absorbent skin all day, so a breathable natural fiber matters more here than in most clothing. Organic cotton is grown without synthetic pesticides and carries none of the plastic in polyester or nylon. Toxome scores each piece by its fiber content.",
+      },
+      {
+        q: "Is polyester underwear bad?",
+        a: "Polyester and nylon are plastic fibers that trap heat and moisture and don't breathe the way cotton does. For something worn against the most sensitive skin all day, a natural fiber like organic cotton is the cleaner choice.",
+      },
+      {
+        q: "Why does Toxome score clothes by fiber?",
+        a: "Fiber content is what touches the skin. Toxome reads each garment's composition and rates it, so the score reflects what the clothing is made of, not a brand's marketing.",
+      },
+    ],
+    section: "women",
+    match: (p) =>
+      p.gender?.toLowerCase() === "women" &&
+      p.category === "Intimates" &&
+      hasFiber(p, "organic cotton"),
+  },
+  {
+    slug: "non-toxic-pajamas",
+    title: "Non-Toxic Pajamas & Sleepwear, Scored | Toxome",
+    heading: "non-toxic pajamas",
+    description:
+      "Pajamas and sleepwear made from natural fibers, scored by Toxome. Breathable cotton, linen, and silk you sleep in for hours, without polyester.",
+    intro:
+      "you spend hours a night in your pajamas, so what they're made of matters more than most of your wardrobe. a lot of sleepwear sold as soft is polyester, a plastic that traps heat and doesn't breathe. every piece here is built on a natural fiber, cotton, linen, or silk, and scored by toxome for its real fiber content.",
+    faqs: [
+      {
+        q: "What is the best fabric for pajamas?",
+        a: "Natural fibers: cotton and linen breathe and pull heat away from the body, and silk regulates temperature without trapping it. All three beat polyester, which holds heat and moisture against the skin while you sleep. Every piece here is built on a natural fiber and scored by Toxome.",
+      },
+      {
+        q: "Is it bad to sleep in polyester?",
+        a: "Polyester is a plastic that traps heat and moisture and doesn't breathe, which can leave you warm and clammy overnight. For something you spend hours in against bare skin, a breathable natural fiber like cotton, linen, or silk is the cleaner choice.",
+      },
+      {
+        q: "Why does Toxome score clothes by fiber?",
+        a: "Fiber content is what touches the skin. Toxome reads each garment's composition and rates it, so the score reflects what the clothing is made of, not a brand's marketing.",
+      },
+    ],
+    section: null,
+    match: (p) =>
+      p.category === "Pajamas" &&
+      (hasFiber(p, "cotton") ||
+        hasFiber(p, "linen") ||
+        hasFiber(p, "silk") ||
+        hasFiber(p, "bamboo")),
+  },
+  {
+    slug: "non-toxic-activewear",
+    title: "Non-Toxic Activewear, Scored by Fiber | Toxome",
+    heading: "non-toxic activewear",
+    description:
+      "Activewear built on natural fibers like organic cotton and merino wool, scored by Toxome instead of the pure plastic most leggings are made of.",
+    intro:
+      "most activewear is polyester and elastane, plastic worn tight against sweating skin, and much of it carries pfas water-repellent and anti-odor finishes. every piece here is built on a natural fiber like organic cotton or merino wool and scored by toxome for its real fiber content, so you can find the cleaner end of the rack.",
+    faqs: [
+      {
+        q: "Is activewear toxic?",
+        a: "Most activewear is polyester or nylon with elastane, and performance finishes on leggings and tops can include PFAS, the 'forever chemicals' used to repel water and odor. Worn tight against sweating skin, that combination is a real exposure. Toxome scores each piece by fiber so you can choose natural-fiber options.",
+      },
+      {
+        q: "Does activewear have PFAS?",
+        a: "PFAS often show up in the water-repellent and sweat-wicking finishes on performance gear. Not every piece carries them, but they are common in conventional activewear. Choosing activewear built on natural fibers, without the performance finishes, is the simplest way to avoid them.",
+      },
+      {
+        q: "Why does Toxome score clothes by fiber?",
+        a: "Fiber content is what touches the skin. Toxome reads each garment's composition and rates it, so the score reflects what the clothing is made of, not a brand's marketing.",
+      },
+    ],
+    section: null,
+    match: (p) =>
+      p.category === "Activewear" &&
+      (hasFiber(p, "cotton") ||
+        hasFiber(p, "merino") ||
+        hasFiber(p, "wool") ||
+        hasFiber(p, "linen") ||
+        hasFiber(p, "hemp")),
+  },
+  {
+    slug: "non-toxic-wool-sweaters",
+    title: "Non-Toxic Wool & Cashmere Sweaters, Scored | Toxome",
+    heading: "non-toxic wool sweaters",
+    description:
+      "Sweaters knit from wool, cashmere, and alpaca, scored by Toxome and free of the acrylic plastic in most 'soft' knits.",
+    intro:
+      "most soft sweaters are acrylic, a plastic fiber that pills, traps heat, and sheds microplastics in the wash. every sweater here is knit from a natural animal fiber, wool, cashmere, or alpaca, that insulates and breathes, scored by toxome for its real fiber content.",
+    faqs: [
+      {
+        q: "Is acrylic a bad fabric for sweaters?",
+        a: "Acrylic is a plastic fiber. It traps heat, pills quickly, and sheds microplastics in the wash, and it doesn't breathe the way a natural fiber does. Wool, cashmere, and alpaca insulate while still letting the body breathe, which is why they wear so differently over time.",
+      },
+      {
+        q: "Is wool a non-toxic fabric?",
+        a: "Wool is a natural animal fiber, free of the plastics in acrylic and polyester knits. It insulates, breathes, and resists odor without chemical treatments. Toxome scores each sweater by its fiber content so you can tell natural wool from a synthetic blend.",
+      },
+      {
+        q: "Why does Toxome score clothes by fiber?",
+        a: "Fiber content is what touches the skin. Toxome reads each garment's composition and rates it, so the score reflects what the clothing is made of, not a brand's marketing.",
+      },
+    ],
+    section: null,
+    match: (p) =>
+      p.category === "Sweaters" &&
+      (hasFiber(p, "wool") ||
+        hasFiber(p, "cashmere") ||
+        hasFiber(p, "alpaca")),
   },
 ];
 

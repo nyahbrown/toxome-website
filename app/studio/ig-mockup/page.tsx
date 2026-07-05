@@ -52,7 +52,7 @@ const SLIDES: Slide[] = [
 ];
 
 const CAPTION =
-  "On June 25, the Supreme Court ruled that Monsanto cannot be sued under state law for failing to warn that Roundup may cause cancer. Glyphosate, the weedkiller in Roundup, is sprayed on most conventional cotton, and residues can remain in the fabric that sits against your skin. The science is still contested. Choosing organic or GOTS-certified cotton is one way to lower your exposure to glyphosate in clothing. Read the full account on the Journal (link in bio), and browse the non-toxic, organic-cotton edit at toxome.app/shop. #nontoxicliving #organiccotton #glyphosate #fashionwellness #toxicfreefashion";
+  "On June 25, the Supreme Court ruled that Monsanto cannot be sued under state law for failing to warn that Roundup may cause cancer. Glyphosate, the weedkiller in Roundup, is sprayed on most conventional cotton, and residues can remain in the fabric that sits against your skin. The science is still contested. Choosing organic or GOTS-certified cotton is one way to lower your exposure to glyphosate in clothing. #nontoxicliving #organiccotton #glyphosate #fashionwellness #toxicfreefashion";
 
 function Logo({ size = 22 }: { size?: number }) {
   // Actual Toxome brand eye mark (public/toxome-logo.png), aspect ~1.53:1.
@@ -324,6 +324,53 @@ function ShopSlide({
   );
 }
 
+// Slide 1's text overlay alone (no video) on a transparent ground — captured as
+// a PNG and composited onto the cotton-spray video for the exported reel slide.
+function VideoOverlay({ slide }: { slide: Extract<Slide, { kind: "video" }> }) {
+  return (
+    <>
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background:
+            "linear-gradient(180deg, rgba(0,0,0,0.28) 0%, rgba(0,0,0,0) 32%, rgba(0,0,0,0.12) 58%, rgba(0,0,0,0.62) 100%)",
+        }}
+      />
+      <div style={{ position: "absolute", top: 22, left: 22 }}>
+        <Lockup light />
+      </div>
+      <div style={{ position: "absolute", left: 26, right: 26, bottom: 30 }}>
+        <p
+          style={{
+            fontSize: 11,
+            fontWeight: 600,
+            letterSpacing: "0.16em",
+            textTransform: "uppercase",
+            color: "rgba(255,255,255,0.82)",
+            margin: "0 0 12px",
+          }}
+        >
+          {slide.eyebrow}
+        </p>
+        <h2
+          style={{
+            fontSize: 30,
+            lineHeight: 1.12,
+            fontWeight: 600,
+            letterSpacing: "-0.02em",
+            color: "#fff",
+            margin: 0,
+            textShadow: "0 1px 24px rgba(0,0,0,0.35)",
+          }}
+        >
+          {slide.hook}
+        </h2>
+      </div>
+    </>
+  );
+}
+
 function SlideView({
   slide,
   shopVariant,
@@ -479,6 +526,41 @@ export default function IgMockup() {
           )
         );
   const last = SLIDES.length - 1;
+
+  // Export mode: ?export=N renders only slide N's media at 540x675 (1080x1350 @2x)
+  // with no IG chrome, for capturing standalone carousel assets. ?overlay=1
+  // renders just slide 1's text overlay on a transparent ground (for the reel).
+  const params =
+    typeof window === "undefined" ? null : new URLSearchParams(window.location.search);
+  const exportN = params ? parseInt(params.get("export") || "0", 10) || 0 : 0;
+  const overlayOnly = params ? params.get("overlay") === "1" : false;
+
+  if (exportN >= 1 && exportN <= SLIDES.length) {
+    const s = SLIDES[exportN - 1];
+    return (
+      <div
+        style={{
+          width: 540,
+          height: 675,
+          position: "relative",
+          overflow: "hidden",
+          background: overlayOnly ? "transparent" : "#000",
+          fontFamily: SANS,
+          textTransform: "none",
+        }}
+      >
+        {/* hide Next.js dev indicators so they don't bleed into exported assets */}
+        <style>{`nextjs-portal,[data-nextjs-toast],#__next-build-watcher{display:none!important}${
+          overlayOnly ? "html,body{background:transparent!important}" : ""
+        }`}</style>
+        {overlayOnly && s.kind === "video" ? (
+          <VideoOverlay slide={s} />
+        ) : (
+          <SlideView slide={s} shopVariant={shopVariant} />
+        )}
+      </div>
+    );
+  }
 
   return (
     <div
