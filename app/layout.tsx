@@ -7,6 +7,7 @@ import JsonLd from "@/components/JsonLd";
 import Skimlinks from "@/components/Skimlinks";
 import { AuthProvider } from "@/contexts/AuthContext";
 import PageViewTracker from "@/components/PageViewTracker";
+import PinterestTag from "@/components/PinterestTag";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
@@ -96,6 +97,7 @@ export default function RootLayout({
         <AnimationProvider />
         <AuthProvider>
           <PageViewTracker />
+          <PinterestTag />
           {children}
         </AuthProvider>
         <CookieBanner />

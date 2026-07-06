@@ -14,28 +14,51 @@ const MAX_PER_RUN = 2;
 
 type Article = ReturnType<typeof getAllArticles>[number];
 
-// Pinterest pin description: the dek, a soft CTA, and a few keyword hashtags
-// (Pinterest is a search engine, so the keywords matter). The title rides on the
-// pin target separately; this is the body/description.
-function pinCaption(a: Article): string {
-  const tags = (a.keywords || [])
-    .slice(0, 4)
-    .map((k) => "#" + k.replace(/[^a-z0-9]+/gi, ""))
-    .filter((t) => t.length > 2)
-    .join(" ");
-  return [
-    a.dek,
-    "Read the full guide on toxome.app, and know what's in your clothes.",
-    tags,
-  ]
-    .filter(Boolean)
-    .join("\n\n");
+// Map an article to the keyword cluster people ACTUALLY search on Pinterest
+// (validated 2026 autocomplete). The `lead` front-loads the description — only
+// the first ~50 chars show in Pinterest search — so the validated keyword goes
+// first, never a hashtag. Health jargon (formaldehyde-free, PFAS-free, etc.) is
+// a body hook only; it is dead as a search term. Mirrors cluster() in the
+// products-pinterest cron.
+function cluster(a: Article): { lead: string; bodyHook: string } {
+  const hay = `${a.slug} ${a.title} ${a.pillar} ${(a.keywords || []).join(" ")} ${a.dek}`.toLowerCase();
+  if (/\b(baby|newborn|toddler|kids?|onesie|romper)\b/.test(hay)) {
+    return { lead: "Organic cotton baby clothes", bodyHook: "" };
+  }
+  if (/\b(activewear|legging|spandex|elastane|workout|athletic|yoga|sports bra|performance)\b/.test(hay)) {
+    return { lead: "Non-toxic workout clothes", bodyHook: "The finish on a lot of leggings isn't PFAS-free. " };
+  }
+  if (/\blinen\b/.test(hay)) {
+    return { lead: "Linen outfits", bodyHook: "" };
+  }
+  if (/\b(organic|regenerative|glyphosate)\b/.test(hay) && /cotton/.test(hay)) {
+    return { lead: "Organic cotton aesthetic", bodyHook: "" };
+  }
+  return { lead: "Non-toxic clothing", bodyHook: "" };
 }
 
-// Daily Vercel Cron. Auto-pins every published Journal article exactly once.
-// Fully automatic (no approval step) per the publishing decision; the
-// journal_pins ledger guarantees each article posts a single time. CRON_SECRET
-// gates the endpoint. Append ?dryRun=1 to preview without posting.
+// First clean sentence of the dek — the value line after the keyword lead.
+function firstSentence(dek: string): string {
+  const m = dek.match(/^.*?[.!?](?=\s|$)/);
+  return (m ? m[0] : dek).trim();
+}
+
+// Pinterest is a search engine. Front-load the validated keyword (first ~50
+// chars are all that show), then a value sentence from the dek, then a soft CTA.
+// No hashtags.
+function pinCaption(a: Article): string {
+  const { lead, bodyHook } = cluster(a);
+  const value = firstSentence(a.dek);
+  return `${lead}: ${value} ${bodyHook}Read the full guide on toxome.app, and know what's in your clothes.`
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// Daily Vercel Cron. Auto-pins every published Journal article exactly once
+// with the v1 editorial-cover design (/journal/[slug]/pin). Fully automatic (no
+// approval step) per the publishing decision; the journal_pins ledger guarantees
+// each article posts a single time. CRON_SECRET gates the endpoint. Append
+// ?dryRun=1 to preview without posting.
 export async function GET(req: Request) {
   const secret = process.env.CRON_SECRET;
   if (secret && req.headers.get("authorization") !== `Bearer ${secret}`) {
@@ -64,7 +87,7 @@ export async function GET(req: Request) {
     };
 
     if (dryRun) {
-      results.push({ slug: a.slug, dryRun: true, title: a.title, media_url: draft.media_url, link: draft.link });
+      results.push({ slug: a.slug, dryRun: true, title: a.title, body: draft.body, media_url: draft.media_url, link: draft.link });
       continue;
     }
 
