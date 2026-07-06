@@ -1028,6 +1028,87 @@ button { font-family: inherit; }
   .article-cta { padding: 32px 22px; }
 }
 
+/* ── In-article media figures ─────────────────────────────────────────── */
+/* One material for every embed: a soft plate with a hairline edge and a
+   warm, ink-tinted diffusion shadow (never a black drop shadow). Media lifts
+   a touch on hover; transform + shadow only, so it stays 60fps. */
+.j-figure { margin: 36px 0; }
+.j-figure--phone {
+  max-width: 300px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.j-figure > img,
+.j-figure > video {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+  border: 1px solid var(--hairline);
+  background: var(--tan);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset,
+    0 22px 46px -22px rgba(59, 60, 58, 0.18);
+  transition: transform 420ms var(--ease-out-strong),
+    box-shadow 420ms var(--ease-out-strong);
+}
+.j-figure--phone > video { border-radius: 22px; }
+.j-figure > img:hover,
+.j-figure > video:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.6) inset,
+    0 32px 60px -24px rgba(59, 60, 58, 0.24);
+}
+.j-figure figcaption {
+  margin: 13px auto 0;
+  max-width: 46ch;
+  font-size: 13px;
+  line-height: 1.5;
+  letter-spacing: -0.002em;
+  color: var(--ink-3);
+  text-align: center;
+}
+
+/* ── In-article CTA (mid-read) ────────────────────────────────────────── */
+/* Elevated because it is an action, not decoration. Echoes .article-cta but
+   left-aligned to sit inside the reading column. */
+.j-cta {
+  margin: 40px 0;
+  padding: 26px 28px 28px;
+  border-radius: 18px;
+  background: var(--white);
+  border: 1px solid var(--hairline);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.6) inset,
+    0 18px 42px -24px rgba(59, 60, 58, 0.16);
+}
+.j-cta__eyebrow {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin: 0 0 10px;
+}
+.j-cta__headline {
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 19px;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin: 0 0 6px;
+}
+.j-cta__body {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink-2);
+  margin: 0 0 18px;
+  max-width: 52ch;
+}
+.j-cta .pill-cta {
+  text-decoration: none;
+  color: var(--white);
+}
+
 /* ── Share bar ────────────────────────────────────────────────────────── */
 .share-bar {
   display: flex;
