@@ -9,6 +9,7 @@ import ShareBar from "@/components/ShareBar";
 import ArticleCta from "@/components/ArticleCta";
 import JournalNewsletterCard from "@/components/JournalNewsletterCard";
 import ShopTheEdit from "@/components/ShopTheEdit";
+import InlineMediaPlay from "@/components/InlineMediaPlay";
 import { getShopTaxonomy } from "@/lib/supabase";
 import { getAllSlugs, getArticle, formatDate } from "@/lib/journal";
 
@@ -225,6 +226,7 @@ export default async function ArticlePage({
           className="j-article j-prose"
           dangerouslySetInnerHTML={{ __html: article.html }}
         />
+        <InlineMediaPlay />
         {/* In-body CTA. Skipped for "shop" articles: the end-of-article
             "Shop the edit" product rail is the single, stronger shop moment,
             so we don't double up on shopping prompts. */}
