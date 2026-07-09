@@ -681,9 +681,228 @@ button { font-family: inherit; }
   flex-wrap: wrap;
 }
 .shop-filterbar__sort { margin-left: auto; }
+/* display:contents keeps the desktop filter pills as direct flex children of
+   the bar (so wrapping/alignment is unchanged) while letting one class toggle
+   them all off on phones. */
+.shop-filterbar__desktop-filters { display: contents; }
+.shop-filterbar__mobile { display: none; }
 @media (max-width: 640px) {
   .shop-filterbar { gap: 10px; }
   .shop-filterbar__sort { margin-left: 0; }
+  /* Phones: hide the inline pills + desktop sort, show the Sort + Refine bar. */
+  .shop-filterbar__desktop-filters,
+  .shop-filterbar__desktop-sort { display: none; }
+  .shop-filterbar__mobile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+  }
+}
+
+/* Refine button (phones) — sits beside the Sort dropdown, opens the side sheet.
+   flex:1 makes it the wide primary control next to the compact Sort pill. */
+.refine-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid rgba(59, 60, 58, 0.18);
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-family: var(--sans);
+  font-size: 13px;
+  letter-spacing: -0.005em;
+  line-height: 1;
+  color: var(--ink);
+  background: transparent;
+  cursor: pointer;
+}
+.refine-btn__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--cream);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Refine side sheet — mobile only. Off-canvas from the right, over a scrim. */
+.refine-sheet-root { display: none; }
+@media (max-width: 640px) {
+  .refine-sheet-root {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    pointer-events: none;
+  }
+  .refine-scrim {
+    position: absolute;
+    inset: 0;
+    background: rgba(59, 60, 58, 0.28);
+    opacity: 0;
+    transition: opacity 240ms var(--ease);
+  }
+  .refine-panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100dvh;
+    width: min(88vw, 380px);
+    display: flex;
+    flex-direction: column;
+    background: var(--cream);
+    box-shadow: -18px 0 48px -12px rgba(59, 60, 58, 0.22);
+    transform: translateX(100%);
+    transition: transform 280ms var(--ease-out-strong);
+  }
+  .refine-sheet-root.is-open { pointer-events: auto; }
+  .refine-sheet-root.is-open .refine-scrim { opacity: 1; }
+  .refine-sheet-root.is-open .refine-panel { transform: translateX(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .refine-scrim,
+  .refine-panel { transition: none; }
+}
+.refine-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+  flex-shrink: 0;
+}
+.refine-panel__title {
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+.refine-panel__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--ink-2);
+  cursor: pointer;
+  border-radius: 999px;
+}
+.refine-panel__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 8px;
+  -webkit-overflow-scrolling: touch;
+}
+.refine-acc__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 16px 12px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--sans);
+}
+.refine-acc__label {
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+}
+.refine-acc__value {
+  margin-left: auto;
+  font-size: 13px;
+  letter-spacing: -0.005em;
+  color: var(--ink-3);
+  max-width: 48%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.refine-acc__chev {
+  flex-shrink: 0;
+  color: var(--ink-3);
+  transition: transform 180ms var(--ease);
+}
+.refine-acc__chev.is-open { transform: rotate(180deg); }
+.refine-acc__body { padding: 0 4px 10px; }
+.refine-opt {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  padding: 9px 12px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--sans);
+  font-size: 14px;
+  letter-spacing: -0.005em;
+  color: var(--ink-2);
+  border-radius: 10px;
+}
+.refine-opt.is-selected { color: var(--ink); }
+.refine-opt__radio {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  border: 1px solid var(--hairline-strong);
+  position: relative;
+  transition: border-color 160ms var(--ease);
+}
+.refine-opt.is-selected .refine-opt__radio { border-color: var(--ink); }
+.refine-opt.is-selected .refine-opt__radio::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: 999px;
+  background: var(--ink);
+}
+.refine-panel__foot {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px calc(14px + env(safe-area-inset-bottom));
+}
+.refine-clear {
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  padding: 12px 4px;
+  font-family: var(--sans);
+  font-size: 14px;
+  letter-spacing: -0.005em;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.refine-clear:disabled { opacity: 0.4; cursor: default; }
+.refine-apply {
+  flex: 1;
+  border: none;
+  border-radius: 999px;
+  padding: 13px 20px;
+  background: var(--ink);
+  color: var(--cream);
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  cursor: pointer;
 }
 
 /* Account dashboard grid */

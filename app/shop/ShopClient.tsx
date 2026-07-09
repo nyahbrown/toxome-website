@@ -34,8 +34,64 @@ function productRungRank(p: Product): number {
   ];
 }
 
+// The set of active filter constraints. Shared by the live grid and the mobile
+// Refine sheet's "Show N results" count so the two never disagree.
+type FilterState = {
+  sectionGender: string | null;
+  section: string | null;
+  fiber: string | null;
+  category: string; // "All" or a category name
+  verificationThreshold: number | null;
+  occasion: string | null;
+  age: KidsAgeBand | null;
+  brand: string | null;
+  priceBand: { min: number; max: number } | null;
+  query: string; // already lowercased
+};
+
+// Single source of truth for "does this product pass the current filters?".
+// Sort is deliberately excluded — it reorders, never filters.
+function matchesFilters(p: Product, f: FilterState): boolean {
+  if (f.sectionGender && p.gender !== f.sectionGender) return false;
+  if (f.fiber) {
+    // Match on the base fiber so "mulberry silk" filters under silk, etc.
+    const target = normalizeFiber(f.fiber);
+    const fibers = Object.keys(p.fabric_composition || {}).map(normalizeFiber);
+    if (!fibers.includes(target)) return false;
+  }
+  if (f.category !== "All" && p.category !== f.category) return false;
+  if (f.verificationThreshold !== null && productRungRank(p) < f.verificationThreshold)
+    return false;
+  if (f.occasion && !(p.occasion ?? []).includes(f.occasion)) return false;
+  if (f.section === "kids" && f.age && !sizesToBands(p.sizes).includes(f.age))
+    return false;
+  if (f.brand && p.brand !== f.brand) return false;
+  if (f.priceBand) {
+    const pr = p.item_price;
+    if (pr == null || pr < f.priceBand.min || pr >= f.priceBand.max) return false;
+  }
+  if (f.query) {
+    const haystack = [p.item_name, p.brand, p.category, p.gender]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+    if (!haystack.includes(f.query)) return false;
+  }
+  return true;
+}
+
 // Public verification filter options (lab_verified intentionally excluded).
 const VERIFICATION_OPTIONS = ["Verified", "Self-disclosed or better"];
+
+// Sort menu — shared by the desktop sort pill and the mobile Sort dropdown.
+const SORT_OPTIONS = [
+  "Featured",
+  "Lowest Risk",
+  "Newest",
+  "Oldest",
+  "Price: Low to High",
+  "Price: High to Low",
+];
 
 const SECTION_META: Record<
   "women" | "men" | "kids" | "home",
@@ -568,42 +624,36 @@ export default function ShopClient({
     toggleWishlist(p);
   }
 
+  // The currently-applied constraints, in the shape matchesFilters expects.
+  const activeFilters = useMemo<FilterState>(
+    () => ({
+      sectionGender,
+      section,
+      fiber: fiberFilter,
+      category,
+      verificationThreshold,
+      occasion: occasionFilter,
+      age: ageFilter,
+      brand: brandFilter,
+      priceBand,
+      query: query.toLowerCase(),
+    }),
+    [
+      sectionGender,
+      section,
+      fiberFilter,
+      category,
+      verificationThreshold,
+      occasionFilter,
+      ageFilter,
+      brandFilter,
+      priceBand,
+      query,
+    ]
+  );
+
   const filtered = useMemo(() => {
-    const q = query.toLowerCase();
-    let result = products.filter((p) => {
-      if (sectionGender && p.gender !== sectionGender) return false;
-      if (fiberFilter) {
-        // Match on the base fiber so "mulberry silk" filters under silk,
-        // "european linen" under linen, etc. Organic cotton stays distinct.
-        const target = normalizeFiber(fiberFilter);
-        const fibers = Object.keys(p.fabric_composition || {}).map(normalizeFiber);
-        if (!fibers.includes(target)) return false;
-      }
-      if (category !== "All" && p.category !== category) return false;
-      if (verificationThreshold !== null && productRungRank(p) < verificationThreshold)
-        return false;
-      if (occasionFilter && !(p.occasion ?? []).includes(occasionFilter))
-        return false;
-      if (
-        section === "kids" &&
-        ageFilter &&
-        !sizesToBands(p.sizes).includes(ageFilter)
-      )
-        return false;
-      if (brandFilter && p.brand !== brandFilter) return false;
-      if (priceBand) {
-        const pr = p.item_price;
-        if (pr == null || pr < priceBand.min || pr >= priceBand.max) return false;
-      }
-      if (q) {
-        const haystack = [p.item_name, p.brand, p.category, p.gender]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase();
-        if (!haystack.includes(q)) return false;
-      }
-      return true;
-    });
+    let result = products.filter((p) => matchesFilters(p, activeFilters));
 
     if (sort === "Featured") {
       result = [...result].sort((a, b) => {
@@ -665,20 +715,12 @@ export default function ShopClient({
     }
 
     return result;
-  }, [
-    products,
-    section,
-    sectionGender,
-    fiberFilter,
-    occasionFilter,
-    ageFilter,
-    category,
-    query,
-    sort,
-    verificationThreshold,
-    brandFilter,
-    priceBand,
-  ]);
+  }, [products, activeFilters, section, sort]);
+
+  // Count how many products a hypothetical filter set would show, so the mobile
+  // Refine sheet can label its apply button "Show N results" before committing.
+  const countForFilters = (f: FilterState) =>
+    products.reduce((n, p) => (matchesFilters(p, f) ? n + 1 : n), 0);
 
   const hasUserFilters =
     !!fiberFilter ||
@@ -689,6 +731,20 @@ export default function ShopClient({
     category !== "All" ||
     query.length > 0 ||
     verificationThreshold !== null;
+
+  // Count of filters the mobile Refine sheet controls (search box excluded —
+  // it lives in the nav, not the sheet). Drives the "Refine · N" badge.
+  const refineCount =
+    (category !== "All" ? 1 : 0) +
+    (fiberFilter ? 1 : 0) +
+    (verificationThreshold !== null ? 1 : 0) +
+    (occasionFilter ? 1 : 0) +
+    (brandFilter ? 1 : 0) +
+    (priceBand ? 1 : 0) +
+    (ageFilter ? 1 : 0);
+
+  // Open state for the mobile Refine side sheet.
+  const [refineOpen, setRefineOpen] = useState(false);
 
   // Auto-load pagination, reveal a fresh PAGE_SIZE every time the
   // sentinel below the grid scrolls into view. Reset to first page
@@ -870,6 +926,10 @@ export default function ShopClient({
         }}
       >
         <div className="shell shop-filterbar">
+          {/* Desktop/tablet: the full row of inline filter pills. display:contents
+              keeps them as direct flex children of .shop-filterbar; hidden on
+              phones (<=640px) in favor of the Sort + Refine bar below. */}
+          <div className="shop-filterbar__desktop-filters">
           <span
             className="eyebrow shop-filterbar__label"
             style={{ flexShrink: 0, textTransform: "uppercase" }}
@@ -970,17 +1030,11 @@ export default function ShopClient({
             stickyLabel
           />
           )}
-          <div className="shop-filterbar__sort">
+          </div>
+          <div className="shop-filterbar__sort shop-filterbar__desktop-sort">
             <FrostedSelect
               label="Sort By"
-              options={[
-                "Featured",
-                "Lowest Risk",
-                "Newest",
-                "Oldest",
-                "Price: Low to High",
-                "Price: High to Low",
-              ]}
+              options={SORT_OPTIONS}
               value={sort}
               onChange={(v) =>
                 updateParams({ sort: v === "Featured" ? null : v })
@@ -989,8 +1043,71 @@ export default function ShopClient({
               hideAll
             />
           </div>
+
+          {/* Phones (<=640px): a compact Sort dropdown + a Refine button that
+              opens the filter side sheet. */}
+          <div className="shop-filterbar__mobile">
+            <FrostedSelect
+              label="Sort"
+              options={SORT_OPTIONS}
+              value={sort}
+              onChange={(v) =>
+                updateParams({ sort: v === "Featured" ? null : v })
+              }
+              hideAll
+              stickyLabel
+            />
+            <button
+              type="button"
+              className="refine-btn"
+              onClick={() => setRefineOpen(true)}
+              aria-haspopup="dialog"
+              aria-expanded={refineOpen}
+            >
+              <span>Refine</span>
+              {refineCount > 0 && (
+                <span className="refine-btn__badge">{refineCount}</span>
+              )}
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Mobile-only filter side sheet, opened by the Refine button. */}
+      <RefineSheet
+        open={refineOpen}
+        onClose={() => setRefineOpen(false)}
+        section={section}
+        sectionCategories={sectionCategories}
+        sectionBrands={sectionBrands}
+        products={products}
+        baseFilters={activeFilters}
+        applied={{
+          category,
+          fiber: fiberFilter,
+          verification: verificationRaw === "verified"
+            ? "verified"
+            : verificationRaw === "self_disclosed"
+              ? "self_disclosed"
+              : null,
+          occasion: occasionFilter,
+          brand: brandFilter,
+          price: priceRaw ?? null,
+          age: ageFilter,
+        }}
+        onApply={(v) => {
+          updateParams({
+            category: v.category,
+            fiber: v.fiber,
+            verification: v.verification,
+            occasion: v.occasion,
+            brand: v.brand,
+            price: v.price,
+            age: v.age,
+          });
+          setRefineOpen(false);
+        }}
+      />
 
       {/* Product grid */}
       <div className="shell">
@@ -1116,5 +1233,338 @@ export default function ShopClient({
         </p>
       </div>
     </main>
+  );
+}
+
+// Values the Refine sheet hands back on apply — the raw URL-param shapes
+// updateParams expects (null clears a param).
+type RefineValues = {
+  category: string | null;
+  fiber: string | null;
+  verification: string | null;
+  occasion: string | null;
+  brand: string | null;
+  price: string | null;
+  age: string | null;
+};
+
+// Mobile-only (<=640px) filter side sheet. All filters live here as accordion
+// sections; selections are staged locally and only committed when the shopper
+// taps "Show N results", so the grid doesn't churn under a full-screen sheet.
+function RefineSheet({
+  open,
+  onClose,
+  section,
+  sectionCategories,
+  sectionBrands,
+  products,
+  baseFilters,
+  applied,
+  onApply,
+}: {
+  open: boolean;
+  onClose: () => void;
+  section: string | null;
+  sectionCategories: string[];
+  sectionBrands: string[];
+  products: Product[];
+  baseFilters: FilterState;
+  applied: {
+    category: string;
+    fiber: string | null;
+    verification: string | null;
+    occasion: string | null;
+    brand: string | null;
+    price: string | null;
+    age: KidsAgeBand | null;
+  };
+  onApply: (v: RefineValues) => void;
+}) {
+  const emptyStaged = {
+    category: "All",
+    fiber: null as string | null,
+    verification: null as string | null,
+    occasion: null as string | null,
+    brand: null as string | null,
+    price: null as string | null,
+    age: null as string | null,
+  };
+  const [staged, setStaged] = useState(emptyStaged);
+  const [expanded, setExpanded] = useState<string | null>(null);
+
+  // Re-seed the staged selection from what's applied each time the sheet opens.
+  useEffect(() => {
+    if (!open) return;
+    setStaged({
+      category: applied.category,
+      fiber: applied.fiber,
+      verification: applied.verification,
+      occasion: applied.occasion,
+      brand: applied.brand,
+      price: applied.price,
+      age: applied.age,
+    });
+    setExpanded(null);
+    // Only re-sync on open; applied is a fresh object every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  // Lock body scroll and wire Escape-to-close while the sheet is open.
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open, onClose]);
+
+  type Sec = {
+    key: string;
+    label: string;
+    value: string | null;
+    displayValue: string;
+    options: { label: string; value: string }[];
+    onSelect: (value: string | null) => void;
+  };
+  const sections: Sec[] = [];
+  if (sectionCategories.length > 0) {
+    sections.push({
+      key: "category",
+      label: "Category",
+      value: staged.category === "All" ? null : staged.category,
+      displayValue: staged.category === "All" ? "All" : staged.category,
+      options: sectionCategories.map((c) => ({ label: c, value: c })),
+      onSelect: (v) => setStaged((s) => ({ ...s, category: v ?? "All" })),
+    });
+  }
+  if (section !== "kids") {
+    sections.push({
+      key: "fiber",
+      label: "Fiber",
+      value: staged.fiber,
+      displayValue: staged.fiber ?? "All",
+      options: FIBERS.map((f) => ({ label: f.name, value: f.name })),
+      onSelect: (v) => setStaged((s) => ({ ...s, fiber: v })),
+    });
+    sections.push({
+      key: "verification",
+      label: "Verification",
+      value: staged.verification,
+      displayValue:
+        staged.verification === "verified"
+          ? "Verified"
+          : staged.verification === "self_disclosed"
+            ? "Self-disclosed or better"
+            : "All",
+      options: [
+        { label: "Verified", value: "verified" },
+        { label: "Self-disclosed or better", value: "self_disclosed" },
+      ],
+      onSelect: (v) => setStaged((s) => ({ ...s, verification: v })),
+    });
+  }
+  if (section === "kids" && sectionBrands.length > 0) {
+    sections.push({
+      key: "brand",
+      label: "Brand",
+      value: staged.brand,
+      displayValue: staged.brand ?? "All",
+      options: sectionBrands.map((b) => ({ label: b, value: b })),
+      onSelect: (v) => setStaged((s) => ({ ...s, brand: v })),
+    });
+  }
+  if (section === "kids") {
+    sections.push({
+      key: "price",
+      label: "Price",
+      value: staged.price,
+      displayValue:
+        KIDS_PRICE_BANDS.find((b) => b.value === staged.price)?.label ?? "All",
+      options: KIDS_PRICE_BANDS.map((b) => ({ label: b.label, value: b.value })),
+      onSelect: (v) => setStaged((s) => ({ ...s, price: v })),
+    });
+  }
+  if (section !== "home" && section !== "kids") {
+    sections.push({
+      key: "occasion",
+      label: "Occasion",
+      value: staged.occasion,
+      displayValue: staged.occasion ?? "All",
+      options: OCCASIONS.map((o) => ({ label: o, value: o })),
+      onSelect: (v) => setStaged((s) => ({ ...s, occasion: v })),
+    });
+  }
+  if (section === "kids") {
+    sections.push({
+      key: "age",
+      label: "Age",
+      value: staged.age,
+      displayValue:
+        KIDS_AGE_BANDS.find((b) => b.value === staged.age)?.label ?? "All",
+      options: KIDS_AGE_BANDS.map((b) => ({ label: b.label, value: b.value })),
+      onSelect: (v) => setStaged((s) => ({ ...s, age: v })),
+    });
+  }
+
+  // Live match count for the staged selection → the apply-button label.
+  const verThreshold =
+    staged.verification === "verified"
+      ? 2
+      : staged.verification === "self_disclosed"
+        ? 1
+        : null;
+  const band = staged.price
+    ? KIDS_PRICE_BANDS.find((b) => b.value === staged.price)
+    : null;
+  const stagedFilters: FilterState = {
+    ...baseFilters,
+    category: staged.category,
+    fiber: staged.fiber,
+    verificationThreshold: verThreshold,
+    occasion: staged.occasion,
+    brand: staged.brand,
+    priceBand: band ? { min: band.min, max: band.max } : null,
+    age: (staged.age as KidsAgeBand | null) ?? null,
+  };
+  const count = products.reduce(
+    (n, p) => (matchesFilters(p, stagedFilters) ? n + 1 : n),
+    0
+  );
+
+  const stagedCount =
+    (staged.category !== "All" ? 1 : 0) +
+    (staged.fiber ? 1 : 0) +
+    (staged.verification ? 1 : 0) +
+    (staged.occasion ? 1 : 0) +
+    (staged.brand ? 1 : 0) +
+    (staged.price ? 1 : 0) +
+    (staged.age ? 1 : 0);
+
+  const apply = () =>
+    onApply({
+      category: staged.category === "All" ? null : staged.category,
+      fiber: staged.fiber,
+      verification: staged.verification,
+      occasion: staged.occasion,
+      brand: staged.brand,
+      price: staged.price,
+      age: staged.age,
+    });
+
+  return (
+    <div className={`refine-sheet-root${open ? " is-open" : ""}`} aria-hidden={!open}>
+      <div className="refine-scrim" onClick={onClose} />
+      <aside
+        className="refine-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Refine filters"
+      >
+        <header className="refine-panel__head">
+          <span className="refine-panel__title">Refine</span>
+          <button
+            type="button"
+            className="refine-panel__close"
+            onClick={onClose}
+            aria-label="Close filters"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+          </button>
+        </header>
+
+        <div className="refine-panel__body">
+          {sections.map((sec) => {
+            const isOpen = expanded === sec.key;
+            return (
+              <div className="refine-acc" key={sec.key}>
+                <button
+                  type="button"
+                  className="refine-acc__head"
+                  onClick={() => setExpanded(isOpen ? null : sec.key)}
+                  aria-expanded={isOpen}
+                >
+                  <span className="refine-acc__label">{sec.label}</span>
+                  <span className="refine-acc__value">{sec.displayValue}</span>
+                  <svg
+                    className={`refine-acc__chev${isOpen ? " is-open" : ""}`}
+                    width="10"
+                    height="6"
+                    viewBox="0 0 10 6"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
+                {isOpen && (
+                  <div className="refine-acc__body" role="radiogroup" aria-label={sec.label}>
+                    <RefineOption
+                      label="All"
+                      selected={sec.value === null}
+                      onClick={() => sec.onSelect(null)}
+                    />
+                    {sec.options.map((opt) => (
+                      <RefineOption
+                        key={opt.value}
+                        label={opt.label}
+                        selected={sec.value === opt.value}
+                        onClick={() => sec.onSelect(opt.value)}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        <footer className="refine-panel__foot">
+          <button
+            type="button"
+            className="refine-clear"
+            onClick={() => setStaged(emptyStaged)}
+            disabled={stagedCount === 0}
+          >
+            Clear all
+          </button>
+          <button type="button" className="refine-apply" onClick={apply}>
+            {count === 0
+              ? "No results"
+              : `Show ${count} ${count === 1 ? "result" : "results"}`}
+          </button>
+        </footer>
+      </aside>
+    </div>
+  );
+}
+
+function RefineOption({
+  label,
+  selected,
+  onClick,
+}: {
+  label: string;
+  selected: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      role="radio"
+      aria-checked={selected}
+      className={`refine-opt${selected ? " is-selected" : ""}`}
+      onClick={onClick}
+    >
+      <span className="refine-opt__radio" aria-hidden="true" />
+      <span>{label}</span>
+    </button>
   );
 }
