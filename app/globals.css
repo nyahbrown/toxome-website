@@ -695,22 +695,20 @@ button { font-family: inherit; }
   .shop-filterbar__mobile {
     display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: flex-end;
+    gap: 22px;
     width: 100%;
   }
 }
 
-/* Refine button (phones) — sits beside the Sort dropdown, opens the side sheet.
-   flex:1 makes it the wide primary control next to the compact Sort pill. */
+/* Refine control (phones) — bare underlined text beside the Sort dropdown,
+   both aligned to the right of the bar. */
 .refine-btn {
-  flex: 1;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  border: 1px solid rgba(59, 60, 58, 0.18);
-  border-radius: 999px;
-  padding: 8px 16px;
+  gap: 6px;
+  border: none;
+  padding: 0;
   font-family: var(--sans);
   font-size: 13px;
   letter-spacing: -0.005em;
@@ -719,17 +717,21 @@ button { font-family: inherit; }
   background: transparent;
   cursor: pointer;
 }
+.refine-btn__text {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
 .refine-btn__badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 5px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
   border-radius: 999px;
   background: var(--ink);
   color: var(--cream);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
 }
 

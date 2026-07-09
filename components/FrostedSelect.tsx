@@ -17,6 +17,9 @@ type Props = {
   // active selection is shown by a removable chip below instead). The trigger
   // still picks up the "active" styling as a subtle cue.
   stickyLabel?: boolean;
+  // "pill" (default) is the bordered pill trigger. "text" renders the trigger
+  // as bare underlined text — used for the mobile Sort control.
+  variant?: "pill" | "text";
 };
 
 function Chevron({ open }: { open: boolean }) {
@@ -84,7 +87,9 @@ export default function FrostedSelect({
   hideAll = false,
   capitalize = false,
   stickyLabel = false,
+  variant = "pill",
 }: Props) {
+  const isText = variant === "text";
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
@@ -139,26 +144,46 @@ export default function FrostedSelect({
         onClick={() => setOpen((o) => !o)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 10,
-          border: `1px solid ${
-            open || isActive ? "var(--hairline-strong)" : "rgba(59,60,58,0.18)"
-          }`,
-          borderRadius: 999,
-          padding: "8px 14px 8px 16px",
-          fontSize: 13,
-          color: isActive ? "var(--ink)" : "var(--ink-2)",
-          background: open ? "rgba(252,251,247,0.65)" : "transparent",
-          backdropFilter: open ? "blur(12px) saturate(160%)" : "none",
-          WebkitBackdropFilter: open ? "blur(12px) saturate(160%)" : "none",
-          cursor: "pointer",
-          fontFamily: "var(--sans)",
-          letterSpacing: "-0.005em",
-          lineHeight: 1,
-          transition: "background 180ms var(--ease), border-color 180ms var(--ease)",
-        }}
+        style={
+          isText
+            ? {
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                border: "none",
+                padding: 0,
+                fontSize: 13,
+                color: "var(--ink)",
+                background: "transparent",
+                cursor: "pointer",
+                fontFamily: "var(--sans)",
+                letterSpacing: "-0.005em",
+                lineHeight: 1,
+                textDecoration: "underline",
+                textUnderlineOffset: "4px",
+              }
+            : {
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 10,
+                border: `1px solid ${
+                  open || isActive ? "var(--hairline-strong)" : "rgba(59,60,58,0.18)"
+                }`,
+                borderRadius: 999,
+                padding: "8px 14px 8px 16px",
+                fontSize: 13,
+                color: isActive ? "var(--ink)" : "var(--ink-2)",
+                background: open ? "rgba(252,251,247,0.65)" : "transparent",
+                backdropFilter: open ? "blur(12px) saturate(160%)" : "none",
+                WebkitBackdropFilter: open ? "blur(12px) saturate(160%)" : "none",
+                cursor: "pointer",
+                fontFamily: "var(--sans)",
+                letterSpacing: "-0.005em",
+                lineHeight: 1,
+                transition:
+                  "background 180ms var(--ease), border-color 180ms var(--ease)",
+              }
+        }
       >
         <span style={capitalize ? { textTransform: "capitalize" } : undefined}>
           {triggerLabel}

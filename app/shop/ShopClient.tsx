@@ -1044,8 +1044,8 @@ export default function ShopClient({
             />
           </div>
 
-          {/* Phones (<=640px): a compact Sort dropdown + a Refine button that
-              opens the filter side sheet. */}
+          {/* Phones (<=640px): Sort dropdown + Refine, as underlined text
+              controls aligned to the right. */}
           <div className="shop-filterbar__mobile">
             <FrostedSelect
               label="Sort"
@@ -1054,8 +1054,10 @@ export default function ShopClient({
               onChange={(v) =>
                 updateParams({ sort: v === "Featured" ? null : v })
               }
+              align="right"
               hideAll
               stickyLabel
+              variant="text"
             />
             <button
               type="button"
@@ -1064,7 +1066,7 @@ export default function ShopClient({
               aria-haspopup="dialog"
               aria-expanded={refineOpen}
             >
-              <span>Refine</span>
+              <span className="refine-btn__text">Refine</span>
               {refineCount > 0 && (
                 <span className="refine-btn__badge">{refineCount}</span>
               )}
