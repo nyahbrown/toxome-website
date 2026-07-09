@@ -268,11 +268,13 @@ function ProductCard({
           />
         )}
         {productRungRank(p) >= 2 && (
+          // Desktop/tablet: bottom-right corner (opposite the score badge).
+          // Phones (<=640px, 2-up grid): the class restacks it above the score
+          // badge on the bottom-left so the two pills never collide. See
+          // .card-verified-badge in globals.css.
           <span
+            className="card-verified-badge"
             style={{
-              position: "absolute",
-              bottom: 14,
-              right: 14,
               display: "inline-flex",
               alignItems: "center",
               gap: 6,

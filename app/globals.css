@@ -634,6 +634,15 @@ button { font-family: inherit; }
 @media (max-width: 640px)  { .product-grid { grid-template-columns: repeat(2, 1fr); column-gap: 14px; row-gap: 34px; } }
 @media (max-width: 380px)  { .product-grid { column-gap: 12px; row-gap: 28px; } }
 
+/* Product-card "Verified" pill. Desktop/tablet cards are wide, so it sits in
+   the bottom-right corner opposite the score badge. On the tight 2-up phone
+   grid (<=640px) the two pills would collide, so it restacks above the score
+   badge on the bottom-left. */
+.card-verified-badge { position: absolute; bottom: 14px; right: 14px; }
+@media (max-width: 640px) {
+  .card-verified-badge { bottom: 48px; left: 14px; right: auto; }
+}
+
 /* Journal "Shop the edit" rail — a horizontal strip of small (~half-size)
    cards, single row, aligned to the body column. Fits 5 across on desktop;
    scrolls horizontally on narrower viewports instead of wrapping. */

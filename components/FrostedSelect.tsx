@@ -87,7 +87,29 @@ export default function FrostedSelect({
 }: Props) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  // Horizontal nudge (px) that keeps the open menu inside the viewport. Without
+  // it, a pill on the right side of a phone row opens a 240px menu that runs off
+  // the right edge of the screen.
+  const [shiftX, setShiftX] = useState(0);
   const isActive = hideAll ? true : value !== "All";
+
+  // After the menu renders, measure it and shift it back on-screen if either
+  // edge spills past the viewport (12px breathing room).
+  useEffect(() => {
+    if (!open) {
+      setShiftX(0);
+      return;
+    }
+    const el = menuRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const pad = 12;
+    let dx = 0;
+    if (rect.right > window.innerWidth - pad) dx = window.innerWidth - pad - rect.right;
+    if (rect.left + dx < pad) dx = pad - rect.left;
+    setShiftX(dx);
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -147,11 +169,15 @@ export default function FrostedSelect({
       {open && (
         <div
           role="listbox"
+          ref={menuRef}
           style={{
             position: "absolute",
             top: "calc(100% + 8px)",
             [align]: 0,
+            marginLeft: shiftX,
             minWidth: 240,
+            // Never exceed the screen on a phone (leaves 12px on each side).
+            maxWidth: "calc(100vw - 24px)",
             maxHeight: 320,
             overflowY: "auto",
             padding: 8,
