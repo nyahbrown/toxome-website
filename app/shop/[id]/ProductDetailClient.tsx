@@ -45,16 +45,10 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
   );
 }
 
+// Sections are separated by spacing, not rule lines (house rule: no dividers).
+// Kept as a component so all call sites stay put; it now renders pure space.
 function Divider() {
-  return (
-    <div
-      style={{
-        height: 1,
-        background: "var(--hairline)",
-        margin: "28px 0",
-      }}
-    />
-  );
+  return <div aria-hidden style={{ height: 48 }} />;
 }
 
 type CertBadgeItem = {
