@@ -5,8 +5,8 @@ date: "2026-07-10"
 pillar: "In the News"
 mode: "editorial"
 pinned: true
-hero: "/fibers/linen.jpg"
-heroAlt: "A close, sunlit weave of natural linen, the named hero fabric of summer 2026."
+hero: "/journal/summer-edit.jpg"
+heroAlt: "A woman in a Christy Dawn cotton summer dress, grown on the brand's own regenerative cotton farm."
 keywords:
   - "summer"
   - "linen"
