@@ -13,7 +13,8 @@ import ScoreBadge from "@/components/ScoreBadge";
 // Single source of truth for fiber hazard colors + labels, keeps the product
 // page bars in sync with the score table (alpaca/cashmere green, Lenzing green,
 // recycled synthetics red, "european linen" -> linen via keyword fallback, etc.)
-import { fiberHazardColor, prettyFiber } from "@/lib/fabricScores";
+import { prettyFiber } from "@/lib/fabricScores";
+import FiberBars from "@/components/FiberBars";
 import { collectionSlugForFiber } from "@/lib/shopPages";
 import { productSeoDescription } from "@/lib/productSeo";
 import { track, withUtm } from "@/lib/track";
@@ -507,65 +508,10 @@ export default function ProductDetailClient({
                 </div>
               )}
               {fabricEntries.length > 0 && (
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 10,
-                    marginBottom: product.materials_text ? 18 : 0,
-                  }}
-                >
-                  {fabricEntries.map(([fiber, pct]) => {
-                    const percent = pct > 1 ? pct : pct * 100;
-                    return (
-                      <div key={fiber}>
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "baseline",
-                            fontSize: 14,
-                            color: "var(--ink)",
-                            letterSpacing: "-0.005em",
-                            marginBottom: 5,
-                          }}
-                        >
-                          <Link
-                            href={fiberHref(fiber)}
-                            style={{
-                              color: "inherit",
-                              textDecoration: "underline",
-                              textUnderlineOffset: 3,
-                              textDecorationColor: "var(--hairline-strong)",
-                            }}
-                          >
-                            {prettyFiber(fiber)}
-                          </Link>
-                          <span style={{ color: "var(--ink-2)" }}>
-                            {Math.round(percent)}%
-                          </span>
-                        </div>
-                        <div
-                          style={{
-                            height: 4,
-                            background: "var(--hairline)",
-                            borderRadius: 999,
-                            overflow: "hidden",
-                          }}
-                        >
-                          <div
-                            style={{
-                              width: `${Math.min(100, Math.max(0, percent))}%`,
-                              height: "100%",
-                              background: fiberHazardColor(fiber),
-                              borderRadius: 999,
-                            }}
-                          />
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                <FiberBars
+                  entries={fabricEntries}
+                  style={{ marginBottom: product.materials_text ? 18 : 0 }}
+                />
               )}
               {product.materials_text && (
                 <p

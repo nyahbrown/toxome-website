@@ -1492,8 +1492,8 @@ button { font-family: inherit; }
 .qs-sheet__bar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 22px 24px 14px;
+  justify-content: flex-end;
+  padding: 12px 16px 4px;
   flex-shrink: 0;
 }
 .qs-sheet__close {
@@ -1513,19 +1513,25 @@ button { font-family: inherit; }
 .qs-sheet__scroll {
   flex: 1;
   overflow-y: auto;
-  padding: 4px 24px 24px;
+  padding: 0 24px 16px;
 }
 
-.qs-sheet__gallery { margin-bottom: 22px; }
+/* Compact centered portrait so the whole sheet fits a normal viewport without
+   an internal scroll; keeps the garment's aspect ratio (no distortion). */
+.qs-sheet__gallery { margin-bottom: 14px; }
 .qs-sheet__main {
-  aspect-ratio: 266 / 334;
+  width: 191px;
+  height: 240px;
+  margin: 0 auto;
   background: var(--tan);
   overflow: hidden;
   border: 1px solid var(--hairline);
 }
 .qs-sheet__main img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .qs-sheet__noimg {
-  aspect-ratio: 266 / 334;
+  width: 191px;
+  height: 240px;
+  margin: 0 auto 14px;
   background: var(--tan);
   display: flex;
   align-items: center;
@@ -1535,17 +1541,17 @@ button { font-family: inherit; }
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--ink-3);
-  margin-bottom: 22px;
 }
 .qs-sheet__thumbs {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   margin-top: 8px;
   flex-wrap: wrap;
+  justify-content: center;
 }
 .qs-sheet__thumb {
-  width: 48px;
-  height: 60px;
+  width: 36px;
+  height: 45px;
   padding: 0;
   border: 1px solid var(--hairline);
   background: var(--tan);
@@ -1566,30 +1572,30 @@ button { font-family: inherit; }
   font-size: 14px;
   color: var(--ink-2);
   letter-spacing: -0.005em;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 .qs-sheet__name {
   font-family: var(--sans);
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 600;
   line-height: 1.16;
   letter-spacing: -0.014em;
   color: var(--ink);
-  margin: 0 0 10px;
+  margin: 0 0 6px;
 }
 .qs-sheet__price {
   font-family: var(--sans);
-  font-size: 17px;
+  font-size: 16px;
   color: var(--ink);
   letter-spacing: -0.01em;
-  margin-bottom: 20px;
+  margin-bottom: 14px;
 }
 .qs-sheet__score {
   display: flex;
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
-  margin-bottom: 28px;
+  margin-bottom: 18px;
 }
 .qs-sheet__score-label {
   font-family: var(--sans);
@@ -1598,27 +1604,8 @@ button { font-family: inherit; }
   letter-spacing: -0.005em;
 }
 
-.qs-sheet__block { margin-bottom: 28px; }
-.qs-sheet__block-label { color: var(--ink-3); margin-bottom: 14px; }
-.qs-sheet__fibers { display: flex; flex-direction: column; gap: 12px; }
-.qs-sheet__fiber-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  font-family: var(--sans);
-  font-size: 14px;
-  color: var(--ink);
-  letter-spacing: -0.005em;
-  margin-bottom: 6px;
-}
-.qs-sheet__fiber-pct { color: var(--ink-2); }
-.qs-sheet__bar {
-  height: 4px;
-  background: var(--hairline);
-  border-radius: 999px;
-  overflow: hidden;
-}
-.qs-sheet__bar-fill { height: 100%; border-radius: 999px; }
+.qs-sheet__block { margin-bottom: 18px; }
+.qs-sheet__block-label { color: var(--ink-3); margin-bottom: 10px; }
 
 .qs-sheet__certs { display: flex; flex-wrap: wrap; gap: 12px; }
 
@@ -1639,8 +1626,8 @@ button { font-family: inherit; }
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 18px 24px 24px;
+  gap: 8px;
+  padding: 12px 24px 18px;
 }
 .qs-sheet__buy, .qs-sheet__wish { width: 100%; justify-content: center; }
 .qs-sheet__buy.is-disabled { opacity: 0.55; cursor: not-allowed; }

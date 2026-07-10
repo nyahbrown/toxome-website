@@ -1,0 +1,83 @@
+import Link from "next/link";
+// Single source of truth for the fiber-composition bars so the product detail
+// page and the Quick Shop sheet render an identical treatment: labeled row
+// (fiber name left, percentage right) over a thin hazard-colored bar.
+import { fiberHazardColor, prettyFiber } from "@/lib/fabricScores";
+import { collectionSlugForFiber } from "@/lib/shopPages";
+
+// Link a fiber to its dedicated collection page when one exists (a stronger SEO
+// + commerce target than the generic ?fiber= filter); otherwise fall back to
+// the filtered shop.
+function fiberHref(fiber: string): string {
+  const slug = collectionSlugForFiber(fiber);
+  return slug
+    ? `/shop/collection/${slug}`
+    : `/shop?fiber=${encodeURIComponent(fiber.toLowerCase())}`;
+}
+
+export default function FiberBars({
+  entries,
+  style,
+  onNavigate,
+}: {
+  entries: [string, number][];
+  style?: React.CSSProperties;
+  onNavigate?: () => void;
+}) {
+  if (entries.length === 0) return null;
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 10, ...style }}>
+      {entries.map(([fiber, pct]) => {
+        const percent = pct > 1 ? pct : pct * 100;
+        return (
+          <div key={fiber}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "baseline",
+                fontSize: 14,
+                color: "var(--ink)",
+                letterSpacing: "-0.005em",
+                marginBottom: 5,
+              }}
+            >
+              <Link
+                href={fiberHref(fiber)}
+                onClick={onNavigate}
+                style={{
+                  color: "inherit",
+                  textDecoration: "underline",
+                  textUnderlineOffset: 3,
+                  textDecorationColor: "var(--hairline-strong)",
+                }}
+              >
+                {prettyFiber(fiber)}
+              </Link>
+              <span style={{ color: "var(--ink-2)" }}>
+                {Math.round(percent)}%
+              </span>
+            </div>
+            <div
+              style={{
+                height: 4,
+                background: "var(--hairline)",
+                borderRadius: 999,
+                overflow: "hidden",
+              }}
+            >
+              <div
+                style={{
+                  width: `${Math.min(100, Math.max(0, percent))}%`,
+                  height: "100%",
+                  background: fiberHazardColor(fiber),
+                  borderRadius: 999,
+                }}
+              />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}

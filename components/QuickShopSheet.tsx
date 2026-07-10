@@ -8,7 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { triggerAppPrompt } from "@/components/AppInstallPrompt";
 import ScoreBadge from "@/components/ScoreBadge";
 import CertBadge from "@/components/CertBadge";
-import { fiberHazardColor, prettyFiber } from "@/lib/fabricScores";
+import FiberBars from "@/components/FiberBars";
 import { findCertification } from "@/lib/certifications";
 import { withUtm, track } from "@/lib/track";
 
@@ -198,7 +198,6 @@ export default function QuickShopSheet({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="qs-sheet__bar">
-          <span className="eyebrow">Quick Shop</span>
           <button
             type="button"
             className="qs-sheet__close"
@@ -240,30 +239,7 @@ export default function QuickShopSheet({
           {fabricEntries.length > 0 && (
             <div className="qs-sheet__block">
               <div className="eyebrow qs-sheet__block-label">Fiber composition</div>
-              <div className="qs-sheet__fibers">
-                {fabricEntries.map(([fiber, pct]) => {
-                  const percent = pct > 1 ? pct : pct * 100;
-                  return (
-                    <div key={fiber} className="qs-sheet__fiber">
-                      <div className="qs-sheet__fiber-row">
-                        <span>{prettyFiber(fiber)}</span>
-                        <span className="qs-sheet__fiber-pct">
-                          {Math.round(percent)}%
-                        </span>
-                      </div>
-                      <div className="qs-sheet__bar">
-                        <div
-                          className="qs-sheet__bar-fill"
-                          style={{
-                            width: `${Math.min(100, Math.max(0, percent))}%`,
-                            background: fiberHazardColor(fiber),
-                          }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+              <FiberBars entries={fabricEntries} onNavigate={onClose} />
             </div>
           )}
 
