@@ -655,6 +655,55 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
         hasFiber(p, "cashmere") ||
         hasFiber(p, "alpaca")),
   },
+  {
+    slug: "summer-edit",
+    title: "Summer Edit: Non-Toxic Natural-Fiber Clothing | Toxome",
+    heading: "summer edit",
+    description:
+      "Summer dresses, tops, and bottoms cut only from natural fibers: linen, organic cotton, hemp, and silk, scored by Toxome and free of the polyester that traps heat against your skin. Farm to closet, no plastic in the heat.",
+    intro:
+      "summer heat is where synthetic clothing turns against you. polyester, nylon, and recycled poly are plastic, and plastic traps heat and sweat against your skin instead of letting it out. this edit is the opposite: dresses, tops, and bottoms cut only from natural fibers grown on a farm, not spun from petroleum. linen and hemp pull heat off the body, organic cotton stays soft and breathable, silk regulates temperature on its own. every piece is scored by toxome for its real fiber content, so there is no plastic hiding in the heat.",
+    faqs: [
+      {
+        q: "What fabrics are best for hot weather?",
+        a: "Natural plant fibers. Linen and hemp are the most breathable fabrics you can wear and pull heat and moisture off the body, organic cotton stays soft and lets air through, and silk regulates temperature on its own. Polyester and nylon are plastic, so they trap heat and sweat against the skin. Every piece in this edit is a natural fiber, scored by Toxome.",
+      },
+      {
+        q: "Why is polyester bad to wear in summer?",
+        a: "Polyester, nylon, and recycled poly are plastic fibers. They do not breathe, so in heat they hold warmth and moisture against your skin and can leave you clammy and overheated. They also shed microplastics in the wash. A natural fiber like linen or cotton lets heat escape, which is why it stays cool when a synthetic one does not.",
+      },
+      {
+        q: "What does farm to closet mean?",
+        a: "Every fiber in this edit was grown, not manufactured from petroleum. Linen comes from the flax plant, cotton and hemp from the field, silk from silkworms. That plant-and-animal origin is what lets these fabrics breathe, and it is the opposite of polyester, which starts as oil. Toxome scores each piece by its real fiber content so you can see exactly what it is made of.",
+      },
+      {
+        q: "Why does Toxome score clothes by fiber?",
+        a: "Fiber content is what touches the skin. Toxome reads each garment's composition and rates it, so the score reflects what the clothing is made of, not a brand's marketing.",
+      },
+    ],
+    section: "women",
+    match: (p) =>
+      (p.gender?.toLowerCase() === "women" ||
+        p.gender?.toLowerCase() === "unisex") &&
+      (p.category === "Dresses" ||
+        p.category === "Tops" ||
+        p.category === "Bottoms") &&
+      (hasFiber(p, "linen") ||
+        hasFiber(p, "flax") ||
+        hasFiber(p, "cotton") ||
+        hasFiber(p, "hemp") ||
+        hasFiber(p, "silk") ||
+        hasFiber(p, "tencel") ||
+        hasFiber(p, "lyocell") ||
+        hasFiber(p, "ramie")) &&
+      !hasFiber(p, "polyester") &&
+      !hasFiber(p, "nylon") &&
+      !hasFiber(p, "acrylic") &&
+      !hasFiber(p, "elastane") &&
+      !hasFiber(p, "elastic") &&
+      !hasFiber(p, "spandex") &&
+      !hasFiber(p, "lycra"),
+  },
 ];
 
 // Maps a fiber (any key format) to its broad collection page, for linking from

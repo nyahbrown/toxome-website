@@ -9,6 +9,7 @@ import ShareBar from "@/components/ShareBar";
 import ArticleCta from "@/components/ArticleCta";
 import JournalNewsletterCard from "@/components/JournalNewsletterCard";
 import ShopTheEdit from "@/components/ShopTheEdit";
+import TrendEditSections from "@/components/TrendEditSections";
 import InlineMediaPlay from "@/components/InlineMediaPlay";
 import { getShopTaxonomy } from "@/lib/supabase";
 import { getAllSlugs, getArticle, formatDate } from "@/lib/journal";
@@ -70,6 +71,11 @@ export default async function ArticlePage({
   // derived from the article's mode/pillar when it isn't set.
   const bottomCta = resolveBottomCta(article);
 
+  // Goop-style shoppable trend layout: only articles that ship a structured
+  // `sections` array render TrendEditSections in place of the .j-prose body +
+  // ShopTheEdit rail. Every other article keeps the exact original render.
+  const isTrendEdit = (article.sections?.length ?? 0) > 0;
+
   const taxonomy = await getShopTaxonomy();
   const shareUrl = `${SITE}/journal/${slug}`;
   const shareImage = OG_IMAGE;
@@ -124,16 +130,31 @@ export default async function ArticlePage({
             {article.pillar} · Fashion Wellness
           </Link>
           <h1
-            style={{
-              fontFamily: "var(--sans)",
-              fontWeight: 600,
-              fontSize: "clamp(30px, 4.1vw, 50px)",
-              lineHeight: 1.12,
-              letterSpacing: "-0.02em",
-              textTransform: "none",
-              color: "var(--ink)",
-              margin: "0 0 22px",
-            }}
+            style={
+              isTrendEdit
+                ? {
+                    // Cormorant, the single serif element on this page (the
+                    // article title), per the locked type rule.
+                    fontFamily: "var(--serif)",
+                    fontWeight: 500,
+                    fontSize: "clamp(38px, 5.4vw, 66px)",
+                    lineHeight: 1.05,
+                    letterSpacing: "-0.02em",
+                    textTransform: "none",
+                    color: "var(--ink)",
+                    margin: "0 0 22px",
+                  }
+                : {
+                    fontFamily: "var(--sans)",
+                    fontWeight: 600,
+                    fontSize: "clamp(30px, 4.1vw, 50px)",
+                    lineHeight: 1.12,
+                    letterSpacing: "-0.02em",
+                    textTransform: "none",
+                    color: "var(--ink)",
+                    margin: "0 0 22px",
+                  }
+            }
           >
             {article.title}
           </h1>
@@ -162,7 +183,9 @@ export default async function ArticlePage({
               margin: 0,
             }}
           >
-            {formatDate(article.date)} · {article.readingTime}
+            {isTrendEdit
+              ? article.readingTime
+              : `${formatDate(article.date)} · ${article.readingTime}`}
           </p>
           <div style={{ display: "flex", justifyContent: "center", marginTop: 26 }}>
             <ShareBar
@@ -175,8 +198,10 @@ export default async function ArticlePage({
         </div>
       </header>
 
-      {/* Lead image, leads the essay, magazine-style */}
-      {article.hero && (
+      {/* Lead image, leads the essay, magazine-style. The trend-edit layout
+          renders its own product-photography lead image inside
+          TrendEditSections, so the shared hero figure is skipped there. */}
+      {article.hero && !isTrendEdit && (
         <figure className="shell" style={{ margin: 0, paddingTop: 56 }}>
           <div
             className="j-article j-rise"
@@ -220,29 +245,36 @@ export default async function ArticlePage({
         </figure>
       )}
 
-      {/* Body */}
-      <article className="shell" style={{ paddingTop: 56, paddingBottom: 64 }}>
-        <div
-          className="j-article j-prose"
-          dangerouslySetInnerHTML={{ __html: article.html }}
-        />
-        <InlineMediaPlay />
-        {/* In-body CTA. Skipped for "shop" articles: the end-of-article
-            "Shop the edit" product rail is the single, stronger shop moment,
-            so we don't double up on shopping prompts. */}
-        {bottomCta !== "shop" && (
-          <div className="j-article">
-            {bottomCta === "newsletter" ? (
-              <JournalNewsletterCard />
-            ) : (
-              <ArticleCta variant={bottomCta} />
+      {/* Body. Trend-edit articles render the Goop-style shoppable layout;
+          everything else keeps the original prose body + Shop the edit rail. */}
+      {isTrendEdit ? (
+        <TrendEditSections article={article} />
+      ) : (
+        <>
+          <article className="shell" style={{ paddingTop: 56, paddingBottom: 64 }}>
+            <div
+              className="j-article j-prose"
+              dangerouslySetInnerHTML={{ __html: article.html }}
+            />
+            <InlineMediaPlay />
+            {/* In-body CTA. Skipped for "shop" articles: the end-of-article
+                "Shop the edit" product rail is the single, stronger shop moment,
+                so we don't double up on shopping prompts. */}
+            {bottomCta !== "shop" && (
+              <div className="j-article">
+                {bottomCta === "newsletter" ? (
+                  <JournalNewsletterCard />
+                ) : (
+                  <ArticleCta variant={bottomCta} />
+                )}
+              </div>
             )}
-          </div>
-        )}
-      </article>
+          </article>
 
-      {/* Shop the edit — non-toxic women's pieces, right after the read */}
-      <ShopTheEdit article={article} />
+          {/* Shop the edit — non-toxic women's pieces, right after the read */}
+          <ShopTheEdit article={article} />
+        </>
+      )}
 
       {/* Sources + share + back, the de-emphasized reference tail */}
       <section className="shell" style={{ paddingBottom: 96 }}>

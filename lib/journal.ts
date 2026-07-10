@@ -10,6 +10,19 @@ const JOURNAL_DIR = path.join(process.cwd(), "content/journal");
 
 export type Source = { label: string; href: string };
 
+// Structured "trend edit" section for the Goop-style shoppable layout. Optional
+// and article-specific: only the summer-edit piece uses it. When `sections` is
+// present on an article, the /journal/[slug] page renders TrendEditSections
+// instead of the normal .j-prose body + ShopTheEdit rail. Every other article
+// (no `sections`) renders exactly as before.
+export type TrendSection = {
+  heading: string;
+  writeupHtml: string; // rendered from the frontmatter `writeup` markdown
+  leadProductId: string; // the section's lead image = this product's photo
+  leadImageAlt?: string;
+  productIds: string[]; // shoppable grid below the writeup
+};
+
 export type ArticleMeta = {
   slug: string;
   title: string;
@@ -29,6 +42,16 @@ export type ArticleMeta = {
   products?: string[];
   readingTime: string;
   sources: Source[];
+  // ── Optional Goop-style "trend edit" layout (summer-edit only) ──────────
+  // Full-width lead image (product photography) + caption above the intro.
+  leadImageUrl?: string;
+  leadImageAlt?: string;
+  leadImageHref?: string; // links the lead image to a product detail page
+  leadCaption?: string;
+  introHtml?: string; // curation intro paragraph(s), rendered from markdown
+  sections?: TrendSection[]; // repeating trend blocks (writeup + shoppable grid)
+  takeHtml?: string; // "The Toxome Take" callout, rendered from markdown
+  closeHtml?: string; // closing paragraph with the shop-the-edit CTA link
 };
 
 export type Article = ArticleMeta & { html: string };
@@ -51,11 +74,57 @@ function readArticle(slug: string): Article | null {
   const raw = fs.readFileSync(filePath, "utf8");
   const { data, content } = matter(raw);
 
-  const words = content.trim().split(/\s+/).filter(Boolean).length;
-  const minutes = Math.max(1, Math.round(words / 200));
-
   // marked is synchronous when no async extensions are registered.
   const html = marked.parse(content, { async: false }) as string;
+  const md = (v: unknown): string | undefined =>
+    typeof v === "string" && v.trim()
+      ? (marked.parse(v.trim(), { async: false }) as string)
+      : undefined;
+
+  // Optional structured trend sections (summer-edit). Absent on every other
+  // article, so those fall through to the normal .j-prose render untouched.
+  const sections: TrendSection[] | undefined = Array.isArray(data.sections)
+    ? data.sections
+        .map((s): TrendSection | null => {
+          if (!s || typeof s !== "object") return null;
+          const sec = s as Record<string, unknown>;
+          const heading = String(sec.heading ?? "");
+          const leadProductId = String(sec.leadProductId ?? "");
+          if (!heading || !leadProductId) return null;
+          return {
+            heading,
+            writeupHtml: md(sec.writeup) ?? "",
+            leadProductId,
+            leadImageAlt: sec.leadImageAlt ? String(sec.leadImageAlt) : undefined,
+            productIds: Array.isArray(sec.productIds)
+              ? sec.productIds.map(String).filter(Boolean)
+              : [],
+          };
+        })
+        .filter((s): s is TrendSection => s !== null)
+    : undefined;
+
+  const introHtml = md(data.intro);
+  const takeHtml = md(data.take);
+  const closeHtml = md(data.close);
+
+  // Reading time counts the structured copy too, not just the markdown body,
+  // so the trend-edit article reports a realistic length.
+  const wordSource = [
+    content,
+    typeof data.intro === "string" ? data.intro : "",
+    typeof data.take === "string" ? data.take : "",
+    typeof data.close === "string" ? data.close : "",
+    ...(Array.isArray(data.sections)
+      ? data.sections.map((s) =>
+          s && typeof s === "object"
+            ? `${(s as Record<string, unknown>).heading ?? ""} ${(s as Record<string, unknown>).writeup ?? ""}`
+            : ""
+        )
+      : []),
+  ].join(" ");
+  const words = wordSource.trim().split(/\s+/).filter(Boolean).length;
+  const minutes = Math.max(1, Math.round(words / 200));
 
   return {
     slug,
@@ -75,6 +144,14 @@ function readArticle(slug: string): Article | null {
       : undefined,
     readingTime: `${minutes} min read`,
     sources: normalizeSources(data.sources),
+    leadImageUrl: data.leadImageUrl ? String(data.leadImageUrl) : undefined,
+    leadImageAlt: data.leadImageAlt ? String(data.leadImageAlt) : undefined,
+    leadImageHref: data.leadImageHref ? String(data.leadImageHref) : undefined,
+    leadCaption: data.leadCaption ? String(data.leadCaption) : undefined,
+    introHtml,
+    sections,
+    takeHtml,
+    closeHtml,
     html,
   };
 }
