@@ -914,6 +914,18 @@ button { font-family: inherit; }
   grid-auto-rows: auto;
   gap: 20px;
 }
+/* Grid items default to min-width:auto, which lets a cell whose inner content
+   is intrinsically wide (a 4-up product grid) refuse to shrink and blow the
+   single-column mobile track out past the viewport. min-width:0 lets the cell
+   shrink to its track so the page never scrolls sideways on phones. */
+.account-cell { min-width: 0; }
+/* Product thumb grids inside cells: 4-up on desktop, 2-up on phones. minmax(0,1fr)
+   keeps columns shrinkable so they never overflow. Columns live here (not inline)
+   so the media query can win. */
+.acct-product-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 720px) {
+  .acct-product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 /* `order` drives the visual sequence so we can swap cards without touching
    JSX. saved takes the full-width row; cleaner-alternatives sits next to
    settings on the row below. */

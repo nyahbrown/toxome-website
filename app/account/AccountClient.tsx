@@ -753,7 +753,7 @@ function CleanerAlternativesList({ items }: { items: Product[] }) {
     );
   }
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 14 }}>
+    <div className="acct-product-grid" style={{ gap: 14 }}>
       {alts.map((p) => (
         <Link
           key={p.id}
@@ -1384,7 +1384,7 @@ function ClosetLockedCTA({ scanCount }: { scanCount: number }) {
         }}
       >
         <ClosetSnapshot stats={SAMPLE_CLOSET_STATS} />
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 14 }}>
+        <div className="acct-product-grid" style={{ gap: 14 }}>
           {[0, 1, 2, 3].map((i) => (
             <div key={i}>
               <div style={{ aspectRatio: "266 / 380", background: "var(--tan)", borderRadius: 8, marginBottom: 8 }} />
