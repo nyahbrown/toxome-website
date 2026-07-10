@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import type { Product } from "@/types/product";
 import { useAuth } from "@/contexts/AuthContext";
 import { HeartFilled, HeartOutline } from "@/components/icons";
+import { triggerAppPrompt } from "@/components/AppInstallPrompt";
 import CertBadge from "@/components/CertBadge";
 import VerificationRung from "@/components/VerificationRung";
 import ScoreBadge from "@/components/ScoreBadge";
@@ -224,6 +225,10 @@ export default function ProductDetailClient({
 
   function handleWishlist() {
     if (!user) {
+      // On iOS, saving is peak intent: send them to the app (their closet lives
+      // there) instead of a web login. triggerAppPrompt returns false off iOS,
+      // where we fall back to the normal web login flow.
+      if (triggerAppPrompt("save")) return;
       sessionStorage.setItem("pendingLike", product.id);
       sessionStorage.setItem("pendingLikeProduct", JSON.stringify(product));
       router.push(`/login?return=/shop/${product.id}`);

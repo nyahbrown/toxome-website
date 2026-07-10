@@ -3,6 +3,7 @@ import { Cormorant, Inter } from "next/font/google";
 import "./globals.css";
 import AnimationProvider from "@/components/AnimationProvider";
 import CookieBanner from "@/components/CookieBanner";
+import AppInstallPrompt from "@/components/AppInstallPrompt";
 import JsonLd from "@/components/JsonLd";
 import Skimlinks from "@/components/Skimlinks";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -101,6 +102,7 @@ export default function RootLayout({
           {children}
         </AuthProvider>
         <CookieBanner />
+        <AppInstallPrompt />
         <Skimlinks />
         <Analytics />
         <SpeedInsights />

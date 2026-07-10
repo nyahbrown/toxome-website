@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import type { Product } from "@/types/product";
 import type { ShopTaxonomy } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
+import { triggerAppPrompt } from "@/components/AppInstallPrompt";
 import FrostedSelect from "@/components/FrostedSelect";
 import WishlistHeart from "@/components/WishlistHeart";
 import ScoreBadge from "@/components/ScoreBadge";
@@ -616,6 +617,9 @@ export default function ShopClient({
 
   function handleToggle(p: Product) {
     if (!user) {
+      // iOS: saving is peak intent, funnel to the app (closet lives there).
+      // Off iOS, triggerAppPrompt returns false and we fall back to web login.
+      if (triggerAppPrompt("save")) return;
       sessionStorage.setItem("pendingLike", p.id);
       sessionStorage.setItem("pendingLikeProduct", JSON.stringify(p));
       router.push(`/login?return=${sectionPath}`);
