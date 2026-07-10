@@ -61,6 +61,7 @@ export default function Nav({
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [shopOpen, setShopOpen] = useState(false);
+  const [guideOpen, setGuideOpen] = useState(false);
   const isHome = pathname === "/";
   const shopColumns = buildShopColumns(taxonomy);
   // The bar reads as transparent only on the homepage hero before scroll AND
@@ -80,11 +81,15 @@ export default function Nav({
   useEffect(() => {
     setMenuOpen(false);
     setShopOpen(false);
+    setGuideOpen(false);
   }, [pathname]);
 
-  // Collapse the shop section whenever the drawer closes, so it reopens tidy.
+  // Collapse expandable sections whenever the drawer closes, so it reopens tidy.
   useEffect(() => {
-    if (!menuOpen) setShopOpen(false);
+    if (!menuOpen) {
+      setShopOpen(false);
+      setGuideOpen(false);
+    }
   }, [menuOpen]);
 
   // Lock body scroll + close on Escape while the mobile menu is open.
@@ -493,44 +498,77 @@ export default function Nav({
                 </div>
               )}
 
-              {/* guide → fabric + certifications */}
-              <div>
-                <div
-                  className="eyebrow"
-                  style={{ color: "var(--ink-3)", padding: "8px 0 4px" }}
+              {/* guide, expandable — mirrors the shop accordion so both
+                  primary groups share one interaction model. */}
+              <button
+                type="button"
+                aria-expanded={guideOpen}
+                onClick={() => setGuideOpen((o) => !o)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  width: "100%",
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  padding: "13px 0",
+                  fontFamily: "var(--sans)",
+                  fontSize: 26,
+                  fontWeight: 500,
+                  letterSpacing: "-0.02em",
+                  color:
+                    pathname === "/guide" ||
+                    pathname.startsWith("/guide/") ||
+                    pathname === "/methodology"
+                      ? "var(--ink)"
+                      : "var(--ink-2)",
+                  textTransform: "lowercase",
+                }}
+              >
+                guide
+                <svg
+                  width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"
+                  style={{
+                    color: "var(--ink-3)",
+                    transform: guideOpen ? "rotate(180deg)" : "none",
+                    transition: "transform 240ms var(--ease-out-strong)",
+                  }}
                 >
-                  Guide
+                  <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+              {guideOpen && (
+                <div className="nav-sheet-sub" style={{ paddingBottom: 8 }}>
+                  {[
+                    { label: "fabrics", href: "/guide" },
+                    { label: "certifications", href: "/guide/certifications" },
+                    { label: "how we score", href: "/methodology" },
+                  ].map((link) => {
+                    const active =
+                      pathname === link.href ||
+                      (link.href !== "/guide" &&
+                        pathname.startsWith(`${link.href}/`));
+                    return (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        onClick={() => setMenuOpen(false)}
+                        style={{
+                          display: "block",
+                          fontSize: 16,
+                          letterSpacing: "-0.005em",
+                          color: active ? "var(--ink)" : "var(--ink-2)",
+                          textDecoration: "none",
+                          padding: "7px 0",
+                        }}
+                      >
+                        {link.label}
+                      </Link>
+                    );
+                  })}
                 </div>
-                {[
-                  { label: "fabrics", href: "/guide" },
-                  { label: "certifications", href: "/guide/certifications" },
-                  { label: "how we score", href: "/methodology" },
-                ].map((link) => {
-                  const active =
-                    pathname === link.href ||
-                    (link.href !== "/guide" &&
-                      pathname.startsWith(`${link.href}/`));
-                  return (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      onClick={() => setMenuOpen(false)}
-                      style={{
-                        display: "block",
-                        fontFamily: "var(--sans)",
-                        fontSize: 22,
-                        fontWeight: 500,
-                        letterSpacing: "-0.02em",
-                        color: active ? "var(--ink)" : "var(--ink-2)",
-                        textDecoration: "none",
-                        padding: "10px 0",
-                      }}
-                    >
-                      {link.label}
-                    </Link>
-                  );
-                })}
-              </div>
+              )}
 
               {/* journal */}
               <Link
@@ -553,8 +591,10 @@ export default function Nav({
               </Link>
             </div>
 
-            {/* Utility, pinned lower */}
-            <div style={{ marginTop: "auto", paddingTop: 32 }}>
+            {/* Utility — secondary group. Flows just below the primary nav
+                with generous top spacing (no divider line, per house rules),
+                rather than bottom-pinned, which left a dead void on tall phones. */}
+            <div style={{ marginTop: 28 }}>
               <Link
                 href="/account"
                 onClick={() => setMenuOpen(false)}
