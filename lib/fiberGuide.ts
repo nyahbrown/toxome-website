@@ -7,6 +7,7 @@
 // Sources are real and shown in fine print on each fiber page.
 
 import { fiberScore, scoreToRiskLevel, hazardColor } from "./fabricScores";
+import { FIBER_RICH } from "./fiberGuideRich";
 
 export type FiberSource = { title: string; publisher: string; url: string };
 
@@ -25,6 +26,38 @@ export type FiberGuideEntry = {
    */
   shopFilter: string | null;
   sources: FiberSource[];
+
+  // ---- Optional rich fields (LINEN flagship). Every consumer must treat these
+  // as optional: a section renders only when its field is present, so the other
+  // fibers keep a valid (lighter) page from the required fields above. ----
+  /** Hero one-liner under the fiber name. */
+  dek?: string;
+  /** Overrides whatItIs for the About section when present. */
+  about?: string;
+  /** The "a brief history" aside body. */
+  history?: string;
+  /** Paragraphs for "how it's cultivated & made". */
+  madeStory?: string[];
+  /** Image shown inside the made section. */
+  madeImage?: { src: string; alt: string; caption?: string };
+  /** The grades section: prose intro + provenance chips. */
+  grades?: { intro: string; marks: string[] };
+  /** Paragraphs for the health section lead (overrides healthStory when present). */
+  healthImpacts?: string[];
+  /** The "what it does for your skin" list. */
+  benefits?: { title: string; body: string }[];
+  /** Chips for what to look for (else fall back to whatToLookFor prose). */
+  lookFor?: string[];
+  /** Chips for what to avoid. */
+  avoid?: string[];
+  /** The "how we scored it" aside body. */
+  scoredNote?: string;
+  /** The wash/dry/iron/store list. */
+  care?: { k: string; v: string }[];
+  /** Visible FAQ (else fall back to the auto-generated Q&As in the page). */
+  faq?: { q: string; a: string }[];
+  /** Hero image path (else default to /fibers/guide/${slug}.jpg). */
+  heroImage?: string;
 };
 
 export const FIBER_GUIDE: FiberGuideEntry[] = [
@@ -65,6 +98,92 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
       { title: "Is Linen Fabric Toxic? The Science Behind This Natural Textile", publisher: "Dal The Label", url: "https://dalthelabel.com/blogs/fashion-101/is-linen-fabric-toxic-the-science-behind-this-natural-textile" },
       { title: "What Does Oeko-Tex Certified Mean?", publisher: "George Street Linen", url: "https://www.georgestreetlinen.com/global/journal/what-does-oeko-tex-certified-mean" },
       { title: "OEKO-TEX STANDARD 100 Factsheet", publisher: "OEKO-TEX", url: "https://www.oeko-tex.com/fileadmin/user_upload/Marketing_Materialien/STANDARD_100/Factsheet/STANDARD_100/OEKO-TEX_STANDARD_100_Factsheet_EN.pdf" },
+      { title: "Bacterial adhesion and biofilm formation on linen fabrics", publisher: "Industrial Crops and Products", url: "https://www.sciencedirect.com/science/article/pii/S0926669025018412" },
+      { title: "Evaluation of Antibacterial Activity of Flax Fibers Against Staphylococcus aureus", publisher: "Fibres & Textiles in Eastern Europe", url: "https://www.researchgate.net/publication/297406900_Evaluation_of_Antibacterial_Activity_of_Flax_Fibers_Against_the_Staphylococcus_aureus_Bacteria_Strain" },
+      { title: "Best Fabrics for Sensitive Skin", publisher: "Healthline", url: "https://www.healthline.com/health/best-fabric-for-sensitive-skin" },
+    ],
+    dek: "The fiber your skin has always gotten along with, until the finish gets involved.",
+    heroImage: "/fibers/linen/linen-field.jpg",
+    about:
+      "Linen is spun from the *stalk* of the flax plant, not a fluffy boll like cotton. The Romans called it *linum usitatissimum*, most useful flax, and people have worn it for something like 30,000 years. It is one of the oldest, and one of the cleanest, fabrics we know how to make.",
+    history:
+      "Flax was spun into thread before the wheel existed. The Egyptians wrapped pharaohs in it and treated the finest linen as a luxury. The best of it still comes from European flax and, historically, the Nile.",
+    madeStory: [
+      "Flax grows in cool, damp weather in about 100 days, on little water and few pesticides. The plant is *pulled up by the roots*, not cut, to keep the fibers long, because the longer the fiber, the finer the cloth. That is exactly why raw linen is one of the cleanest things you can put on your skin.",
+      "The best linen is still hand-harvested. Getting the fiber out is slow and mostly mechanical: *retting* lets dew and bacteria rot away the glue that binds the fiber to the woody stalk, and dew-retting out in a field is the cleanest, least polluting way to do it. Then the stalks are broken, scutched, and combed until only the long, lustrous fibers are left, then spun and woven.",
+      "No chemical bath required, and undyed linen breaks down in soil in a few weeks. *Whatever risk linen carries is added later*, at the finishing stage.",
+    ],
+    madeImage: {
+      src: "/fibers/linen/flax-closeup.jpg",
+      alt: "Blue flax flowers in bloom in a field",
+      caption: "Flax in bloom, before it becomes thread.",
+    },
+    grades: {
+      intro:
+        "Linen on a label covers a wide range, and the grade of the fiber is what separates the good from the forgettable. The long, combed fibers, called *line*, make smooth, fine cloth. The short leftovers, *tow*, make the coarser, cheaper stuff. The longest, finest flax comes from a handful of places, and a provenance mark is a quality signal, not a health promise.",
+      marks: ["European Flax", "Belgian", "Irish", "Egyptian"],
+    },
+    healthImpacts: [
+      "The flax fiber itself is biologically inert. It is plant cellulose, and lab tests that check whether a material harms living cells find flax safe against skin. What linen does for your body is really about moisture and heat, not any special chemistry: its pectin structure pulls sweat off your skin and lets it evaporate fast, so you skip the damp cling that irritates skin and gives bacteria something to grow on.",
+      "The real health question with a linen garment is not the fiber, it is the finish. Words like *wrinkle-free*, *easy-care*, and *anti-static* usually mean a formaldehyde treatment was added, a chemical that can cause cancer and irritate skin, sitting on a fiber that never needed it.",
+    ],
+    benefits: [
+      {
+        title: "Breathes and wicks.",
+        body: "Flax's pectin structure pulls sweat off your skin and lets it evaporate fast, so you skip the damp cling that irritates skin and feeds bacteria.",
+      },
+      {
+        title: "Runs cool.",
+        body: "Naturally thermoregulating, so less heat and sweat sit trapped against your body.",
+      },
+      {
+        title: "Softer with every wash.",
+        body: "Smooth and low-lint once broken in. Coarse, brand-new linen can feel stiff, so wash it before wearing on sensitive skin.",
+      },
+      {
+        title: "A cleaner surface against skin.",
+        body: "Flax resists dust mites and mold, and dries too fast for much bacteria or odor to build up. Its *antibacterial* reputation is mostly that; the direct evidence is modest.",
+      },
+    ],
+    lookFor: ["OEKO-TEX Standard 100", "GOTS", "European Flax"],
+    avoid: ["Wrinkle-free", "Easy-care", "Anti-static finishes"],
+    scoredNote:
+      "Linen starts from a clean plant fiber, so its hazard base is low. From there we subtract for the finishes and dyes we can detect. A certified, undyed linen sits near the very top of the scale, which is how it lands at 94.",
+    care: [
+      {
+        k: "Wash",
+        v: "Cool (30°C or below), gentle cycle, mild detergent, inside out. No bleach, and *no fabric softener*, it coats the fiber and kills the breathability that makes linen linen.",
+      },
+      {
+        k: "Dry",
+        v: "Air dry in the shade, or tumble on low for 5 to 10 minutes then hang. High heat is what shrinks it.",
+      },
+      {
+        k: "Iron",
+        v: "Press while still damp on medium, inside out to avoid shine, or just steam it. Or lean into the relaxed wrinkle, it is part of the charm.",
+      },
+      {
+        k: "Store",
+        v: "Put it away clean in a breathable cotton bag, never plastic, so it does not yellow or draw moths.",
+      },
+    ],
+    faq: [
+      {
+        q: "Is linen toxic?",
+        a: "Pure linen is not. The flax fiber itself is safe against skin. The risk comes from what gets added later: wrinkle-free and easy-care finishes (often formaldehyde) and cheap azo dyes. Choose OEKO-TEX Standard 100 or GOTS certified linen and you avoid almost all of it.",
+      },
+      {
+        q: "Is linen hypoallergenic?",
+        a: "Generally, yes. Linen is smooth, low-lint, and breathable, which tends to suit sensitive skin and eczema. An undyed, certified linen with no performance finish is about as gentle as fabric gets.",
+      },
+      {
+        q: "Does linen shrink?",
+        a: "A little on the first wash if it was not pre-shrunk. Wash cool (30°C or below) and air dry, and it holds its shape. High heat in the dryer is what shrinks it.",
+      },
+      {
+        q: "Is linen better than cotton?",
+        a: "For wearer health and longevity, usually. Linen scores 94 to conventional cotton's 84, uses far less water, and lasts for decades. Cotton is softer on day one; linen gets softer with every wash.",
+      },
     ],
   },
   {
@@ -635,7 +754,11 @@ export function withScore(entry: FiberGuideEntry): GuideFiber {
 
 export function getFiber(slug: string): GuideFiber | null {
   const entry = FIBER_GUIDE.find((f) => f.slug === slug);
-  return entry ? withScore(entry) : null;
+  if (!entry) return null;
+  // Layer the generated rich content (the new detail sections) over the base
+  // entry. Linen carries its rich fields inline, so it is absent from FIBER_RICH.
+  const rich = FIBER_RICH[entry.slug];
+  return withScore(rich ? { ...entry, ...rich } : entry);
 }
 
 export const BAND_META: Record<
