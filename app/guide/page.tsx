@@ -67,11 +67,9 @@ function ArrowIcon() {
 function FiberTile({
   fiber,
   hasImage,
-  hasHover,
 }: {
   fiber: GuideFiber;
   hasImage: boolean;
-  hasHover: boolean;
 }) {
   return (
     <Link href={`/guide/${fiber.slug}`} className="fiber-tile">
@@ -86,16 +84,6 @@ function FiberTile({
           />
         ) : (
           <div className="fiber-tile__fallback" />
-        )}
-        {hasHover && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            className="fiber-tile__img fiber-tile__img--hover"
-            src={`/fibers/guide/${fiber.slug}-2.jpg`}
-            alt=""
-            aria-hidden="true"
-            loading="lazy"
-          />
         )}
         <div className="fiber-tile__scrim" />
         <div className="fiber-tile__veil" />
@@ -150,19 +138,25 @@ export default async function GuidePage() {
             The fabric guide
           </div>
           <h1
+            className="guide-index-h1"
             style={{
               fontFamily: "var(--sans)",
               fontWeight: 500,
-              fontSize: "clamp(18px, 4.4vw, 46px)",
+              fontSize: "clamp(22px, 4.4vw, 46px)",
               lineHeight: 1.12,
               letterSpacing: "-0.02em",
               color: "var(--ink)",
               margin: "0 auto 20px",
-              whiteSpace: "nowrap",
             }}
           >
             Know what touches your skin all day.
           </h1>
+          <style>{`
+            .guide-index-h1 { white-space: nowrap; }
+            @media (max-width: 430px) {
+              .guide-index-h1 { white-space: normal; }
+            }
+          `}</style>
           <p
             style={{
               fontSize: 16,
@@ -185,7 +179,6 @@ export default async function GuidePage() {
                 key={f.slug}
                 fiber={f}
                 hasImage={images.has(f.slug.toLowerCase())}
-                hasHover={images.has(`${f.slug.toLowerCase()}-2`)}
               />
             ))}
           </div>
@@ -203,7 +196,7 @@ export default async function GuidePage() {
           >
             Scores reflect wearer health only and mirror the Toxome app. Each
             fiber page lists its sources. This guide is educational and is not
-            medical advice. Fabric imagery via Unsplash.
+            medical advice. Fabric imagery via Unsplash and Pexels.
           </p>
         </div>
       </main>

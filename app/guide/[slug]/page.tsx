@@ -60,25 +60,35 @@ const RAIL_LEAD: Record<FiberBand, string> = {
 // shopFilter values used to pull real products. Some alternatives (cupro,
 // vegetable-tanned leather, LENZING ECOVERO) have no product filter, so their
 // rail tops up from getCleanerAlternatives.
-const ALT_FIBERS: Record<string, { names: string[]; filters: string[] }> = {
+// `slugs` are the alternative fibers' own guide pages (for contextual related
+// links); `filters` are the shopFilter values used to pull real products. Some
+// alternatives (cupro, vegetable-tanned leather, LENZING ECOVERO) have no
+// product filter, so those rails top up from getCleanerAlternatives and use a
+// generic heading rather than naming a piece we can't actually show.
+const ALT_FIBERS: Record<
+  string,
+  { names: string[]; filters: string[]; slugs: string[] }
+> = {
   // moderate
-  acetate: { names: ["silk", "cupro"], filters: ["silk"] },
-  viscose: { names: ["LENZING™ ECOVERO™", "TENCEL lyocell"], filters: ["tencel"] },
-  rayon: { names: ["LENZING™ ECOVERO™", "TENCEL lyocell"], filters: ["tencel"] },
-  bamboo: { names: ["TENCEL lyocell", "organic cotton"], filters: ["tencel", "organic cotton"] },
-  leather: { names: ["vegetable-tanned leather"], filters: [] },
+  acetate: { names: ["silk", "cupro"], filters: ["silk"], slugs: ["silk", "cupro"] },
+  viscose: { names: ["LENZING™ ECOVERO™", "TENCEL lyocell"], filters: ["tencel"], slugs: ["ecovero", "tencel_lyocell"] },
+  rayon: { names: ["LENZING™ ECOVERO™", "TENCEL lyocell"], filters: ["tencel"], slugs: ["ecovero", "tencel_lyocell"] },
+  bamboo: { names: ["TENCEL lyocell", "organic cotton"], filters: ["tencel", "organic cotton"], slugs: ["tencel_lyocell", "organic_cotton"] },
+  leather: { names: ["vegetable-tanned leather"], filters: [], slugs: [] },
   // high
-  acrylic: { names: ["cashmere", "merino wool"], filters: ["cashmere", "merino wool"] },
-  polyester: { names: ["organic cotton", "TENCEL lyocell"], filters: ["organic cotton", "tencel", "linen"] },
-  nylon: { names: ["merino wool", "organic cotton"], filters: ["merino wool", "organic cotton"] },
-  spandex: { names: ["organic cotton", "TENCEL lyocell"], filters: ["organic cotton", "tencel"] },
-  elastane: { names: ["organic cotton", "TENCEL lyocell"], filters: ["organic cotton", "tencel"] },
-  polyurethane: { names: ["vegetable-tanned leather"], filters: [] },
+  acrylic: { names: ["cashmere", "merino wool"], filters: ["cashmere", "merino wool"], slugs: ["cashmere", "merino_wool"] },
+  polyester: { names: ["organic cotton", "TENCEL lyocell"], filters: ["organic cotton", "tencel", "linen"], slugs: ["organic_cotton", "tencel_lyocell", "linen"] },
+  nylon: { names: ["merino wool", "organic cotton"], filters: ["merino wool", "organic cotton"], slugs: ["merino_wool", "organic_cotton"] },
+  spandex: { names: ["organic cotton", "TENCEL lyocell"], filters: ["organic cotton", "tencel"], slugs: ["organic_cotton", "tencel_lyocell"] },
+  elastane: { names: ["organic cotton", "TENCEL lyocell"], filters: ["organic cotton", "tencel"], slugs: ["organic_cotton", "tencel_lyocell"] },
+  polyurethane: { names: ["vegetable-tanned leather"], filters: [], slugs: ["leather"] },
 };
 
-// Rail heading built from the alternative names (first two), e.g.
-// "shop cashmere & merino wool instead".
-function altHeading(alt: { names: string[] }): string {
+// Rail heading: name the first two alternatives when we can actually show them
+// ("shop cashmere & merino wool instead"); fall back to a generic line when the
+// alternative has no product filter, so the heading matches the pieces shown.
+function altHeading(alt: { names: string[]; filters: string[] }): string {
+  if (!alt.filters.length) return "shop cleaner pieces instead";
   return `shop ${alt.names.slice(0, 2).join(" & ")} instead`;
 }
 
@@ -194,11 +204,26 @@ export default async function FiberGuidePage({
     ? `/shop?fiber=${encodeURIComponent(f.shopFilter)}`
     : "/shop";
 
-  // Up to 4 cleaner sibling fibers (highest score first) for internal linking.
-  const related = FIBER_GUIDE.map(withScore)
-    .filter((x) => x.slug !== f.slug)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 4);
+  // Contextual related fibers: lead with this fiber's own cleaner alternatives
+  // (so acrylic points at cashmere and merino, not the same four every page),
+  // then fill with the nearest-scoring fibers of the same kind.
+  const allScored = FIBER_GUIDE.map(withScore);
+  const bySlug = new Map(allScored.map((x) => [x.slug, x]));
+  const relatedSlugs: string[] = [];
+  const pushSlug = (slug: string) => {
+    if (slug !== f.slug && bySlug.has(slug) && !relatedSlugs.includes(slug)) {
+      relatedSlugs.push(slug);
+    }
+  };
+  (alt?.slugs ?? []).forEach(pushSlug);
+  allScored
+    .filter((x) => x.kind === f.kind)
+    .sort((a, b) => Math.abs(a.score - f.score) - Math.abs(b.score - f.score))
+    .forEach((x) => pushSlug(x.slug));
+  const related = relatedSlugs
+    .slice(0, 4)
+    .map((slug) => bySlug.get(slug)!)
+    .filter(Boolean);
 
   // Which optional sections have data (drives both jump-nav and rendering).
   const hasMade = !!f.madeStory?.length;
@@ -211,8 +236,7 @@ export default async function FiberGuidePage({
   // are stripped of emphasis asterisks for plain rendering.
   const faqItems = (
     f.faq ?? [
-      { q: `Is ${lower} toxic?`, a: f.healthStory },
-      { q: `Is ${lower} safe to wear?`, a: f.healthStory },
+      { q: `Is ${lower} toxic to wear?`, a: f.healthStory },
       { q: `What should you look for when buying ${lower}?`, a: f.whatToLookFor },
       { q: `Is ${lower} better for the environment?`, a: f.environment },
     ]
@@ -344,7 +368,7 @@ export default async function FiberGuidePage({
                   </svg>
                 </div>
                 <div className="gp-verdict">{VERDICT[f.band]}</div>
-                <div className="gp-cap">Health score of 100 · higher is cleaner</div>
+                <div className="gp-cap">Health score of 100</div>
                 <p className="gp-lead">{RAIL_LEAD[f.band]}</p>
                 <div className="gp-cta">
                   <a className="gp-btn full" href="#shop">
@@ -366,6 +390,7 @@ export default async function FiberGuidePage({
                   <a href="#health">health impacts</a>
                   {hasCare && <a href="#care">how to care for it</a>}
                   <a href="#shop">{shopNavLabel}</a>
+                  <a href="#faq">questions</a>
                 </nav>
               </aside>
 
@@ -671,16 +696,17 @@ export default async function FiberGuidePage({
           position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center;
         }
         .guide-page .gp-hero .eyebrow {
-          color: #fff; text-shadow: 0 1px 2px rgba(30,32,28,.55), 0 1px 10px rgba(30,32,28,.3);
+          color: #fff;
+          text-shadow: 0 0 1px rgba(20,22,18,.65), 0 1px 2px rgba(20,22,18,.8), 0 1px 12px rgba(20,22,18,.45);
         }
         .guide-page .gp-hero h1 {
           font-family: var(--sans); font-weight: 600; font-size: clamp(56px, 10vw, 124px);
           line-height: .92; letter-spacing: -.04em; margin: 18px 0 20px; color: #fff;
-          text-shadow: 0 1px 1px rgba(30,32,28,.34), 0 2px 14px rgba(30,32,28,.26);
+          text-shadow: 0 1px 1px rgba(20,22,18,.4), 0 2px 14px rgba(20,22,18,.3);
         }
         .guide-page .gp-dek {
-          color: #fff; font-size: 18px; max-width: 46ch;
-          text-shadow: 0 1px 2px rgba(30,32,28,.55), 0 1px 10px rgba(30,32,28,.34);
+          color: #fff; font-size: 18px; font-weight: 500; max-width: 46ch;
+          text-shadow: 0 0 1px rgba(20,22,18,.6), 0 1px 2px rgba(20,22,18,.8), 0 2px 14px rgba(20,22,18,.5);
         }
         .guide-page .gp-chip {
           display: inline-flex; align-items: center; gap: 8px; margin-top: 24px;
