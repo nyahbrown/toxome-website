@@ -127,7 +127,10 @@ export default async function FiberGuidePage({
     shopRailProducts(f),
   ]);
 
-  const lower = f.name.toLowerCase();
+  // Sentence-case form of the name for inline headings. Common fibers lowercase
+  // ("is polyester safe to wear?"); branded/trademarked names keep their form
+  // via sentenceName ("is LENZING™ ECOVERO™ safe to wear?").
+  const lower = f.sentenceName ?? f.name.toLowerCase();
 
   // Prefer the dedicated collection page over the generic ?fiber= filter.
   const collectionSlug = collectionSlugForFiber(f.slug);
@@ -335,9 +338,9 @@ export default async function FiberGuidePage({
                 {hasMade && (
                   <section className="gp-sec reveal" id="made">
                     <div className="eyebrow gp-kick">
-                      How it&rsquo;s cultivated &amp; made
+                      {f.madeEyebrow ?? "How it’s made"}
                     </div>
-                    <h2>From plant to thread</h2>
+                    <h2>{f.madeTitle ?? `How ${lower} is made`}</h2>
                     <p className="gp-prose">
                       <RichText text={f.madeStory![0]} />
                     </p>

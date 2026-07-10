@@ -65,10 +65,10 @@ function pickBrand(argBrand, shopify, prodLd, url) {
 
 function inferCategory(name) {
   const n = name.toLowerCase();
-  if (/\b(dress|kaftan|caftan|jumpsuit|romper|gown)\b/.test(n)) return "Dresses";
-  if (/\b(pant|trouser|short|skirt|jean|chino|culotte|legging)\b/.test(n)) return "Bottoms";
-  if (/\b(jacket|blazer|coat|overshirt|trench|parka)\b/.test(n)) return "Outerwear";
-  if (/\b(shirt|blouse|top|tank|tee|t-shirt|cami|vest|sweater|cardigan|knit|polo|button)\b/.test(n)) return "Tops";
+  if (/\b(dress|dresses|kaftan|caftan|jumpsuit|romper|gown)\b/.test(n)) return "Dresses";
+  if (/\b(pants?|trousers?|shorts?|skirts?|jeans?|chinos?|culottes?|leggings?|bermudas?)\b/.test(n)) return "Bottoms";
+  if (/\b(jacket|blazer|coat|overshirt|trench|parka)s?\b/.test(n)) return "Outerwear";
+  if (/\b(shirts?|blouses?|tops?|tanks?|tee|tees|t-shirt|camis?|vests?|sweaters?|cardigans?|knit|polos?|button)\b/.test(n)) return "Tops";
   return "Tops";
 }
 

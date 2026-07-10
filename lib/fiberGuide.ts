@@ -30,6 +30,13 @@ export type FiberGuideEntry = {
   // ---- Optional rich fields (LINEN flagship). Every consumer must treat these
   // as optional: a section renders only when its field is present, so the other
   // fibers keep a valid (lighter) page from the required fields above. ----
+  /** Sentence-form name for inline headings. Defaults to name.toLowerCase();
+   *  set for branded/trademarked names that should keep their form. */
+  sentenceName?: string;
+  /** Eyebrow for the made section (default "How it's made"). */
+  madeEyebrow?: string;
+  /** H2 for the made section (default `How {name} is made`). */
+  madeTitle?: string;
   /** Hero one-liner under the fiber name. */
   dek?: string;
   /** Overrides whatItIs for the About section when present. */
@@ -103,6 +110,8 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
       { title: "Best Fabrics for Sensitive Skin", publisher: "Healthline", url: "https://www.healthline.com/health/best-fabric-for-sensitive-skin" },
     ],
     dek: "The fiber your skin has always gotten along with, until the finish gets involved.",
+    madeEyebrow: "How it’s cultivated & made",
+    madeTitle: "From a field of flowers to thread",
     heroImage: "/fibers/linen/linen-field.jpg",
     about:
       "Linen is spun from the *stalk* of the flax plant, not a fluffy boll like cotton. The Romans called it *linum usitatissimum*, most useful flax, and people have worn it for something like 30,000 years. It is one of the oldest, and one of the cleanest, fabrics we know how to make.",
@@ -284,7 +293,8 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
   },
   {
     slug: "ecovero",
-    name: "LENZING ECOVERO",
+    name: "LENZING™ ECOVERO™",
+    sentenceName: "LENZING™ ECOVERO™",
     natural: false,
     whatItIs:
       "LENZING ECOVERO is a *brand-name viscose*. It is still made the traditional viscose way, which uses *carbon disulfide*, a harsh chemical. But Lenzing makes it under tighter rules and captures those chemicals instead of dumping them. It was the first viscose to earn the EU Ecolabel, an official seal for lower-impact products.",
