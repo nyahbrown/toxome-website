@@ -44,8 +44,11 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
         "body": "Like its cousin flax, hemp is often described as resistant to mold and odor-causing bacteria, though the direct evidence is thinner than the reputation."
       }
     ],
+    "certs": [
+      "oeko-tex-standard-100",
+      "gots"
+    ],
     "lookFor": [
-      "oeko-tex standard 100",
       "mechanically or enzyme processed",
       "low-impact or natural dyes"
     ],
@@ -132,10 +135,10 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
         "body": "Lower field residue plus formaldehyde-free GOTS finishing makes it a safer default for eczema-prone or chemically sensitive skin."
       }
     ],
-    "lookFor": [
+    "certs": [
       "gots",
-      "oeko-tex standard 100",
-      "usda organic (fiber only, pair with gots)"
+      "oeko-tex-standard-100",
+      "usda-organic"
     ],
     "avoid": [
       "'organic' with no gots or oeko-tex backup",
@@ -189,7 +192,7 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
       "None of that soil and carbon work changes what touches you. The health case rests entirely on the certified-organic fiber underneath. The trap is the word *regenerative* used by itself: with no organic certification attached, regenerative standards allow synthetic chemicals to be phased down slowly rather than banned, so an uncertified 'regenerative cotton' tag can still mean a sprayed crop."
     ],
     "grades": {
-      "intro": "*Regenerative Organic Certified* is awarded at three levels, Bronze, Silver, and Gold, set by how much of a farm meets the standard. Bronze starts at 10 percent of land or revenue and climbs to at least 50 percent by year five; Silver runs from 50 to 75 percent; Gold is the top, adding practices like no-till planting and year-round soil cover. All three require organic certification as the floor, so all three carry the same low-residue fiber. The level tells you how far the farm has gone, not how clean the cotton against your skin is.",
+      "intro": "*Regenerative Organic Certified* is awarded at three levels, Bronze, Silver, and Gold, set by how much of a farm meets the standard. Bronze starts at 10 percent of land or revenue and climbs to at least 50 percent by year five; Silver runs from 50 to 75 percent; Gold is the top, with the whole operation certified. All three require organic certification as the floor, so all three carry the same low-residue fiber. The level tells you how far the farm has gone, not how clean the cotton against your skin is.",
       "marks": [
         "Bronze",
         "Silver",
@@ -214,9 +217,9 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
         "body": "Feels and wears like any quality organic cotton; the soil and carbon work happens upstream, not in the hand-feel."
       }
     ],
-    "lookFor": [
-      "regenerative organic certified (roc)",
-      "gots + regenerative claim"
+    "certs": [
+      "regenerative-organic-certified",
+      "gots"
     ],
     "avoid": [
       "'regenerative' with no organic certification",
@@ -299,8 +302,10 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
         "body": "Enzyme-degummed ramie loses most of its scratch, cutting the fiber's natural prickle by close to half versus untreated fiber."
       }
     ],
+    "certs": [
+      "oeko-tex-standard-100"
+    ],
     "lookFor": [
-      "oeko-tex standard 100",
       "enzyme or bio-degummed",
       "smooth hand-feel, not stiff"
     ],
@@ -385,10 +390,10 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
         "body": "Skipping synthetic pesticides and controlling the finishing chemistry through GOTS removes most of what causes reactions in sensitive skin."
       }
     ],
-    "lookFor": [
+    "certs": [
       "gots",
-      "oeko-tex standard 100",
-      "organic (usda / gots)"
+      "oeko-tex-standard-100",
+      "usda-organic"
     ],
     "avoid": [
       "wrinkle-free / easy-care / no-iron finishes",
@@ -435,7 +440,7 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
   },
   "tencel_lyocell": {
     "dek": "The regenerated fiber whose dissolving solvent is non-toxic and recaptured almost to the last drop.",
-    "history": "Lyocell was invented in the 1980s as a cleaner answer to viscose. Lenzing has spun and trademarked its own version as *TENCEL* since the 1990s.",
+    "history": "Lyocell was invented in the early 1980s as a cleaner answer to viscose. Lenzing has spun its own version since the 1990s and sells it under the *TENCEL* brand.",
     "madeStory": [
       "TENCEL Lyocell starts as wood pulp, usually eucalyptus, beech, or spruce from managed, certified forests. That pulp is the same starting point every wood-based fiber shares.",
       "The split from viscose happens at the dissolving step. Viscose breaks its pulp down with *carbon disulfide*; lyocell dissolves it directly in *NMMO* (N-methylmorpholine N-oxide), an amine-oxide solvent with no known toxicity to the people handling it. The solution is pushed through fine holes and spun into fiber in one pass.",
@@ -471,9 +476,13 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
         "body": "Undyed TENCEL Lyocell is certified to biodegrade in soil, fresh water, and marine settings, so it reverts to nature rather than shedding plastic."
       }
     ],
+    "certs": [
+      "oeko-tex-standard-100",
+      "fsc",
+      "canopystyle"
+    ],
     "lookFor": [
-      "tencel lyocell",
-      "oeko-tex standard 100"
+      "tencel lyocell"
     ],
     "avoid": [
       "formaldehyde wrinkle-resistant finishes",
@@ -543,9 +552,12 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
         "body": "Made from post-consumer cotton instead of fresh wood, keeping usable fiber out of landfill."
       }
     ],
+    "certs": [
+      "oeko-tex-standard-100",
+      "rcs"
+    ],
     "lookFor": [
-      "saxcell",
-      "oeko-tex standard 100"
+      "saxcell"
     ],
     "avoid": [
       "unbranded recycled viscose with no disclosed process"
@@ -586,15 +598,15 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
   },
   "ecovero": {
     "dek": "Lenzing's certified viscose. A cleaner version of the same fiber, still made with carbon disulfide.",
-    "history": "Lenzing launched ECOVERO in 2017, and it became the first viscose fiber to carry the EU Ecolabel (license AT/016/001), the bloc's official seal for lower-impact products.",
+    "history": "Lenzing launched LENZING™ ECOVERO™ in 2017, and it became the first viscose fiber to carry the EU Ecolabel (license AT/016/001), the bloc's official seal for lower-impact products.",
     "madeStory": [
-      "ECOVERO is viscose. It begins as wood pulp from certified and controlled forests, dissolved into a thick solution and pushed through a spinneret to reform as thread. That puts it in the *regenerated* family alongside ordinary viscose and rayon. It is not lyocell.",
-      "The chemistry is where the marketing gets slippery. ECOVERO runs on *carbon disulfide*, the same solvent as any conventional viscose. Lenzing's difference is the controls around it: its mills capture and treat those emissions under audited limits instead of venting them, the wood is traced to certified forests, and a *molecular marker* is spun into every fiber so it can be verified in the finished cloth.",
-      "The EU Ecolabel caps the substances a product is allowed to release, and independent figures put ECOVERO's water use and carbon emissions at least 50 percent below generic viscose. *The win is the audited process and the traceable sourcing, both measured and certified, not a new fiber family.*"
+      "LENZING™ ECOVERO™ is viscose. It begins as wood pulp from certified and controlled forests, dissolved into a thick solution and pushed through a spinneret to reform as thread. That puts it in the *regenerated* family alongside ordinary viscose and rayon. It is not lyocell.",
+      "The chemistry is where the marketing gets slippery. ECOVERO™ runs on *carbon disulfide*, the same solvent as any conventional viscose. Lenzing's difference is the controls around it: its mills capture and treat those emissions under audited limits instead of venting them, the wood is traced to certified forests, and a *molecular marker* is spun into every fiber so it can be verified in the finished cloth.",
+      "The EU Ecolabel caps the substances a product is allowed to release, and Lenzing's own figures put ECOVERO™'s water use and carbon emissions at least 50 percent below generic viscose. *The win is the audited process and the traceable sourcing, both measured and certified, not a new fiber family.*"
     ],
     "healthImpacts": [
-      "Carbon disulfide is documented harm, but the people it harms are the workers breathing it at the mill, where long exposure is linked to nerve and heart damage. Lenzing's audited capture is the line between ECOVERO and the anonymous viscose mills that let those fumes escape. That is a worker-safety and pollution question, not something living in the shirt you buy.",
-      "On your skin, finished and washed ECOVERO carries essentially no leftover carbon disulfide, and it holds OEKO-TEX STANDARD 100 certification on top of the fiber-level testing. It breathes and absorbs moisture like other wood-based fibers, so it feels soft and cool. You are paying for cleaner, traceable production, not a safer fiber against your body."
+      "Carbon disulfide is documented harm, but the people it harms are the workers breathing it at the mill, where long exposure is linked to nerve and heart damage. Lenzing's audited capture is the line between LENZING™ ECOVERO™ and the anonymous viscose mills that let those fumes escape. That is a worker-safety and pollution question, not something living in the shirt you buy.",
+      "On your skin, finished and washed ECOVERO™ carries essentially no leftover carbon disulfide, and it holds OEKO-TEX STANDARD 100 certification on top of the fiber-level testing. It breathes and absorbs moisture like other wood-based fibers, so it feels soft and cool. You are paying for cleaner, traceable production, not a safer fiber against your body."
     ],
     "benefits": [
       {
@@ -606,15 +618,14 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
         "body": "Wood comes from certified, controlled forests, and a molecular marker lets the fiber be verified in the finished fabric, unlike anonymous viscose."
       }
     ],
-    "lookFor": [
-      "lenzing ecovero",
-      "eu ecolabel",
-      "oeko-tex standard 100"
+    "certs": [
+      "eu-ecolabel",
+      "oeko-tex-standard-100"
     ],
     "avoid": [
       "unbranded viscose or rayon with no disclosed process"
     ],
-    "scoredNote": "ECOVERO still runs the carbon-disulfide viscose process, so it can't reach a true closed-loop lyocell like TENCEL. But Lenzing's audited chemical capture, EU Ecolabel certification, certified forestry, and finished-fabric testing lift it well above ordinary unbranded viscose (64), landing ECOVERO at 80.",
+    "scoredNote": "LENZING™ ECOVERO™ still runs the carbon-disulfide viscose process, so it can't reach a true closed-loop lyocell like TENCEL. But Lenzing's audited chemical capture, EU Ecolabel certification, certified forestry, and finished-fabric testing lift it well above ordinary unbranded viscose (64), landing ECOVERO™ at 80.",
     "care": [
       {
         "k": "wash",
@@ -631,29 +642,29 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
     ],
     "faq": [
       {
-        "q": "Is ECOVERO the same as viscose?",
+        "q": "Is LENZING™ ECOVERO™ the same as viscose?",
         "a": "Chemically, yes. It's made by the standard viscose process, dissolving wood pulp with carbon disulfide. What changes is that Lenzing runs it under audited, tightened controls with certified forestry, which unbranded viscose mills don't guarantee."
       },
       {
-        "q": "Is ECOVERO toxic or safe to wear?",
+        "q": "Is ECOVERO™ toxic or safe to wear?",
         "a": "The finished, washed fiber carries essentially no leftover carbon disulfide and is OEKO-TEX STANDARD 100 certified, so it's safe against your skin. The carbon disulfide of real concern is a worker-exposure issue at the mill, not something that stays in the fabric."
       },
       {
-        "q": "Is ECOVERO just greenwashing?",
-        "a": "No, but read the claim precisely. It's still regenerated viscose made with carbon disulfide. What's real and certified is the lower-impact production: audited chemical capture, at least 50 percent less water and carbon than generic viscose, traceable wood, and the EU Ecolabel (license AT/016/001). The improvement is the process, not a risk-free chemistry."
+        "q": "Is ECOVERO™ just greenwashing?",
+        "a": "No, but read the claim precisely. It's still regenerated viscose made with carbon disulfide. What's real is the lower-impact production: audited chemical capture, traceable wood, and the EU Ecolabel (license AT/016/001), with Lenzing's own figures putting water and carbon at least 50 percent below generic viscose. The improvement is the process, not a risk-free chemistry."
       },
       {
-        "q": "Is ECOVERO better than TENCEL Lyocell?",
-        "a": "Not on the hazard scale. TENCEL Lyocell uses a closed-loop, non-toxic solvent and skips carbon disulfide, so it scores higher. ECOVERO is a real step up from ordinary viscose, but it is still viscose."
+        "q": "Is ECOVERO™ better than TENCEL Lyocell?",
+        "a": "Not on the hazard scale. TENCEL Lyocell uses a closed-loop, non-toxic solvent and skips carbon disulfide, so it scores higher. ECOVERO™ is a real step up from ordinary viscose, but it is still viscose."
       }
     ]
   },
   "modal": {
     "dek": "A stronger, softer cousin of viscose, made with less caustic soda but the same carbon disulfide, and the mill decides the rest.",
-    "history": "Lenzing developed modal in Austria in the 1950s as a stronger, softer refinement of viscose, decades before its closed-loop TENCEL process existed.",
+    "history": "Modal, a stronger, softer refinement of viscose, dates to 1950s Japan. Lenzing, the Austrian maker behind the TENCEL brand, scaled it up in the 1960s, decades before its closed-loop TENCEL process existed.",
     "madeStory": [
       "Modal starts as beech pulp run through the viscose chemistry: steeped in *sodium hydroxide* (caustic soda), then reacted with *carbon disulfide*, the same two chemicals that drive ordinary viscose. Modal uses less caustic soda and stretches the fiber as it forms, giving it a higher *wet modulus*, industry shorthand for a fiber that keeps its strength wet and resists the shrinking plain viscose suffers.",
-      "From there the mill matters more than the wood. Generic modal runs that carbon-disulfide process with no promise about how its chemicals or wastewater get handled. TENCEL Modal recovers about 95 percent of its process chemicals and runs carbon-neutral, though it stops short of the fully closed loop TENCEL Lyocell reaches, because modal's chemistry still leans on carbon disulfide.",
+      "From there the mill matters more than the wood. Generic modal runs that carbon-disulfide process with no promise about how its chemicals or wastewater get handled. TENCEL Modal recovers about 95 percent of its process chemicals and comes in a certified carbon-neutral version, though it stops short of the fully closed loop TENCEL Lyocell reaches, because modal's chemistry still leans on carbon disulfide.",
       "Either version comes out silky, fine, and absorbent. *The gap between the two sits at the mill, not in the wood.*"
     ],
     "grades": {
@@ -681,9 +692,13 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
         "body": "Its high wet modulus resists the shrinking, stretching, and pilling that plain viscose develops after washing."
       }
     ],
+    "certs": [
+      "oeko-tex-standard-100",
+      "fsc",
+      "canopystyle"
+    ],
     "lookFor": [
-      "tencel modal",
-      "oeko-tex standard 100"
+      "tencel modal"
     ],
     "avoid": [
       "unbranded modal with no disclosed process",
@@ -711,7 +726,7 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
       },
       {
         "q": "Is TENCEL Modal different from regular modal?",
-        "a": "Yes. Both start as beech dissolved the viscose way, but TENCEL Modal recovers about 95 percent of its chemicals, runs carbon-neutral, and checks its wood sourcing, while generic modal makes no such promise."
+        "a": "Yes. Both start as beech dissolved the viscose way, but TENCEL Modal recovers about 95 percent of its chemicals, offers a certified carbon-neutral version, and checks its wood sourcing, while generic modal makes no such promise."
       },
       {
         "q": "Does modal shrink?",
@@ -761,9 +776,12 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
         "body": "Uses cotton linters left over from cottonseed oil instead of a crop grown for fabric."
       }
     ],
+    "certs": [
+      "oeko-tex-standard-100",
+      "grs"
+    ],
     "lookFor": [
-      "bemberg",
-      "oeko-tex standard 100"
+      "bemberg"
     ],
     "avoid": [
       "unbranded, untraceable cupro"
@@ -835,9 +853,12 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
         "body": "The branded Naia version is engineered to pull moisture away and dry fast, unlike plain acetate."
       }
     ],
+    "certs": [
+      "oeko-tex-standard-100",
+      "fsc"
+    ],
     "lookFor": [
-      "naia",
-      "oeko-tex standard 100"
+      "naia"
     ],
     "avoid": [
       "plain acetate for hot or humid wear",
@@ -920,8 +941,11 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
         "body": "Feels cool in heat and holds a little warmth in cold, with no added finish doing the work."
       }
     ],
+    "certs": [
+      "oeko-tex-standard-100",
+      "gots"
+    ],
     "lookFor": [
-      "oeko-tex standard 100",
       "fully degummed",
       "mulberry silk",
       "peace / ahimsa silk"
@@ -1007,8 +1031,11 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
         "body": "Grows in more than 20 shades, so a lot of alpaca reaches you before a dyebath is ever involved."
       }
     ],
+    "certs": [
+      "responsible-alpaca-standard",
+      "oeko-tex-standard-100"
+    ],
     "lookFor": [
-      "oeko-tex standard 100",
       "baby or royal alpaca",
       "undyed / natural color"
     ],
@@ -1061,7 +1088,7 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
     "madeStory": [
       "Cashmere goats are combed or shorn once a year in spring, when the winter down loosens. A single goat gives only a few ounces of usable down, graded on two things: *micron count* (how thin the fiber is) and *staple length* (how long each fiber is, since longer staples pill less and hold a knit together).",
       "The raw fleece mixes fine down, 19 microns or less with the best around 14 to 15.5, with coarse guard hairs at 50 to 100 microns that shielded the goat from weather. *Dehairing* sorts the two by width. Only about 30 to 50 percent of the raw fleece survives as usable cashmere; the rest is guard hair and waste. Do the sort well and the sweater is soft. Rush it and a few missed guard hairs make it scratch.",
-      "The quality collapse is a grazing story. Global demand pushed Mongolia's goat herd to roughly 20 million, nearly five times what it was two decades ago, and goats crop grass to the root and cut the soil crust with sharp hooves, so more than 70 percent of Mongolia's grasslands are now degraded. Herds bred for volume over fineness, plus rushed dehairing to keep prices low, are why so much fast-fashion cashmere pills and prickles within a season.",
+      "The quality collapse is a grazing story. Global demand pushed Mongolia's goat herd to roughly 20 million, nearly five times what it was two decades ago, and goats crop grass to the root and cut the soil crust with sharp hooves, so roughly 70 percent of Mongolia's grasslands are now degraded. Herds bred for volume over fineness, plus rushed dehairing to keep prices low, are why so much fast-fashion cashmere pills and prickles within a season.",
       "The down itself is skin-kind. The health question sits in what goes on afterward: dyes, and the anti-moth finish sometimes applied because cashmere is a favorite of clothes moths."
     ],
     "grades": {
@@ -1090,8 +1117,10 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
         "body": "Like other animal fibers, it manages moisture and temperature better than most synthetic insulation."
       }
     ],
+    "certs": [
+      "oeko-tex-standard-100"
+    ],
     "lookFor": [
-      "oeko-tex standard 100",
       "14-16 micron / grade a",
       "long staple, fully dehaired"
     ],
@@ -1134,7 +1163,7 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
       },
       {
         "q": "Is cashmere bad for the environment?",
-        "a": "Cheap cashmere can be. Demand has pushed Mongolia's goat herd to around 20 million, and the goats graze grass to the root and cut the soil crust, leaving more than 70 percent of the country's grasslands degraded. Buying less, better-graded cashmere and keeping it for years is the honest way to wear it."
+        "a": "Cheap cashmere can be. Demand has pushed Mongolia's goat herd to around 20 million, and the goats graze grass to the root and cut the soil crust, leaving roughly 70 percent of the country's grasslands degraded. Buying less, better-graded cashmere and keeping it for years is the honest way to wear it."
       }
     ]
   },
@@ -1145,7 +1174,7 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
     "madeStory": [
       "Merino is shorn once a year, usually in spring, off sheep bred to grow fleece far finer than a standard breed's, often 18 microns or thinner. The raw fleece is heavy with lanolin grease, suint (dried sweat salts), dirt, and plant matter, so it is scoured in hot water and mild alkali before it can be spun.",
       "The *superwash* step is where merino picks up chemistry it did not start with. About 75 percent of machine-washable wool runs the chlorine-Hercosett process: a chlorine bath strips the fiber's natural *18-MEA* coating, a fatty acid layer that repels water, and etches down its surface scales, then a thin polyamide-epichlorohydrin resin sold as *Hercosett 125* is coated over the fiber so it cannot felt in a washing machine. The chlorination throws off *AOX* (adsorbable organic halogens) in the wastewater, and a plastic film ends up bonded to the fiber.",
-      "The animal-welfare flashpoint sits earlier, at the farm. *Mulesing* cuts strips of skin from a lamb's breech to scar the area so blowflies cannot strike it, and roughly 70 percent of Australian growers still do it. The Responsible Wool Standard (RWS) bans mulesing outright.",
+      "The animal-welfare flashpoint sits earlier, at the farm. *Mulesing* cuts strips of skin from a lamb's breech to scar the area so blowflies cannot strike it, and around two-thirds of Australian growers still do it. The Responsible Wool Standard (RWS) bans mulesing outright.",
       "Untreated, non-superwash merino stays closest to its clean starting point. The prickle you might feel is mechanical, set by how fine the fiber is, not by anything added to it."
     ],
     "grades": {
@@ -1179,9 +1208,11 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
         "body": "Dermatology research has debunked wool as an allergen; discomfort is mechanical prickle, not an immune reaction."
       }
     ],
+    "certs": [
+      "rws",
+      "oeko-tex-standard-100"
+    ],
     "lookFor": [
-      "oeko-tex standard 100",
-      "responsible wool standard (rws)",
       "non-mulesed",
       "non-superwash / untreated",
       "15-18 microns"
@@ -1224,7 +1255,7 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
       },
       {
         "q": "Is merino mulesed?",
-        "a": "Some of it. Mulesing cuts skin from a lamb's breech to prevent flystrike, and about 70 percent of Australian growers still practice it. Look for a non-mulesed claim or Responsible Wool Standard (RWS) certification, which bans it."
+        "a": "Some of it. Mulesing cuts skin from a lamb's breech to prevent flystrike, and around two-thirds of Australian growers still practice it. Look for a non-mulesed claim or Responsible Wool Standard (RWS) certification, which bans it."
       }
     ]
   },
@@ -1263,9 +1294,11 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
         "body": "Regulates temperature well, insulating in cold without feeling heavy."
       }
     ],
+    "certs": [
+      "responsible-mohair-standard",
+      "oeko-tex-standard-100"
+    ],
     "lookFor": [
-      "oeko-tex standard 100",
-      "responsible mohair standard (rms)",
       "kid mohair",
       "smooth weave over brushed/fuzzy for sensitive skin"
     ],
@@ -1350,9 +1383,11 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
         "body": "Dermatology research has debunked wool as an allergen; discomfort from coarser wool is mechanical prickle, not an immune reaction."
       }
     ],
+    "certs": [
+      "rws",
+      "oeko-tex-standard-100"
+    ],
     "lookFor": [
-      "oeko-tex standard 100",
-      "responsible wool standard (rws)",
       "non-superwash / untreated",
       "non-moth-proofed"
     ],
@@ -1403,14 +1438,14 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
     "history": "The viscose process was patented in 1892 by three British chemists, Cross, Bevan, and Beadle, who named it for the thick, *viscous* cellulose solution at its center. It reached stores as a cheap stand-in for silk, sold as *art silk*, before *rayon* became its common name in the 1920s.",
     "madeStory": [
       "Viscose starts as wood pulp, usually from fast-growing eucalyptus, beech, or pine. The pulp is steeped in caustic soda, then reacted with *carbon disulfide*, a solvent that turns the cellulose into a soluble compound. That reaction gives the fiber its name: the result is a thick, amber, viscous liquid, dissolved cellulose ready to be spun. It is forced through a spinneret into an acid bath that hardens it back into solid thread.",
-      "Carbon disulfide is the sharp edge of the process, and workers carry it. A Finnish study of viscose rayon workers exposed at 10 to 30 ppm found five-year coronary-heart-disease mortality nearly five times that of a comparison group, and other cohorts show a roughly 2.5-fold excess in men exposed for a decade or more, plus peripheral-nerve damage concentrated in the fiber-cutting rooms. Reviewers have proposed holding mill air near a 10 ppm limit. Open-loop plants also vent carbon disulfide and sulfur compounds into the air and untreated water, the pollution that campaigners and Canopy's Hot Button ranking have pushed the biggest producers to clean up.",
+      "Carbon disulfide is the sharp edge of the process, and workers carry it. A Finnish study of viscose rayon workers exposed at 10 to 30 ppm found five-year coronary-heart-disease mortality nearly five times that of a comparison group, and a ten-year follow-up of the same cohort still showed a roughly 2.5-fold excess, plus peripheral-nerve damage that rose with exposure. The excess coronary deaths fell once mills cut exposure below 10 ppm. Open-loop plants also vent carbon disulfide and sulfur compounds into the air and untreated water, the pollution that campaigners and Canopy's Hot Button ranking have pushed the biggest producers to clean up.",
       "Once the fiber is spun, rinsed, and dried, it is close to inert against skin, plain regenerated cellulose. Little of the mill's hazard travels home in the garment. The rest of the risk arrives later, in the dye and finish you cannot read from a hanger."
     ],
     "grades": {
-      "intro": "Viscose covers a spectrum of processes, and the type behind the name changes the hazard far more than the fiber does. Ordinary, open-loop viscose vents its solvent and reuses little of it. The same cellulose spun through a closed-loop lyocell process, sold as TENCEL or Lenzing EcoVero, captures and reuses that solvent instead.",
+      "intro": "Viscose covers a spectrum of processes, and the type behind the name changes the hazard far more than the fiber does. Ordinary, open-loop viscose vents its solvent and reuses little of it. The same cellulose spun through a closed-loop lyocell process, sold as TENCEL, captures and reuses that solvent instead, and a certified lower-impact viscose like LENZING™ ECOVERO™ runs the conventional process under far tighter emission control.",
       "marks": [
-        "Closed-loop (TENCEL, Lenzing EcoVero)",
-        "OEKO-TEX or GOTS certified",
+        "Certified low-impact (TENCEL, ECOVERO™)",
+        "OEKO-TEX Standard 100 certified",
         "Generic, uncertified viscose"
       ]
     },
@@ -1432,18 +1467,20 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
         "body": "Because it starts from wood cellulose, viscose skips the static cling and plastic hand of a fully petrochemical fabric."
       }
     ],
+    "certs": [
+      "oeko-tex-standard-100",
+      "canopystyle",
+      "fsc"
+    ],
     "lookFor": [
-      "oeko-tex standard 100",
-      "closed-loop lyocell (tencel)",
-      "lenzing ecovero",
-      "fsc or pefc certified wood source"
+      "closed-loop lyocell (tencel)"
     ],
     "avoid": [
       "generic, uncertified viscose",
       "wrinkle-free finish",
       "unnamed manufacturer or sourcing"
     ],
-    "scoredNote": "Viscose defaults to 64, in the *wear with care* band (40 to 67), because the standard open-loop process pollutes at the mill and its finishing is a black box from the label alone. Choose a certified, closed-loop version like TENCEL Lyocell or Lenzing EcoVero and the same cellulose can score high enough to sit in the safest band.",
+    "scoredNote": "Viscose defaults to 64, in the *wear with care* band (40 to 67), because the standard open-loop process pollutes at the mill and its finishing is a black box from the label alone. Choose a certified, cleaner version like TENCEL Lyocell or ECOVERO™ and the same cellulose can score high enough to sit in the safest band.",
     "care": [
       {
         "k": "Wash",
@@ -1490,11 +1527,11 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
       "The finished, washed thread is close to inert. It is plant cellulose, chemically nearer cotton than plastic, and most of the carbon disulfide is long gone by the time the fabric reaches a hanger. Almost anything your skin reacts to was brushed on after spinning: the dye bath and any wrinkle- or shrink-resistant finish."
     ],
     "grades": {
-      "intro": "Rayon spans a real range, set by which process made it and how it was finished. Generic, unlabeled rayon is almost always the open-loop viscose version. A named process, modal or a closed-loop lyocell like TENCEL or Lenzing EcoVero, starts from the same cellulose but is made under far tighter chemical control.",
+      "intro": "Rayon spans a real range, set by which process made it and how it was finished. Generic, unlabeled rayon is almost always the open-loop viscose version. A named process, modal, a closed-loop lyocell like TENCEL, or a certified lower-impact viscose like LENZING™ ECOVERO™, starts from the same cellulose but is made under far tighter chemical control.",
       "marks": [
         "Generic, unlabeled rayon (viscose)",
         "Modal",
-        "Closed-loop lyocell (TENCEL, EcoVero)"
+        "Closed-loop lyocell (TENCEL)"
       ]
     },
     "healthImpacts": [
@@ -1515,10 +1552,13 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
         "body": "Rayon carries no petrochemical polymer, so it skips the static cling and synthetic feel of a fully synthetic fabric."
       }
     ],
+    "certs": [
+      "oeko-tex-standard-100",
+      "canopystyle",
+      "fsc"
+    ],
     "lookFor": [
-      "oeko-tex standard 100",
       "closed-loop lyocell (tencel)",
-      "lenzing ecovero",
       "modal"
     ],
     "avoid": [
@@ -1595,9 +1635,13 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
         "body": "The regeneration process gives it a smooth, rounded fiber structure, which is why it feels soft and drapes well, not because it started as bamboo."
       }
     ],
+    "certs": [
+      "oeko-tex-standard-100",
+      "fsc",
+      "canopystyle"
+    ],
     "lookFor": [
       "closed-loop bamboo lyocell",
-      "oeko-tex standard 100",
       "accurate fiber-content label (rayon or viscose from bamboo)"
     ],
     "avoid": [
@@ -1645,7 +1689,7 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
   },
   "spandex": {
     "dek": "A polyurethane thread engineered to stretch, which is the same as engineering it to break down against heat, chlorine, and your own sweat.",
-    "history": "DuPont chemist Joseph Shivers invented spandex in 1959 and named it by scrambling the letters of *expands*. It replaced the rubber thread in girdles within a few years because it stretched further and survived the wash. *Spandex* is the name the US kept; Europe calls the identical fiber *elastane*, and *Lycra* is DuPont's brand of it.",
+    "history": "DuPont chemist Joseph Shivers invented spandex in 1958 and named it by scrambling the letters of *expands*. It replaced the rubber thread in girdles within a few years because it stretched further and survived the wash. *Spandex* is the name the US kept; Europe calls the identical fiber *elastane*, and *Lycra* is DuPont's brand of it.",
     "madeStory": [
       "Spandex is a segmented polyurethane. Manufacturers react a *diisocyanate*, usually *methylene diphenyl diisocyanate (MDI)*, with a soft polyol into a long chain of alternating rigid and rubbery segments, which is what lets the fiber snap back after it stretches.",
       "That polymer is turned into thread mostly by *dry spinning*: it is dissolved in a solvent, commonly *dimethylacetamide (DMAc)*, extruded through spinnerets, and the solvent is evaporated off. Europe classifies DMAc as a reproductive toxicant and a substance of very high concern, and the reaction and spinning are never perfect, so trace MDI and solvent can stay in the finished yarn.",
@@ -1657,8 +1701,9 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
       "The same second-skin garments that need spandex for stretch are where water-repellent *PFAS* finishes concentrate. A snug fit traps heat and sweat against you, and that warm, damp layer is what drives those chemicals off the fabric and onto your skin.",
       "Because spandex degrades with wear, it does not stay put. As heat, chlorine, and friction break it down, it sheds plastic *microfibers* onto your skin and into the air and water every time you move and wash it."
     ],
-    "lookFor": [
-      "oeko-tex standard 100"
+    "certs": [
+      "oeko-tex-standard-100",
+      "grs"
     ],
     "avoid": [
       "pfas coatings",
@@ -1704,7 +1749,7 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
   },
   "elastane": {
     "dek": "The same stretch fiber the US calls spandex, now knit into a huge share of your closet, and a plastic in every one.",
-    "history": "The fiber is DuPont chemist Joseph Shivers' 1959 invention, the same one sold in the US as *spandex*. Europe standardized on the generic name *elastane*, while *Lycra* is DuPont's brand of it. Three words, one material.",
+    "history": "The fiber is DuPont chemist Joseph Shivers' 1958 invention, the same one sold in the US as *spandex*. Europe standardized on the generic name *elastane*, while *Lycra* is DuPont's brand of it. Three words, one material.",
     "madeStory": [
       "Elastane is a segmented polyurethane, made exactly like spandex: a *diisocyanate* such as MDI is reacted with a soft polyol into a long, elastic chain, then dissolved in a solvent and spun into filament. The names differ by geography, not chemistry.",
       "What sets elastane apart is how far it has spread. It is knit in at 1 to 5 percent into cotton and wool, and up to about 20 percent into polyester, wherever a fabric needs to hug and hold its shape. By industry estimates it now sits in roughly 80 percent of clothing, which means most of what touches your skin is a blend, not a single fiber.",
@@ -1716,8 +1761,9 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
       "Elastane exists to make clothes cling, and that cling traps heat and sweat against your body. That warm, moist layer speeds up how fast BPA, antimony, and any water-repellent *PFAS* finish move off the fabric and onto you.",
       "Because it is a plastic, elastane also sheds *microfibers*, and it releases more of them in a normal wash than many other fibers. Those plastic fragments land on your skin, in your home's air, and in the water."
     ],
-    "lookFor": [
-      "oeko-tex standard 100"
+    "certs": [
+      "oeko-tex-standard-100",
+      "grs"
     ],
     "avoid": [
       "pfas coatings",
@@ -1786,10 +1832,12 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
         "body": "As animal hide rather than a plastic coating, leather lets air through and does not shed microplastic the way PU or PVC pleather does."
       }
     ],
+    "certs": [
+      "leather-working-group",
+      "oeko-tex-leather-standard"
+    ],
     "lookFor": [
-      "vegetable-tanned",
-      "oeko-tex leather standard",
-      "leather working group"
+      "vegetable-tanned"
     ],
     "avoid": [
       "chrome-tanned (undisclosed)"
@@ -1837,7 +1885,7 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
     "history": "DuPont chemist Wallace Carothers invented nylon in 1935. The company launched it in 1938 as the first fully synthetic fiber ever made, and sold it to the public as women's stockings in 1940, where shoppers lined up around the block.",
     "madeStory": [
       "Nylon is a *polyamide*, built by linking oil-based building blocks into long chains through a reaction called condensation polymerization, then melting and extruding that polymer into filament.",
-      "The reaction never runs to completion. In nylon 6 the leftover monomer is *caprolactam*, which can migrate out of the fabric over the life of the garment, though the World Health Organization's cancer agency rates caprolactam as probably not carcinogenic to humans, so it is a small part of nylon's story. Nylon is also almost always colored with *disperse dyes*, which do not fully bond to the fiber and can rub off onto skin.",
+      "The reaction never runs to completion. In nylon 6 the leftover monomer is *caprolactam*, which can migrate out of the fabric over the life of the garment, though caprolactam is the only chemical the World Health Organization's cancer agency ever rated as probably not carcinogenic to humans, so it is a small part of nylon's story. Nylon is also almost always colored with *disperse dyes*, which do not fully bond to the fiber and can rub off onto skin.",
       "Nylon's real risks live in the fiber's behavior and its dye. The plastic sheds constantly in the wash, and the surface dye creates a second, separate problem."
     ],
     "grades": {
@@ -1851,8 +1899,9 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
       "Nylon is almost always dyed with *disperse dyes*, the leading cause of clothing-related skin allergies. Two of them, Disperse Blue and Disperse Orange, trigger a reaction in roughly 5 to 7 percent of people with long-term eczema, worst wherever the fabric rubs against sweaty skin.",
       "Nylon also sheds *microplastics* heavily: a single wash can release hundreds of thousands of tiny plastic fibers that settle on your skin and drift into the air as you move. Tight-woven nylon sheds less than fluffy knits and fleeces, but the shed fibers carry dye and other additives along with them."
     ],
-    "lookFor": [
-      "oeko-tex standard 100"
+    "certs": [
+      "grs",
+      "oeko-tex-standard-100"
     ],
     "avoid": [
       "deeply dyed, tight-knit synthetic pieces worn against skin"
@@ -1912,10 +1961,11 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
     },
     "healthImpacts": [
       "Sweat pulls some of polyester's residual *antimony* into the moisture on your skin. Antimony trioxide is rated a *possible human carcinogen* (IARC group 2B), and more of it releases from tight, warm activewear where heat and sweat run highest.",
-      "Polyester is also the leading cause of *disperse dye* skin allergies, worst where the fabric rubs and you sweat, and it sheds *microplastics*, tiny plastic fragments, onto your skin and into your home's air with every wash. One study measured about 496,000 plastic fibers from a single 6 kg polyester wash load. The Center for Environmental Health separately found *BPA*, a hormone-disrupting chemical, in polyester activewear at up to 40 times California's safe limit."
+      "Polyester is also the leading cause of *disperse dye* skin allergies, worst where the fabric rubs and you sweat, and it sheds *microplastics*, tiny plastic fragments, onto your skin and into your home's air with every wash. One study measured about 496,000 plastic fibers from a single 6 kg polyester wash load. The Center for Environmental Health separately found *BPA*, a hormone-disrupting chemical, in polyester-based activewear (sports bras and athletic shirts, usually polyester blended with spandex) at up to 40 times California's safe limit."
     ],
-    "lookFor": [
-      "oeko-tex standard 100"
+    "certs": [
+      "grs",
+      "oeko-tex-standard-100"
     ],
     "avoid": [
       "recycled polyester marketed as the clean choice",
@@ -1971,8 +2021,9 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
       "*Acrylonitrile* is classified as *carcinogenic to humans* (Group 1) by IARC, which reclassified it in 2024 on sufficient evidence that it causes lung cancer, with limited evidence for bladder cancer. It absorbs through skin, so warm, sweaty contact with an acrylic sweater or fleece is a real, if small, ongoing exposure to the trace monomer left in the fiber.",
       "Acrylic sheds more microplastic than almost any other fabric. In the Napper and Thompson study at Plymouth University (2016), a single 6 kg wash load of acrylic released roughly 730,000 microfibers, more than polyester or a poly-cotton blend in the same test. Those fibers land on your skin, in your home's air, and in the water. Like other synthetics, acrylic also carries dyes and finishing chemicals that bother sensitive skin."
     ],
-    "lookFor": [
-      "oeko-tex standard 100"
+    "certs": [
+      "oeko-tex-standard-100",
+      "grs"
     ],
     "avoid": [
       "acrylic knitwear worn against skin for long stretches",
@@ -2038,9 +2089,12 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
       "The solvent-based version can leave residual *DMF* in the finished product. DMF absorbs readily through skin and is documented to harm the liver, kidneys, and reproductive system, which is why Europe flags it as a substance of very high concern.",
       "A watchband, a jacket lining, or a bag strap held against warm, sweaty skin is exactly the condition that helps phthalates and any leftover DMF move off the plastic and onto you. As the coating ages, cracks, and flakes, it sheds plastic *microfragments* the way every plastic textile does."
     ],
+    "certs": [
+      "bluesign",
+      "oeko-tex-standard-100"
+    ],
     "lookFor": [
-      "water-based pu",
-      "oeko-tex standard 100"
+      "water-based pu"
     ],
     "avoid": [
       "unlabeled \"vegan leather\"",

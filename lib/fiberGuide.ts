@@ -53,7 +53,12 @@ export type FiberGuideEntry = {
   healthImpacts?: string[];
   /** The "what it does for your skin" list. */
   benefits?: { title: string; body: string }[];
-  /** Chips for what to look for (else fall back to whatToLookFor prose). */
+  /** Certification slugs to show as linked badges (must match CERTIFICATIONS
+   *  in lib/certifications.ts). Rendered above the plain lookFor chips and
+   *  linked to /guide/certifications#<slug>. */
+  certs?: string[];
+  /** Non-certification chips for what to look for (provenance, process, etc.).
+   *  Falls back to whatToLookFor prose when neither certs nor lookFor exist. */
   lookFor?: string[];
   /** Chips for what to avoid. */
   avoid?: string[];
@@ -154,7 +159,8 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
         body: "Flax resists dust mites and mold, and dries too fast for much bacteria or odor to build up. Its *antibacterial* reputation is mostly that; the direct evidence is modest.",
       },
     ],
-    lookFor: ["OEKO-TEX Standard 100", "GOTS", "European Flax"],
+    certs: ["oeko-tex-standard-100", "gots"],
+    lookFor: ["European Flax"],
     avoid: ["Wrinkle-free", "Easy-care", "Anti-static finishes"],
     scoredNote:
       "Linen starts from a clean plant fiber, so its hazard base is low. From there we subtract for the finishes and dyes we can detect. A certified, undyed linen sits near the very top of the scale, which is how it lands at 94.",

@@ -8,6 +8,9 @@ import JsonLd from "@/components/JsonLd";
 import AnimationProvider from "@/components/AnimationProvider";
 import MiniProductCard from "@/components/MiniProductCard";
 import FaqAccordion from "@/app/verify/FaqAccordion";
+import CertBadge from "@/components/CertBadge";
+import { CERTIFICATIONS } from "@/lib/certifications";
+import { availableLogos } from "@/lib/certLogos";
 import {
   getShopTaxonomy,
   getPublishedProducts,
@@ -132,6 +135,14 @@ export default async function FiberGuidePage({
   // via sentenceName ("is LENZING™ ECOVERO™ safe to wear?").
   const lower = f.sentenceName ?? f.name.toLowerCase();
 
+  // Certifications to surface as linked badges. Resolve each slug against the
+  // shared CERTIFICATIONS catalog; unknown slugs are dropped so a typo can't
+  // render an empty badge.
+  const certLogos = availableLogos();
+  const certList = (f.certs ?? [])
+    .map((slug) => CERTIFICATIONS.find((c) => c.slug === slug))
+    .filter((c): c is (typeof CERTIFICATIONS)[number] => Boolean(c));
+
   // Prefer the dedicated collection page over the generic ?fiber= filter.
   const collectionSlug = collectionSlugForFiber(f.slug);
   const shopAllHref = collectionSlug
@@ -150,7 +161,7 @@ export default async function FiberGuidePage({
   const hasMade = !!f.madeStory?.length;
   const hasGrades = !!f.grades;
   const hasCare = !!f.care?.length;
-  const hasChips = !!(f.lookFor?.length || f.avoid?.length);
+  const hasChips = !!f.lookFor?.length;
 
   // Visible FAQ = explicit list, else the auto-generated Q&As. The SAME array
   // feeds the accordion and the FAQPage schema so they can never drift. Answers
@@ -320,7 +331,7 @@ export default async function FiberGuidePage({
                 {/* ABOUT */}
                 <section className="gp-sec reveal" id="about">
                   <div className="eyebrow gp-kick">About</div>
-                  <h2>What {lower} actually is</h2>
+                  <h2>What is {lower}?</h2>
                   <p className="gp-prose">
                     <RichText text={f.about ?? f.whatItIs} />
                   </p>
@@ -428,34 +439,44 @@ export default async function FiberGuidePage({
                   ) : null}
 
                   <div className="gp-subh">What to look for</div>
+                  {certList.length > 0 && (
+                    <>
+                      <div className="gp-lbl">Certifications to look for</div>
+                      <div className="gp-certs">
+                        {certList.map((c) => (
+                          <Link
+                            key={c.slug}
+                            href={`/guide/certifications#${c.slug}`}
+                            className="gp-cert"
+                            aria-label={`${c.name}, open the certification guide`}
+                          >
+                            <CertBadge
+                              slug={c.slug}
+                              name={c.name}
+                              abbr={c.abbr}
+                              size={48}
+                              logoSrc={certLogos.get(c.slug)}
+                            />
+                            <span className="gp-cert-name">{c.name}</span>
+                          </Link>
+                        ))}
+                      </div>
+                    </>
+                  )}
                   {hasChips ? (
                     <>
-                      {f.lookFor?.length ? (
-                        <>
-                          <div className="gp-lbl">Look for</div>
-                          <div className="gp-chipgroup">
-                            {f.lookFor.map((m) => (
-                              <span className="gp-pill" key={m}>
-                                {m}
-                              </span>
-                            ))}
-                          </div>
-                        </>
-                      ) : null}
-                      {f.avoid?.length ? (
-                        <>
-                          <div className="gp-lbl">Avoid</div>
-                          <div className="gp-chipgroup">
-                            {f.avoid.map((m) => (
-                              <span className="gp-pill" key={m}>
-                                {m}
-                              </span>
-                            ))}
-                          </div>
-                        </>
-                      ) : null}
+                      <div className="gp-lbl">
+                        {certList.length ? "Also look for" : "Look for"}
+                      </div>
+                      <div className="gp-chipgroup">
+                        {f.lookFor!.map((m) => (
+                          <span className="gp-pill" key={m}>
+                            {m}
+                          </span>
+                        ))}
+                      </div>
                     </>
-                  ) : (
+                  ) : certList.length ? null : (
                     <p className="gp-prose">
                       <RichText text={f.whatToLookFor} />
                     </p>
@@ -688,6 +709,23 @@ export default async function FiberGuidePage({
           color: #6B7178; margin: 18px 0 2px;
         }
         .guide-page .gp-aside .gp-lbl { margin: 0 0 6px; }
+
+        /* certification badges (link out to the certification guide) */
+        .guide-page .gp-certs {
+          display: flex; flex-wrap: wrap; gap: 20px 26px; margin-top: 12px;
+        }
+        .guide-page .gp-cert {
+          display: flex; flex-direction: column; align-items: center; gap: 8px;
+          width: 88px; text-decoration: none; color: var(--ink-2);
+          transition: transform .16s var(--ease-out-strong);
+        }
+        .guide-page .gp-cert .gp-cert-name {
+          font-size: 12px; line-height: 1.3; text-align: center; letter-spacing: -.005em;
+        }
+        @media (hover: hover) and (pointer: fine) {
+          .guide-page .gp-cert:hover { transform: translateY(-2px); }
+          .guide-page .gp-cert:hover .gp-cert-name { color: var(--ink); }
+        }
 
         /* care list */
         .guide-page .gp-care { display: grid; gap: 16px; margin-top: 6px; }
