@@ -657,7 +657,8 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
         "q": "Is ECOVERO™ better than TENCEL Lyocell?",
         "a": "Not on the hazard scale. TENCEL Lyocell uses a closed-loop, non-toxic solvent and skips carbon disulfide, so it scores higher. ECOVERO™ is a real step up from ordinary viscose, but it is still viscose."
       }
-    ]
+    ],
+    "heroImage": "/fibers/ecovero/beech-forest.jpg"
   },
   "modal": {
     "dek": "A stronger, softer cousin of viscose, made with less caustic soda but the same carbon disulfide, and the mill decides the rest.",

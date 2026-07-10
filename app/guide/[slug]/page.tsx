@@ -53,6 +53,35 @@ const RAIL_LEAD: Record<FiberBand, string> = {
   high: "A high-concern material. The chemistry sits close to your skin, so the label is what matters most.",
 };
 
+// Moderate and high-band fibers don't get a "shop this fiber" rail: you don't
+// send someone to buy cleaner polyester. Instead they point at the clean fibers
+// that serve the same use. `names` are the display labels (heading shows the
+// first two, per the chosen "name the alternatives" style); `filters` are the
+// shopFilter values used to pull real products. Some alternatives (cupro,
+// vegetable-tanned leather, LENZING ECOVERO) have no product filter, so their
+// rail tops up from getCleanerAlternatives.
+const ALT_FIBERS: Record<string, { names: string[]; filters: string[] }> = {
+  // moderate
+  acetate: { names: ["silk", "cupro"], filters: ["silk"] },
+  viscose: { names: ["LENZING™ ECOVERO™", "TENCEL lyocell"], filters: ["tencel"] },
+  rayon: { names: ["LENZING™ ECOVERO™", "TENCEL lyocell"], filters: ["tencel"] },
+  bamboo: { names: ["TENCEL lyocell", "organic cotton"], filters: ["tencel", "organic cotton"] },
+  leather: { names: ["vegetable-tanned leather"], filters: [] },
+  // high
+  acrylic: { names: ["cashmere", "merino wool"], filters: ["cashmere", "merino wool"] },
+  polyester: { names: ["organic cotton", "TENCEL lyocell"], filters: ["organic cotton", "tencel", "linen"] },
+  nylon: { names: ["merino wool", "organic cotton"], filters: ["merino wool", "organic cotton"] },
+  spandex: { names: ["organic cotton", "TENCEL lyocell"], filters: ["organic cotton", "tencel"] },
+  elastane: { names: ["organic cotton", "TENCEL lyocell"], filters: ["organic cotton", "tencel"] },
+  polyurethane: { names: ["vegetable-tanned leather"], filters: [] },
+};
+
+// Rail heading built from the alternative names (first two), e.g.
+// "shop cashmere & merino wool instead".
+function altHeading(alt: { names: string[] }): string {
+  return `shop ${alt.names.slice(0, 2).join(" & ")} instead`;
+}
+
 export function generateStaticParams() {
   return allFiberSlugs().map((slug) => ({ slug }));
 }
@@ -98,10 +127,14 @@ const RING_C = 2 * Math.PI * RING_R;
 // with cleaner alternatives when the fiber has no filter, is high-hazard, or
 // simply lacks four matching pieces.
 async function shopRailProducts(f: GuideFiber): Promise<Product[]> {
+  // Clean (low-band) fibers show their own pieces; moderate/high fibers show
+  // their cleaner alternatives instead.
+  const alt = ALT_FIBERS[f.slug];
+  const filters = alt ? alt.filters : f.shopFilter ? [f.shopFilter] : [];
   let picks: Product[] = [];
-  if (f.shopFilter && f.band !== "high") {
+  if (filters.length) {
     picks = (await getPublishedProducts())
-      .filter((p) => !!p.item_image && hasFiber(p, f.shopFilter as string))
+      .filter((p) => !!p.item_image && filters.some((fl) => hasFiber(p, fl)))
       .sort((a, b) => (b.toxome_score ?? 0) - (a.toxome_score ?? 0))
       .slice(0, 4);
   }
@@ -143,9 +176,19 @@ export default async function FiberGuidePage({
     .map((slug) => CERTIFICATIONS.find((c) => c.slug === slug))
     .filter((c): c is (typeof CERTIFICATIONS)[number] => Boolean(c));
 
-  // Prefer the dedicated collection page over the generic ?fiber= filter.
+  // Clean fibers shop themselves; moderate/high fibers redirect to alternatives.
+  const alt = ALT_FIBERS[f.slug];
+  // Heading + button copy for the shop rail.
+  const shopHeading = alt ? altHeading(alt) : `shop ${lower}`;
+  const shopNavLabel = alt ? "shop alternatives" : `shop ${lower}`;
+  const shopAllLabel = alt ? "shop the clean edit" : `shop all ${lower}`;
+
+  // Prefer the dedicated collection page over the generic ?fiber= filter. For
+  // alternative fibers there's no single collection, so send them to the shop.
   const collectionSlug = collectionSlugForFiber(f.slug);
-  const shopAllHref = collectionSlug
+  const shopAllHref = alt
+    ? "/shop"
+    : collectionSlug
     ? `/shop/collection/${collectionSlug}`
     : f.shopFilter
     ? `/shop?fiber=${encodeURIComponent(f.shopFilter)}`
@@ -305,7 +348,7 @@ export default async function FiberGuidePage({
                 <p className="gp-lead">{RAIL_LEAD[f.band]}</p>
                 <div className="gp-cta">
                   <a className="gp-btn full" href="#shop">
-                    shop clean {lower}
+                    {shopHeading}
                   </a>
                   <a
                     className="gp-btn ghost full"
@@ -322,7 +365,7 @@ export default async function FiberGuidePage({
                   {hasGrades && <a href="#grades">grades</a>}
                   <a href="#health">health impacts</a>
                   {hasCare && <a href="#care">how to care for it</a>}
-                  <a href="#shop">shop clean {lower}</a>
+                  <a href="#shop">{shopNavLabel}</a>
                 </nav>
               </aside>
 
@@ -515,14 +558,15 @@ export default async function FiberGuidePage({
                   <section className="gp-sec gp-shop reveal" id="shop">
                     <div className="gp-shop-head">
                       <div>
-                        <h2>shop clean {lower}</h2>
+                        <h2>{shopHeading}</h2>
                         <div className="gp-shop-sub">
-                          Real pieces in our directory, scored for what touches
-                          your skin.
+                          {alt
+                            ? "Cleaner pieces that do the same job, scored for what touches your skin."
+                            : "Real pieces in our directory, scored for what touches your skin."}
                         </div>
                       </div>
                       <Link className="gp-arrowlink" href={shopAllHref}>
-                        shop all {lower}
+                        {shopAllLabel}
                         <span className="gp-c">
                           <svg
                             width="15"
