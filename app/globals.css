@@ -1401,6 +1401,13 @@ button { font-family: inherit; }
 .hero-cta:focus-visible,
 .nl-submit:focus-visible { outline-color: #fff; outline-offset: 3px; }
 .nl-form:focus-within { outline: 2px solid #fff; outline-offset: 2px; }
+/* On the smallest phones the inset "subscribe" button crowds the input.
+   Tighten padding on both (keeping the single-capsule design) so the email
+   field keeps a usable width rather than stacking, which would break the pill. */
+@media (max-width: 380px) {
+  .nl-form > input { padding-left: 14px !important; padding-right: 4px !important; }
+  .nl-submit { padding-left: 14px !important; padding-right: 14px !important; }
+}
 
 /* ── Hero headline ────────────────────────────────────────────────────────
    One line on tablet/desktop; on small phones wrap to two bold lines rather
