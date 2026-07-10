@@ -173,23 +173,8 @@ export default async function GuidePage() {
             }}
           >
             Every fiber, scored from <em>0 (high concern)</em> to <em>100
-            (clean)</em> on what it means for your health. Higher is cleaner. The
-            fiber is rarely the whole story. The dyes and finishes are.
+            (clean)</em> on what it means for your health.
           </p>
-          <div className="guide-legend">
-            <span>
-              <i style={{ background: "var(--risk-low)" }} />
-              Safest
-            </span>
-            <span>
-              <i style={{ background: "var(--orange)" }} />
-              Moderate
-            </span>
-            <span>
-              <i style={{ background: "var(--red)" }} />
-              Avoid
-            </span>
-          </div>
         </div>
 
         {/* Flat gallery */}
