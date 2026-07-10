@@ -109,7 +109,7 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     history:
       "Flax was spun into thread before the wheel existed. The Egyptians wrapped pharaohs in it and treated the finest linen as a luxury. The best of it still comes from European flax and, historically, the Nile.",
     madeStory: [
-      "Flax grows in cool, damp weather in about 100 days, on little water and few pesticides. The plant is *pulled up by the roots*, not cut, to keep the fibers long, because the longer the fiber, the finer the cloth. That is exactly why raw linen is one of the cleanest things you can put on your skin.",
+      "Flax grows in cool, damp weather in about 100 days, on little water and few pesticides. The plant is *pulled up by the roots*, not cut, to keep the fibers long, because the longer the fiber, the finer the cloth. That is why raw linen is one of the cleanest things you can put on your skin.",
       "The best linen is still hand-harvested. Getting the fiber out is slow and mostly mechanical: *retting* lets dew and bacteria rot away the glue that binds the fiber to the woody stalk, and dew-retting out in a field is the cleanest, least polluting way to do it. Then the stalks are broken, scutched, and combed until only the long, lustrous fibers are left, then spun and woven.",
       "No chemical bath required, and undyed linen breaks down in soil in a few weeks. *Whatever risk linen carries is added later*, at the finishing stage.",
     ],
@@ -124,8 +124,8 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
       marks: ["European Flax", "Belgian", "Irish", "Egyptian"],
     },
     healthImpacts: [
-      "The flax fiber itself is biologically inert. It is plant cellulose, and lab tests that check whether a material harms living cells find flax safe against skin. What linen does for your body is really about moisture and heat, not any special chemistry: its pectin structure pulls sweat off your skin and lets it evaporate fast, so you skip the damp cling that irritates skin and gives bacteria something to grow on.",
-      "The real health question with a linen garment is not the fiber, it is the finish. Words like *wrinkle-free*, *easy-care*, and *anti-static* usually mean a formaldehyde treatment was added, a chemical that can cause cancer and irritate skin, sitting on a fiber that never needed it.",
+      "The flax fiber itself is biologically inert. It is plant cellulose, and lab tests that check whether a material harms living cells find flax safe against skin. What linen does for your body comes down to moisture and heat, not any special chemistry: its pectin structure pulls sweat off your skin and lets it evaporate fast, so you skip the damp cling that irritates skin and gives bacteria something to grow on.",
+      "The health question with a linen garment is the finish, not the fiber. Words like *wrinkle-free*, *easy-care*, and *anti-static* usually mean a formaldehyde treatment was added, a chemical that can cause cancer and irritate skin, sitting on a fiber that never needed it.",
     ],
     benefits: [
       {
@@ -134,7 +134,7 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
       },
       {
         title: "Runs cool.",
-        body: "Naturally thermoregulating, so less heat and sweat sit trapped against your body.",
+        body: "Thermoregulating, so less heat and sweat sit trapped against your body.",
       },
       {
         title: "Softer with every wash.",
@@ -160,7 +160,7 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
       },
       {
         k: "Iron",
-        v: "Press while still damp on medium, inside out to avoid shine, or just steam it. Or lean into the relaxed wrinkle, it is part of the charm.",
+        v: "Press while still damp on medium, inside out to avoid shine, or steam it. Or lean into the relaxed wrinkle, it is part of the charm.",
       },
       {
         k: "Store",
@@ -174,7 +174,7 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
       },
       {
         q: "Is linen hypoallergenic?",
-        a: "Generally, yes. Linen is smooth, low-lint, and breathable, which tends to suit sensitive skin and eczema. An undyed, certified linen with no performance finish is about as gentle as fabric gets.",
+        a: "Mostly, yes. Linen is smooth, low-lint, and breathable, which tends to suit sensitive skin and eczema. An undyed, certified linen with no performance finish is about as gentle as fabric gets.",
       },
       {
         q: "Does linen shrink?",
