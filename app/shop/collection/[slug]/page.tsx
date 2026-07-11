@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
@@ -9,6 +10,7 @@ import ShopGridFallback from "../../ShopGridFallback";
 import CollectionTracker from "./CollectionTracker";
 import { getPublishedProducts, getShopTaxonomy } from "@/lib/supabase";
 import { getCollection, allCollectionSlugs } from "@/lib/shopPages";
+import { getFiber } from "@/lib/fiberGuide";
 
 const BASE_URL = "https://toxome.app";
 
@@ -52,6 +54,10 @@ export default async function CollectionPage({
     getShopTaxonomy(),
   ]);
   const matched = products.filter(c.match);
+
+  // Back-link to this fiber's health guide, when the collection is tied to one.
+  const guideFiber = c.guideSlug ? getFiber(c.guideSlug) : null;
+  const guideLabel = guideFiber?.name.toLowerCase() ?? null;
 
   // FAQPage answers the queries the page targets; BreadcrumbList gives the
   // Home › Shop › [Collection] trail. Same pattern as the journal + product pages.
@@ -110,9 +116,47 @@ export default async function CollectionPage({
           text since ShopClient renders client-side. */}
       <section style={{ background: "var(--bg)", padding: "72px 0 104px" }}>
         <div className="shell" style={{ padding: "0 21px", maxWidth: 680 }}>
-          <p style={{ fontSize: 16, lineHeight: 1.65, color: "var(--ink-2)", margin: "0 0 72px", maxWidth: "60ch" }}>
+          <p
+            style={{
+              fontSize: 16,
+              lineHeight: 1.65,
+              color: "var(--ink-2)",
+              margin: guideLabel ? "0 0 18px" : "0 0 72px",
+              maxWidth: "60ch",
+            }}
+          >
             {c.intro}
           </p>
+
+          {guideLabel && c.guideSlug && (
+            <Link
+              href={`/guide/${c.guideSlug}`}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 7,
+                fontSize: 14,
+                fontWeight: 500,
+                letterSpacing: "-0.005em",
+                color: "var(--ink)",
+                textDecoration: "none",
+                margin: "0 0 72px",
+              }}
+            >
+              is {guideLabel} safe to wear? read the guide
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.7"
+                aria-hidden="true"
+              >
+                <path d="M5 12h14M13 6l6 6-6 6" />
+              </svg>
+            </Link>
+          )}
 
           <h2
             className="eyebrow"

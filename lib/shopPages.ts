@@ -28,6 +28,9 @@ export type ShopCollection = {
   section: ShopSection;
   // Server-side predicate that selects this collection's products.
   match: (p: Product) => boolean;
+  // Optional fiber-guide slug (in lib/fiberGuide.ts). When set, the collection
+  // page links back to that fiber's health guide, closing the shop <-> guide loop.
+  guideSlug?: string;
 };
 
 // Fiber match that tolerates the catalog's mixed key formats ("organic cotton"
@@ -215,6 +218,7 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
       },
     ],
     section: null,
+    guideSlug: "organic_cotton",
     match: (p) => hasFiber(p, "organic cotton"),
   },
   {
@@ -240,6 +244,7 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
       },
     ],
     section: null,
+    guideSlug: "linen",
     match: (p) => hasFiber(p, "linen"),
   },
   {
@@ -265,6 +270,7 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
       },
     ],
     section: null,
+    guideSlug: "silk",
     match: (p) => hasFiber(p, "silk"),
   },
   {
@@ -290,6 +296,7 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
       },
     ],
     section: null,
+    guideSlug: "hemp",
     match: (p) => hasFiber(p, "hemp"),
   },
   {
@@ -704,17 +711,203 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
       !hasFiber(p, "spandex") &&
       !hasFiber(p, "lycra"),
   },
+  {
+    slug: "non-toxic-wool-clothing",
+    title: "Non-Toxic Wool Clothing, Untreated and Responsibly Made | Toxome",
+    heading: "non-toxic wool clothing",
+    description:
+      "Untreated wool clothing scored by Toxome. A natural animal fiber that insulates and resists odor, without the superwash plastic coating or moth-proofing chemicals.",
+    intro:
+      "wool is a natural animal fiber that insulates, breathes, and resists odor without any chemical help, and the old idea that everyone is allergic to it is a myth. the itch people blame on wool is usually stiff fibers poking the skin, a feeling called prickle, not a real allergy. what actually matters is the treatment. a superwash finish coats the fiber in a thin plastic film and leaves chlorine traces, and some wool is moth-proofed with permethrin, a pesticide locked into the cloth. every piece here is scored by toxome for its real fiber content, so you can favor untreated wool over the coated kind.",
+    faqs: [
+      {
+        q: "Is wool a non-toxic fabric?",
+        a: "Wool is a natural animal fiber, free of the plastics in acrylic and polyester knits. The real concern is the treatment: a superwash finish leaves a thin plastic coating and chlorine traces, and some wool is moth-proofed with permethrin, a pesticide. Choose untreated wool with OEKO-TEX Standard 100 and the Responsible Wool Standard, which also bans mulesing. Toxome scores each piece by its fiber content.",
+      },
+      {
+        q: "Is everyone allergic to wool?",
+        a: "No. A 2017 dermatology review found wool is not a true allergen. The itch most people blame on an allergy is prickle, stiff fibers physically poking the tiny nerves in your skin. Finer, untreated wool feels soft and is well tolerated, even on sensitive skin.",
+      },
+      {
+        q: "What does superwash wool mean?",
+        a: "Superwash is a chlorine bath that wears down the fiber's surface scales, followed by a thin plastic resin coating, so the wool can be machine washed without felting. It leaves chlorine traces and a plastic film against your skin. Untreated, non-superwash wool skips both.",
+      },
+      {
+        q: "Why does Toxome score clothes by fiber?",
+        a: "Fiber content is what touches the skin. Toxome reads each garment's composition and rates it, so the score reflects what the clothing is made of, not a brand's marketing.",
+      },
+    ],
+    section: null,
+    guideSlug: "wool",
+    match: (p) => hasFiber(p, "wool"),
+  },
+  {
+    slug: "non-toxic-merino-wool-clothing",
+    title: "Non-Toxic Merino Wool Clothing | Toxome",
+    heading: "non-toxic merino wool clothing",
+    description:
+      "Merino wool clothing scored by Toxome. A fine natural fiber that regulates temperature and resists odor, without the superwash plastic coating on most machine-washable knits.",
+    intro:
+      "merino wool comes from sheep bred for an especially fine fleece, fine enough to feel soft against the skin instead of scratchy, which is why it is used for base layers worn right on the body. it keeps you warm when it is cold and cool when it is warm, and it resists odor on its own without the antimicrobial finishes added to synthetic activewear. the catch is the superwash treatment, a chlorine bath and thin plastic coating many merinos get so they can be machine washed. every piece here is scored by toxome for its real fiber content, so you can choose fine, untreated merino.",
+    faqs: [
+      {
+        q: "Is merino wool non-toxic?",
+        a: "Merino wool is a natural animal fiber, free of the plastics in polyester and nylon activewear. It regulates temperature and resists odor on its own, without antimicrobial chemical treatments. The concern is the superwash coating, so choose untreated merino with OEKO-TEX Standard 100 and the Responsible Wool Standard, which also bans mulesing. Toxome scores each piece by its fiber content.",
+      },
+      {
+        q: "Is merino wool itchy?",
+        a: "Merino fibers are much finer than regular wool, so they feel soft rather than scratchy against the skin. Any itch is prickle, a physical poking, not a true allergy. That fineness is why merino is worn as a base layer next to the body.",
+      },
+      {
+        q: "Is merino wool good for sensitive skin?",
+        a: "Because it is so fine, merino is well tolerated and can even suit eczema-prone skin. Pick fine grades around 17 to 18.5 microns and untreated, non-superwash merino when you can.",
+      },
+      {
+        q: "Why does Toxome score clothes by fiber?",
+        a: "Fiber content is what touches the skin. Toxome reads each garment's composition and rates it, so the score reflects what the clothing is made of, not a brand's marketing.",
+      },
+    ],
+    section: null,
+    guideSlug: "merino_wool",
+    match: (p) => hasFiber(p, "merino"),
+  },
+  {
+    slug: "non-toxic-cashmere-clothing",
+    title: "Non-Toxic Cashmere, Ethically Sourced | Toxome",
+    heading: "non-toxic cashmere",
+    description:
+      "Pure cashmere scored by Toxome. A natural goat fiber that insulates without the plastic of acrylic knits, dehaired for softness and free of synthetic blends.",
+    intro:
+      "many soft sweaters are acrylic, a plastic fiber that pills, traps heat, and sheds microplastics in the wash. real cashmere is the fine under-layer combed from cashmere goats, and how good it feels comes down to how well it was made. the fine fluff is dehaired to pull out the coarse guard hairs, and only a rushed job leaves those hairs in to scratch. every piece here is scored by toxome for its real fiber content, so you can tell well-made, pure cashmere from a synthetic blend.",
+    faqs: [
+      {
+        q: "Is cashmere non-toxic?",
+        a: "Cashmere is a natural fiber from cashmere goats, free of the plastics in acrylic and polyester knits. It is warm, breathable, and gentle on skin. Look for OEKO-TEX Standard 100 for safe dyes and finishes. Toxome scores each piece so you can confirm it is real cashmere and not a synthetic blend.",
+      },
+      {
+        q: "Why is some cashmere scratchy?",
+        a: "It takes only a few missed guard hairs to make soft cashmere itch. That poking is prickle, not an allergy. Cheap cashmere is usually cheap because the dehairing step was rushed, so buy on fineness and how well it was dehaired, not just the word cashmere.",
+      },
+      {
+        q: "Is cashmere ethically sourced?",
+        a: "Cashmere goats graze close to the ground and can wear out fragile grassland, and each goat gives so little fiber that one sweater takes many goats. Responsibly sourced cashmere manages grazing and animal welfare, so look for that alongside OEKO-TEX certification.",
+      },
+      {
+        q: "Why does Toxome score clothes by fiber?",
+        a: "Fiber content is what touches the skin. Toxome reads each garment's composition and rates it, so the score reflects what the clothing is made of, not a brand's marketing.",
+      },
+    ],
+    section: null,
+    guideSlug: "cashmere",
+    match: (p) => hasFiber(p, "cashmere"),
+  },
+  {
+    slug: "non-toxic-tencel-lyocell-clothing",
+    title: "Non-Toxic TENCEL Lyocell Clothing | Toxome",
+    heading: "non-toxic tencel lyocell clothing",
+    description:
+      "TENCEL Lyocell clothing scored by Toxome. A smooth fiber regenerated from wood in a closed loop that reuses its solvent, free of the carbon disulfide behind ordinary viscose.",
+    intro:
+      "tencel lyocell starts as wood pulp dissolved in a non-toxic solvent and spun into thread, and the factory runs a closed loop that captures over 99 percent of that solvent and reuses it instead of dumping it. that skips the harsh carbon disulfide older fabrics like viscose rely on. it is about as clean as a manufactured fiber gets against your skin, smooth and good at pulling moisture away. your real risk is what gets added later, the dyes and wrinkle-proof coatings that can leave formaldehyde behind, so every piece here is scored by toxome for its real fiber content.",
+    faqs: [
+      {
+        q: "Is TENCEL lyocell non-toxic?",
+        a: "TENCEL lyocell is made from wood in a closed loop with a non-toxic solvent that is captured and reused, so the finished thread carries almost no leftover chemistry. It is smooth and moisture-wicking, which is gentle on skin. The thing to check is the dye and finish, so look for OEKO-TEX Standard 100. Toxome scores each piece by its fiber content.",
+      },
+      {
+        q: "Is TENCEL the same as viscose or rayon?",
+        a: "No. Plain viscose and rayon are made with carbon disulfide, a harsh chemical, often in an open process that discharges it. TENCEL lyocell uses a non-toxic solvent recaptured in a closed loop. Look for the TENCEL brand name to confirm the clean process.",
+      },
+      {
+        q: "Is lyocell better than cotton?",
+        a: "It depends what you value. Lyocell is smooth, absorbent, biodegradable, and made in a closed loop, while cotton is a plant fiber grown in a field. Both beat polyester. As always, the finish matters as much as the fiber, so check for OEKO-TEX.",
+      },
+      {
+        q: "Why does Toxome score clothes by fiber?",
+        a: "Fiber content is what touches the skin. Toxome reads each garment's composition and rates it, so the score reflects what the clothing is made of, not a brand's marketing.",
+      },
+    ],
+    section: null,
+    guideSlug: "tencel_lyocell",
+    match: (p) => hasFiber(p, "tencel"),
+  },
+  {
+    slug: "non-toxic-ramie-clothing",
+    title: "Non-Toxic Ramie Clothing | Toxome",
+    heading: "non-toxic ramie clothing",
+    description:
+      "Ramie clothing scored by Toxome. A strong, breathable plant fiber that resists mildew, best when enzyme-softened and OEKO-TEX tested for clean finishing.",
+    intro:
+      "ramie is a strong, linen-like fiber from a plant in the nettle family. it breathes well, dries fast, and naturally resists mildew, so it is genuinely nice to wear in heat. two things decide whether a piece feels good: how well it was softened, since raw ramie is stiff and can prickle until it is enzyme-softened, and how thoroughly the harsh degumming chemicals were rinsed out. every piece here is scored by toxome for its real fiber content, so you can favor smooth, well-finished ramie.",
+    faqs: [
+      {
+        q: "Is ramie a non-toxic fabric?",
+        a: "Ramie is a natural plant fiber, breathable and mildew-resistant, free of the plastics in synthetic fabrics. The catch is finishing: turning the stalk into soft fiber uses strong chemical baths that have to be fully rinsed out. Choose OEKO-TEX Standard 100 ramie. Toxome scores each piece by its fiber content.",
+      },
+      {
+        q: "Why is some ramie scratchy?",
+        a: "Raw ramie is stiff, and its tiny surface hairs poke the skin, a feeling called prickle. Softening it with enzymes cut that discomfort by nearly half in one study. Trust your hands: smooth ramie was finished well, stiff and scratchy ramie was not.",
+      },
+      {
+        q: "Is ramie like linen?",
+        a: "Yes. Both are breathable plant fibers that stay cool, dry fast, and wrinkle. Ramie is even stronger than linen and holds its shape well, which is why the two are often blended.",
+      },
+      {
+        q: "Why does Toxome score clothes by fiber?",
+        a: "Fiber content is what touches the skin. Toxome reads each garment's composition and rates it, so the score reflects what the clothing is made of, not a brand's marketing.",
+      },
+    ],
+    section: null,
+    guideSlug: "ramie",
+    match: (p) => hasFiber(p, "ramie"),
+  },
+  {
+    slug: "non-toxic-alpaca-clothing",
+    title: "Non-Toxic Alpaca Clothing | Toxome",
+    heading: "non-toxic alpaca clothing",
+    description:
+      "Alpaca clothing scored by Toxome. A warm natural fiber with no lanolin and a smooth surface, often gentler on sensitive skin than sheep wool.",
+    intro:
+      "alpaca fiber comes from the alpaca, a relative of the camel raised high in the andes, and it is often easier on touchy skin than sheep wool for two reasons you can feel. it has no lanolin, the waxy grease behind most real wool-grease reactions, and its surface is smoother and rounder, so it pokes less. the softer grades are dehaired to pull out the thick, coarse hairs. every piece here is scored by toxome for its real fiber content, so you can choose fine, dehaired alpaca over the coarse kind.",
+    faqs: [
+      {
+        q: "Is alpaca non-toxic?",
+        a: "Alpaca is a natural animal fiber, free of the plastics in acrylic and polyester knits, and it is warm and breathable. Because it has no lanolin and a smoother surface, it is often gentler than sheep wool. Look for OEKO-TEX Standard 100 to limit leftover dyes. Toxome scores each piece by its fiber content.",
+      },
+      {
+        q: "Is alpaca better than wool for sensitive skin?",
+        a: "Often, yes. Alpaca has no lanolin, the wax that causes most wool-grease reactions, and its rounder fiber pokes the skin less. Comfort still comes down to fineness, so look for dehaired baby or royal alpaca around 18 to 22 microns.",
+      },
+      {
+        q: "Is alpaca itchy?",
+        a: "Coarse alpaca with thick hairs left in can poke, but fine, dehaired alpaca feels soft against the skin. Any itch is prickle, a physical poking, not a true allergy.",
+      },
+      {
+        q: "Why does Toxome score clothes by fiber?",
+        a: "Fiber content is what touches the skin. Toxome reads each garment's composition and rates it, so the score reflects what the clothing is made of, not a brand's marketing.",
+      },
+    ],
+    section: null,
+    guideSlug: "alpaca",
+    match: (p) => hasFiber(p, "alpaca"),
+  },
 ];
 
 // Maps a fiber (any key format) to its broad collection page, for linking from
 // product pages. Most specific keys first. Returns null for fibers with no page.
 const FIBER_TO_COLLECTION: [string, string][] = [
   ["organic cotton", "non-toxic-organic-cotton-clothing"],
-  ["merino", "non-toxic-merino-wool"],
-  ["cashmere", "non-toxic-cashmere"],
+  // "merino" must precede "wool": a "merino wool" key should route to merino,
+  // not the broad wool page.
+  ["merino", "non-toxic-merino-wool-clothing"],
+  ["cashmere", "non-toxic-cashmere-clothing"],
+  ["tencel", "non-toxic-tencel-lyocell-clothing"],
+  ["ramie", "non-toxic-ramie-clothing"],
+  ["alpaca", "non-toxic-alpaca-clothing"],
   ["linen", "non-toxic-linen-clothing"],
   ["silk", "non-toxic-silk-clothing"],
   ["hemp", "non-toxic-hemp-clothing"],
+  ["wool", "non-toxic-wool-clothing"],
 ];
 
 export function collectionSlugForFiber(fiber: string): string | null {

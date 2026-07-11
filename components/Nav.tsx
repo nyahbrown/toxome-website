@@ -44,7 +44,18 @@ function buildShopColumns(taxonomy: ShopTaxonomy) {
       })),
     ],
   };
+  // Lead the Shop menu with a "by fiber" entry point: the natural-fiber hub and
+  // the collections index. Matches how people shop (by material) and mirrors the
+  // fiber guide.
+  const byFiberCol = {
+    heading: "By fiber",
+    items: [
+      { label: "Shop by fiber", href: "/shop/fibers" },
+      { label: "Collections", href: "/shop/collections", muted: true },
+    ],
+  };
   return [
+    byFiberCol,
     makeDept("Women", taxonomy.women),
     makeDept("Men", taxonomy.men),
     kidsCol,
