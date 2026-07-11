@@ -902,7 +902,8 @@ export default async function FiberGuidePage({
 
         /* ENVIRONMENTAL impact tiles — neutral (no verdict color), animated nums */
         .guide-page .gp-enviro {
-          display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 26px;
+          display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+          gap: 16px; margin-top: 26px;
         }
         .guide-page .gp-envtile {
           background: var(--white); border: 1px solid var(--hairline-strong); border-radius: 14px;

@@ -197,6 +197,44 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     environment:
       "Flax needs little watering and few bug sprays, and undyed linen breaks down naturally.",
     shopFilter: "linen",
+    heroStat: {
+      value: 34000,
+      unit: "years",
+      label: "the oldest fiber humans are known to have worn",
+      sub: "Wild flax, found spun and dyed in a Georgian cave, was worked into thread during the Ice Age.",
+    },
+    enviroStory: [
+      "Linen's environmental case is quiet but real. Most of it is European flax grown on rainfall alone, so a kilo of fiber takes a small fraction of the water cotton demands, and the plant needs few pesticides.",
+      "Its weak spot is carbon, and the honest answer is that the number swings widely. Studies land anywhere from about half a kilo to well over two per kilo of fiber, driven mostly by how heavily the field is fertilized. Undyed linen then breaks down in soil in weeks to months.",
+    ],
+    enviroStats: [
+      {
+        label: "Water use",
+        value: "300–1,000",
+        unit: "L/kg",
+        compare: "conventional cotton: ~3,000–10,000 L/kg",
+        note: "Mostly rain-fed European flax, grown with no irrigation.",
+      },
+      {
+        label: "Carbon",
+        value: "0.5–2.5",
+        unit: "kg CO₂e/kg",
+        compare: "conventional cotton: ~2–6",
+        note: "The number swings mainly with how much fertilizer the farm uses.",
+      },
+      {
+        label: "Biodegradable",
+        value: "Yes",
+        compare: "polyester: no, sits for centuries",
+        note: "Undyed linen breaks down in weeks to months.",
+      },
+      {
+        label: "Sheds plastic microfibers",
+        value: "No",
+        compare: "polyester: yes, every wash",
+        note: "A plant fiber, so it sheds no plastic.",
+      },
+    ],
     sources: [
       { title: "Is Linen Fabric Toxic? The Science Behind This Natural Textile", publisher: "Dal The Label", url: "https://dalthelabel.com/blogs/fashion-101/is-linen-fabric-toxic-the-science-behind-this-natural-textile" },
       { title: "What Does Oeko-Tex Certified Mean?", publisher: "George Street Linen", url: "https://www.georgestreetlinen.com/global/journal/what-does-oeko-tex-certified-mean" },
@@ -204,6 +242,8 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
       { title: "Bacterial adhesion and biofilm formation on linen fabrics", publisher: "Industrial Crops and Products", url: "https://www.sciencedirect.com/science/article/pii/S0926669025018412" },
       { title: "Evaluation of Antibacterial Activity of Flax Fibers Against Staphylococcus aureus", publisher: "Fibres & Textiles in Eastern Europe", url: "https://www.researchgate.net/publication/297406900_Evaluation_of_Antibacterial_Activity_of_Flax_Fibers_Against_the_Staphylococcus_aureus_Bacteria_Strain" },
       { title: "Best Fabrics for Sensitive Skin", publisher: "Healthline", url: "https://www.healthline.com/health/best-fabric-for-sensitive-skin" },
+      { title: "Oldest-known fibers discovered", publisher: "Harvard Gazette", url: "https://news.harvard.edu/gazette/story/2009/09/oldest-known-fibers-discovered/" },
+      { title: "European Flax certification and cultivation", publisher: "Alliance for European Flax-Linen and Hemp", url: "https://allianceflaxlinenhemp.eu/en" },
     ],
     dek: "The fiber your skin has always gotten along with, until the finish gets involved.",
     madeEyebrow: "How it’s cultivated & made",
@@ -305,10 +345,48 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     environment:
       "Organic cotton skips the man-made bug sprays, but cotton is still a thirsty crop.",
     shopFilter: "organic cotton",
+    heroStat: {
+      value: 2.4,
+      suffix: "%",
+      label: "of the world's cropland grows cotton, yet it uses 6 to 16% of all pesticides. Organic cotton uses none.",
+    },
+    enviroStory: [
+      "Organic cotton's real win is chemistry, not water. It is grown with no synthetic pesticides or fertilizer, and that is the certain, verifiable difference from conventional cotton.",
+      "The often-quoted figures of 91% less water and 46% less carbon come from a single 2014 industry study and are debated. Part of the water saving is simply that organic cotton is often grown in rain-fed regions, not a property of organic farming itself. Treat the water saving as modest and the pesticide saving as the point.",
+    ],
+    enviroStats: [
+      {
+        label: "Water use",
+        value: "Similar",
+        compare: "conventional cotton",
+        note: "Uses far less irrigation water, but largely because it is grown in rain-fed regions. Total water is close to conventional cotton.",
+      },
+      {
+        label: "Carbon",
+        value: "3–3.5",
+        unit: "kg CO₂e/kg",
+        compare: "conventional cotton: ~2–6",
+        note: "Around 46% lower than conventional in one 2014 study, though that figure is debated. The certain part is no synthetic pesticides or fertilizer.",
+      },
+      {
+        label: "Biodegradable",
+        value: "Yes",
+        compare: "polyester: no",
+        note: "The same natural cellulose as regular cotton.",
+      },
+      {
+        label: "Sheds plastic microfibers",
+        value: "No",
+        compare: "polyester: yes",
+        note: "A plant fiber, not plastic.",
+      },
+    ],
     sources: [
       { title: "Why GOTS-Certified Organic Cotton Bedding Matters", publisher: "The Honest Label", url: "https://thehonestlabel.com/blogs/honestlabel/tired-of-toxins-in-your-bedding-gots-certified-organic-cotton" },
       { title: "Is Cotton Toxic? Chemicals, Dyes, and Pesticides", publisher: "ScienceInsights", url: "https://scienceinsights.org/is-cotton-toxic-chemicals-dyes-and-pesticides/" },
       { title: "OEKO-TEX vs GOTS: Which Certification Keeps You Safe?", publisher: "Orbasics", url: "https://orbasics.com/blogs/stories/oeko-tex-vs-gots" },
+      { title: "The Deadly Chemicals in Cotton", publisher: "Environmental Justice Foundation", url: "https://ejfoundation.org/resources/downloads/the_deadly_chemicals_in_cotton.pdf" },
+      { title: "The Life Cycle Assessment of Organic Cotton Fiber", publisher: "Textile Exchange", url: "https://textileexchange.org/knowledge-center/reports/cotton-life-cycle-assessment/" },
     ],
   },
   {
@@ -364,10 +442,49 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     environment:
       "Reusing the dissolving liquid and sourcing the wood responsibly make it far easier on the planet than regular viscose.",
     shopFilter: "tencel",
+    heroStat: {
+      value: 99,
+      suffix: "%",
+      label: "of the solvent and water is captured and reused in the closed loop, instead of dumped",
+      sub: "The documented recovery rate is technically above 99 percent.",
+    },
+    enviroStory: [
+      "Lyocell's advantage is the closed loop. The solvent that dissolves the wood pulp is non-toxic, and the factory recaptures over 99 percent of it along with the process water, instead of discharging it the way open-loop viscose does.",
+      "The absolute water and carbon numbers come mostly from Lenzing and industry data, so treat them as directional. The clearer claim is the relative one: the process recovers what it uses, and the fiber biodegrades.",
+    ],
+    enviroStats: [
+      {
+        label: "Water use",
+        value: "300–800",
+        unit: "L/kg",
+        compare: "conventional viscose: often higher, and discharged rather than recovered",
+        note: "The closed loop recaptures the process water (Lenzing/industry data).",
+      },
+      {
+        label: "Carbon",
+        value: "≈50% less",
+        compare: "conventional viscose",
+        note: "About half the emissions of generic lyocell in Lenzing/Higg data. A clean independent absolute figure is not published.",
+      },
+      {
+        label: "Biodegradable",
+        value: "Yes",
+        compare: "polyester: no",
+        note: "TÜV Austria certified to break down in soil and seawater.",
+      },
+      {
+        label: "Sheds plastic microfibers",
+        value: "No",
+        compare: "polyester: yes",
+        note: "Regenerated cellulose, not plastic. Its microfibers biodegrade.",
+      },
+    ],
     sources: [
       { title: "Recovery of N-Methylmorpholine N-Oxide (NMMO) in Lyocell Fibre Manufacturing", publisher: "Fibers (MDPI)", url: "https://www.mdpi.com/2079-6439/13/1/3" },
       { title: "What are TENCEL Lyocell and Modal Fibers", publisher: "Lenzing / TENCEL", url: "https://www.tencel.com/fibers" },
       { title: "OEKO-TEX STANDARD 100", publisher: "OEKO-TEX", url: "https://www.oeko-tex.com/en/our-standards/oeko-tex-standard-100" },
+      { title: "Hot Button Report: viscose producer ranking", publisher: "Canopy", url: "https://canopyplanet.org/tools-and-resources/hot-button-report" },
+      { title: "TENCEL fibers and closed-loop production", publisher: "Lenzing", url: "https://www.lenzing.com/sustainability" },
     ],
   },
   {
@@ -479,10 +596,50 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     environment:
       "Raising silkworms does not use much land, but it uses a lot of energy and water, because the cocoons are usually boiled to unwind the thread.",
     shopFilter: "silk",
+    heroStat: {
+      value: 8500,
+      unit: "years",
+      label: "humans have spun silk, one of the oldest fibers we still wear",
+    },
+    enviroStory: [
+      "Silk has the thinnest data in this whole guide. The often-quoted \"worst fiber for water\" figure traces back to a single small study, and its carbon estimates swing thirty-fold between studies, so no clean number is honest here.",
+      "What is clear is that silk is a protein fiber, so it biodegrades and sheds no plastic. Its real costs are energy and water in production, plus the ethics of how it is harvested.",
+    ],
+    enviroStats: [
+      {
+        label: "Carbon",
+        value: "2.4–81",
+        unit: "kg CO₂e/kg",
+        compare: "polyester satin: ~3.1",
+        note: "The data is thin and single-study, so the range is huge. Treat it as illustrative, not precise.",
+      },
+      {
+        label: "Biodegradable",
+        value: "Yes",
+        compare: "polyester: no",
+        note: "A protein fiber that breaks down enzymatically.",
+      },
+      {
+        label: "Sheds plastic microfibers",
+        value: "No",
+        compare: "polyester: yes",
+        note: "Natural protein, not plastic.",
+      },
+    ],
+    ethics: {
+      title: "How silk is made",
+      flags: ["Silkworms killed in harvest", "Historic child labor"],
+      body: [
+        "Conventional silk boils or steams the cocoons with the pupae still inside, to keep the filament in one unbroken thread. Peace silk, also called ahimsa silk, lets the moth emerge first and accepts the shorter, broken fibers that result.",
+        "A 2003 Human Rights Watch report documented hundreds of thousands of bonded children working in India's silk industry. That report is now over two decades old and conditions have reportedly improved, but current prevalence is not well documented, so read it as history, not a live statistic.",
+      ],
+    },
     sources: [
       { title: "Silk for Sensitive Skin: Hypoallergenic Properties & Evidence", publisher: "Selvane", url: "https://www.selvane.co/blogs/knowledge/silk-for-sensitive-skin-hypoallergenic-properties-evidence" },
       { title: "What Is Degummed Silk? Processing & What It's Used For", publisher: "Mayfairsilk", url: "https://mayfairsilk.com/blogs/general/what-is-degummed-silk-processing-what-its-used-for" },
       { title: "Safety Assessment of Silk Proteins as Used in Cosmetics", publisher: "Cosmetic Ingredient Review (CIR)", url: "http://www.cir-safety.org/sites/default/files/slkprt062015rep.pdf" },
+      { title: "Biomarkers Reveal 8,500-Year-Old Silk in Prehistoric Tombs at Jiahu", publisher: "PLOS ONE", url: "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0168042" },
+      { title: "Small Change: Bonded Child Labor in India's Silk Industry", publisher: "Human Rights Watch", url: "https://www.hrw.org/report/2003/01/22/small-change/bonded-child-labor-indias-silk-industry" },
     ],
   },
   {
@@ -574,11 +731,56 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     environment:
       "Sheep burp up methane and need grazing land. RWS certification also covers welfare practices like mulesing.",
     shopFilter: "wool",
+    heroStat: {
+      value: 95,
+      suffix: "%",
+      label: "of a wool garment breaks down in soil within about 15 weeks, feeding the ground as it goes",
+    },
+    enviroStory: [
+      "Wool's best environmental story is the end of its life. In soil, a wool garment breaks down roughly 95 percent within about 15 weeks, returning nitrogen and sulfur to the ground instead of sitting in a landfill.",
+      "Its carbon figure is high and genuinely contested. Around three-quarters of it is methane from the sheep, and how methane should be counted is under active scientific debate, so read the range as a range.",
+    ],
+    enviroStats: [
+      {
+        label: "Water use",
+        value: "Mostly rainfall",
+        compare: "acrylic: fossil-derived, no water story",
+        note: "There is no clean per-kg figure. Over 95% of wool's water is rain on grazing land, not scarce freshwater.",
+      },
+      {
+        label: "Carbon",
+        value: "10–30",
+        unit: "kg CO₂e/kg",
+        compare: "acrylic: ~21–36",
+        note: "High and contested. About 75% is sheep methane, and how methane is counted is actively debated.",
+      },
+      {
+        label: "Biodegradable",
+        value: "Yes",
+        compare: "acrylic: no",
+        note: "A protein fiber. Returns nitrogen and sulfur to the soil.",
+      },
+      {
+        label: "Sheds plastic microfibers",
+        value: "No",
+        compare: "acrylic: yes, heavily",
+        note: "Natural keratin, not plastic.",
+      },
+    ],
+    ethics: {
+      title: "Animal welfare in wool",
+      flags: ["Mulesing"],
+      body: [
+        "Mulesing removes strips of skin from a lamb's hindquarters to prevent flystrike, a practice concentrated in Australia and often carried out without pain relief. New Zealand banned it in 2018. The Responsible Wool Standard prohibits it, but RWS-certified wool is only about 4 percent of the global clip, so most wool gives you no such guarantee.",
+      ],
+    },
     sources: [
       { title: "Debunking the Myth of Wool Allergy", publisher: "Acta Dermato-Venereologica", url: "https://www.medicaljournals.se/acta/content/html/10.2340/00015555-2655" },
       { title: "Superwash - Woolpower", publisher: "Woolpower", url: "https://woolpower.se/en/our-supply-chain/superwash/" },
       { title: "OEKO-TEX STANDARD 100", publisher: "OEKO-TEX", url: "https://www.oeko-tex.com/en/our-standards/oeko-tex-standard-100" },
       { title: "Moth protection with the active substance permethrin", publisher: "Paulig", url: "https://www.paulig1750.com/media/19/f8/8f/1631545219/mottenschutz_pau_en_130921_brand.pdf" },
+      { title: "Wool is biodegradable", publisher: "International Wool Textile Organisation", url: "https://iwto.org/sustainability/wool-biodegradability/" },
+      { title: "Responsible Wool Standard", publisher: "Textile Exchange", url: "https://textileexchange.org/responsible-wool-standard/" },
     ],
   },
 
@@ -596,10 +798,58 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     environment:
       "Making regular viscose puts harmful stuff into the air and water, and is often linked to cutting down old, rare forests.",
     shopFilter: "viscose",
+    heroStat: {
+      value: 150,
+      suffix: "+",
+      unit: "years",
+      label: "of documented nerve and heart damage to the workers who make it, from one solvent: carbon disulfide",
+    },
+    enviroStory: [
+      "Viscose is not one production standard. It is thousands of mills running the same chemistry at very different levels of control, which is why its water use spans from a few hundred litres per kilo to several thousand, and its carbon from about 2 to 11.",
+      "The fiber itself is cellulose, so it biodegrades and sheds no plastic. The damage sits in production, in the solvent and the wastewater, not in the finished cloth against your skin.",
+    ],
+    enviroStats: [
+      {
+        label: "Water use",
+        value: "300–3,000+",
+        unit: "L/kg",
+        compare: "virgin polyester: low",
+        note: "Huge mill-to-mill range. Viscose is not one production standard.",
+      },
+      {
+        label: "Carbon",
+        value: "2–11",
+        unit: "kg CO₂e/kg",
+        compare: "virgin polyester: ~3.1",
+        note: "Varies widely by region and method.",
+      },
+      {
+        label: "Biodegradable",
+        value: "Yes",
+        compare: "polyester: no",
+        note: "Cellulose-based, though finishes and sealed landfills slow it.",
+      },
+      {
+        label: "Sheds plastic microfibers",
+        value: "No",
+        compare: "polyester: yes",
+        note: "Cellulosic, not plastic.",
+      },
+    ],
+    ethics: {
+      title: "Who makes viscose",
+      flags: ["Carbon disulfide worker harm", "River pollution"],
+      body: [
+        "Carbon disulfide, the core solvent, poisons the people who spin viscose. It is linked to nerve, psychiatric, and cardiovascular damage, and it is one of the longest-documented occupational harms in the whole textile industry.",
+        "Changing Markets' Dirty Fashion investigations documented untreated viscose wastewater contaminating rivers and drinking water, and roughly a third of viscose has historically been traced back to endangered forests. Some producers are improving, but the floor is low.",
+      ],
+    },
     sources: [
       { title: "HEALTH EFFECTS - Toxicological Profile for Carbon Disulfide", publisher: "NCBI Bookshelf (ATSDR)", url: "https://www.ncbi.nlm.nih.gov/books/NBK601225/" },
       { title: "Exposure to carbon disulphide and ischaemic heart disease in a viscose rayon factory", publisher: "PMC (Br J Ind Med)", url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC1007812/" },
       { title: "Rayon Allergy: Identifying Symptoms and Effective Treatments", publisher: "Wyndly", url: "https://www.wyndly.com/blogs/learn/rayon-allergy" },
+      { title: "Dirty Fashion: how pollution in the global textiles supply chain is making viscose toxic", publisher: "Changing Markets Foundation", url: "https://changingmarkets.org/portfolio/dirty-fashion/" },
+      { title: "CanopyStyle and endangered forests in viscose", publisher: "Canopy", url: "https://canopyplanet.org/" },
     ],
   },
   {
@@ -634,10 +884,59 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     environment:
       "Bamboo grows fast and needs little to thrive, but turning it into viscose with chemicals wipes out most of that green advantage.",
     shopFilter: null,
+    heroStat: {
+      value: 1.5,
+      prefix: "$",
+      suffix: "M+",
+      decimals: 1,
+      label: "in US fines to retailers who sold ordinary rayon as \"bamboo\"",
+    },
+    enviroStory: [
+      "The important thing to understand is that soft \"bamboo\" fabric is bamboo *viscose*, so its environmental numbers are viscose's numbers, not the raw plant's. The living bamboo grows fast on little water, but that advantage is spent in the chemical processing.",
+      "A 2025 life-cycle study found that the *processing*, not the bamboo plant, is what drives the footprint. Bamboo viscose is not cleaner than wood viscose.",
+    ],
+    enviroStats: [
+      {
+        label: "Water use",
+        value: "300–3,000+",
+        unit: "L/kg",
+        compare: "virgin polyester: low",
+        note: "Bamboo fabric is bamboo *viscose*, so its numbers are viscose's, not the raw plant's.",
+      },
+      {
+        label: "Carbon",
+        value: "2–11",
+        unit: "kg CO₂e/kg",
+        compare: "virgin polyester: ~3.1",
+        note: "A 2025 study found the *processing*, not the bamboo plant, drives the footprint.",
+      },
+      {
+        label: "Biodegradable",
+        value: "Yes",
+        compare: "polyester: no",
+        note: "Cellulose-based, same as wood viscose.",
+      },
+      {
+        label: "Sheds plastic microfibers",
+        value: "No",
+        compare: "polyester: yes",
+        note: "Cellulosic, not plastic.",
+      },
+    ],
+    ethics: {
+      title: "The bamboo label problem",
+      flags: ["Carbon disulfide worker harm", "Mislabeling"],
+      body: [
+        "Because bamboo fabric is viscose, it carries the same carbon disulfide worker harm as any other viscose. It is the same process and the same solvent.",
+        "The FTC has repeatedly fined major retailers for selling rayon as \"bamboo,\" because bamboo's eco reputation does not survive the chemical process. By law it must be labeled rayon or viscose.",
+      ],
+    },
     sources: [
       { title: "Bamboo Textiles", publisher: "U.S. Federal Trade Commission", url: "https://www.ftc.gov/bamboo-textiles" },
       { title: "FTC doles out $1.3M in fines to retailers over bamboo rayon", publisher: "Retail Dive", url: "https://www.retaildive.com/news/ftc-doles-out-13m-in-fines-to-retailers-over-bamboo-rayon/410677/" },
       { title: "TENCEL Lyocell and Modal Fibers", publisher: "Lenzing TENCEL", url: "https://www.tencel.com/fibers" },
+      { title: "FTC Seeks Largest-Ever Civil Penalty for Bogus Bamboo Marketing", publisher: "U.S. Federal Trade Commission", url: "https://www.ftc.gov/news-events/news/press-releases/2022/04/ftc-uses-penalty-offense-authority-seek-largest-ever-civil-penalty-bogus-bamboo-marketing-kohls" },
+      { title: "Dirty Fashion: viscose supply chain pollution", publisher: "Changing Markets Foundation", url: "https://changingmarkets.org/portfolio/dirty-fashion/" },
     ],
   },
   {
@@ -653,10 +952,58 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     environment:
       "Regular cotton uses a lot of water and chemicals to grow. Organic farming uses far fewer chemicals.",
     shopFilter: "cotton",
+    heroStat: {
+      value: 2700,
+      unit: "litres",
+      label: "of water to grow one cotton t-shirt, about what a person drinks in two and a half years",
+    },
+    enviroStory: [
+      "Cotton's environmental problem is water. A single t-shirt can take around 2,700 litres to grow, and a kilo of fiber runs from roughly 3,000 litres under efficient US irrigation to well over 8,000 in thirstier regions.",
+      "Its carbon is moderate and varies with irrigation and the local power grid. The upside is that undyed cotton is a plant fiber, so it biodegrades and sheds no plastic.",
+    ],
+    enviroStats: [
+      {
+        label: "Water use",
+        value: "3,000–10,000",
+        unit: "L/kg",
+        compare: "virgin polyester: very low (cotton's harm is water, polyester's is elsewhere)",
+        note: "Swings by country: efficient US irrigation near 2,250, thirstier regions near 8,600.",
+      },
+      {
+        label: "Carbon",
+        value: "2–6",
+        unit: "kg CO₂e/kg",
+        compare: "virgin polyester: ~3.1",
+        note: "The Cotton Inc life-cycle study lands near 5.9; it varies with irrigation and the local power grid.",
+      },
+      {
+        label: "Biodegradable",
+        value: "Yes",
+        compare: "polyester: no",
+        note: "Undyed cotton is roughly 86% gone in 35 days in lab tests.",
+      },
+      {
+        label: "Sheds plastic microfibers",
+        value: "No",
+        compare: "polyester: yes",
+        note: "A plant fiber, not plastic.",
+      },
+    ],
+    ethics: {
+      title: "Who grows cotton",
+      flags: ["Xinjiang forced labor", "Farmworker pesticide exposure"],
+      body: [
+        "Around a fifth of the world's cotton comes from Xinjiang, China, where investigations have documented coercive labor moving Uyghur and other minority workers into the fields. That evidence is the basis of the US ban on Xinjiang cotton imports.",
+        "Cotton also uses a hugely disproportionate share of the world's pesticides, and the heaviest exposure falls on farmworkers in places where safety rules are weakest.",
+      ],
+    },
     sources: [
       { title: "FTC Seeks Largest-Ever Civil Penalty for Bogus Bamboo Marketing", publisher: "U.S. Federal Trade Commission", url: "https://www.ftc.gov/news-events/news/press-releases/2022/04/ftc-uses-penalty-offense-authority-seek-largest-ever-civil-penalty-bogus-bamboo-marketing-kohls" },
       { title: "What Is GOTS Certified Organic Cotton", publisher: "Q for Quinn", url: "https://www.qforquinn.com/blogs/news/what-is-gots-certified-organic-cotton-anyway-and-why-buy-into-it" },
       { title: "PUREPRESS: wrinkle-free and formaldehyde-free durable press", publisher: "Cotton Incorporated", url: "https://www.cottoninc.com/press-releases/smoothing-out-formaldehyde-wrinkle/" },
+      { title: "The Impact of a Cotton T-Shirt", publisher: "World Wildlife Fund", url: "https://www.worldwildlife.org/stories/the-impact-of-a-cotton-t-shirt" },
+      { title: "The Uyghur Genocide: An Examination of China's Breaches of the 1948 Genocide Convention", publisher: "New Lines Institute", url: "https://newlinesinstitute.org/uyghurs/the-uyghur-genocide-an-examination-of-chinas-breaches-of-the-1948-genocide-convention/" },
+      { title: "The Deadly Chemicals in Cotton", publisher: "Environmental Justice Foundation", url: "https://ejfoundation.org/resources/downloads/the_deadly_chemicals_in_cotton.pdf" },
     ],
   },
 
@@ -750,10 +1097,52 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     environment:
       "Polyester comes from fossil fuels, basically never breaks down in nature, and is a main driver of microplastic pollution.",
     shopFilter: null,
+    heroStat: {
+      value: 59,
+      suffix: "%",
+      label: "of all fabric made in 2024 was polyester. Nearly 6 in 10 new garments are plastic",
+    },
+    enviroStory: [
+      "Polyester is the most solid set of numbers in this guide, and the news is not good. It made up 59 percent of all fiber produced in 2024, nearly six of every ten new garments, and the vast majority is virgin, fossil-based plastic.",
+      "It does not biodegrade. It persists for centuries, fragmenting into ever-smaller microplastic, and it sheds plastic fibers into your water and air with every wash.",
+    ],
+    enviroStats: [
+      {
+        label: "Carbon",
+        value: 3.1,
+        decimals: 1,
+        unit: "kg CO₂e/kg",
+        compare: "organic cotton: ~1–3",
+        note: "Fossil-derived. Updated data now includes methane from crude extraction.",
+      },
+      {
+        label: "Biodegradable",
+        value: "No",
+        compare: "organic cotton: yes",
+        note: "Persists for centuries, fragmenting into microplastic.",
+      },
+      {
+        label: "Sheds plastic microfibers",
+        value: "Yes",
+        compare: "organic cotton: no",
+        note: "One 6kg wash sheds about 496,000 plastic microfibers (Napper and Thompson, Plymouth).",
+      },
+    ],
+    ethics: {
+      title: "The cost of cheap plastic clothing",
+      flags: ["Fossil-fuel feedstock", "Garment-worker wages"],
+      body: [
+        "Polyester is made from oil. Synthetic fiber production burns through a notable share of the world's oil and emits hundreds of millions of tonnes of CO2 a year.",
+        "Separately, most of the garment workers who sew fast-fashion polyester earn far below a living wage. These are two different facts about the same cheap product, not cause and effect.",
+      ],
+    },
     sources: [
       { title: "Antimony release from polyester textiles by artificial sweat solutions", publisher: "Regulatory Toxicology and Pharmacology", url: "https://www.sciencedirect.com/science/article/pii/S0273230020302506" },
       { title: "Contact allergy from disperse dyes in textiles - a review", publisher: "Contact Dermatitis (Wiley)", url: "https://onlinelibrary.wiley.com/doi/10.1111/cod.12001" },
       { title: "Recycled polyester microplastic emissions and BPA", publisher: "Estroni", url: "https://estroni.com.au/pages/is-recycled-polyester-safe-the-hidden-bpa-antimony-risk-in-eco-activewear" },
+      { title: "Materials Market Report 2025", publisher: "Textile Exchange", url: "https://textileexchange.org/app/uploads/2025/09/Materials-Market-Report-2025.pdf" },
+      { title: "Release of synthetic microplastic plastic fibres from domestic washing machines", publisher: "Marine Pollution Bulletin (Napper & Thompson)", url: "https://www.sciencedirect.com/science/article/abs/pii/S0025326X16307639" },
+      { title: "Living Wage", publisher: "Clean Clothes Campaign", url: "https://cleanclothes.org/faq/pay-living-wages" },
     ],
   },
   {
