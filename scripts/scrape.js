@@ -218,7 +218,8 @@ function stripTags(html) {
 // contains one of these, so "20% off" / "100% cotton-free" style noise is ignored.
 const FIBER_WORDS = [
   "linen", "flax", "cotton", "hemp", "wool", "cashmere", "alpaca", "mohair",
-  "silk", "jute", "ramie", "tencel", "lyocell", "modal", "cupro", "viscose",
+  "silk", "jute", "ramie", "tencel", "lyocell", "modal", "cupro", "cuprammonium",
+  "bemberg", "viscose",
   "rayon", "bamboo", "acetate", "lenzing", "ecovero", "polyester", "nylon",
   "polyamide", "acrylic", "elastane", "spandex", "lycra", "polyurethane",
   "leather", "down", "modacrylic",
@@ -256,6 +257,8 @@ function parseComposition(text) {
     else if (fw === "cotton" && /organic/i.test(before)) name = "organic cotton";
     else if (fw === "elastane" || fw === "lycra") name = "spandex";
     else if (fw === "polyamide") name = "nylon";
+    // Cuprammonium rayon is cupro (American Bemberg = its best-known trade name).
+    else if (fw === "cuprammonium" || fw === "bemberg") name = "cupro";
     comp[name] = (comp[name] || 0) + pct;
     count++;
   }
