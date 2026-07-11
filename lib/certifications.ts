@@ -188,6 +188,70 @@ export const CERTIFICATIONS: Certification[] = [
       "It leans environmental rather than health-first, and adoption in fashion is thin. It barely appears on apparel, so its absence means little.",
     take: "A credible government-backed eco label where it appears. Treat it as an environmental signal, not a personal-exposure one.",
   },
+  {
+    slug: "greenguard",
+    name: "GREENGUARD Gold",
+    issuer: "UL Solutions",
+    category: "textile",
+    summary:
+      "Certifies that a finished product releases very low levels of chemical emissions into the air, tested against strict limits for hundreds of VOCs. The Gold tier is the stricter one, benchmarked for schools, healthcare, and sensitive people.",
+    verifies: [
+      "The finished product off-gasses below strict limits for hundreds of volatile organic compounds, including formaldehyde",
+      "Gold applies tighter thresholds set for sensitive groups like children and the chronically ill",
+      "Ongoing testing to keep the mark, not a one-time pass",
+    ],
+    blindSpot:
+      "It measures what a product releases into the air of a room, not what touches your skin. This is an emissions test for furnishings like mattresses and furniture, not an apparel mark. It says nothing about the fiber, the farming, or how a garment was dyed.",
+    take: "The mark to look for on a mattress or home piece, where off-gassing is the real concern. Read it as cleaner indoor air, not a verdict on the clothing against your skin.",
+  },
+  {
+    slug: "eco-institut",
+    name: "eco-INSTITUT",
+    issuer: "eco-INSTITUT Germany",
+    category: "textile",
+    summary:
+      "A rigorous German lab test that screens a finished product for both harmful-substance content and low chemical emissions, against some of the strictest limits in the industry. Most often seen on natural latex, mattresses, and bedding.",
+    verifies: [
+      "The product tests below strict limits for pollutants like formaldehyde, heavy metals, and pesticides",
+      "Both what the material contains and what it off-gasses into the air (VOCs)",
+      "Independent lab testing, most common on latex foam, mattresses, and textiles",
+    ],
+    blindSpot:
+      "Like other emissions and residue tests, it certifies the chemistry of the finished piece, not the fiber's origin, the farming, or the labor behind it. And it is a furnishings-and-bedding mark far more than an apparel one.",
+    take: "One of the stricter harmful-substance labels, and a strong signal on a latex pillow or mattress. Read it as low residue and low off-gassing, not a verdict on sourcing or ethics.",
+  },
+  {
+    slug: "made-safe",
+    name: "MADE SAFE",
+    issuer: "MADE SAFE (Nontoxic Certified)",
+    category: "textile",
+    summary:
+      "Screens a whole product against a long list of known harmful chemicals, from flame retardants and heavy metals to pesticides and endocrine disruptors, and certifies it only if none are used.",
+    verifies: [
+      "The finished product is made without a banned list of substances linked to human harm",
+      "Ingredients and materials are vetted, not just the final fabric",
+      "Applied across apparel, bedding, and personal care, with a focus on human health",
+    ],
+    blindSpot:
+      "It is a chemical-safety screen, not a fiber or sourcing claim. A MADE SAFE product can still be synthetic, and the mark says nothing about farming, labor, or environmental impact.",
+    take: "A genuinely health-first label, close to the body-first lens Toxome scores by. Read it as free of known-harmful chemicals, not as natural or sustainably made.",
+  },
+  {
+    slug: "certified-vegan",
+    name: "Certified Vegan",
+    issuer: "Vegan Action",
+    category: "textile",
+    summary:
+      "Certifies that a product contains no animal-derived materials and was not tested on animals. A values mark about animal welfare, not about chemistry or health.",
+    verifies: [
+      "No animal ingredients or materials (no leather, wool, silk, down, or animal-based glues)",
+      "No animal testing on the product or its ingredients",
+      "Reviewed sourcing to back the no-animal claim",
+    ],
+    blindSpot:
+      "Vegan is not the same as clean. Removing animal materials often means replacing them with plastic: polyester, acrylic, or polyurethane \"vegan leather.\" The mark says nothing about the fiber's safety or what sits against your skin.",
+    take: "A clear animal-welfare signal, and nothing more. Read it as no animal materials, not as natural, non-toxic, or better for your body.",
+  },
 
   // ── Fiber & material standards ───────────────────────────────────────────
   {
@@ -420,6 +484,39 @@ export const CERTIFICATIONS: Certification[] = [
       "It stops at the farm gate. A USDA-organic-cotton shirt can still be bleached, dyed and finished with conventional chemistry. That processing is GOTS's territory, not USDA's.",
     take: "Confirms the cotton was grown clean. It doesn't promise the shirt was made clean.",
   },
+  {
+    slug: "european-flax",
+    name: "European Flax",
+    issuer: "Alliance for European Flax-Linen",
+    category: "material",
+    summary:
+      "Certifies that the flax behind a linen garment was grown in Western Europe under strict farming rules, and traces it from the field to the spun yarn.",
+    verifies: [
+      "The flax was grown in Western Europe (France, Belgium, the Netherlands), rain-fed with no irrigation and no GMO seed",
+      "Zero-waste farming that uses the whole plant, with no defoliation",
+      "Third-party traceability from the field through to the yarn",
+    ],
+    blindSpot:
+      "It certifies where and how the flax was farmed, not what happens next. European Flax linen can still be bleached, dyed and finished with conventional chemistry, and the mark says nothing about labor beyond the farm.",
+    take: "The mark to look for on linen's origin. Read it as clean, traceable European flax, not a verdict on how the finished fabric was dyed or finished.",
+  },
+  {
+    slug: "gols",
+    name: "Global Organic Latex Standard",
+    abbr: "GOLS",
+    issuer: "Global Standard gGmbH",
+    category: "material",
+    summary:
+      "The organic standard for natural latex, the GOTS counterpart for rubber. It certifies that the latex in a mattress, pillow, or topper is organic and processed to strict chemical and social rules.",
+    verifies: [
+      "Certified organic latex content (the organic grade requires at least 95%)",
+      "Limits on the chemicals and fillers added when the latex is processed",
+      "Social and environmental criteria through manufacturing, like GOTS",
+    ],
+    blindSpot:
+      "It covers the latex, not the cover fabric or anything else in the product. And it is a bedding-and-foam material standard, so you will see it on a mattress or pillow, not on clothing.",
+    take: "The mark to look for on a natural-latex mattress or pillow. Read it as genuinely organic latex, not a verdict on the cotton cover or the rest of the build.",
+  },
 
   // ── Chemical & process standards ─────────────────────────────────────────
   {
@@ -577,6 +674,12 @@ const CERT_ALIASES: Record<string, string> = {
   bettercottoninitiative: "better-cotton",
   fairwear: "fair-wear-foundation",
   climateneutral: "climate-neutral-certified",
+  mastersoflinen: "european-flax",
+  europeanflaxlinen: "european-flax",
+  europeanlinen: "european-flax",
+  certifiedvegan: "certified-vegan",
+  certifiedveganveganaction: "certified-vegan",
+  veganaction: "certified-vegan",
 };
 
 // Resolve a free-form certification string from a product feed (e.g. "GOTS",
@@ -632,6 +735,11 @@ const CERT_SIGNATURES: { re: RegExp; value: string }[] = [
   { re: /fair[\s-]?trade/, value: "Fair Trade" },
   { re: /\bb[\s-]?corp(oration)?\b/, value: "B Corp" },
   { re: /cradle to cradle/, value: "Cradle to Cradle" },
+  { re: /european flax|masters of linen/, value: "European Flax" },
+  { re: /greenguard/, value: "GREENGUARD Gold" },
+  { re: /eco[\s-]?institut/, value: "eco-INSTITUT" },
+  { re: /global organic latex standard|\bgols\b/, value: "GOLS" },
+  { re: /certified vegan/, value: "Certified Vegan" },
 ];
 
 // Scan free-form copy (description + materials text) for certifications the
@@ -655,8 +763,8 @@ export function detectCertifications(text: string): string[] {
 }
 
 // Collapse a list of cert strings to one per underlying mark, preferring the
-// first (most specific) spelling. Unresolved strings (e.g. "European Flax") are
-// kept verbatim, deduped case-insensitively.
+// first (most specific) spelling. Unresolved strings (e.g. a mark not yet in the
+// field guide) are kept verbatim, deduped case-insensitively.
 export function dedupeCertifications(certs: string[]): string[] {
   const out: string[] = [];
   const seen = new Set<string>();

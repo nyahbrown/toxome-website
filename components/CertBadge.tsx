@@ -39,6 +39,9 @@ const DOMAIN: Record<string, string> = {
   "oeko-tex-leather-standard": "oeko-tex.com",
   "fair-wear-foundation": "fairwear.org",
   "climate-neutral-certified": "changeclimate.org",
+  "european-flax": "europeanflax.com",
+  "eco-institut": "eco-institut.de",
+  "certified-vegan": "vegan.org",
 };
 
 function remoteCandidates(slug: string): string[] {
@@ -84,6 +87,9 @@ const MARK: Record<string, string> = {
   "oeko-tex-leather-standard": "LS",
   "fair-wear-foundation": "FWF",
   "climate-neutral-certified": "CN",
+  "european-flax": "EF",
+  "eco-institut": "eco",
+  "certified-vegan": "V",
 };
 
 function markFor(slug: string, abbr: string | undefined, name: string): string {
