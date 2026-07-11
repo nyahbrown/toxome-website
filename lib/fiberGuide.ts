@@ -138,6 +138,8 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
       "Hemp grows with little water and few bug sprays, and the undyed fiber breaks down naturally.",
     shopFilter: "hemp",
     dek: "One of the most efficient fibers on earth. It grows fast, drinks little, and leaves the soil better than it found it.",
+    history:
+      "Hemp is one of the oldest fibers humans have farmed, and ancient China is where its record runs deepest. Archers strung their bows with it, and the *Father of Chinese Medicine*, Shen-Nung, recorded cannabis as medicine around 2700 BC. A poem from about 900 BC describes a building used to *ret* hemp, the soaking step that frees the fiber, and the *Shu Ching*, the earliest Chinese history, praised hemp as a fiber crop grown in what are now Hunan and Anhui. By the time the *Er Ya*, China's first dictionary, was compiled under the Qin and Han dynasties, growers already told male hemp from female, and described the fiber as strong and soft, fit to spin into cloth, with seeds you could eat.",
     heroStat: {
       value: 15,
       unit: "tonnes",
