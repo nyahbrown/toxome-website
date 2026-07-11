@@ -11,6 +11,7 @@
  * (these people already opted in — don't re-greet them).
  */
 import { createClient } from "@supabase/supabase-js";
+import { subscribeToBeehiiv } from "../lib/beehiiv.mjs";
 
 const {
   NEXT_PUBLIC_SUPABASE_URL: SUPABASE_URL,
@@ -53,33 +54,18 @@ async function main() {
   let ok = 0;
   let failed = 0;
   for (const email of emails) {
-    try {
-      const res = await fetch(
-        `https://api.beehiiv.com/v2/publications/${BEEHIIV_PUBLICATION_ID}/subscriptions`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${BEEHIIV_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email,
-            reactivate_existing: false,
-            send_welcome_email: false,
-            utm_source: "supabase_backfill",
-            referring_site: "toxome.app",
-          }),
-        }
-      );
-      if (res.ok) {
-        ok++;
-      } else {
-        failed++;
-        console.warn(`  ✗ ${email} (${res.status}): ${await res.text().catch(() => "")}`);
-      }
-    } catch (err) {
+    // These people already opted in via Supabase — don't re-greet them or
+    // reactivate an intentional unsubscribe.
+    const result = await subscribeToBeehiiv(email, {
+      source: "supabase_backfill",
+      sendWelcomeEmail: false,
+      reactivateExisting: false,
+    });
+    if (result.ok) {
+      ok++;
+    } else {
       failed++;
-      console.warn(`  ✗ ${email}: ${err}`);
+      console.warn(`  ✗ ${email} (${result.status ?? "error"}): ${result.error ?? ""}`);
     }
     // Gentle on beehiiv's rate limit.
     await sleep(250);

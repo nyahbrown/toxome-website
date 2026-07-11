@@ -1,8 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
+import { subscribeToBeehiiv } from "@/lib/beehiiv.mjs";
 
 // Server-side newsletter subscribe. Does two things on every signup:
 //   1. Writes the email to Supabase `newsletter_signups` (our own copy of the list).
-//   2. Pushes the subscriber to beehiiv (the sending engine).
+//   2. Pushes the subscriber to beehiiv (the sending engine), via the shared
+//      lib/beehiiv.mjs helper (also used by the reconcile cron + backfill script,
+//      so there is exactly one beehiiv call shape).
 // The beehiiv API key is read server-side only and never reaches the browser.
 // If beehiiv isn't configured yet, we still capture to Supabase so the site
 // keeps working, the signup is never lost.
@@ -18,42 +21,6 @@ function supabaseAdmin() {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key) return null;
   return createClient(url, key, { auth: { persistSession: false } });
-}
-
-async function addToBeehiiv(email: string, source: string): Promise<boolean> {
-  const apiKey = process.env.BEEHIIV_API_KEY;
-  const pubId = process.env.BEEHIIV_PUBLICATION_ID;
-  // Not configured yet, skip silently so Supabase capture still succeeds.
-  if (!apiKey || !pubId) return false;
-
-  try {
-    const res = await fetch(
-      `https://api.beehiiv.com/v2/publications/${pubId}/subscriptions`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          reactivate_existing: true,
-          send_welcome_email: true,
-          utm_source: source,
-          referring_site: "toxome.app",
-        }),
-      }
-    );
-    if (!res.ok) {
-      const detail = await res.text().catch(() => "");
-      console.error(`beehiiv subscribe failed (${res.status}): ${detail}`);
-      return false;
-    }
-    return true;
-  } catch (err) {
-    console.error("beehiiv subscribe error:", err);
-    return false;
-  }
 }
 
 export async function POST(request: Request) {
@@ -86,8 +53,9 @@ export async function POST(request: Request) {
     }
   }
 
-  // Push to the sending engine.
-  const beehiivOk = await addToBeehiiv(email, source);
+  // Push to the sending engine (best-effort; never blocks the signup).
+  const beehiivResult = await subscribeToBeehiiv(email, { source });
+  const beehiivOk = beehiivResult.ok;
 
   // Succeed if either side accepted the email, we don't want a beehiiv hiccup
   // to show the user an error after we've already saved them, and vice versa.
