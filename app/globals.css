@@ -2347,6 +2347,35 @@ button { font-family: inherit; }
   background: var(--ink-3);
 }
 
+.cert-card__levels { display: flex; flex-direction: column; gap: 11px; }
+.cert-card__level-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin: 0 0 3px;
+}
+.cert-card__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  flex: 0 0 auto;
+  display: inline-block;
+}
+.cert-card__level-blurb {
+  font-size: 14px;
+  line-height: 1.55;
+  letter-spacing: -0.003em;
+  color: var(--ink-2);
+  margin: 0;
+  padding-left: 16px;
+}
+
 .cert-card__blindspot {
   font-size: 14px;
   line-height: 1.6;

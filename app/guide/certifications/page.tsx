@@ -233,6 +233,27 @@ function CertCard({
         </ul>
       </div>
 
+      {cert.levels?.length ? (
+        <div className="cert-card__block">
+          <p className="cert-card__label cert-card__label--yes">The three levels</p>
+          <div className="cert-card__levels">
+            {cert.levels.map((l) => (
+              <div key={l.name}>
+                <p className="cert-card__level-name">
+                  <span
+                    className="cert-card__dot"
+                    style={{ background: l.accent }}
+                    aria-hidden="true"
+                  />
+                  {l.name}
+                </p>
+                <p className="cert-card__level-blurb">{l.blurb}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
       <div className="cert-card__block">
         <p className="cert-card__label cert-card__label--no">What it leaves out</p>
         <p className="cert-card__blindspot">{cert.blindSpot}</p>

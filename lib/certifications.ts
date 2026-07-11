@@ -27,6 +27,9 @@ export type Certification = {
   healthRank?: number;
   // A short, plain line for the "start here" tier (why this one matters most).
   leadNote?: string;
+  // Named sub-levels of the certification (e.g. ROC Bronze/Silver/Gold), each
+  // with a short blurb and a small accent-dot color. Rendered as labeled rows.
+  levels?: { name: string; blurb: string; accent: string }[];
 };
 
 export type CategoryMeta = {
@@ -130,7 +133,12 @@ export const CERTIFICATIONS: Certification[] = [
     verifies: [
       "Certified organic as the required baseline, so no synthetic pesticides, fertilizers, or GMO seed",
       "Soil health and land management that rebuilds the ground the fiber grows in",
-      "Farmer and worker fairness, plus animal welfare where relevant (awarded at Bronze, Silver, and Gold levels)",
+      "Farmer and worker fairness, plus animal welfare where relevant",
+    ],
+    levels: [
+      { name: "Bronze", accent: "#A97C50", blurb: "Starts at 10% of the farm's land or revenue, climbing to at least 50% by year five." },
+      { name: "Silver", accent: "#9AA0A6", blurb: "50 to 75% of the farm certified." },
+      { name: "Gold", accent: "#C0A02E", blurb: "The whole operation certified, the highest level." },
     ],
     blindSpot:
       "It is still rare, so few garments carry it yet. And the word \"regenerative\" on its own is not the same thing: without the \"organic certified\" part it still allows synthetic inputs.",
