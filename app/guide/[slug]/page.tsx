@@ -778,6 +778,15 @@ export default async function FiberGuidePage({
         /* Undo the site-wide lowercase transform: this page is written in
            natural sentence case. Eyebrows stay uppercase. */
         .guide-page { text-transform: none; }
+
+        /* Smooth-scroll the jump-nav (about, health, environmental impact...)
+           to its section instead of jumping. Scoped to guide pages, and
+           disabled for reduced-motion users. scroll-margin-top on .gp-sec
+           keeps the landing clear of the fixed nav. */
+        html:has(.guide-page) { scroll-behavior: smooth; }
+        @media (prefers-reduced-motion: reduce) {
+          html:has(.guide-page) { scroll-behavior: auto; }
+        }
         .guide-page .eyebrow {
           font-weight: 600;
           font-size: 11px;
