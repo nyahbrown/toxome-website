@@ -196,6 +196,9 @@ export default async function FiberGuidePage({
   const certList = (f.certs ?? [])
     .map((slug) => CERTIFICATIONS.find((c) => c.slug === slug))
     .filter((c): c is (typeof CERTIFICATIONS)[number] => Boolean(c));
+  const topTierCerts = (f.topTier?.certs ?? [])
+    .map((slug) => CERTIFICATIONS.find((c) => c.slug === slug))
+    .filter((c): c is (typeof CERTIFICATIONS)[number] => Boolean(c));
 
   // Clean fibers shop themselves; moderate/high fibers redirect to alternatives.
   const alt = ALT_FIBERS[f.slug];
@@ -239,6 +242,7 @@ export default async function FiberGuidePage({
   // Which optional sections have data (drives both jump-nav and rendering).
   const hasMade = !!f.madeStory?.length;
   const hasGrades = !!f.grades;
+  const hasTopTier = !!f.topTier;
   const hasCare = !!f.care?.length;
   const hasChips = !!f.lookFor?.length;
   const hasEnviro = !!f.enviroStats?.length;
@@ -430,6 +434,7 @@ export default async function FiberGuidePage({
                   <a href="#about">about</a>
                   {hasMade && <a href="#made">how it&rsquo;s made</a>}
                   {hasGrades && <a href="#grades">grades</a>}
+                  {hasTopTier && <a href="#top-tier">{f.topTier!.name.toLowerCase()}</a>}
                   <a href="#health">health impacts</a>
                   {hasEnviro && <a href="#environment">environmental impact</a>}
                   {hasEthics && <a href="#ethics">ethics &amp; labor</a>}
@@ -511,6 +516,84 @@ export default async function FiberGuidePage({
                         </span>
                       ))}
                     </div>
+                  </section>
+                )}
+
+                {/* TOP TIER */}
+                {hasTopTier && (
+                  <section className="gp-sec reveal gp-toptier" id="top-tier">
+                    {topTierCerts.length > 0 && (
+                      <div className="gp-tt-badge">
+                        {topTierCerts.map((c) => (
+                          <Link
+                            key={c.slug}
+                            href={`/guide/certifications#${c.slug}`}
+                            className="gp-tt-badge-link"
+                            aria-label={`${c.name}, open the certification guide`}
+                          >
+                            <CertBadge
+                              slug={c.slug}
+                              name={c.name}
+                              abbr={c.abbr}
+                              size={52}
+                              logoSrc={certLogos.get(c.slug)}
+                            />
+                            <span className="gp-tt-badge-name">{c.name}</span>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                    <div className="eyebrow gp-kick">
+                      {f.topTier!.eyebrow ?? "The top tier"}
+                    </div>
+                    <h2>{f.topTier!.name}</h2>
+                    {[f.topTier!.dek, ...f.topTier!.body].map((para, i) => (
+                      <p
+                        className="gp-prose"
+                        key={i}
+                        style={i === 1 ? { marginTop: 22 } : undefined}
+                      >
+                        <RichText text={para} />
+                      </p>
+                    ))}
+                    {f.topTier!.levels?.length ? (
+                      <div className="gp-tt-levels">
+                        {f.topTier!.levels.map((l) => (
+                          <div className="gp-tt-level" key={l.name}>
+                            <div className="gp-tt-tier">
+                              <span
+                                className="gp-tt-dot"
+                                style={{ background: l.accent }}
+                                aria-hidden="true"
+                              />
+                              {l.name}
+                            </div>
+                            <p className="gp-prose gp-tt-blurb">
+                              <RichText text={l.blurb} />
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    ) : null}
+                    {f.topTier!.articleSlug && (
+                      <p className="gp-prose" style={{ marginTop: 22 }}>
+                        <Link href={`/journal/${f.topTier!.articleSlug}`}>
+                          Regenerative vs organic cotton, compared &rarr;
+                        </Link>
+                      </p>
+                    )}
+                    {f.topTier!.shopFilter && (
+                      <div style={{ marginTop: 18 }}>
+                        <Link
+                          className="gp-btn ghost"
+                          href={`/shop?fiber=${encodeURIComponent(
+                            f.topTier!.shopFilter,
+                          )}`}
+                        >
+                          shop {f.topTier!.name.toLowerCase()} cotton
+                        </Link>
+                      </div>
+                    )}
                   </section>
                 )}
 
@@ -873,6 +956,40 @@ export default async function FiberGuidePage({
 
         /* right-column sections */
         .guide-page .gp-sec { margin-bottom: 64px; scroll-margin-top: 96px; }
+        .guide-page .gp-toptier {
+          background: var(--white); border: 1px solid var(--hairline-strong);
+          border-radius: 14px; padding: 30px 32px;
+        }
+        @media (max-width: 640px) { .guide-page .gp-toptier { padding: 24px 20px; } }
+        /* ROC badge, top-left of the section */
+        .guide-page .gp-tt-badge { margin-bottom: 20px; }
+        .guide-page .gp-tt-badge-link {
+          display: inline-flex; align-items: center; gap: 12px;
+          text-decoration: none; color: var(--ink-2);
+          transition: color .16s var(--ease-out-strong);
+        }
+        .guide-page .gp-tt-badge-name {
+          font-size: 12px; font-weight: 600; letter-spacing: 0.02em;
+          line-height: 1.25; max-width: 12ch;
+        }
+        @media (hover: hover) and (pointer: fine) {
+          .guide-page .gp-tt-badge-link:hover .gp-tt-badge-name { color: var(--ink); }
+        }
+        /* Bronze / Silver / Gold levels */
+        .guide-page .gp-tt-levels {
+          display: flex; flex-direction: column; gap: 20px; margin-top: 26px;
+        }
+        .guide-page .gp-tt-tier {
+          display: flex; align-items: center; gap: 9px;
+          font-family: var(--mono); font-size: 11px; font-weight: 600;
+          letter-spacing: 0.11em; text-transform: uppercase; color: var(--ink);
+          margin-bottom: 5px;
+        }
+        .guide-page .gp-tt-dot {
+          width: 9px; height: 9px; border-radius: 999px;
+          display: inline-block; flex: 0 0 auto;
+        }
+        .guide-page .gp-tt-blurb { margin: 0; max-width: 48ch; }
         .guide-page .gp-sec h2 {
           font-family: var(--sans); font-size: 22px; font-weight: 600; letter-spacing: -.01em;
           color: var(--ink); margin: 10px 0 16px; text-wrap: balance;

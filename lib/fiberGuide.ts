@@ -49,6 +49,31 @@ export type FiberGuideEntry = {
   madeImage?: { src: string; alt: string; caption?: string };
   /** The grades section: prose intro + provenance chips. */
   grades?: { intro: string; marks: string[] };
+  /**
+   * The "top tier" section: presents a higher certified grade of this same
+   * fiber as its cleanest form, rendered as a distinct elevated block on the
+   * parent fiber's page (regenerative organic on the organic cotton page).
+   * Only set where a real top tier exists, so the section renders by presence.
+   */
+  topTier?: {
+    /** Eyebrow (default "The top tier"). */
+    eyebrow?: string;
+    /** Section headline, e.g. "Regenerative organic". */
+    name: string;
+    /** Lead sentence, then the body paragraphs. */
+    dek: string;
+    body: string[];
+    /** Named sub-levels of this tier (e.g. ROC Bronze/Silver/Gold), each with a
+     *  short blurb and a small accent-dot color. Rendered as labeled rows. */
+    levels?: { name: string; blurb: string; accent: string }[];
+    /** Certification slugs to show as logo badges (must match CERTIFICATIONS),
+     *  linked to /guide/certifications#<slug>, same as the lookFor certs. */
+    certs?: string[];
+    /** /shop?fiber= value for the "shop the tier" CTA. */
+    shopFilter?: string;
+    /** Journal slug for the deeper comparison link. */
+    articleSlug?: string;
+  };
   /** Paragraphs for the health section lead (overrides healthStory when present). */
   healthImpacts?: string[];
   /** The "what it does for your skin" list. */
@@ -389,25 +414,6 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
       { title: "OEKO-TEX vs GOTS: Which Certification Keeps You Safe?", publisher: "Orbasics", url: "https://orbasics.com/blogs/stories/oeko-tex-vs-gots" },
       { title: "The Deadly Chemicals in Cotton", publisher: "Environmental Justice Foundation", url: "https://ejfoundation.org/resources/downloads/the_deadly_chemicals_in_cotton.pdf" },
       { title: "The Life Cycle Assessment of Organic Cotton Fiber", publisher: "Textile Exchange", url: "https://textileexchange.org/knowledge-center/reports/cotton-life-cycle-assessment/" },
-    ],
-  },
-  {
-    slug: "regenerative_organic_cotton",
-    name: "Regenerative Organic Cotton",
-    natural: true,
-    whatItIs:
-      "Regenerative organic cotton is organic cotton grown on farms that also rebuild the soil. It starts from the organic rules, so no man-made bug sprays or fertilizers, then goes further by farming in a way that stores carbon and brings the land back to life.",
-    healthStory:
-      "For your skin, the part that counts is the *organic* part. Because the fiber starts certified organic, it carries the same low-residue, no-synthetic-pesticide story as organic cotton, which is the cleanest base a cotton can have. The label to trust is *Regenerative Organic Certified* (ROC): it requires organic first, then adds soil, animal, and farmer standards on top. One trap to know: the word *regenerative* on its own is not a promise. Without the organic part, regenerative farming is allowed to phase synthetic chemicals out slowly rather than ban them, so a plain *regenerative* tag can still mean sprayed cotton.",
-    whatToLookFor:
-      "Look for the full *Regenerative Organic Certified* mark, or a GOTS label next to the regenerative claim. Treat the word *regenerative* by itself, with no organic certification, as a marketing word rather than a health promise.",
-    environment:
-      "This is cotton at its most repairing. It skips the synthetic chemicals and farms to store carbon and rebuild soil instead of stripping it.",
-    shopFilter: "regenerative organic cotton",
-    sources: [
-      { title: "What is Regenerative Organic Certified and how is it different from USDA Certified Organic?", publisher: "Patagonia", url: "https://help.patagonia.com/s/article/What-is-Regenerative-Organic-Certified-and-how-is-it-different-from-USDA-Certified-Organic" },
-      { title: "Regenerative Organic Certified", publisher: "CCOF", url: "https://www.ccof.org/organic-certification-services/regenerative-organic-certified/" },
-      { title: "Regenerative Cotton vs Organic Cotton: Key Differences for Brands", publisher: "Regenerative Cotton Standard", url: "https://regenerative-cotton.org/media-room/regenerative-cotton-vs-organic-cotton-key-differences-for-brands" },
     ],
   },
   {

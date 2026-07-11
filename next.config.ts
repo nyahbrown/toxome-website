@@ -9,6 +9,10 @@ const nextConfig: NextConfig = {
       { source: "/privacy-policy", destination: "/privacy", permanent: true },
       // Elastane and spandex are the same fiber; merged into one page at /guide/elastane.
       { source: "/guide/spandex", destination: "/guide/elastane", permanent: true },
+      // Regenerative organic is the top tier of the same fiber; folded into the
+      // organic cotton page so the ranking signal consolidates instead of two
+      // near-duplicate cotton pages competing.
+      { source: "/guide/regenerative_organic_cotton", destination: "/guide/organic_cotton#top-tier", permanent: true },
       // The old /compare/* fiber-comparison pages were retired and their content
       // moved into Journal articles. 301 the URLs Google still has indexed so the
       // ranking signal (modal-vs-viscose pulled 100+ impressions) is reclaimed

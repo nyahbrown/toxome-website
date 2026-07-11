@@ -113,6 +113,26 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
         "Turkish organic cotton"
       ]
     },
+    "topTier": {
+      "eyebrow": "The top tier",
+      "name": "Regenerative organic",
+      "dek": "The cleanest cotton there is starts here: certified organic, then farmed to rebuild the soil it grows in.",
+      "body": [
+        "Regenerative organic cotton starts where organic cotton does: non-GMO seed, no synthetic pesticides or fertilizers. That shared floor decides the fiber against your skin, so for wearer health the two land in the same place. Regenerative farming adds its work upstream, in the ground and the people: cover cropping, no-till planting, crop rotation, and composting that pull carbon down into the topsoil and bring the land back to life instead of mining it season after season.",
+        "The mark to trust is *Regenerative Organic Certified* (ROC), created in 2017 by the Rodale Institute, Patagonia, and Dr. Bronner's. It requires organic certification as the floor, then audits soil health, animal welfare, and fair labor on top, awarded at three levels set by how much of the farm qualifies.",
+        "The trap is the word *regenerative* on its own. With no organic certification attached, regenerative standards let farms phase synthetic chemicals out slowly rather than ban them, so a bare 'regenerative cotton' tag can still mean a sprayed crop. Look for the full ROC mark, or a GOTS label alongside the regenerative claim. The premium buys soil and farmer impact, not a cleaner fiber against your skin."
+      ],
+      "certs": [
+        "regenerative-organic-certified"
+      ],
+      "levels": [
+        { "name": "Bronze", "accent": "#A97C50", "blurb": "Starts at 10% of the farm's land or revenue, climbing to at least 50% by year five." },
+        { "name": "Silver", "accent": "#9AA0A6", "blurb": "50 to 75% of the farm certified." },
+        { "name": "Gold", "accent": "#C0A02E", "blurb": "The whole operation certified, the highest level." }
+      ],
+      "shopFilter": "regenerative organic cotton",
+      "articleSlug": "regenerative-cotton-vs-organic-cotton"
+    },
     "healthImpacts": [
       "Regular cotton is not the harmless choice you may assume. Lab tests on conventional cotton fabric have found leftover pesticide residue, some of which survives repeated washes and sits against your skin. Organic cotton is grown without those synthetic pesticides in the first place, so there is far less to find.",
       "The bigger residue risk with any cotton, organic or not, is added at finishing: *formaldehyde* resins for wrinkle resistance, linked to skin irritation, allergic reactions, and cancer. The word *organic* alone controls none of that. Only a real GOTS label bans it through the whole chain, so an *organic* garment without GOTS can still be dyed and finished the conventional way."
@@ -138,7 +158,8 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
     "certs": [
       "gots",
       "oeko-tex-standard-100",
-      "usda-organic"
+      "usda-organic",
+      "regenerative-organic-certified"
     ],
     "avoid": [
       "'organic' with no gots or oeko-tex backup",
@@ -180,86 +201,6 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
       {
         "q": "Is organic cotton better than regular cotton?",
         "a": "For wearer health, yes. Organic cotton scores 92 to conventional cotton's 84, mainly by skipping synthetic pesticide residue and, under GOTS, controlling the finishing chemistry too."
-      }
-    ]
-  },
-  "regenerative_organic_cotton": {
-    "dek": "Organic cotton's top tier: the same low-residue fiber, certified to rebuild the soil it grows in instead of stripping it.",
-    "history": "The *Regenerative Organic Certified* (ROC) standard was created in 2017 by the Regenerative Organic Alliance, a coalition led by the Rodale Institute, Patagonia, and Dr. Bronner's. It was built as organic farming's next tier: certified organic is the required floor, and soil health, animal welfare, and fair-labor standards are audited on top of it.",
-    "madeStory": [
-      "Regenerative organic cotton starts exactly where organic cotton does: non-GMO seed, and no synthetic pesticides, herbicides, or fertilizers. That is the floor, and it is what decides the fiber against your skin.",
-      "From there, the farm goes further into the ground it works. Cover cropping, no-till planting, crop rotation, and composting rebuild topsoil and pull carbon down into it, rather than mining the land season after season. ROC audits those practices alongside animal welfare and farmer pay, so the certification covers the soil and the people, not the cotton chemistry alone.",
-      "None of that soil and carbon work changes what touches you. The health case rests entirely on the certified-organic fiber underneath. The trap is the word *regenerative* used by itself: with no organic certification attached, regenerative standards allow synthetic chemicals to be phased down slowly rather than banned, so an uncertified 'regenerative cotton' tag can still mean a sprayed crop."
-    ],
-    "grades": {
-      "intro": "*Regenerative Organic Certified* is awarded at three levels, Bronze, Silver, and Gold, set by how much of a farm meets the standard. Bronze starts at 10 percent of land or revenue and climbs to at least 50 percent by year five; Silver runs from 50 to 75 percent; Gold is the top, with the whole operation certified. All three require organic certification as the floor, so all three carry the same low-residue fiber. The level tells you how far the farm has gone, not how clean the cotton against your skin is.",
-      "marks": [
-        "Bronze",
-        "Silver",
-        "Gold"
-      ]
-    },
-    "healthImpacts": [
-      "For your skin, the part that counts is the *organic* underneath the regenerative claim. Because the fiber starts certified organic, it carries the same low-pesticide-residue story as organic cotton, the cleanest base a cotton fiber can have.",
-      "The one real trap is a bare *regenerative* claim with no organic certification attached. Regenerative standards on their own allow synthetic chemicals to be phased out gradually rather than banned outright, so an uncertified 'regenerative cotton' tag can still mean a sprayed crop. Look for the full ROC mark, or GOTS alongside the regenerative claim, before you trust it."
-    ],
-    "benefits": [
-      {
-        "title": "Cleanest cotton tier",
-        "body": "Requires organic certification as a baseline, so it carries the lowest pesticide residue of any cotton class."
-      },
-      {
-        "title": "No synthetic inputs",
-        "body": "ROC bans synthetic pesticides, herbicides, and fertilizers at the farm level, the same as organic, with independent audits layered on top."
-      },
-      {
-        "title": "Soft, breathable cotton",
-        "body": "Feels and wears like any quality organic cotton; the soil and carbon work happens upstream, not in the hand-feel."
-      }
-    ],
-    "certs": [
-      "regenerative-organic-certified",
-      "gots"
-    ],
-    "avoid": [
-      "'regenerative' with no organic certification",
-      "unverified regenerative marketing"
-    ],
-    "scoredNote": "Regenerative organic cotton starts from the same certified-organic floor as organic cotton, so its hazard base is as low as cotton gets, and it lands at the cleanest tier of any cotton we score, 96. The soil and carbon practices layered on top do not move the number further; the health case rests on the organic certification underneath.",
-    "care": [
-      {
-        "k": "Wash",
-        "v": "Cool to warm, gentle cycle, mild detergent, no chlorine bleach."
-      },
-      {
-        "k": "Dry",
-        "v": "Tumble dry low or line dry to avoid shrinking and make it last."
-      },
-      {
-        "k": "Iron",
-        "v": "Medium-high heat, inside out if dyed, to protect the color."
-      },
-      {
-        "k": "Store",
-        "v": "Fold clean and fully dry; damp cotton left folded is how mildew starts."
-      }
-    ],
-    "faq": [
-      {
-        "q": "Is regenerative organic cotton better than organic cotton?",
-        "a": "For your skin specifically, they land in the same place, since both require the same organic, no-synthetic-pesticide floor. Regenerative organic adds soil health, carbon storage, and farmer standards on top, which matter more for the planet and the farm than for what touches your skin."
-      },
-      {
-        "q": "Is 'regenerative cotton' the same as 'regenerative organic cotton'?",
-        "a": "No, and the difference matters. Regenerative organic requires certified-organic farming as the floor. Plain 'regenerative cotton,' without the organic certification, is allowed to phase out synthetic chemicals gradually rather than ban them, so it can still be a sprayed crop wearing a green-sounding label."
-      },
-      {
-        "q": "What does Regenerative Organic Certified (ROC) mean?",
-        "a": "It is a third-party standard created in 2017 by the Regenerative Organic Alliance (the Rodale Institute, Patagonia, and Dr. Bronner's). It requires organic certification first, then audits soil health, animal welfare, and fair labor on top of it, at three levels: Bronze, Silver, and Gold."
-      },
-      {
-        "q": "Is regenerative organic cotton worth paying more for?",
-        "a": "For wearer health, you are paying for the organic certification underneath it, which lowers pesticide residue the same way plain organic cotton does. The regenerative premium mostly buys soil and farmer impact, not a cleaner fiber against your skin."
       }
     ]
   },
