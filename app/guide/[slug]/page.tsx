@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import RichText from "@/components/RichText";
 import JsonLd from "@/components/JsonLd";
 import AnimationProvider from "@/components/AnimationProvider";
+import CountUp from "@/components/CountUp";
 import MiniProductCard from "@/components/MiniProductCard";
 import FaqAccordion from "@/app/verify/FaqAccordion";
 import CertBadge from "@/components/CertBadge";
@@ -230,6 +231,8 @@ export default async function FiberGuidePage({
   const hasGrades = !!f.grades;
   const hasCare = !!f.care?.length;
   const hasChips = !!f.lookFor?.length;
+  const hasEnviro = !!f.enviroStats?.length;
+  const hasEthics = !!f.ethics;
 
   // Visible FAQ = explicit list, else the auto-generated Q&As. The SAME array
   // feeds the accordion and the FAQPage schema so they can never drift. Answers
@@ -318,6 +321,36 @@ export default async function FiberGuidePage({
           </div>
         </header>
 
+        {/* HERO STAT — the one hand-picked, animated number that leads the
+            page. Editorial per fiber (hemp: its environmental superpower). */}
+        {f.heroStat && (
+          <section className="gp-statband" aria-label="Key statistic">
+            <div className="gp-statband-inner">
+              <div className="gp-statband-num">
+                {f.heroStat.display ? (
+                  f.heroStat.display
+                ) : (
+                  <CountUp
+                    value={f.heroStat.value}
+                    decimals={f.heroStat.decimals}
+                    prefix={f.heroStat.prefix}
+                    suffix={f.heroStat.suffix}
+                  />
+                )}
+                {f.heroStat.unit && (
+                  <span className="gp-statband-unit">{f.heroStat.unit}</span>
+                )}
+              </div>
+              <div className="gp-statband-copy">
+                <div className="gp-statband-label">{f.heroStat.label}</div>
+                {f.heroStat.sub && (
+                  <p className="gp-statband-sub">{f.heroStat.sub}</p>
+                )}
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* BODY — sticky split */}
         <div className="gp-body">
           <div className="gp-wrap">
@@ -388,6 +421,8 @@ export default async function FiberGuidePage({
                   {hasMade && <a href="#made">how it&rsquo;s made</a>}
                   {hasGrades && <a href="#grades">grades</a>}
                   <a href="#health">health impacts</a>
+                  {hasEnviro && <a href="#environment">environmental impact</a>}
+                  {hasEthics && <a href="#ethics">ethics &amp; labor</a>}
                   {hasCare && <a href="#care">how to care for it</a>}
                   <a href="#shop">{shopNavLabel}</a>
                   <a href="#faq">questions</a>
@@ -559,6 +594,78 @@ export default async function FiberGuidePage({
                     </div>
                   )}
                 </section>
+
+                {/* ENVIRONMENTAL IMPACT — standardized comparable tiles, each
+                    number animated on scroll. Kept visually separate from the
+                    wearer-health score above (different axis). */}
+                {hasEnviro && (
+                  <section className="gp-sec reveal" id="environment">
+                    <div className="eyebrow gp-kick">Environmental impact</div>
+                    <h2>How {lower} affects the planet</h2>
+                    {(f.enviroStory ?? []).map((para, i) => (
+                      <p className="gp-prose" key={i}>
+                        <RichText text={para} />
+                      </p>
+                    ))}
+                    <div className="gp-enviro">
+                      {f.enviroStats!.map((s) => (
+                        <div className="gp-envtile" key={s.label}>
+                          <div className="gp-envlabel">{s.label}</div>
+                          <div className="gp-envnum">
+                            {typeof s.value === "number" ? (
+                              <CountUp
+                                value={s.value}
+                                decimals={s.decimals}
+                                prefix={s.prefix}
+                                suffix={s.suffix}
+                              />
+                            ) : (
+                              s.value
+                            )}
+                            {s.unit && (
+                              <span className="gp-envunit">{s.unit}</span>
+                            )}
+                          </div>
+                          {s.compare && (
+                            <div className="gp-envcompare">vs {s.compare}</div>
+                          )}
+                          {s.note && <p className="gp-envnote">{s.note}</p>}
+                        </div>
+                      ))}
+                    </div>
+                    <p className="gp-envfine">
+                      Environmental figures are separate from the health score
+                      above, which reflects wearer health only. Numbers are
+                      per kilogram of finished fiber and rounded; see sources.
+                    </p>
+                  </section>
+                )}
+
+                {/* ETHICS & LABOR — only rendered for fibers with a real story. */}
+                {hasEthics && (
+                  <section className="gp-sec reveal" id="ethics">
+                    <div className="eyebrow gp-kick">Ethics &amp; labor</div>
+                    <h2>{f.ethics!.title ?? `Who makes ${lower}`}</h2>
+                    {f.ethics!.flags?.length ? (
+                      <div className="gp-chipgroup">
+                        {f.ethics!.flags.map((m) => (
+                          <span className="gp-pill" key={m}>
+                            {m}
+                          </span>
+                        ))}
+                      </div>
+                    ) : null}
+                    {f.ethics!.body.map((para, i) => (
+                      <p
+                        className="gp-prose"
+                        key={i}
+                        style={i === 0 && f.ethics!.flags?.length ? { marginTop: 18 } : undefined}
+                      >
+                        <RichText text={para} />
+                      </p>
+                    ))}
+                  </section>
+                )}
 
                 {/* CARE */}
                 {hasCare && (
@@ -761,6 +868,55 @@ export default async function FiberGuidePage({
         .guide-page .gp-aside { background: var(--tan); border-radius: 14px; padding: 18px 22px; margin: 24px 0; }
         .guide-page .gp-aside p { font-size: 14.5px; color: var(--ink-2); line-height: 1.62; }
         .guide-page .gp-subh { font-size: 14px; font-weight: 600; color: var(--ink); margin: 30px 0 12px; }
+
+        /* HERO STAT band — the animated lead number, on cream below the image */
+        .guide-page .gp-statband { padding: 56px 0 8px; }
+        .guide-page .gp-statband-inner {
+          max-width: 1160px; margin: 0 auto; padding: 0 32px;
+          display: grid; grid-template-columns: auto 1fr; gap: 40px; align-items: center;
+        }
+        .guide-page .gp-statband-num {
+          font-family: var(--sans); font-weight: 600; color: var(--ink);
+          font-size: clamp(64px, 11vw, 132px); line-height: .9; letter-spacing: -.04em;
+          font-variant-numeric: tabular-nums; white-space: nowrap;
+        }
+        .guide-page .gp-statband-unit {
+          font-size: .34em; font-weight: 600; color: var(--ink-2); margin-left: .18em; letter-spacing: -.01em;
+        }
+        .guide-page .gp-statband-copy { max-width: 44ch; }
+        .guide-page .gp-statband-label {
+          font-size: 20px; font-weight: 600; color: var(--ink); line-height: 1.35; letter-spacing: -.01em;
+        }
+        .guide-page .gp-statband-sub {
+          font-size: 15px; color: var(--ink-2); line-height: 1.6; margin-top: 10px;
+        }
+
+        /* ENVIRONMENTAL impact tiles — neutral (no verdict color), animated nums */
+        .guide-page .gp-enviro {
+          display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 26px;
+        }
+        .guide-page .gp-envtile {
+          background: var(--white); border: 1px solid var(--hairline-strong); border-radius: 14px;
+          padding: 20px 18px 18px; display: flex; flex-direction: column;
+          box-shadow: 0 1px 2px rgba(59,60,58,.04), 0 18px 40px -22px rgba(59,60,58,.12);
+        }
+        .guide-page .gp-envlabel {
+          font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase;
+          color: #6B7178; margin-bottom: 12px;
+        }
+        .guide-page .gp-envnum {
+          font-family: var(--sans); font-weight: 600; color: var(--ink);
+          font-size: 32px; line-height: 1; letter-spacing: -.02em; font-variant-numeric: tabular-nums;
+        }
+        .guide-page .gp-envunit { font-size: .5em; font-weight: 600; color: var(--ink-2); margin-left: .16em; }
+        .guide-page .gp-envcompare { font-size: 12.5px; color: #6B7178; margin-top: 8px; }
+        .guide-page .gp-envnote { font-size: 13px; color: var(--ink-2); line-height: 1.55; margin-top: 12px; }
+        .guide-page .gp-envfine { font-size: 12px; color: #6B7178; line-height: 1.6; margin-top: 16px; max-width: 70ch; }
+
+        @media (max-width: 900px) {
+          .guide-page .gp-statband-inner { grid-template-columns: 1fr; gap: 16px; }
+          .guide-page .gp-enviro { grid-template-columns: repeat(2, 1fr); }
+        }
 
         /* benefit list */
         .guide-page .gp-bene { list-style: none; display: grid; gap: 14px; margin: 6px 0 0; padding: 0; }

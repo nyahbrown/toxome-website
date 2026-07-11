@@ -70,6 +70,56 @@ export type FiberGuideEntry = {
   faq?: { q: string; a: string }[];
   /** Hero image path (else default to /fibers/guide/${slug}.jpg). */
   heroImage?: string;
+
+  // ---- Stats + ethics (fiber-guide expansion) ----
+  /**
+   * The one striking, hand-picked number for this fiber, shown as an animated
+   * count-up. Editorial, not formulaic: lead with whatever is most compelling
+   * (hemp -> its environmental superpower, polyester -> "60% of clothing is
+   * now plastic", silk -> "30,000 years worn"). `value` is the number that
+   * ticks up; `display` overrides the rendered figure when it is not a clean
+   * number (e.g. "60%+", "#2"). `sub` is the caption line beneath it.
+   */
+  heroStat?: {
+    value: number;
+    display?: string;
+    decimals?: number;
+    prefix?: string;
+    suffix?: string;
+    unit?: string;
+    label: string;
+    sub?: string;
+  };
+  /**
+   * The standardized comparable tiles shown in the Environmental impact
+   * section. The same four metrics appear on every fiber so linen and
+   * polyester line up: water, carbon, biodegradable, sheds microplastics.
+   * Numeric `value`s tick up; string `value`s ("Yes", "No", "Near-neutral")
+   * render as-is. `compare` holds the fixed villain baseline for this fiber
+   * (conventional cotton for plants, virgin polyester for synthetics).
+   */
+  enviroStats?: {
+    label: string;
+    value: number | string;
+    decimals?: number;
+    prefix?: string;
+    suffix?: string;
+    unit?: string;
+    compare?: string;
+    note?: string;
+  }[];
+  /** Lead sentence(s) for the Environmental impact section prose. */
+  enviroStory?: string[];
+  /**
+   * Ethics + fair-labor block. Only present on fibers with a real story
+   * (cotton forced labor, viscose worker harm, leather tanneries, mulesing).
+   * Absent = the section does not render, by design.
+   */
+  ethics?: {
+    title?: string;
+    body: string[];
+    flags?: string[];
+  };
 };
 
 export const FIBER_GUIDE: FiberGuideEntry[] = [
@@ -87,10 +137,51 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     environment:
       "Hemp grows with little water and few bug sprays, and the undyed fiber breaks down naturally.",
     shopFilter: "hemp",
+    dek: "One of the most efficient fibers on earth. It grows fast, drinks little, and leaves the soil better than it found it.",
+    heroStat: {
+      value: 15,
+      unit: "tonnes",
+      label: "of CO₂ an acre of hemp pulls from the air as it grows",
+      sub: "A fast-growing hemp crop absorbs carbon at a rate on par with young woodland, before a single thread is spun.",
+    },
+    enviroStory: [
+      "Hemp earns its “miracle plant” reputation in the field. It reaches harvest in about 100 days, needs little irrigation because its deep roots reach water most crops cannot, and grows densely enough to shade out weeds without heavy herbicide use. The same acre yields far more usable fiber than cotton.",
+      "The honest caveat is processing. Turning the stalk into a soft fiber can be done mechanically, which keeps it clean, or with chemical softening, which does not. And like any fabric, an undyed hemp with a low-impact finish is far gentler on the planet than a heavily dyed one.",
+    ],
+    enviroStats: [
+      {
+        label: "Water use",
+        value: 2300,
+        unit: "L/kg",
+        compare: "conventional cotton: ~10,000 L/kg",
+        note: "Mostly rain-fed. Hemp’s deep roots pull moisture from soil cotton cannot reach.",
+      },
+      {
+        label: "Carbon",
+        value: "Near-neutral",
+        compare: "conventional cotton: a net emitter",
+        note: "The growing plant absorbs roughly 1.6 tonnes of CO₂ per tonne of fiber, offsetting most of what processing emits.",
+      },
+      {
+        label: "Biodegradable",
+        value: "Yes",
+        compare: "polyester: no, sheds for centuries",
+        note: "Undyed hemp breaks down in soil. Dyes and coatings are what slow it down.",
+      },
+      {
+        label: "Sheds plastic microfibers",
+        value: "No",
+        compare: "polyester: yes, with every wash",
+        note: "Hemp is a plant fiber, so it does not shed plastic into water or air.",
+      },
+    ],
     sources: [
       { title: "What chemicals are in Textiles and the Health Implications", publisher: "Allergy Standards", url: "https://www.allergystandards.com/news_events/chemicals-in-textiles-and-the-health-implications/" },
       { title: "Is Formaldehyde in Clothing Dangerous?", publisher: "Kherkher Garcia", url: "https://www.kherkhergarcia.com/formaldehyde-in-clothing-dangerous/" },
       { title: "OEKO-TEX STANDARD 100 Factsheet", publisher: "OEKO-TEX", url: "https://www.oeko-tex.com/fileadmin/user_upload/Marketing_Materialien/STANDARD_100/Factsheet/STANDARD_100/OEKO-TEX_STANDARD_100_Factsheet_EN.pdf" },
+      { title: "A comparative life cycle assessment of textile fiber production processes: Hemp versus cotton", publisher: "Sustainable Manufacturing and Service Economics (ScienceDirect)", url: "https://www.sciencedirect.com/science/article/pii/S2772912525000752" },
+      { title: "Comparative study of water requirements and water footprints of fibre crops hemp and cotton", publisher: "ResearchGate", url: "https://www.researchgate.net/publication/373573092_Comparative_study_of_water_requirements_and_water_footprints_of_fibre_crops_hemp_Cannabis_sativa_and_cotton_Gossypium_hirsutum_L" },
+      { title: "Industrial Hemp: A review of economic potential, carbon sequestration and bioremediation", publisher: "Portland State University", url: "https://www.pdx.edu/sustainability/sites/sustainability.web.wdt.pdx.edu/files/2022-09/Industrial%20Hemp%20-%20A%20review%20of%20economic%20potential%20carbon%20sequetration%20and%20bioremediation%20ver16%20August18%202022.pdf" },
     ],
   },
   {
