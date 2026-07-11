@@ -45,6 +45,14 @@ const VERDICT: Record<FiberBand, string> = {
   high: "Worth avoiding",
 };
 
+// Meta-description tail by band. Answer-first, verdict + a nudge to click, so
+// the "is X toxic" searcher sees the payoff in the SERP snippet.
+const DESC_CLAUSE: Record<FiberBand, string> = {
+  low: "One of the gentler fibers to wear, as long as the finish is clean.",
+  moderate: "Fine to wear, but the label is what decides. See what to check.",
+  high: "The real risk is what gets added to it. See what to avoid.",
+};
+
 // Rail lead line. Falls back to a band-appropriate summary so all 28 fibers get
 // a sensible sentence without per-fiber copy.
 const RAIL_LEAD: Record<FiberBand, string> = {
@@ -115,9 +123,12 @@ export async function generateMetadata({
   ];
   const title = candidates.find((t) => t.length <= 60) ?? candidates[2];
 
-  const lead = fiber.healthImpacts?.[0] ?? fiber.healthStory;
+  // Answer-first, query-matched description. Leads with the exact question
+  // people search ("is X toxic"), gives the score, then the band verdict and a
+  // reason to click. Higher CTR than a raw first sentence of body copy.
+  const lower = fiber.sentenceName ?? name.toLowerCase();
   const desc = plain(
-    `${name} scores ${score}/100 for wearer health. ${lead}`
+    `Is ${lower} toxic? ${name} scores ${score}/100 for wearer health. ${DESC_CLAUSE[fiber.band]}`
   ).slice(0, 158);
 
   return {
@@ -238,7 +249,7 @@ export default async function FiberGuidePage({
   // are stripped of emphasis asterisks for plain rendering.
   const faqItems = (
     f.faq ?? [
-      { q: `Is ${lower} toxic to wear?`, a: f.healthStory },
+      { q: `Is ${lower} toxic or bad for your skin?`, a: f.healthStory },
       { q: `What should you look for when buying ${lower}?`, a: f.whatToLookFor },
       { q: `Is ${lower} better for the environment?`, a: f.environment },
     ]
