@@ -7,6 +7,8 @@ const nextConfig: NextConfig = {
     return [
       { source: "/privacypolicy", destination: "/privacy", permanent: true },
       { source: "/privacy-policy", destination: "/privacy", permanent: true },
+      // Elastane and spandex are the same fiber; merged into one page at /guide/elastane.
+      { source: "/guide/spandex", destination: "/guide/elastane", permanent: true },
       // The old /compare/* fiber-comparison pages were retired and their content
       // moved into Journal articles. 301 the URLs Google still has indexed so the
       // ranking signal (modal-vs-viscose pulled 100+ impressions) is reclaimed

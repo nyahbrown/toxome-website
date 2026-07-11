@@ -1011,25 +1011,6 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
 
   // ---- Synthetics + high-hazard ----
   {
-    slug: "spandex",
-    name: "Spandex",
-    natural: false,
-    whatItIs:
-      "Spandex is a stretchy plastic fiber. It is made by linking chemical chains together, and one of the building blocks used to make it can irritate skin and lungs before it is locked into place. Once the fiber is finished, that building block is mostly used up. But leftover bits of dye, softeners, and other processing chemicals can still hang around in the yarn.",
-    healthStory:
-      "You almost never wear spandex by itself. It gets blended into leggings, sports bras, and shapewear that hug your skin while you sweat. That matters, because testing keeps finding *BPA* in spandex blends. BPA is an *endocrine disruptor*, which means it can mess with your hormones. One watchdog study found BPA in polyester-spandex workout clothes at up to 40 times California's safe limit. These same tight clothes can also carry water-repellent *PFAS* coatings and other leftover chemicals. The snug fit traps heat and sweat against you, which makes your skin more irritated and helps those chemicals move onto your body. Spandex is not the worst fiber on its own. But it is the one that keeps risky chemistry pressed close to your skin.",
-    whatToLookFor:
-      "Pick stretchy clothes with an OEKO-TEX STANDARD 100 label. It bans added PFAS and limits BPA and *phthalates* (more hormone-messing chemicals). And keep the spandex small: choose natural-fiber pieces with just a little stretch instead of all-synthetic blends.",
-    environment:
-      "Spandex comes from fossil fuels, never breaks down in nature, and makes the clothes it is blended into nearly impossible to recycle.",
-    shopFilter: null,
-    sources: [
-      { title: "Immune sensitization to MDI resulting from skin exposure", publisher: "NCBI / PMC", url: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3068988/" },
-      { title: "Is Recycled Polyester Safe? BPA & Antimony Risks", publisher: "Estroni", url: "https://estroni.com.au/pages/is-recycled-polyester-safe-the-hidden-bpa-antimony-risk-in-eco-activewear" },
-      { title: "OEKO-TEX General Ban on PFAS", publisher: "Hohenstein / OEKO-TEX", url: "https://www.hohenstein.us/en-us/oeko-tex/restrictions-and-testing/pfas" },
-    ],
-  },
-  {
     slug: "elastane",
     name: "Elastane",
     natural: false,
@@ -1061,6 +1042,15 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     environment:
       "Chrome tanning creates wastewater full of chromium, while vegetable tanning cuts that toxic runoff by up to about 80 percent.",
     shopFilter: null,
+    madeStory: [
+      "Leather starts as raw animal hide, mostly a byproduct of the meat industry. Left alone, a hide rots. Tanning is the step that stops it, turning skin into a material that lasts for decades. How a tannery does that decides most of leather's health story.",
+      "Most leather today is *chrome-tanned*, soaked in chromium salts that tan a hide in about a day and give it that soft, even feel. It is fast and cheap, and it is where leather's chromium risk begins. The older way, *vegetable tanning*, draws tannins from tree bark and leaves. It takes weeks and skips the chromium entirely. Traditional open-air tanneries, like the ones in Fez, still work the hides in stone pits and dry them in the sun.",
+    ],
+    madeImage: {
+      src: "/fibers/leather/tannery.jpg",
+      alt: "A worker smoothing a dyed hide out to dry at an open-air tannery",
+      caption: "Hides dyed and dried in the sun at a traditional tannery.",
+    },
     sources: [
       { title: "High release of hexavalent chromium into artificial sweat from leather shoes", publisher: "Contact Dermatitis (Wiley)", url: "https://onlinelibrary.wiley.com/doi/10.1111/cod.13425" },
       { title: "Annex XV restriction report: chromium VI in leather articles", publisher: "ECHA", url: "https://echa.europa.eu/documents/10162/17233/restriction_report_cr_vi_en.pdf" },
@@ -1211,7 +1201,6 @@ const SEMI_SYNTHETIC = new Set([
   "bamboo",
 ]);
 const SYNTHETIC = new Set([
-  "spandex",
   "elastane",
   "nylon",
   "polyester",

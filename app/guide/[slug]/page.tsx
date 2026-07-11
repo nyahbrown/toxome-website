@@ -80,7 +80,6 @@ const ALT_FIBERS: Record<
   acrylic: { names: ["cashmere", "merino wool"], filters: ["cashmere", "merino wool"], slugs: ["cashmere", "merino_wool"] },
   polyester: { names: ["organic cotton", "TENCEL lyocell"], filters: ["organic cotton", "tencel", "linen"], slugs: ["organic_cotton", "tencel_lyocell", "linen"] },
   nylon: { names: ["merino wool", "organic cotton"], filters: ["merino wool", "organic cotton"], slugs: ["merino_wool", "organic_cotton"] },
-  spandex: { names: ["organic cotton", "TENCEL lyocell"], filters: ["organic cotton", "tencel"], slugs: ["organic_cotton", "tencel_lyocell"] },
   elastane: { names: ["organic cotton", "TENCEL lyocell"], filters: ["organic cotton", "tencel"], slugs: ["organic_cotton", "tencel_lyocell"] },
   polyurethane: { names: ["vegetable-tanned leather"], filters: [], slugs: ["leather"] },
 };
