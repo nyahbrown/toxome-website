@@ -639,6 +639,46 @@ button { font-family: inherit; }
    grid (<=640px) the two pills would collide, so it restacks above the score
    badge on the bottom-left. */
 .card-verified-badge { position: absolute; bottom: 14px; right: 14px; }
+
+/* Certification logo circles — stacked down the right edge, vertically centered
+   like an editorial "featured in" rail. Large on desktop; scaled down on phones
+   (2-up grid) so they never crowd the smaller card. */
+.card-cert-stack {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  transform: translateY(-50%);
+  transform-origin: right center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  pointer-events: none;
+}
+.card-cert-stack__more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 999px;
+  background: var(--white);
+  box-shadow: inset 0 0 0 1px var(--hairline-strong),
+    0 4px 14px -8px rgba(44, 36, 32, 0.25);
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+}
+@media (max-width: 640px) {
+  /* Phone 2-up cards are ~half width — scale the whole rail down and pin it to
+     the right edge so it reads at the smaller size without colliding. */
+  .card-cert-stack {
+    transform: translateY(-50%) scale(0.62);
+    right: 8px;
+    gap: 14px;
+  }
+}
 @media (max-width: 640px) {
   .card-verified-badge { bottom: 48px; left: 14px; right: auto; }
 }

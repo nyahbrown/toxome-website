@@ -10,10 +10,15 @@ import { triggerAppPrompt } from "@/components/AppInstallPrompt";
 import FrostedSelect from "@/components/FrostedSelect";
 import WishlistHeart from "@/components/WishlistHeart";
 import ScoreBadge from "@/components/ScoreBadge";
+import CertBadge from "@/components/CertBadge";
 import { normalizeFiber } from "@/lib/fabricScores";
 import { EDITORS_PICKS, isEditorsPick } from "@/lib/editorsPicks";
 import { track } from "@/lib/track";
-import { resolveRung, type VerificationRung } from "@/lib/verification";
+import {
+  resolveRung,
+  healthCertBadge,
+  type VerificationRung,
+} from "@/lib/verification";
 import { KIDS_AGE_BANDS, sizesToBands, type KidsAgeBand } from "@/lib/kidsSizes";
 
 export type ShopSection = "women" | "men" | "kids" | "home" | null;
@@ -149,6 +154,24 @@ function ProductCard({
   const isWishlisted = wishlist.has(p.id);
   const isNew = p.tags?.some((t) => t.toLowerCase() === "new") ?? false;
   const editorsPick = isEditorsPick(p.item_name);
+  // Health/verifying certs only (OEKO-TEX, GOTS, bluesign, …), deduped by slug
+  // so multiple OEKO-TEX variants collapse into one logo. Rendered as circular
+  // logo badges on the card, capped so a heavily-certified piece doesn't overrun.
+  const certBadges = (() => {
+    const seen = new Set<string>();
+    const out: { slug: string; label: string }[] = [];
+    for (const raw of p.certifications ?? []) {
+      const b = healthCertBadge(raw);
+      if (b && !seen.has(b.slug)) {
+        seen.add(b.slug);
+        out.push(b);
+      }
+    }
+    return out;
+  })();
+  const MAX_CERT_BADGES = 3;
+  const shownCerts = certBadges.slice(0, MAX_CERT_BADGES);
+  const extraCerts = certBadges.length - shownCerts.length;
 
   // Resilient image: try item_image, then each gallery image, then a placeholder.
   // Some retailers 404 or hotlink-block their main image; the gallery images are
@@ -272,18 +295,23 @@ function ProductCard({
           </div>
         )}
         {editorsPick ? (
+          // Featured — outlined "Best Seller"-style pill: frosted cream fill so
+          // it reads over any photo, thin ink outline, ink text. No solid accent.
           <span
             style={{
               position: "absolute",
               top: 14,
               left: 14,
-              background: "var(--blue)",
+              background: "rgba(252,251,247,0.82)",
+              backdropFilter: "blur(8px) saturate(150%)",
+              WebkitBackdropFilter: "blur(8px) saturate(150%)",
               color: "var(--ink)",
+              border: "1px solid var(--ink)",
               fontFamily: "var(--sans)",
-              fontSize: 12,
-              fontWeight: 600,
+              fontSize: 12.5,
+              fontWeight: 500,
               letterSpacing: "-0.005em",
-              padding: "4px 12px",
+              padding: "5px 14px",
               borderRadius: 999,
             }}
           >
@@ -324,36 +352,25 @@ function ProductCard({
             overlay
           />
         )}
-        {productRungRank(p) >= 2 && (
-          // Desktop/tablet: bottom-right corner (opposite the score badge).
-          // Phones (<=640px, 2-up grid): the class restacks it above the score
-          // badge on the bottom-left so the two pills never collide. See
-          // .card-verified-badge in globals.css.
-          <span
-            className="card-verified-badge"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 6,
-              fontFamily: "var(--mono)",
-              fontSize: 10,
-              fontWeight: 600,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              color: "var(--ink)",
-              background: "rgba(252,251,247,0.85)",
-              backdropFilter: "blur(8px) saturate(150%)",
-              WebkitBackdropFilter: "blur(8px) saturate(150%)",
-              padding: "4px 10px",
-              borderRadius: 999,
-            }}
-          >
-            <span
-              aria-hidden
-              style={{ width: 6, height: 6, borderRadius: 999, background: "var(--risk-low)" }}
-            />
-            Verified
-          </span>
+        {shownCerts.length > 0 && (
+          // Certification logo circles, stacked down the right edge below the
+          // wishlist heart — each a white logo badge under a "CERTIFIED" eyebrow,
+          // mirroring the editorial "featured in" treatment. These replace the
+          // old "Verified" text pill: the logos are the verification signal.
+          <div className="card-cert-stack" aria-hidden={false}>
+            {shownCerts.map((c) => (
+              <span
+                key={c.slug}
+                title={c.label}
+                style={{ display: "flex" }}
+              >
+                <CertBadge slug={c.slug} name={c.label} size={52} />
+              </span>
+            ))}
+            {extraCerts > 0 && (
+              <span className="card-cert-stack__more">+{extraCerts}</span>
+            )}
+          </div>
         )}
       </div>
 
