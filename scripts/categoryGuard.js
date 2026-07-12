@@ -8,6 +8,16 @@
 
 const HOME_RE =
   /\b(rugs?|towels?|washcloths?|wash cloths?|duvets?|comforters?|coverlets?|quilts?|pillowcases?|pillow shams?|shams?|napkins?|tablecloths?|table runners?|curtains?|bath mats?|crib sheets?|crib skirts?|playard sheets?|playpen sheets?|fitted sheets?|sheet sets?)\b/;
+
+// Home department subcategories (Bedding / Bath / Throws & Blankets / Rugs).
+// Picks the subcategory from the noun so the nav never shows a flat "Home"
+// bucket. Bed pillows fall to Bedding by design.
+function homeSubcategory(name) {
+  if (/\b(rugs?|curtains?)\b/.test(name)) return "Rugs";
+  if (/\b(towels?|washcloths?|wash cloths?|bath mats?|robes?)\b/.test(name)) return "Bath";
+  if (/\b(throws?|blankets?)\b/.test(name)) return "Throws & Blankets";
+  return "Bedding";
+}
 const SET_RE = /\b(set|sets)\b/;
 const PIECE_RE = /\bpiece\b/;
 const BODYSUIT_RE = /\b(bodysuit|bodysuits|onesie|onesies|coverall|coveralls)\b/;
@@ -23,11 +33,12 @@ function guardCategory(input) {
   const age_band = input.age_band == null ? null : input.age_band;
 
   if (HOME_RE.test(name)) {
+    const sub = homeSubcategory(name);
     return {
-      category: "Home",
+      category: sub,
       gender: "Home",
       age_band: null,
-      changed: category !== "Home" || gender !== "Home" || age_band !== null,
+      changed: category !== sub || gender !== "Home" || age_band !== null,
       reason: "home-good",
     };
   }

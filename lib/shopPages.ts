@@ -426,7 +426,7 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
     ],
     section: "home",
     match: (p) =>
-      p.category === "Home" &&
+      p.category === "Bedding" &&
       hasFiber(p, "organic cotton") &&
       /(sheet|duvet|pillow|sham|bedding|comforter|quilt|coverlet|mattress|blanket)/i.test(
         p.item_name

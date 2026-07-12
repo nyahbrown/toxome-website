@@ -11,7 +11,7 @@ const FALLBACK_TAXONOMY: ShopTaxonomy = {
   women: ["Activewear", "Bottoms", "Outerwear", "Tops"],
   men: ["Activewear", "Bottoms", "Outerwear", "Tops"],
   kids: ["Bodysuits & Onesies", "Tops", "Bottoms", "Sleepwear"],
-  home: ["Bedding", "Bath", "Throws & Blankets", "Pillows"],
+  home: ["Bedding", "Throws & Blankets", "Bath", "Rugs"],
 };
 
 function buildShopColumns(taxonomy: ShopTaxonomy) {

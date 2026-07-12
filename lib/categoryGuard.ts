@@ -30,6 +30,18 @@ export type GuardResult = {
 const HOME_RE =
   /\b(rugs?|towels?|washcloths?|wash cloths?|duvets?|comforters?|coverlets?|quilts?|pillowcases?|pillow shams?|shams?|napkins?|tablecloths?|table runners?|curtains?|bath mats?|crib sheets?|crib skirts?|playard sheets?|playpen sheets?|fitted sheets?|sheet sets?)\b/;
 
+// Home department has real subcategories (Bedding / Bath / Throws & Blankets /
+// Rugs), mirroring apparel. This picks the subcategory from the noun so the nav
+// never shows a flat "Home" bucket again. Order matters: check the specific
+// buckets first, default the rest (sheets, duvets, shams, pillowcases, quilts,
+// mattress pads, bed pillows) to Bedding. Bed pillows live in Bedding by design.
+function homeSubcategory(name: string): string {
+  if (/\b(rugs?|curtains?)\b/.test(name)) return "Rugs";
+  if (/\b(towels?|washcloths?|wash cloths?|bath mats?|robes?)\b/.test(name)) return "Bath";
+  if (/\b(throws?|blankets?)\b/.test(name)) return "Throws & Blankets";
+  return "Bedding";
+}
+
 // Multi-piece signals (kids): a set is never a single garment category.
 const SET_RE = /\b(set|sets)\b/;
 const PIECE_RE = /\bpiece\b/;
@@ -43,14 +55,15 @@ export function guardCategory(input: GuardInput): GuardResult {
   const gender = input.gender;
   const age_band = input.age_band ?? null;
 
-  // 1) Home goods mis-filed as apparel — force the Home department + category,
-  //    and clear any age band that an apparel mis-tag left behind.
+  // 1) Home goods mis-filed as apparel — force the Home department + its real
+  //    subcategory, and clear any age band that an apparel mis-tag left behind.
   if (HOME_RE.test(name)) {
+    const sub = homeSubcategory(name);
     return {
-      category: "Home",
+      category: sub,
       gender: "Home",
       age_band: null,
-      changed: category !== "Home" || gender !== "Home" || age_band !== null,
+      changed: category !== sub || gender !== "Home" || age_band !== null,
       reason: "home-good",
     };
   }

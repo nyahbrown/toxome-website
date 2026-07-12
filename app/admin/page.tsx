@@ -1703,7 +1703,7 @@ const CATEGORY_OPTIONS = [
   "Loungewear", "Pajamas", "Intimates", "Undergarments", "Footwear",
   "Accessories",
   // Home department categories (gender = "Home")
-  "Bedding", "Bath", "Throws & Blankets", "Pillows",
+  "Bedding", "Throws & Blankets", "Bath", "Rugs",
   "Other",
 ];
 const GENDER_OPTIONS = ["Women", "Men", "Unisex", "Home"];
