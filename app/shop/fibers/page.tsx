@@ -112,23 +112,24 @@ export default async function FibersHub() {
       <JsonLd data={schema} />
 
       <main className="shell" style={{ padding: "120px 21px 96px" }}>
-        <div className="eyebrow" style={{ color: "var(--ink-3)", marginBottom: 14 }}>
+        <div className="eyebrow" style={{ color: "var(--ink-3)", marginBottom: 14, textAlign: "center" }}>
           Shop by fiber
         </div>
         <h1
           style={{
-            fontFamily: "var(--font-serif)",
+            fontFamily: "var(--sans)",
             fontWeight: 500,
             fontSize: "clamp(34px, 5vw, 56px)",
             lineHeight: 1.05,
             color: "var(--ink)",
-            margin: "0 0 20px",
+            margin: "0 auto 20px",
             maxWidth: 720,
+            textAlign: "center",
           }}
         >
           shop by natural fiber
         </h1>
-        <p style={{ fontSize: 16, lineHeight: 1.6, color: "var(--ink-2)", maxWidth: "60ch", margin: "0 0 56px" }}>
+        <p style={{ fontSize: 16, lineHeight: 1.6, color: "var(--ink-2)", maxWidth: "60ch", margin: "0 auto 56px", textAlign: "center" }}>
           the natural fibers humans have worn for thousands of years, each scored for what it does to
           your body. start with the fiber, then buy the safe one.
         </p>

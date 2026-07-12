@@ -39,7 +39,7 @@ export default async function CollectionsIndex() {
       <JsonLd data={schema} />
 
       <main className="shell" style={{ padding: "120px 21px 96px" }}>
-        <div className="eyebrow" style={{ color: "var(--ink-3)", marginBottom: 14 }}>
+        <div className="eyebrow" style={{ color: "var(--ink-3)", marginBottom: 14, textAlign: "center" }}>
           Shop by collection
         </div>
         <h1
@@ -49,13 +49,14 @@ export default async function CollectionsIndex() {
             fontSize: "clamp(34px, 5vw, 56px)",
             lineHeight: 1.05,
             color: "var(--ink)",
-            margin: "0 0 20px",
+            margin: "0 auto 20px",
             maxWidth: 720,
+            textAlign: "center",
           }}
         >
           the toxome edits
         </h1>
-        <p style={{ fontSize: 16, lineHeight: 1.6, color: "var(--ink-2)", maxWidth: "60ch", margin: "0 0 56px" }}>
+        <p style={{ fontSize: 16, lineHeight: 1.6, color: "var(--ink-2)", maxWidth: "60ch", margin: "0 auto 56px", textAlign: "center" }}>
           every collection is the toxome shop, re-cut by one thing: a fiber, a certification, or a
           category. each piece in them is scored for what it&rsquo;s actually made of.
         </p>
