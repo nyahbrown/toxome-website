@@ -51,9 +51,10 @@ export function resolveFiber(name: string): string | null {
   if (/tencel.*modal|modal.*tencel/.test(k)) return "tencel_modal";
   if (/tencel|lyocell/.test(k)) return "lyocell";
   if (/ecovero/.test(k)) return "ecovero";
-  // Branded closed-loop names must route to their own (cleaner) entries before
-  // the generic substring fallback grabs "viscose"/"modal".
-  if (/lenzing/.test(k) && /viscose/.test(k)) return "lenzing_viscose";
+  // Branded closed-loop MODAL routes to its cleaner entry before the generic
+  // substring fallback grabs "modal". NOTE: "LENZING Plant Viscose" is NOT
+  // ECOVERO and gets no branded credit; it falls through to generic viscose.
+  // Only the spelled-out "ECOVERO" (handled above) earns the 20 tier.
   if (/lenzing/.test(k) && /modal/.test(k)) return "tencel_modal";
   // Lycra / "elastic" are spandex; otherwise they fall to the null→50 default
   // and UNDER-penalize the synthetic.
@@ -207,7 +208,7 @@ export function calcToxomeScore(
 const FIBER_LABELS: Record<string, string> = {
   organic_cotton: "Organic cotton", cotton: "Cotton", linen: "Linen", hemp: "Hemp",
   tencel: "Tencel", lyocell: "Lyocell", saxcell: "SaXcell", tencel_lyocell: "Tencel Lyocell",
-  tencel_modal: "Tencel Modal", ecovero: "LENZING ECOVERO™", lenzing_viscose: "LENZING™ Viscose",
+  tencel_modal: "Tencel Modal", ecovero: "LENZING ECOVERO™",
   lenzing_ecovero: "LENZING ECOVERO™", modal: "Modal", bamboo: "Bamboo", wool: "Wool",
   merino: "Merino wool", alpaca: "Alpaca", cashmere: "Cashmere", mohair: "Mohair", cupro: "Cupro",
   ramie: "Ramie", acetate: "Acetate", leather: "Leather", polyurethane: "Polyurethane", silk: "Silk",

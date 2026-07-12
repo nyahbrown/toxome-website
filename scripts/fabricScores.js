@@ -34,7 +34,8 @@ function resolveFiber(name) {
   if (/ecovero/.test(k)) return "ecovero";
   // Branded closed-loop names must route to their own (cleaner) entries before
   // the generic substring fallback grabs "viscose"/"modal".
-  if (/lenzing/.test(k) && /viscose/.test(k)) return "lenzing_viscose";
+  // "LENZING Plant Viscose" is NOT ECOVERO; it falls through to generic viscose.
+  // Only the spelled-out "ECOVERO" (handled above) earns the 20 tier.
   if (/lenzing/.test(k) && /modal/.test(k)) return "tencel_modal";
   // Lycra / "elastic" are spandex; otherwise they fall to the null→50 default
   // and UNDER-penalize the synthetic.

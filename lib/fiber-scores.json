@@ -23,7 +23,6 @@
     "saxcell": { "default": 12 },
     "ecovero": { "default": 20 },
     "lenzing_ecovero": { "default": 20 },
-    "lenzing_viscose": { "default": 20 },
     "tencel_modal": { "default": 26 },
     "modal": { "default": 30, "floor": 22 },
     "cupro": { "default": 30 },
