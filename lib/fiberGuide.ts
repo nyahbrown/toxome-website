@@ -446,7 +446,7 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     healthStory:
       "This is about as clean as a man-made fiber gets against your skin. The liquid used to make it gets captured, not released, and the finished thread is washed so it carries almost no leftover chemicals. It soaks up moisture and pulls dampness off your skin, so the surface stays drier and bacteria have less to feed on. That helps a lot if you run hot or have easily irritated skin. The fiber is smooth, so it tends to bother skin less than rougher ones. Your real risk is not the fiber. It is what gets added later: dyes and wrinkle-proof or shrink-proof coatings that can leave behind *formaldehyde*, a chemical that can irritate skin. So the label on the finished piece matters more than the fiber name.",
     whatToLookFor:
-      "Look for the brand name *TENCEL* Lyocell. That guarantees the clean closed-loop process. Also look for an OEKO-TEX STANDARD 100 label, which means the finished, dyed piece was tested for formaldehyde, harmful dyes, and other bad stuff.",
+      "Look for the brand name *TENCEL* Lyocell. That guarantees the clean closed-loop process. The *TENCEL* name covers a few versions, all made the same clean way: plain TENCEL Lyocell, TENCEL Luxe (a silkier filament), and TENCEL with *REFIBRA* (which blends in recycled cotton scraps). Any of them is a good sign. Note that TENCEL Modal is a separate, slightly softer fiber with its own page. Also look for an OEKO-TEX STANDARD 100 label, which means the finished, dyed piece was tested for formaldehyde, harmful dyes, and other bad stuff.",
     environment:
       "Reusing the dissolving liquid and sourcing the wood responsibly make it far easier on the planet than regular viscose.",
     shopFilter: "tencel",
@@ -523,7 +523,7 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     healthStory:
       "Be clear here, because the marketing blurs it: this is viscose, not lyocell, so making it really does use *carbon disulfide*, a chemical that is proven to harm factory workers when the fumes are not controlled. But worker safety and your safety are two different things. By the time the washed, finished fiber reaches your skin, it carries basically no carbon disulfide. ECOVERO is also OEKO-TEX STANDARD 100 certified, and it breathes well and soaks up moisture, so it feels soft and cool on your skin. What you pay for is cleaner, traceable production and tested, low-leftover fiber, instead of anonymous viscose where no one answers for worker safety or leftover chemicals.",
     whatToLookFor:
-      "Look for the brand name *LENZING ECOVERO* plus the EU Ecolabel and OEKO-TEX STANDARD 100. Plain unbranded viscose or rayon tells you nothing about how it was made or what is left in it.",
+      "Look for the brand name *LENZING ECOVERO* spelled out in full, plus the EU Ecolabel and OEKO-TEX STANDARD 100. Plain unbranded viscose or rayon tells you nothing about how it was made or what is left in it. Do not trust softer names like *plant viscose* on their own. That phrase is not the same as ECOVERO, and some brands use it for their ordinary viscose while selling real ECOVERO on a separate label. If it does not say *ECOVERO*, treat it as plain viscose.",
     environment:
       "It uses at least 50 percent less water and creates about half the carbon emissions of regular viscose.",
     shopFilter: null,
@@ -802,7 +802,7 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     healthStory:
       "The biggest harm lands on the factory workers. Carbon disulfide is linked to nerve damage, heart disease, and more early deaths among the people who spin it. For you, the wearer, the worry is leftovers: bits of those chemicals, plus dyes and finishes, can stay in the cloth and make sensitive skin itch or break out. Some viscose even gets the same formaldehyde wrinkle-fighting treatment as cotton. On the comfy side, viscose has no plastic in it and breathes better against your skin than fibers made from oil.",
     whatToLookFor:
-      "Pick closed-loop lyocell (like TENCEL) when you can. It is the cleaner version, because it reuses its chemicals and skips the carbon disulfide. Look for OEKO-TEX STANDARD 100 on any viscose you buy, and wash new pieces before wearing.",
+      "Pick closed-loop lyocell (like TENCEL) when you can. It is the cleaner version, because it reuses its chemicals and skips the carbon disulfide. Look for OEKO-TEX STANDARD 100 on any viscose you buy, and wash new pieces before wearing. Watch the wording too: names like *plant viscose* or *plant-based viscose* sound clean but mean nothing on their own. They are still ordinary viscose unless the label spells out *LENZING ECOVERO*, the branded lower-impact kind. Some brands sell both side by side, so read the exact fiber name instead of the marketing.",
     environment:
       "Making regular viscose puts harmful stuff into the air and water, and is often linked to cutting down old, rare forests.",
     shopFilter: "viscose",
