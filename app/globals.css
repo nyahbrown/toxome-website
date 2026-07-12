@@ -640,19 +640,18 @@ button { font-family: inherit; }
    badge on the bottom-left. */
 .card-verified-badge { position: absolute; bottom: 14px; right: 14px; }
 
-/* Certification logo circles — stacked down the right edge, vertically centered
-   like an editorial "featured in" rail. Large on desktop; scaled down on phones
+/* Certification logo circles — stacked directly under the wishlist heart
+   (top:14, 28px tall) and growing downward: one cert sits right below the
+   heart, more spawn beneath it. Large on desktop; scaled down on phones
    (2-up grid) so they never crowd the smaller card. */
 .card-cert-stack {
   position: absolute;
-  top: 50%;
-  right: 16px;
-  transform: translateY(-50%);
-  transform-origin: right center;
+  top: 50px;
+  right: 14px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   pointer-events: none;
 }
 .card-cert-stack__more {
@@ -671,12 +670,14 @@ button { font-family: inherit; }
   color: var(--ink);
 }
 @media (max-width: 640px) {
-  /* Phone 2-up cards are ~half width — scale the whole rail down and pin it to
-     the right edge so it reads at the smaller size without colliding. */
+  /* Phone 2-up cards are ~half width — scale the whole rail down, keeping it
+     anchored under the heart at the top-right. */
   .card-cert-stack {
-    transform: translateY(-50%) scale(0.62);
-    right: 8px;
-    gap: 14px;
+    transform: scale(0.62);
+    transform-origin: top right;
+    top: 44px;
+    right: 10px;
+    gap: 10px;
   }
 }
 @media (max-width: 640px) {
