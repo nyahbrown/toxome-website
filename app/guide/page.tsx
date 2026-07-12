@@ -99,7 +99,7 @@ function FiberTile({
           <h3 className="fiber-tile__name">{fiber.name}</h3>
         </div>
         <div className="fiber-tile__reveal">
-          <p className="fiber-tile__desc">{teaser(fiber.whatItIs)}</p>
+          <p className="fiber-tile__desc">{fiber.summary || teaser(fiber.whatItIs)}</p>
           <span className="fiber-tile__arrow">
             <ArrowIcon />
           </span>

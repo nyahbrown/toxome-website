@@ -1249,9 +1249,55 @@ export type GuideFiber = FiberGuideEntry & {
   band: FiberBand;
   color: string;
   kind: FiberKind;
+  /** One-line plain-language summary, used verbatim as the /guide grid hover
+   *  line and each fiber page's hero subtitle. Sourced from FIBER_SUMMARY. */
+  summary: string;
 };
 
-/** Attach the canonical score, risk band, hazard color, and family to an entry. */
+/**
+ * One concise, honest line per fiber, in the guide voice. Kept in one place so
+ * the /guide grid hover and the fiber-page subtitle can never drift. The ten
+ * natural-fiber lines match the shop-by-fiber hub notes word for word.
+ */
+export const FIBER_SUMMARY: Record<string, string> = {
+  // Natural fibers (identical to the /shop/fibers hub notes)
+  organic_cotton: "grown without synthetic pesticides, a soft, breathable everyday plant fiber.",
+  linen: "flax that breathes, runs cool, and softens with every wash.",
+  hemp: "a durable plant fiber grown with little water and no need for pesticides.",
+  wool: "a natural animal fiber that insulates and resists odor; favor untreated.",
+  merino_wool: "fine enough to feel soft, regulates temperature without synthetic finishes.",
+  silk: "a natural protein fiber that breathes and regulates temperature on its own.",
+  cashmere: "soft goat down that insulates without the plastic of acrylic knits.",
+  alpaca: "no lanolin and a smooth surface, often gentler on skin than sheep wool.",
+  ramie: "a strong, linen-like plant fiber that breathes and resists mildew.",
+  tencel_lyocell: "a clean fiber regenerated from wood in a closed loop that reuses its solvent.",
+
+  // Other natural fibers in the guide
+  cotton: "the soft everyday plant fiber, but conventionally grown with heavy pesticides.",
+  mohair: "a warm, glossy goat fiber; check for animal welfare and no harsh anti-shrink finish.",
+  leather: "animal hide usually tanned with chromium; look for chrome-free or veg-tanned.",
+
+  // Clean regenerated fibers
+  saxcell: "lyocell spun from worn-out cotton instead of fresh wood, in the same closed loop.",
+  ecovero: "a certified, traceable viscose made with far lower emissions than the generic kind.",
+  modal: "a soft wood-based fiber; clean when it's certified lenzing modal, murky when it isn't.",
+  cupro: "a silky fiber regenerated from leftover cotton fuzz; its cleanliness rides on the maker.",
+  acetate: "wood pulp reworked with harsh chemistry into a silky fiber, more processed than lyocell.",
+
+  // Chemically regenerated fibers, only as clean as the process
+  viscose: "a wood-based fiber only as clean as the factory that dissolves the pulp.",
+  rayon: "the umbrella name for wood dissolved and re-spun; the process decides how clean it is.",
+  bamboo: "almost always generic viscose in disguise; the plant is clean, the processing isn't.",
+
+  // Plastics to avoid
+  polyester: "plastic thread, the same resin as water bottles, that sheds microfibers as you wear it.",
+  nylon: "an oil-based plastic fiber that traps heat and sheds microplastics in the wash.",
+  acrylic: "a plastic knit made from acrylonitrile; it pills fast and sheds microplastics.",
+  elastane: "the stretch plastic blended into almost everything, identical to spandex.",
+  polyurethane: "a plastic film or coating, the faux-leather layer laminated onto fabric.",
+};
+
+/** Attach the canonical score, risk band, hazard color, family, and summary. */
 export function withScore(entry: FiberGuideEntry): GuideFiber {
   const score = fiberScore(entry.slug);
   return {
@@ -1260,6 +1306,7 @@ export function withScore(entry: FiberGuideEntry): GuideFiber {
     band: (scoreToRiskLevel(score) ?? "moderate") as FiberBand,
     color: hazardColor(score),
     kind: fiberKind(entry.slug),
+    summary: FIBER_SUMMARY[entry.slug] ?? entry.dek ?? "",
   };
 }
 

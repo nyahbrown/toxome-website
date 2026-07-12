@@ -328,7 +328,7 @@ export default async function FiberGuidePage({
               {KIND_LABEL[f.kind]} fiber · The fabric guide
             </span>
             <h1>{lower}</h1>
-            {f.dek && <p className="gp-dek">{f.dek}</p>}
+            {(f.summary || f.dek) && <p className="gp-dek">{f.summary || f.dek}</p>}
             <span className="gp-chip">
               <span className="gp-dot" style={{ background: f.color }} />
               {f.score} · {VERDICT[f.band]}
