@@ -1034,12 +1034,39 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
       "The down itself is skin-kind. The health question sits in what goes on afterward: dyes, and the anti-moth finish sometimes applied because cashmere is a favorite of clothes moths."
     ],
     "grades": {
-      "intro": "Cashmere grade is a function of *micron count*, *staple length*, and how cleanly the down was pulled from guard hair. Fiber around 14 to 15.5 microns with a long staple is the finest, ultra-soft grade. Most good commercial cashmere runs 15 to 16 microns. Past about 19 microns it turns coarse, and if guard hairs were left in, even a thin average can still prickle.",
-      "marks": [
-        "grade a (14-15.5 microns, long staple)",
-        "grade b/c (16-19 microns)",
-        "dehairing and staple quality"
-      ]
+      "intro": "The real spec is *micron count* (how thin the fiber is) and *staple length* (how long each fiber runs). To be legally called cashmere in the US, it has to average 19 microns or finer, with almost no coarse guard hair left in. The *grade a / b / c* labels are informal marketing, not a standard, and one brand's grade a is another's grade b, so ask for the micron number instead. Finer and longer means softer and slower to pill. And *ply* only counts how many strands are twisted together, so a high ply number describes the knit, not the fiber.",
+      "marks": [],
+      "origins": [
+        {
+          "region": "Kashmir & Ladakh (pashmina)",
+          "micron": "12-16 micron",
+          "lo": 12,
+          "hi": 16,
+          "note": "the finest and rarest, hand-combed from changthangi goats that live above 4,500 meters. it is the one origin with a real legal geographic mark, india's GI tag, which caps it at 16 microns. most *pashmina* sold elsewhere is machine-spun cashmere or a silk blend, so read a pashmina label with suspicion."
+        },
+        {
+          "region": "Inner Mongolia, China",
+          "micron": "14-16.5 micron",
+          "lo": 14,
+          "hi": 16.5,
+          "note": "the white-cashmere benchmark behind most luxury knitwear. long, dry, bitter-cold winters push the goats to grow fine down, and the white fiber takes dye cleanly, which is part of why it commands the premium."
+        },
+        {
+          "region": "Mongolia",
+          "micron": "14-16 micron",
+          "lo": 14,
+          "hi": 16,
+          "note": "the second-largest producer after china, in white and natural brown or grey. fineness is comparable, with a lower yield per goat."
+        },
+        {
+          "region": "Iran & Afghanistan",
+          "micron": "16.8-18.5 micron",
+          "lo": 16.8,
+          "hi": 18.5,
+          "note": "coarser and shorter, mostly grey or brown, so it dyes only to darker shades. the lowest price point on the raw market, and the fiber behind a lot of cheap cashmere."
+        }
+      ],
+      "originsNote": "two labels to read past: white cashmere costs more because it takes color without harsh bleaching, while grey and brown are held to darker shades. and *scottish cashmere* almost always means spun in scotland from mongolian-grown fiber, a mark of the mill, not the origin. china and mongolia together grow roughly 80 to 90 percent of the world's cashmere."
     },
     "healthImpacts": [
       "With cashmere, comfort comes down almost entirely to how well it was sorted, not to anything special about goats over sheep. Fine cashmere down sits below the thickness at which a fiber gets stiff enough to poke the skin's nerve endings, so a well-dehaired piece should not prickle at all.",
@@ -1060,7 +1087,8 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
       }
     ],
     "certs": [
-      "oeko-tex-standard-100"
+      "oeko-tex-standard-100",
+      "the-good-cashmere-standard"
     ],
     "lookFor": [
       "14-16 micron / grade a",

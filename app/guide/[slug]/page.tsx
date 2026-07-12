@@ -7,6 +7,7 @@ import RichText from "@/components/RichText";
 import JsonLd from "@/components/JsonLd";
 import AnimationProvider from "@/components/AnimationProvider";
 import CountUp from "@/components/CountUp";
+import OriginBars from "@/components/OriginBars";
 import MiniProductCard from "@/components/MiniProductCard";
 import FaqAccordion from "@/app/verify/FaqAccordion";
 import CertBadge from "@/components/CertBadge";
@@ -509,13 +510,39 @@ export default async function FiberGuidePage({
                     <p className="gp-prose">
                       <RichText text={f.grades!.intro} />
                     </p>
-                    <div className="gp-chipgroup">
-                      {f.grades!.marks.map((m) => (
-                        <span className="gp-pill" key={m}>
-                          {m}
-                        </span>
-                      ))}
-                    </div>
+                    {f.grades!.marks.length ? (
+                      <div className="gp-chipgroup">
+                        {f.grades!.marks.map((m) => (
+                          <span className="gp-pill" key={m}>
+                            {m}
+                          </span>
+                        ))}
+                      </div>
+                    ) : null}
+                    {f.grades!.origins?.length ? (
+                      <>
+                        <div
+                          className="eyebrow gp-kick"
+                          style={{ marginTop: 34 }}
+                        >
+                          Where it&rsquo;s grown, finest first
+                        </div>
+                        <OriginBars
+                          items={f.grades!.origins.map((o) => ({
+                            region: o.region,
+                            micron: o.micron,
+                            lo: o.lo,
+                            hi: o.hi,
+                            note: <RichText text={o.note} />,
+                          }))}
+                        />
+                        {f.grades!.originsNote && (
+                          <p className="gp-prose" style={{ marginTop: 22 }}>
+                            <RichText text={f.grades!.originsNote} />
+                          </p>
+                        )}
+                      </>
+                    ) : null}
                   </section>
                 )}
 
@@ -990,6 +1017,37 @@ export default async function FiberGuidePage({
           display: inline-block; flex: 0 0 auto;
         }
         .guide-page .gp-tt-blurb { margin: 0; max-width: 48ch; }
+        /* Geographic origins: micron range bars on a shared axis */
+        .guide-page .gp-origins { margin-top: 18px; }
+        .guide-page .gp-origin-axis {
+          position: relative; height: 14px; margin-bottom: 18px;
+        }
+        .guide-page .gp-origin-tick {
+          position: absolute; top: 0; font-family: var(--mono);
+          font-size: 10px; letter-spacing: .04em; color: var(--ink-3);
+          white-space: nowrap;
+        }
+        .guide-page .gp-origin { margin-bottom: 24px; }
+        .guide-page .gp-origin-head {
+          display: flex; align-items: baseline; justify-content: space-between;
+          gap: 12px; margin-bottom: 9px;
+        }
+        .guide-page .gp-origin-name {
+          font-family: var(--sans); font-size: 15px; font-weight: 600;
+          letter-spacing: -.01em; color: var(--ink);
+        }
+        .guide-page .gp-origin-micron {
+          font-family: var(--mono); font-size: 11px; font-weight: 600;
+          letter-spacing: .06em; color: var(--ink-2); white-space: nowrap;
+        }
+        .guide-page .gp-origin-track {
+          position: relative; height: 8px; border-radius: 999px;
+          background: var(--tan); overflow: hidden;
+        }
+        .guide-page .gp-origin-fill {
+          position: absolute; top: 0; height: 8px; border-radius: 999px;
+        }
+        .guide-page .gp-origin-note { margin: 11px 0 0; max-width: 52ch; }
         .guide-page .gp-sec h2 {
           font-family: var(--sans); font-size: 22px; font-weight: 600; letter-spacing: -.01em;
           color: var(--ink); margin: 10px 0 16px; text-wrap: balance;

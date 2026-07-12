@@ -396,6 +396,23 @@ export const CERTIFICATIONS: Certification[] = [
     take: "A meaningful welfare signal for alpaca. As with wool, the chemistry of the finished piece is a separate question.",
   },
   {
+    slug: "the-good-cashmere-standard",
+    name: "The Good Cashmere Standard",
+    abbr: "GCS",
+    issuer: "Aid by Trade Foundation",
+    category: "material",
+    summary:
+      "An animal-welfare and livelihood standard built for cashmere, covering how the goats are treated, how herders are paid, and how the grazing land is managed.",
+    verifies: [
+      "Goat welfare, scored against the Five Domains model across 150-plus indicators",
+      "Fair working conditions and better income for herding families",
+      "Responsible grazing and land management, with chain of custody to the finished product",
+    ],
+    blindSpot:
+      "It is a farm-and-fiber standard, not a chemistry one. It says nothing about the dyes or finishes on the finished sweater, and its audited supply centers on Inner Mongolia, not every origin.",
+    take: "The leading welfare mark on cashmere, and the one to look for given the industry's overgrazing and handling record. Pair it with OEKO-TEX if residue is your concern.",
+  },
+  {
     slug: "fsc",
     name: "Forest Stewardship Council",
     abbr: "FSC",

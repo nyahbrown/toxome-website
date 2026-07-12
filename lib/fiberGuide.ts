@@ -47,8 +47,23 @@ export type FiberGuideEntry = {
   madeStory?: string[];
   /** Image shown inside the made section. */
   madeImage?: { src: string; alt: string; caption?: string };
-  /** The grades section: prose intro + provenance chips. */
-  grades?: { intro: string; marks: string[] };
+  /** The grades section: prose intro + provenance chips, plus an optional
+   *  ordered list of geographic origins (region + micron range + one line)
+   *  and a closing note. Origins render as labeled rows under the chips. */
+  grades?: {
+    intro: string;
+    marks: string[];
+    origins?: {
+      region: string;
+      micron: string;
+      note: string;
+      // Numeric micron bounds that plot the range bar. `micron` stays the
+      // human label; lo/hi drive the shared-axis chart.
+      lo: number;
+      hi: number;
+    }[];
+    originsNote?: string;
+  };
   /**
    * The "top tier" section: presents a higher certified grade of this same
    * fiber as its cleanest form, rendered as a distinct elevated block on the
@@ -686,6 +701,9 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
       { title: "Dehairing and Cashmere Quality: A Guide", publisher: "Selvane", url: "https://www.selvane.co/blogs/knowledge/the-architecture-of-softness-dehairing-and-cashmere-quality" },
       { title: "What Good Cashmere Actually Is", publisher: "Wolf vs Goat", url: "https://www.wolfvsgoat.com/blogs/blog/what-good-cashmere-actually-is" },
       { title: "Facts About Cashmere - Quality, Care & Origins", publisher: "GOBI Cashmere", url: "https://us.gobicashmere.com/pages/facts-about-cashmere/" },
+      { title: "Definition of Cashmere Wool", publisher: "Cashmere & Camel Hair Manufacturers Institute (CCMI)", url: "https://www.cashmere.org/definition-cashmere-wool.php" },
+      { title: "Kashmiri Pashmina and the GI Tag", publisher: "Pashmina.com", url: "https://www.pashmina.com/editorial/kashmiri-pashmina-and-gi-tag/" },
+      { title: "The Good Cashmere Standard", publisher: "Aid by Trade Foundation", url: "https://thegoodcashmerestandard.org/our-standard/" },
     ],
   },
   {
