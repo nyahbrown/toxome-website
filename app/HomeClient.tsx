@@ -425,53 +425,6 @@ function NewsletterSection() {
   );
 }
 
-/* § The Standard, the rigor + un-buyable-score firewall. Sits right under the
-   hero — the core differentiator vs. every taste-only clean directory. */
-function TheStandardSection() {
-  return (
-    <section style={{ background: "var(--bg)" }}>
-      <div
-        className="shell"
-        style={{
-          maxWidth: 760,
-          margin: "0 auto",
-          textAlign: "center",
-          paddingBlock: "clamp(56px, 11vw, 96px)",
-        }}
-      >
-        <div className="eyebrow" style={{ marginBottom: 18 }}>
-          The Standard
-        </div>
-        <h2
-          style={{
-            fontFamily: "var(--sans)",
-            fontWeight: 500,
-            fontSize: "clamp(26px, 3.2vw, 42px)",
-            lineHeight: 1.14,
-            letterSpacing: "-0.02em",
-            color: "var(--ink)",
-            margin: 0,
-          }}
-        >
-          every piece scored 0&ndash;100 for what it does to your body.
-        </h2>
-        <p
-          style={{
-            fontFamily: "var(--sans)",
-            fontStyle: "italic",
-            fontSize: 16,
-            lineHeight: 1.5,
-            color: "var(--ink-2)",
-            margin: "18px 0 0",
-          }}
-        >
-          the score can&apos;t be bought.
-        </p>
-      </div>
-    </section>
-  );
-}
-
 export default function HomeClient({
   taxonomy,
   articles,
@@ -586,8 +539,6 @@ export default function HomeClient({
           </div>
         </div>
       </section>
-
-      <TheStandardSection />
 
       <EditorsPicksSection products={products} />
 
