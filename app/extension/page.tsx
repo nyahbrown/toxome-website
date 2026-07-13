@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
+import JsonLd from "@/components/JsonLd";
+import FaqAccordion from "@/app/verify/FaqAccordion";
 import ExtensionWaitlist from "@/components/ExtensionWaitlist";
 import { getShopTaxonomy } from "@/lib/supabase";
 
@@ -12,16 +15,18 @@ const CHROME_STORE_URL = "";
 const IS_LIVE = CHROME_STORE_URL.length > 0;
 
 const APP_STORE = "https://apps.apple.com/us/app/toxome/id6748622034";
+const SITE = "https://toxome.app";
+const PAGE_URL = `${SITE}/extension`;
 
 export const metadata: Metadata = {
-  title: "Toxic Fashion Detector for Chrome | Toxome",
+  title: "Chrome Extension to Check Clothes for Toxic Chemicals | Toxome",
   description:
-    "Toxome is a toxic fashion detector for your browser. See how healthy any garment is while you shop, with the rating, fiber breakdown, and why it matters, right on the product page. Coming soon to Chrome.",
+    "A free Chrome extension that checks clothes for toxic chemicals while you shop. See the fiber breakdown and a health rating out of 100 on any product page.",
   alternates: { canonical: "/extension" },
   openGraph: {
-    title: "The Toxome Extension",
+    title: "Check clothes for toxic chemicals, while you shop",
     description:
-      "A fabric-health check that follows you to every store. The Toxome rating, full fiber breakdown, and why it matters, right on the product page.",
+      "The Toxome Chrome extension reads the fiber composition on any product page, rates it out of 100, and tells you what those materials do to your body.",
     url: "/extension",
     siteName: "Toxome",
   },
@@ -41,7 +46,7 @@ const STEPS = [
   {
     n: "03",
     title: "Shop anywhere",
-    body: "Open any product page. The Toxome card appears on its own, no copy-paste, no searching.",
+    body: "Open any clothing product page. The Toxome card appears on its own, no copy-paste, no searching.",
   },
 ];
 
@@ -64,18 +69,124 @@ const FEATURES = [
   },
 ];
 
+// What the extension actually surfaces. This section exists because the
+// specifics (PFAS, formaldehyde, disperse dyes) are what people search for
+// when they're worried about a garment, and they belong on the page anyway.
+const CATCHES = [
+  {
+    label: "Plastic fibers",
+    body: "Polyester, nylon, acrylic, and elastane are plastics. They trap heat and sweat against your skin, and they shed microplastics every wash. The extension names them by percentage instead of letting them hide behind the word 'blend'.",
+  },
+  {
+    label: "PFAS and finishes",
+    body: "Stain-resistant, wrinkle-free, and water-repellent finishes are the ones most likely to carry PFAS. Toxome flags the language a brand uses to describe them.",
+  },
+  {
+    label: "Formaldehyde and dyes",
+    body: "Wrinkle-resistant cotton is often treated with formaldehyde resin, and disperse dyes on synthetics are a common cause of contact dermatitis. Both get called out in the score.",
+  },
+  {
+    label: "The vague ones",
+    body: "'Viscose', 'bamboo', and 'plant-based' cover a wide range, from a closed-loop lyocell to a generic viscose with a dirty process. Toxome grades the fiber you got.",
+  },
+];
+
+// The SAME array feeds the visible accordion and the FAQPage schema, so the
+// two can never drift apart.
+const FAQ = [
+  {
+    q: "What does the Toxome extension do?",
+    a: "It reads the fiber composition on any clothing product page and shows you a health rating out of 100, the full material breakdown by percentage, and a plain-English explanation of what those materials do to your body. It appears on the product page automatically, before you add anything to cart.",
+  },
+  {
+    q: "How do you check if clothes contain harmful chemicals?",
+    a: "Start with the composition label. The fiber is most of the story. Plastic fibers like polyester, nylon, acrylic, and elastane shed microplastics and trap sweat. Performance finishes like stain-resistant, wrinkle-free, and water-repellent are the ones most likely to carry PFAS. Wrinkle-resistant cotton is often treated with formaldehyde resin. The Toxome extension does this read for you on the page, and the Toxome app does it from a photo of a physical label.",
+  },
+  {
+    q: "Which stores does it work on?",
+    a: "Any clothing product page on the web. It isn't a list of partner retailers, it reads the composition wherever the brand publishes it, including the fine print inside collapsed accordions and tabs.",
+  },
+  {
+    q: "Is the extension free?",
+    a: "Yes. Installing it and seeing the rating, the composition, and the reasoning costs nothing.",
+  },
+  {
+    q: "How is the rating calculated?",
+    a: "On the same wearer-health rubric the Toxome app uses. It scores what the garment does to the person wearing it, starting from the fiber and then applying penalties for the chemistry a fiber usually brings with it. You can read the full method on our methodology page.",
+  },
+  {
+    q: "Does it track my browsing?",
+    a: "No. It looks at the clothing product page you're on to read the composition, and that's all. It isn't building a profile of where you shop.",
+  },
+  {
+    q: "Does it work in Safari or Firefox?",
+    a: "Not yet. It's launching on Chrome first. If you want it somewhere else, get on the list and tell us where.",
+  },
+  {
+    q: "Do I need the app as well?",
+    a: "No, they do different jobs. The extension checks clothes you're about to buy online. The app checks clothes you already own, by scanning the physical label. They share one Closet, so a piece saved in either place shows up in both.",
+  },
+];
+
 export default async function ExtensionPage() {
   const taxonomy = await getShopTaxonomy();
 
+  const schema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: SITE },
+          { "@type": "ListItem", position: 2, name: "Extension", item: PAGE_URL },
+        ],
+      },
+      {
+        "@type": "SoftwareApplication",
+        name: "Toxome for Chrome",
+        applicationCategory: "BrowserApplication",
+        applicationSubCategory: "Shopping",
+        operatingSystem: "Chrome",
+        url: PAGE_URL,
+        description:
+          "A free Chrome extension that checks clothes for toxic chemicals while you shop. It reads the fiber composition on any product page, rates the garment out of 100 on a wearer-health rubric, and explains what each material does to your body.",
+        // No aggregateRating: the extension has no reviews yet, and inventing
+        // them is both a lie and a manual action waiting to happen.
+        offers: {
+          "@type": "Offer",
+          price: "0",
+          priceCurrency: "USD",
+        },
+        publisher: {
+          "@type": "Organization",
+          name: "Toxome",
+          url: SITE,
+          logo: { "@type": "ImageObject", url: `${SITE}/icon.png` },
+        },
+        screenshot: `${SITE}/extension/preview.jpg`,
+      },
+      {
+        // Synced to the visible FAQ (same FAQ array rendered below).
+        "@type": "FAQPage",
+        mainEntity: FAQ.map((x) => ({
+          "@type": "Question",
+          name: x.q,
+          acceptedAnswer: { "@type": "Answer", text: x.a },
+        })),
+      },
+    ],
+  };
+
   return (
     <main style={{ background: "var(--bg)", minHeight: "100vh" }}>
+      <JsonLd data={schema} />
       <Nav taxonomy={taxonomy} />
 
       {/* Hero */}
       <header className="shell" style={{ paddingTop: 132 }}>
-        <div style={{ maxWidth: 720, margin: "0 auto", textAlign: "center" }}>
+        <div style={{ maxWidth: 760, margin: "0 auto", textAlign: "center" }}>
           <p className="eyebrow" style={{ margin: "0 0 20px" }}>
-            The Toxome Extension
+            The Toxome Chrome Extension
           </p>
           <h1
             style={{
@@ -88,7 +199,7 @@ export default async function ExtensionPage() {
               margin: "0 0 22px",
             }}
           >
-            Toxome, while you shop.
+            Check clothes for toxic chemicals, while you shop.
           </h1>
           <p
             style={{
@@ -96,12 +207,13 @@ export default async function ExtensionPage() {
               lineHeight: 1.55,
               color: "var(--ink-2)",
               margin: "0 auto 34px",
-              maxWidth: 560,
+              maxWidth: 580,
             }}
           >
-            A fabric-health check that follows you to every store. The Toxome
-            rating, the full fiber breakdown, and why it matters, right on the
-            product page before you buy.
+            A free Chrome extension that reads the fiber composition on any
+            product page, rates the garment out of 100, and tells you what those
+            materials do to your body. You see it before you add to cart,
+            instead of after it arrives.
           </p>
 
           {/* CTA, live store button, or pre-launch waitlist */}
@@ -183,7 +295,7 @@ export default async function ExtensionPage() {
         >
           <Image
             src="/extension/preview.jpg"
-            alt="The Toxome extension card open on a DISSH product page, showing a 67/100 'Okay' rating, a 57% cupro / 43% viscose composition breakdown, why-this-score notes, and Save to Wishlist and Add to Closet buttons."
+            alt="The Toxome Chrome extension open on a DISSH clothing product page, showing a 67/100 'Okay' health rating, a 57% cupro / 43% viscose fiber composition breakdown, why-this-score notes, and Save to Wishlist and Add to Closet buttons."
             width={2000}
             height={1294}
             sizes="(max-width: 1100px) 100vw, 1040px"
@@ -191,6 +303,147 @@ export default async function ExtensionPage() {
             priority
           />
         </div>
+      </section>
+
+      {/* The problem, stated. Gives the page something to actually be about,
+          and gives search a paragraph that matches what people type. */}
+      <section className="shell" style={{ paddingTop: 110 }}>
+        <div style={{ maxWidth: 660, margin: "0 auto" }}>
+          <p className="eyebrow" style={{ margin: "0 0 16px" }}>
+            Why you need it
+          </p>
+          <h2
+            style={{
+              fontFamily: "var(--sans)",
+              fontWeight: 500,
+              fontSize: "clamp(26px, 3.2vw, 38px)",
+              lineHeight: 1.12,
+              letterSpacing: "-0.02em",
+              color: "var(--ink)",
+              margin: "0 0 24px",
+            }}
+          >
+            The composition label is the most important thing on the page, and
+            the hardest to find.
+          </h2>
+          <p
+            style={{
+              fontSize: 16,
+              lineHeight: 1.7,
+              color: "var(--ink-2)",
+              margin: "0 0 18px",
+            }}
+          >
+            About 60% of what the world wears is now plastic. Polyester, nylon,
+            acrylic, and elastane are petroleum, spun into thread, and the
+            chemistry that goes on them afterward is a longer list than the fiber
+            itself: PFAS in the stain-resistant finish, formaldehyde resin in the
+            wrinkle-free cotton, disperse dyes that sit on synthetics and come off
+            on skin.
+          </p>
+          <p
+            style={{
+              fontSize: 16,
+              lineHeight: 1.7,
+              color: "var(--ink-2)",
+              margin: "0 0 18px",
+            }}
+          >
+            None of that is a secret. It's on the label. But the label is four
+            clicks deep, written in percentages, and by the time you've found it
+            you've already decided. So the check doesn't happen, and you find out
+            what you bought when it's already in your closet.
+          </p>
+          <p
+            style={{
+              fontSize: 16,
+              lineHeight: 1.7,
+              color: "var(--ink-2)",
+              margin: 0,
+            }}
+          >
+            Toxome does the check for you, on the page, in the second you land on
+            it.
+          </p>
+        </div>
+      </section>
+
+      {/* What it catches */}
+      <section className="shell" style={{ paddingTop: 110 }}>
+        <div style={{ maxWidth: 720, margin: "0 auto 48px", textAlign: "center" }}>
+          <p className="eyebrow" style={{ margin: "0 0 16px" }}>
+            What it catches
+          </p>
+          <h2
+            style={{
+              fontFamily: "var(--sans)",
+              fontWeight: 500,
+              fontSize: "clamp(26px, 3.2vw, 38px)",
+              lineHeight: 1.12,
+              letterSpacing: "-0.02em",
+              color: "var(--ink)",
+              margin: 0,
+            }}
+          >
+            The things a brand would rather you skimmed.
+          </h2>
+        </div>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+            gap: "40px 48px",
+            maxWidth: 880,
+            margin: "0 auto",
+          }}
+        >
+          {CATCHES.map((c) => (
+            <div key={c.label}>
+              <h3
+                style={{
+                  fontFamily: "var(--sans)",
+                  fontWeight: 600,
+                  fontSize: 18,
+                  letterSpacing: "-0.01em",
+                  color: "var(--ink)",
+                  margin: "0 0 8px",
+                }}
+              >
+                {c.label}
+              </h3>
+              <p
+                style={{
+                  fontSize: 16,
+                  lineHeight: 1.6,
+                  color: "var(--ink-2)",
+                  margin: 0,
+                }}
+              >
+                {c.body}
+              </p>
+            </div>
+          ))}
+        </div>
+        <p
+          style={{
+            fontSize: 16,
+            lineHeight: 1.6,
+            color: "var(--ink-2)",
+            maxWidth: 880,
+            margin: "36px auto 0",
+            textAlign: "center",
+          }}
+        >
+          Want the long version on any single fiber? Read the{" "}
+          <Link href="/guide" style={{ color: "var(--ink)" }}>
+            fabric guide
+          </Link>
+          , or see{" "}
+          <Link href="/methodology" style={{ color: "var(--ink)" }}>
+            how we score
+          </Link>
+          .
+        </p>
       </section>
 
       {/* How it works */}
@@ -318,6 +571,29 @@ export default async function ExtensionPage() {
               </p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* FAQ, synced to the FAQPage schema above */}
+      <section className="shell" style={{ paddingTop: 110 }}>
+        <div style={{ maxWidth: 760, margin: "0 auto" }}>
+          <p className="eyebrow" style={{ margin: "0 0 16px" }}>
+            Questions
+          </p>
+          <h2
+            style={{
+              fontFamily: "var(--sans)",
+              fontWeight: 500,
+              fontSize: "clamp(26px, 3.2vw, 38px)",
+              lineHeight: 1.12,
+              letterSpacing: "-0.02em",
+              color: "var(--ink)",
+              margin: "0 0 36px",
+            }}
+          >
+            The extension, answered.
+          </h2>
+          <FaqAccordion items={FAQ} />
         </div>
       </section>
 

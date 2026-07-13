@@ -714,6 +714,19 @@ export default async function FiberGuidePage({
                       </p>
                     </div>
                   )}
+
+                  {/* Contextual hand-off to the extension. This is the moment
+                      the reader has just learned the fiber is a problem, which
+                      is the only moment the tool sounds like relief instead of
+                      an ad. */}
+                  <p className="gp-prose">
+                    Doing this check on every product page yourself is the
+                    tedious part. The{" "}
+                    <Link href="/extension">Toxome Chrome extension</Link>{" "}
+                    reads the composition for you while you shop, so you see
+                    whether something is {lower} (and what else is in it) before
+                    you buy, not after it arrives.
+                  </p>
                 </section>
 
                 {/* ENVIRONMENTAL IMPACT — standardized comparable tiles, each
