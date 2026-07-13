@@ -1,7 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
 import sharp from "sharp";
-import { getArticle, getAllArticles } from "@/lib/journal";
+import { getArticle } from "@/lib/journal";
 import { articlePhotoPool } from "@/lib/journal-products";
 
 // A BARE 1000×1500 (2:3) photograph. No logo, no wordmark, no score ring, no
@@ -21,33 +21,40 @@ import { articlePhotoPool } from "@/lib/journal-products";
 // This route deliberately does NOT use next/og — Satori can't decode WebP, and
 // several catalog photos are WebP, which hard-fails the static export. sharp
 // (already a Next dependency) does the cover-crop and handles every format.
+//
+// ── Why this is DYNAMIC, not force-static ────────────────────────────────────
+// It used to be `force-static` + generateStaticParams. That froze the photo pool
+// at build time while the cron kept computing it from LIVE product data at run
+// time, and the two drifted. Worse: when a product host refused the build
+// container's fetch (eileenfisher.com refused two photos on the Vercel builder
+// that fetch fine everywhere else), this route returned its own 404 and Next
+// froze THAT 404 as the prerendered body — /journal/linen-vs-cotton/pin/3 and
+// /pin/4 served a permanent `404 Not found` in production even though the photos
+// were live. A pin the cron queues must always render, so the pool is now
+// resolved per request from the same live data the cron reads, and a failed
+// photo fetch returns an UNCACHED 404 that heals on the next request instead of
+// being frozen forever.
 
 export const runtime = "nodejs";
-export const dynamic = "force-static";
+export const dynamic = "force-dynamic";
 
 const W = 1000;
 const H = 1500;
 
-export async function generateStaticParams() {
-  const params: Array<{ slug: string; i: string }> = [];
-  for (const article of getAllArticles()) {
-    let pool: string[];
-    try {
-      pool = await articlePhotoPool(article);
-    } catch {
-      // Product lookup unavailable at build: still ship the hero pin.
-      pool = article.hero ? [article.hero] : [];
-    }
-    pool.forEach((_, i) => params.push({ slug: article.slug, i: String(i) }));
-  }
-  return params;
-}
+// Some catalog hosts (Salesforce Commerce Cloud in particular) reject requests
+// with no browser identity, which is how the two Eileen Fisher photos went dark.
+const UA =
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36";
 
 // The hero is a site-relative /public path; product shots are remote https URLs.
 async function loadPhoto(src: string): Promise<Buffer | null> {
   try {
     if (/^https?:\/\//i.test(src)) {
-      const res = await fetch(src);
+      const res = await fetch(src, {
+        cache: "no-store",
+        signal: AbortSignal.timeout(15_000),
+        headers: { "user-agent": UA, accept: "image/*,*/*" },
+      });
       if (!res.ok) return null;
       return Buffer.from(await res.arrayBuffer());
     }
@@ -57,20 +64,33 @@ async function loadPhoto(src: string): Promise<Buffer | null> {
   }
 }
 
+// A photo that can't be fetched right now is a TRANSIENT failure, so its 404 is
+// never cached — the next request (and the cron's pre-flight) re-tries it.
+function notFound(reason: string) {
+  return new Response(reason, {
+    status: 404,
+    headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" },
+  });
+}
+
 export async function GET(
   _req: Request,
   { params }: { params: Promise<{ slug: string; i: string }> }
 ) {
   const { slug, i } = await params;
   const article = getArticle(slug);
-  if (!article) return new Response("Not found", { status: 404 });
+  if (!article) return notFound("Not found");
 
   const pool = await articlePhotoPool(article);
   const idx = Number.parseInt(i, 10);
-  const src = pool[Number.isFinite(idx) ? idx : 0] ?? pool[0] ?? article.hero;
+  // Out of range is a real 404, not a silent fall back to the hero: an index the
+  // cron never queues must not quietly serve photo 0 as if it were its own pin.
+  if (!Number.isInteger(idx) || idx < 0 || idx >= pool.length) {
+    return notFound("Not found");
+  }
 
-  const photo = await loadPhoto(src);
-  if (!photo) return new Response("Not found", { status: 404 });
+  const photo = await loadPhoto(pool[idx]);
+  if (!photo) return notFound("Photo unavailable");
 
   const jpeg = await sharp(photo)
     .rotate() // honor EXIF orientation before cropping
@@ -84,7 +104,13 @@ export async function GET(
   return new Response(new Uint8Array(jpeg), {
     headers: {
       "Content-Type": "image/jpeg",
-      "Cache-Control": "public, max-age=31536000, immutable",
+      // Pinterest fetches a pin's image once, and readers save it rarely, so the
+      // CDN carries essentially all of the traffic and the render cost is a
+      // rounding error. Cached for a day at the edge (a month while stale) —
+      // long enough to be free, short enough that a catalog change reaching the
+      // photo pool shows up on the pin instead of being pinned to a stale photo
+      // for a year.
+      "Cache-Control": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=2592000",
     },
   });
 }

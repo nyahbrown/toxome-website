@@ -237,7 +237,9 @@ async function resolveMediaUrls(draft: SchedulerDraft, maxSlides = 10): Promise<
   return [cover];
 }
 
-function absolutize(u: string): string {
+// Exported so callers that pre-flight their own media (the journal-pinterest
+// cron) resolve the exact URL the scheduler will hand to the platform.
+export function absolutize(u: string): string {
   if (/^https?:\/\//i.test(u)) return u;
   return `${siteBase()}${u.startsWith("/") ? "" : "/"}${u}`;
 }

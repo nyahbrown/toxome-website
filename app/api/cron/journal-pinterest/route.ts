@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { getAllArticles } from "@/lib/journal";
 import { articlePhotoPool } from "@/lib/journal-products";
-import { pushToScheduler, type SchedulerDraft } from "@/lib/scheduler";
+import { pushToScheduler, absolutize, type SchedulerDraft } from "@/lib/scheduler";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -78,6 +78,49 @@ function pinDescription(dek: string): string {
 // change. photoIndex is kept only for ordering/debugging.
 type PinJob = { article: Article; photoIndex: number; photoUrl: string };
 
+// One row per (article, photo) the cron has finished with, whatever the outcome:
+// `posted` went to Pinterest, `skipped` never will (its image didn't render, see
+// preflightPin). Both keep the photo out of future runs. The table's primary key
+// is (slug, photo_index), which a plain insert collides with whenever a catalog
+// change shifts an article's pool under an index that was already written — so
+// this upserts, and the failure is surfaced instead of swallowed.
+type LedgerRow = {
+  slug: string;
+  photo_index: number;
+  photo_url: string;
+  title: string;
+  status: "posted" | "skipped";
+  external_id?: string;
+  error?: string;
+};
+async function ledgerWrite(row: LedgerRow): Promise<{ error?: string }> {
+  const { error } = await supabaseAdmin.from(TABLE).upsert(row, { onConflict: "slug,photo_index" });
+  return error ? { error: error.message } : {};
+}
+
+// Blotato does not upload the image, it FETCHES the media_url we hand it. A pin
+// whose image doesn't come back as a real image is dead on arrival: Blotato
+// can't fetch it, the post never lands, nothing is written to the ledger, and
+// the same broken pin is retried on every run forever. So the pin image is
+// pulled once before the post is submitted, and a pin that fails this is
+// recorded as `skipped` instead of being pushed (see below).
+async function preflightPin(mediaUrl: string): Promise<{ ok: true } | { ok: false; reason: string }> {
+  const url = absolutize(mediaUrl);
+  try {
+    const res = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(20_000) });
+    if (!res.ok) return { ok: false, reason: `pin image returned ${res.status}` };
+    const type = res.headers.get("content-type") || "";
+    if (!type.startsWith("image/")) {
+      return { ok: false, reason: `pin image is not an image (content-type: ${type || "none"})` };
+    }
+    const bytes = (await res.arrayBuffer()).byteLength;
+    if (bytes < 1000) return { ok: false, reason: `pin image is empty (${bytes} bytes)` };
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, reason: `pin image fetch failed: ${e instanceof Error ? e.message : String(e)}` };
+  }
+}
+
 // Daily Vercel Cron. Auto-pins the Journal to Pinterest the way The Good Trade
 // does it (56.3k followers, Pinterest is their #1 traffic source, and we audited
 // their pins directly):
@@ -90,7 +133,10 @@ type PinJob = { article: Article; photoIndex: number; photoUrl: string };
 //     linking back to the article and filed to a topically-matched board.
 // Fully automatic (no approval step); the journal_pins ledger keys on the
 // resolved photo_url so a given photo posts exactly once even if the catalog
-// reorders an article's photo pool. CRON_SECRET gates the endpoint. Append
+// reorders an article's photo pool. Every pin's image is fetched before the pin
+// is submitted, and one that won't render is filed as `skipped` rather than
+// pushed to a scheduler that would fail on it forever. CRON_SECRET gates the
+// endpoint. Append
 // ?dryRun=1 to preview without posting (previews the WHOLE queue, not just the
 // run's cap).
 export async function GET(req: Request) {
@@ -156,10 +202,36 @@ export async function GET(req: Request) {
       continue;
     }
 
+    // Never hand Pinterest a media_url that doesn't render.
+    const check = await preflightPin(draft.media_url!);
+    if (!check.ok) {
+      // Retire the pin instead of retrying it forever: a `skipped` row keeps the
+      // photo out of every future run (the ledger dedupes on photo_url) and out
+      // of Pinterest, and leaves the reason on the row. The queue drains past it.
+      const { error: ledgerError } = await ledgerWrite({
+        slug: a.slug,
+        photo_index: photoIndex,
+        photo_url: photoUrl,
+        title: a.title,
+        status: "skipped",
+        error: check.reason,
+      });
+      results.push({
+        slug: a.slug,
+        photo_index: photoIndex,
+        ok: false,
+        skipped: true,
+        media_url: draft.media_url,
+        error: check.reason,
+        ...(ledgerError ? { ledgerError } : {}),
+      });
+      continue;
+    }
+
     const res = await pushToScheduler(draft);
     if (res.ok) {
       // Record only on a confirmed submission, so a failure retries next run.
-      await supabaseAdmin.from(TABLE).insert({
+      const { error: ledgerError } = await ledgerWrite({
         slug: a.slug,
         photo_index: photoIndex,
         photo_url: photoUrl,
@@ -167,7 +239,13 @@ export async function GET(req: Request) {
         external_id: res.externalId,
         status: "posted",
       });
-      results.push({ slug: a.slug, photo_index: photoIndex, ok: true, externalId: res.externalId });
+      results.push({
+        slug: a.slug,
+        photo_index: photoIndex,
+        ok: true,
+        externalId: res.externalId,
+        ...(ledgerError ? { ledgerError } : {}),
+      });
     } else {
       const reason = res.configured === false ? "scheduler not configured" : res.error;
       results.push({ slug: a.slug, photo_index: photoIndex, ok: false, error: reason });
@@ -181,6 +259,7 @@ export async function GET(req: Request) {
     queued: jobs.length,
     attempted: pending.length,
     posted: results.filter((r) => r.ok).length,
+    skipped: results.filter((r) => r.skipped).length,
     dryRun,
     results,
   });
