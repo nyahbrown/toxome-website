@@ -812,18 +812,24 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
 
   // ---- Conventional + carbon-disulfide cellulosics ----
   {
-    slug: "viscose",
-    name: "Viscose",
+    // Rayon and viscose are the same fiber, and we used to run a page for each.
+    // Google treated them as duplicates and suppressed /guide/viscose entirely
+    // (0 impressions) while /guide/rayon carried the traffic on thinner content.
+    // Merged into one entry at the URL that already ranks, keeping viscose's
+    // richer body. /guide/viscose 301s here; `viscose` maps here via GUIDE_TARGET.
+    slug: "rayon",
+    name: "Rayon (Viscose)",
+    sentenceName: "rayon",
     natural: false,
     whatItIs:
-      "Viscose is a part-natural, part-made fiber. It starts as wood, which gets dissolved into mush using strong chemicals, including one called carbon disulfide, then squeezed back out into thread.",
+      "Rayon is the all-purpose name for fiber made from wood that has been dissolved and re-formed. Viscose is the most common kind, so *rayon* and *viscose* mean the same material. It starts as wood, which gets dissolved into mush using strong chemicals, including one called carbon disulfide, then squeezed back out into thread.",
     healthStory:
-      "The biggest harm lands on the factory workers. Carbon disulfide is linked to nerve damage, heart disease, and more early deaths among the people who spin it. For you, the wearer, the worry is leftovers: bits of those chemicals, plus dyes and finishes, can stay in the cloth and make sensitive skin itch or break out. Some viscose even gets the same formaldehyde wrinkle-fighting treatment as cotton. On the comfy side, viscose has no plastic in it and breathes better against your skin than fibers made from oil.",
+      "The biggest harm lands on the factory workers. Carbon disulfide is linked to nerve damage, heart disease, and more early deaths among the people who spin it. For you, the wearer, the worry is leftovers: bits of those chemicals, plus dyes and finishes, can stay in the cloth and make sensitive skin itch or break out. Some rayon gets the same formaldehyde wrinkle-fighting treatment as cotton, leaving traces that bother sensitive skin. On the comfy side, rayon has no plastic in it, breathes, and soaks up moisture, so it feels cool against you. The cheapest, uncertified pieces are the ones most likely to carry leftover finish.",
     whatToLookFor:
-      "Pick closed-loop lyocell (like TENCEL) when you can. It is the cleaner version, because it reuses its chemicals and skips the carbon disulfide. Look for OEKO-TEX STANDARD 100 on any viscose you buy, and wash new pieces before wearing. Watch the wording too: names like *plant viscose* or *plant-based viscose* sound clean but mean nothing on their own. They are still ordinary viscose unless the label spells out *LENZING ECOVERO*, the branded lower-impact kind. Some brands sell both side by side, so read the exact fiber name instead of the marketing.",
+      "Treat rayon and viscose as the exact same thing when you shop. Pick closed-loop lyocell (like TENCEL) when you can. It is the cleaner version, because it reuses its chemicals and skips the carbon disulfide. Look for OEKO-TEX STANDARD 100 on any rayon you buy, and wash new pieces before wearing. Watch the wording too: names like *plant viscose* or *plant-based viscose* sound clean but mean nothing on their own. They are still ordinary viscose unless the label spells out *LENZING ECOVERO*, the branded lower-impact kind. Some brands sell both side by side, so read the exact fiber name instead of the marketing.",
     environment:
-      "Making regular viscose puts harmful stuff into the air and water, and is often linked to cutting down old, rare forests.",
-    shopFilter: "viscose",
+      "Making regular rayon puts harmful stuff into the air and water, and is often linked to cutting down old, rare forests.",
+    shopFilter: "rayon",
     heroStat: {
       value: 150,
       suffix: "+",
@@ -831,7 +837,7 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
       label: "of documented nerve and heart damage to the workers who make it, from one solvent: carbon disulfide",
     },
     enviroStory: [
-      "Viscose is not one production standard. It is thousands of mills running the same chemistry at very different levels of control, which is why its water use spans from a few hundred litres per kilo to several thousand, and its carbon from about 2 to 11.",
+      "Rayon is not one production standard. It is thousands of mills running the same chemistry at very different levels of control, which is why its water use spans from a few hundred litres per kilo to several thousand, and its carbon from about 2 to 11.",
       "The fiber itself is cellulose, so it biodegrades and sheds no plastic. The damage sits in production, in the solvent and the wastewater, not in the finished cloth against your skin.",
     ],
     enviroStats: [
@@ -840,7 +846,7 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
         value: "300–3,000+",
         unit: "L/kg",
         compare: "virgin polyester: low",
-        note: "Huge mill-to-mill range. Viscose is not one production standard.",
+        note: "Huge mill-to-mill range. Rayon is not one production standard.",
       },
       {
         label: "Carbon",
@@ -863,38 +869,21 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
       },
     ],
     ethics: {
-      title: "Who makes viscose",
+      title: "Who makes rayon",
       flags: ["Carbon disulfide worker harm", "River pollution"],
       body: [
-        "Carbon disulfide, the core solvent, poisons the people who spin viscose. It is linked to nerve, psychiatric, and cardiovascular damage, and it is one of the longest-documented occupational harms in the whole textile industry.",
+        "Carbon disulfide, the core solvent, poisons the people who spin rayon. It is linked to nerve, psychiatric, and cardiovascular damage, and it is one of the longest-documented occupational harms in the whole textile industry.",
         "Changing Markets' Dirty Fashion investigations documented untreated viscose wastewater contaminating rivers and drinking water, and roughly a third of viscose has historically been traced back to endangered forests. Some producers are improving, but the floor is low.",
       ],
     },
     sources: [
       { title: "HEALTH EFFECTS - Toxicological Profile for Carbon Disulfide", publisher: "NCBI Bookshelf (ATSDR)", url: "https://www.ncbi.nlm.nih.gov/books/NBK601225/" },
       { title: "Exposure to carbon disulphide and ischaemic heart disease in a viscose rayon factory", publisher: "PMC (Br J Ind Med)", url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC1007812/" },
+      { title: "Cardiovascular effects in viscose rayon workers exposed to carbon disulfide", publisher: "PubMed", url: "https://pubmed.ncbi.nlm.nih.gov/11210016/" },
       { title: "Rayon Allergy: Identifying Symptoms and Effective Treatments", publisher: "Wyndly", url: "https://www.wyndly.com/blogs/learn/rayon-allergy" },
       { title: "Dirty Fashion: how pollution in the global textiles supply chain is making viscose toxic", publisher: "Changing Markets Foundation", url: "https://changingmarkets.org/portfolio/dirty-fashion/" },
-      { title: "CanopyStyle and endangered forests in viscose", publisher: "Canopy", url: "https://canopyplanet.org/" },
-    ],
-  },
-  {
-    slug: "rayon",
-    name: "Rayon",
-    natural: false,
-    whatItIs:
-      "Rayon is just the all-purpose name for fiber made from wood that has been dissolved and re-formed. Viscose is the most common kind, so *rayon* and *viscose* really mean the same material.",
-    healthStory:
-      "Because rayon is viscose, the story is the same. The sharpest danger is to workers handling carbon disulfide, which damages nerves and the heart at the levels they breathe in. What reaches you is leftovers: the chemicals used to make it can stay in the cloth and irritate skin or cause a rash, and a formaldehyde finish is sometimes added to fight wrinkles, leaving bits that bother sensitive skin. Rayon breathes and soaks up moisture, so it feels cool, but the cheapest, uncertified pieces are the ones most likely to carry leftover finish.",
-    whatToLookFor:
-      "Treat rayon and viscose as the exact same thing when you shop. Choose closed-loop lyocell as the safer version, pick OEKO-TEX STANDARD 100 pieces, and wash before the first wear.",
-    environment:
-      "Making regular rayon releases harmful chemicals and adds to the pressure to cut down rare forests.",
-    shopFilter: "rayon",
-    sources: [
       { title: "FTC Warns 78 Retailers to Stop Advertising Rayon as Bamboo", publisher: "U.S. Federal Trade Commission", url: "https://www.ftc.gov/news-events/news/press-releases/2010/02/ftc-warns-78-retailers-including-wal-mart-target-kmart-stop-labeling-advertising-rayon-textile" },
-      { title: "Cardiovascular effects in viscose rayon workers exposed to carbon disulfide", publisher: "PubMed", url: "https://pubmed.ncbi.nlm.nih.gov/11210016/" },
-      { title: "Is Viscose Safe? A Look at the Health Tradeoffs", publisher: "Greener Closet", url: "https://greenercloset.com/blog/is-viscose-eco-friendly" },
+      { title: "CanopyStyle and endangered forests in viscose", publisher: "Canopy", url: "https://canopyplanet.org/" },
     ],
   },
   {
@@ -1285,8 +1274,7 @@ export const FIBER_SUMMARY: Record<string, string> = {
   acetate: "wood pulp reworked with harsh chemistry into a silky fiber, more processed than lyocell.",
 
   // Chemically regenerated fibers, only as clean as the process
-  viscose: "a wood-based fiber only as clean as the factory that dissolves the pulp.",
-  rayon: "the umbrella name for wood dissolved and re-spun; the process decides how clean it is.",
+  rayon: "the umbrella name for wood dissolved and re-spun, viscose included; the factory decides how clean it is.",
   bamboo: "almost always generic viscose in disguise; the plant is clean, the processing isn't.",
 
   // Plastics to avoid
@@ -1371,6 +1359,7 @@ const GUIDE_TARGET: Record<string, string> = {
   lenzing_ecovero: "ecovero",
   tencel_modal: "modal",
   spandex: "elastane",
+  viscose: "rayon",
   recycled_polyester: "polyester",
   rpet: "polyester",
   regenerative_organic_cotton: "organic_cotton#top-tier",

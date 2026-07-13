@@ -9,6 +9,12 @@ const nextConfig: NextConfig = {
       { source: "/privacy-policy", destination: "/privacy", permanent: true },
       // Elastane and spandex are the same fiber; merged into one page at /guide/elastane.
       { source: "/guide/spandex", destination: "/guide/elastane", permanent: true },
+      // Rayon and viscose are the same fiber, and running a page for each split
+      // the signal: Google suppressed /guide/viscose to 0 impressions while
+      // /guide/rayon carried 1,637 on thinner copy. Merged at the URL that
+      // already ranks, keeping viscose's richer body (heroStat, enviro tiles,
+      // ethics). Same shape as the spandex merge above.
+      { source: "/guide/viscose", destination: "/guide/rayon", permanent: true },
       // Regenerative organic is the top tier of the same fiber; folded into the
       // organic cotton page so the ranking signal consolidates instead of two
       // near-duplicate cotton pages competing.

@@ -82,7 +82,7 @@ const ALT_FIBERS: Record<
 > = {
   // moderate
   acetate: { names: ["silk", "cupro"], filters: ["silk"], slugs: ["silk", "cupro"] },
-  viscose: { names: ["LENZING™ ECOVERO™", "TENCEL lyocell"], filters: ["tencel"], slugs: ["ecovero", "tencel_lyocell"] },
+  // rayon covers viscose too: same fiber, one page (see fiberGuide GUIDE_TARGET).
   rayon: { names: ["LENZING™ ECOVERO™", "TENCEL lyocell"], filters: ["tencel"], slugs: ["ecovero", "tencel_lyocell"] },
   bamboo: { names: ["TENCEL lyocell", "organic cotton"], filters: ["tencel", "organic cotton"], slugs: ["tencel_lyocell", "organic_cotton"] },
   leather: { names: ["vegetable-tanned leather"], filters: [], slugs: [] },
