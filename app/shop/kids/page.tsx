@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import ShopClient from "../ShopClient";
 import ShopGridFallback from "../ShopGridFallback";
 import ShopIntro from "@/components/ShopIntro";
+import ShopNewsletter from "@/components/ShopNewsletter";
 
 export const revalidate = 86400;
 
@@ -41,6 +42,7 @@ export default async function KidsShopPage() {
         />
       </Suspense>
       <ShopIntro intro="what touches a child's skin matters more, because young skin is thinner and more absorbent. every kids' and baby piece here is organic-cotton-forward and scored by toxome for its fiber content, so you can dress them in fabrics that breathe instead of plastic." />
+      <ShopNewsletter section="kids" />
       <Footer />
     </>
   );

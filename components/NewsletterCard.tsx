@@ -4,12 +4,25 @@ import { useState } from "react";
 import ConsentNote from "./ConsentNote";
 import { subscribeNewsletter } from "@/lib/newsletter";
 
-// End-of-article newsletter capture. Sits above ArticleCta so the editorial
-// app/shop CTA still closes the page. Source tag "journal_article" lets us
-// measure conversion from the inline card separately from the timed popup.
+// Reusable email capture for pages that aren't the homepage or a journal
+// article — currently the fiber guides (/guide/[slug]) and the shop. Those are
+// the pages search actually lands strangers on, and until this existed they had
+// no way to capture an email at all.
+//
+// Self-contained styling on purpose: it drops into any page without depending on
+// that page's local classes (the journal card leans on .article-cta, which only
+// exists inside article prose). `source` is required so each placement's
+// conversion rate can be compared in Vercel + Supabase.
+
 type State = "idle" | "submitting" | "success" | "error";
 
-export default function JournalNewsletterCard() {
+export default function NewsletterCard({
+  source,
+  align = "left",
+}: {
+  source: string;
+  align?: "left" | "center";
+}) {
   const [email, setEmail] = useState("");
   const [state, setState] = useState<State>("idle");
   const [errorMessage, setErrorMessage] = useState("");
@@ -20,7 +33,7 @@ export default function JournalNewsletterCard() {
     setState("submitting");
     setErrorMessage("");
 
-    const result = await subscribeNewsletter(email, "journal_article");
+    const result = await subscribeNewsletter(email, source);
     if (result.ok) {
       setState("success");
     } else {
@@ -29,26 +42,35 @@ export default function JournalNewsletterCard() {
     }
   }
 
+  const inputId = `nl-${source}`;
+
   return (
-    <aside className="article-cta" style={{ margin: "48px 0 20px" }}>
+    <aside
+      className="nl-card"
+      style={{
+        background: "var(--white)",
+        border: "1px solid var(--hairline-strong)",
+        borderRadius: 16,
+        padding: "28px 26px",
+        textAlign: align,
+        textTransform: "none",
+      }}
+    >
       {state === "success" ? (
         <>
-          <p className="article-cta__eyebrow">you&apos;re in.</p>
-          <p className="article-cta__headline">Welcome to Toxome.</p>
-          <p className="article-cta__body">
-            The newsletter is on its way. Fiber, dyes, and what your clothes
-            do to your body.
+          <p className="nl-card__eyebrow">you&apos;re in</p>
+          <p className="nl-card__headline">Welcome to Toxome.</p>
+          <p className="nl-card__body" style={{ margin: 0 }}>
+            The newsletter is on its way. Fiber, dyes, and what your clothes do
+            to your body.
           </p>
         </>
       ) : (
         <>
-          <p className="article-cta__eyebrow">the newsletter</p>
-          <p className="article-cta__headline">
-            know what&apos;s in your clothes.
-          </p>
-          <p className="article-cta__body">
-            Weekly notes on fiber, dyes, and what your clothes do to your
-            body.
+          <p className="nl-card__eyebrow">the newsletter</p>
+          <p className="nl-card__headline">know what&apos;s in your clothes.</p>
+          <p className="nl-card__body">
+            Weekly notes on fiber, dyes, and what your clothes do to your body.
           </p>
           <form
             onSubmit={handleSubmit}
@@ -56,26 +78,15 @@ export default function JournalNewsletterCard() {
               display: "flex",
               flexDirection: "column",
               gap: 8,
-              maxWidth: 340,
-              margin: "0 auto",
+              maxWidth: 360,
+              margin: align === "center" ? "0 auto" : undefined,
             }}
           >
-            <label
-              htmlFor="jnl-email"
-              style={{
-                fontFamily: "var(--mono)",
-                fontSize: 10,
-                fontWeight: 600,
-                letterSpacing: "0.13em",
-                textTransform: "uppercase",
-                color: "var(--ink-3)",
-                textAlign: "left",
-              }}
-            >
+            <label htmlFor={inputId} className="nl-card__label">
               email address
             </label>
             <input
-              id="jnl-email"
+              id={inputId}
               type="email"
               required
               placeholder="your@email.com"
@@ -88,7 +99,7 @@ export default function JournalNewsletterCard() {
                 padding: "0 14px",
                 border: "1px solid var(--hairline-strong)",
                 borderRadius: 999,
-                background: "var(--white)",
+                background: "var(--cream)",
                 color: "var(--ink)",
                 fontFamily: "var(--sans)",
                 fontSize: 14,
@@ -120,7 +131,6 @@ export default function JournalNewsletterCard() {
                   fontSize: 12,
                   color: "var(--red)",
                   margin: "4px 0 0",
-                  textAlign: "center",
                 }}
               >
                 {errorMessage}
@@ -128,12 +138,48 @@ export default function JournalNewsletterCard() {
             )}
             <ConsentNote
               lead='By clicking "subscribe," you agree to receive emails from Toxome and accept our'
-              align="center"
+              align={align}
               style={{ marginTop: 12 }}
             />
           </form>
         </>
       )}
+
+      <style>{`
+        .nl-card__eyebrow {
+          font-family: var(--mono);
+          font-size: 10px;
+          font-weight: 600;
+          letter-spacing: 0.13em;
+          text-transform: uppercase;
+          color: var(--ink-3);
+          margin: 0 0 10px;
+        }
+        .nl-card__headline {
+          font-family: var(--sans);
+          font-size: 22px;
+          font-weight: 500;
+          line-height: 1.2;
+          letter-spacing: -0.015em;
+          color: var(--ink);
+          margin: 0 0 6px;
+        }
+        .nl-card__body {
+          font-size: 16px;
+          line-height: 1.5;
+          color: var(--ink-2);
+          margin: 0 0 16px;
+        }
+        .nl-card__label {
+          font-family: var(--mono);
+          font-size: 10px;
+          font-weight: 600;
+          letter-spacing: 0.13em;
+          text-transform: uppercase;
+          color: var(--ink-3);
+          text-align: left;
+        }
+      `}</style>
     </aside>
   );
 }

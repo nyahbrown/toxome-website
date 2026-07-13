@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import ShopClient from "../ShopClient";
 import ShopGridFallback from "../ShopGridFallback";
 import ShopIntro from "@/components/ShopIntro";
+import ShopNewsletter from "@/components/ShopNewsletter";
 
 export const revalidate = 86400;
 
@@ -41,6 +42,7 @@ export default async function MenShopPage() {
         />
       </Suspense>
       <ShopIntro intro="men's clothing curated for what's in the fabric, not just the look. every piece is scored by toxome for its fiber content, so you can build a wardrobe of organic cotton, linen, hemp, and merino wool instead of plastic blends. filter by fiber to shop the cleanest options." />
+      <ShopNewsletter section="men" />
       <Footer />
     </>
   );

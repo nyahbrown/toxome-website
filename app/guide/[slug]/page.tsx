@@ -9,6 +9,7 @@ import AnimationProvider from "@/components/AnimationProvider";
 import CountUp from "@/components/CountUp";
 import OriginBars from "@/components/OriginBars";
 import MiniProductCard from "@/components/MiniProductCard";
+import NewsletterCard from "@/components/NewsletterCard";
 import FaqAccordion from "@/app/verify/FaqAccordion";
 import CertBadge from "@/components/CertBadge";
 import { CERTIFICATIONS } from "@/lib/certifications";
@@ -847,6 +848,12 @@ export default async function FiberGuidePage({
                   <div className="eyebrow gp-kick">Questions</div>
                   <h2>{f.name}, answered</h2>
                   <FaqAccordion items={faqItems} />
+                </section>
+
+                {/* NEWSLETTER — the guides are what search actually lands
+                    strangers on, so this is the page type that has to convert. */}
+                <section className="gp-sec reveal">
+                  <NewsletterCard source="guide_page" />
                 </section>
 
                 {/* SOURCES */}

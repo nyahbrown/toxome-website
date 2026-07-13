@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { subscribeNewsletter } from "@/lib/newsletter";
 
 // Coming-soon email capture for the Chrome extension. Reuses the same
 // /api/newsletter endpoint (Supabase + beehiiv) with its own source tag so the
@@ -17,25 +18,14 @@ export default function ExtensionWaitlist() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (state === "submitting") return;
-    const trimmed = email.trim().toLowerCase();
-    if (!trimmed) return;
     setState("submitting");
     setErrorMessage("");
-    try {
-      const res = await fetch("/api/newsletter", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: trimmed, source: "extension_waitlist" }),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        throw new Error(data?.error || "Something went wrong.");
-      }
+
+    const result = await subscribeNewsletter(email, "extension_waitlist");
+    if (result.ok) {
       setState("success");
-    } catch (err) {
-      setErrorMessage(
-        err instanceof Error ? err.message : "Something went wrong."
-      );
+    } else {
+      setErrorMessage(result.error);
       setState("error");
     }
   }

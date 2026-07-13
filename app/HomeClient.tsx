@@ -8,6 +8,7 @@ import Footer from "@/components/Footer";
 import NewsletterPopup from "@/components/NewsletterPopup";
 import ConsentNote from "@/components/ConsentNote";
 import MiniProductCard from "@/components/MiniProductCard";
+import { subscribeNewsletter } from "@/lib/newsletter";
 import type { ShopTaxonomy } from "@/lib/supabase";
 import type { Article } from "@/lib/journal";
 import type { Product } from "@/types/product";
@@ -241,26 +242,14 @@ function NewsletterSection() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (state === "submitting") return;
-    const trimmed = email.trim().toLowerCase();
-    if (!trimmed) return;
     setState("submitting");
     setErrorMessage("");
-    try {
-      // Captures to Supabase AND syncs to beehiiv server-side via /api/newsletter.
-      const res = await fetch("/api/newsletter", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: trimmed, source: "homepage_newsletter" }),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        throw new Error(data?.error || "Something went wrong.");
-      }
+
+    const result = await subscribeNewsletter(email, "homepage_newsletter");
+    if (result.ok) {
       setState("success");
-    } catch (err) {
-      setErrorMessage(
-        err instanceof Error ? err.message : "Something went wrong."
-      );
+    } else {
+      setErrorMessage(result.error);
       setState("error");
     }
   }

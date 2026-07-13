@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import ConsentNote from "./ConsentNote";
 import { CONSENT_KEY, CONSENT_EVENT, consentResolved } from "@/lib/consent";
+import { subscribeNewsletter } from "@/lib/newsletter";
 
 const STORAGE_KEY = "toxome-newsletter-popup";
 const DELAY_MS = 8000;
@@ -69,29 +70,15 @@ export default function NewsletterPopup({ source = "homepage_popup" }: { source?
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (state === "submitting") return;
-    const trimmed = email.trim().toLowerCase();
-    if (!trimmed) return;
     setState("submitting");
     setErrorMessage("");
-    try {
-      // Posts to /api/newsletter, which captures to Supabase AND syncs to
-      // beehiiv server-side. Going through the API also keeps the ~200KB
-      // Supabase client out of the homepage bundle entirely.
-      const res = await fetch("/api/newsletter", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: trimmed, source }),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        throw new Error(data?.error || "Something went wrong.");
-      }
+
+    const result = await subscribeNewsletter(email, source);
+    if (result.ok) {
       persist("submitted");
       setState("success");
-    } catch (err) {
-      setErrorMessage(
-        err instanceof Error ? err.message : "Something went wrong."
-      );
+    } else {
+      setErrorMessage(result.error);
       setState("error");
     }
   }

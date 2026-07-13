@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import ShopClient from "../ShopClient";
 import ShopGridFallback from "../ShopGridFallback";
 import ShopIntro from "@/components/ShopIntro";
+import ShopNewsletter from "@/components/ShopNewsletter";
 
 export const revalidate = 86400;
 
@@ -41,6 +42,7 @@ export default async function HomeShopPage() {
         />
       </Suspense>
       <ShopIntro intro="the textiles you sleep in and wrap up in touch your skin for hours at a time. every home piece here is scored by toxome for its fiber content, so you can choose bedding, bath, and throws made from cleaner natural fibers instead of synthetic blends." />
+      <ShopNewsletter section="home" />
       <Footer />
     </>
   );

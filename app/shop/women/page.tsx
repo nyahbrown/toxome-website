@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import ShopClient from "../ShopClient";
 import ShopGridFallback from "../ShopGridFallback";
 import ShopIntro from "@/components/ShopIntro";
+import ShopNewsletter from "@/components/ShopNewsletter";
 
 export const revalidate = 86400;
 
@@ -41,6 +42,7 @@ export default async function WomenShopPage() {
         />
       </Suspense>
       <ShopIntro intro="every women's piece here is read for what it's actually made of, then scored for how it treats your skin and your body. we skip the polyester-heavy fast fashion and curate dresses, tops, and basics built from cleaner natural fibers like organic cotton, linen, and silk. filter by fiber to find your match." />
+      <ShopNewsletter section="women" />
       <Footer />
     </>
   );
