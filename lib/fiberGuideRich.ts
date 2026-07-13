@@ -1403,6 +1403,11 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
       }
     ]
   },
+  // DEAD KEY. Viscose and rayon are the same fiber and were merged into the
+  // single `rayon` entry (FIBER_GUIDE has no `viscose` slug, /guide/viscose
+  // 301s to /guide/rayon), so nothing ever reads this. Edit "rayon" below
+  // instead; changes here render nowhere. Kept only as a source of copy to
+  // fold into rayon, and safe to delete once that is done.
   "viscose": {
     "dek": "The soft, breathable thread is close to inert on skin. The carbon-disulfide mill that spins it is the real story, and the label never shows you which one.",
     "history": "The viscose process was patented in 1892 by three British chemists, Cross, Bevan, and Beadle, who named it for the thick, *viscous* cellulose solution at its center. It reached stores as a cheap stand-in for silk, sold as *art silk*, before *rayon* became its common name in the 1920s.",
@@ -1571,6 +1576,10 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
       {
         "q": "Is rayon the same as viscose?",
         "a": "Mostly. Viscose is the most common kind of rayon, and on a US fiber-content tag the two words are interchangeable. The catch is that *rayon* also covers modal and lyocell, which are made under cleaner chemistry, so the same word can hide a real difference in how the fiber was produced."
+      },
+      {
+        "q": "Is *plant viscose* or *plant-based viscose* cleaner than regular viscose?",
+        "a": "No. Those phrases mean nothing on their own. All viscose starts as a plant, so *plant-based* describes every version of it, including the open-loop, carbon-disulfide kind. It only signals a lower-impact process if the label spells out a named one, *LENZING ECOVERO* for certified lower-impact viscose, or a closed-loop lyocell like *TENCEL*. Some brands sell both side by side, so read the exact fiber name on the composition tag instead of the marketing copy."
       }
     ],
     "heroImage": "/fibers/rayon/wood-cross-section.jpg"
