@@ -2795,3 +2795,62 @@ button { font-family: inherit; }
   .coll-card,
   .coll-card-chev { transition: none; }
 }
+
+/* ── FAQ ACCORDION ──────────────────────────────────────────────────────────
+   Styles for <FaqAccordion>. Global on purpose: the component used to carry no
+   styles of its own, and every page that rendered it pasted its own copy of
+   this block (verify and the fiber guides had byte-identical rules, one merely
+   prefixed with .guide-page). The extension page then imported the component,
+   inherited nothing, and shipped an unstyled FAQ. One definition here means any
+   page that renders the component looks the same without pasting CSS again. */
+.vf-faq {
+  border: 1px solid var(--hairline-strong);
+  border-radius: 14px;
+  background: var(--white);
+  overflow: hidden;
+}
+.vf-faq__q {
+  width: 100%;
+  background: none;
+  border: 0;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+  font-family: var(--sans);
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  text-transform: none;
+}
+.vf-faq__caret {
+  flex-shrink: 0;
+  color: var(--ink-3);
+  transition: transform 280ms var(--ease-out-strong);
+}
+.vf-faq[data-open="true"] .vf-faq__caret { transform: rotate(180deg); }
+.vf-faq__panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 300ms var(--ease-out-strong);
+}
+.vf-faq[data-open="true"] .vf-faq__panel { grid-template-rows: 1fr; }
+.vf-faq__panelInner { overflow: hidden; }
+.vf-faq__a {
+  margin: 0;
+  padding: 0 20px 18px;
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink-2);
+  max-width: 640px;
+  text-transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .vf-faq__caret,
+  .vf-faq__panel { transition: none; }
+}

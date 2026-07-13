@@ -1205,29 +1205,8 @@ export default async function FiberGuidePage({
           transition: border-color .16s var(--ease-out-strong);
         }
 
-        /* FAQ (copied from the verify page so it styles here too) */
-        .guide-page .vf-faq {
-          border: 1px solid var(--hairline-strong); border-radius: 14px; background: var(--white); overflow: hidden;
-        }
-        .guide-page .vf-faq__q {
-          width: 100%; background: none; border: 0; text-align: left; cursor: pointer;
-          display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 20px;
-          font-family: var(--sans); font-size: 16px; font-weight: 500; color: var(--ink);
-          letter-spacing: -.01em; text-transform: none;
-        }
-        .guide-page .vf-faq__caret {
-          flex-shrink: 0; color: var(--ink-3); transition: transform 280ms var(--ease-out-strong);
-        }
-        .guide-page .vf-faq[data-open="true"] .vf-faq__caret { transform: rotate(180deg); }
-        .guide-page .vf-faq__panel {
-          display: grid; grid-template-rows: 0fr; transition: grid-template-rows 300ms var(--ease-out-strong);
-        }
-        .guide-page .vf-faq[data-open="true"] .vf-faq__panel { grid-template-rows: 1fr; }
-        .guide-page .vf-faq__panelInner { overflow: hidden; }
-        .guide-page .vf-faq__a {
-          margin: 0; padding: 0 20px 18px; font-family: var(--sans); font-size: 15px; line-height: 1.6;
-          color: var(--ink-2); max-width: 640px; text-transform: none;
-        }
+        /* .vf-faq styles moved to globals.css so every page rendering
+           <FaqAccordion> shares one definition. */
 
         @media (hover: hover) and (pointer: fine) {
           .guide-page .gp-jump a:hover { color: var(--ink); transform: translateX(4px); }
@@ -1241,9 +1220,6 @@ export default async function FiberGuidePage({
         @media (max-width: 720px) {
           .guide-page .gp-pgrid { grid-template-columns: repeat(2, 1fr); }
           .guide-page .gp-wrap { padding: 0 20px; }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .guide-page .vf-faq__caret, .guide-page .vf-faq__panel { transition: none; }
         }
       `}</style>
     </>

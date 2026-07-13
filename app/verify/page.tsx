@@ -507,56 +507,8 @@ export default async function VerifyPage() {
         @media (prefers-reduced-motion: reduce) {
           .cert-marquee__track { animation: none; }
         }
-        .vf-faq {
-          border: 1px solid var(--hairline-strong);
-          border-radius: 14px;
-          background: var(--white);
-          overflow: hidden;
-        }
-        .vf-faq__q {
-          width: 100%;
-          background: none;
-          border: 0;
-          text-align: left;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 16px;
-          padding: 18px 20px;
-          font-family: var(--sans);
-          font-size: 16px;
-          font-weight: 500;
-          color: var(--ink);
-          letter-spacing: -0.01em;
-          text-transform: none;
-        }
-        .vf-faq__caret {
-          flex-shrink: 0;
-          color: var(--ink-3);
-          transition: transform 280ms var(--ease-out-strong);
-        }
-        .vf-faq[data-open="true"] .vf-faq__caret { transform: rotate(180deg); }
-        .vf-faq__panel {
-          display: grid;
-          grid-template-rows: 0fr;
-          transition: grid-template-rows 300ms var(--ease-out-strong);
-        }
-        .vf-faq[data-open="true"] .vf-faq__panel { grid-template-rows: 1fr; }
-        .vf-faq__panelInner { overflow: hidden; }
-        .vf-faq__a {
-          margin: 0;
-          padding: 0 20px 18px;
-          font-family: var(--sans);
-          font-size: 15px;
-          line-height: 1.6;
-          color: var(--ink-2);
-          max-width: 640px;
-          text-transform: none;
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .vf-faq__caret, .vf-faq__panel { transition: none; }
-        }
+        /* .vf-faq styles now live in globals.css, shared by every page that
+           renders <FaqAccordion> (verify, the fiber guides, the extension). */
         @media (max-width: 900px) {
           .vf-hero { grid-template-columns: 1fr !important; gap: 36px !important; padding-top: 130px !important; }
           .vf-split { grid-template-columns: 1fr !important; gap: 32px !important; }

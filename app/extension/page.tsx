@@ -305,69 +305,6 @@ export default async function ExtensionPage() {
         </div>
       </section>
 
-      {/* The problem, stated. Gives the page something to actually be about,
-          and gives search a paragraph that matches what people type. */}
-      <section className="shell" style={{ paddingTop: 110 }}>
-        <div style={{ maxWidth: 660, margin: "0 auto" }}>
-          <p className="eyebrow" style={{ margin: "0 0 16px" }}>
-            Why you need it
-          </p>
-          <h2
-            style={{
-              fontFamily: "var(--sans)",
-              fontWeight: 500,
-              fontSize: "clamp(26px, 3.2vw, 38px)",
-              lineHeight: 1.12,
-              letterSpacing: "-0.02em",
-              color: "var(--ink)",
-              margin: "0 0 24px",
-            }}
-          >
-            The composition label is the most important thing on the page, and
-            the hardest to find.
-          </h2>
-          <p
-            style={{
-              fontSize: 16,
-              lineHeight: 1.7,
-              color: "var(--ink-2)",
-              margin: "0 0 18px",
-            }}
-          >
-            About 60% of what the world wears is now plastic. Polyester, nylon,
-            acrylic, and elastane are petroleum, spun into thread, and the
-            chemistry that goes on them afterward is a longer list than the fiber
-            itself: PFAS in the stain-resistant finish, formaldehyde resin in the
-            wrinkle-free cotton, disperse dyes that sit on synthetics and come off
-            on skin.
-          </p>
-          <p
-            style={{
-              fontSize: 16,
-              lineHeight: 1.7,
-              color: "var(--ink-2)",
-              margin: "0 0 18px",
-            }}
-          >
-            None of that is a secret. It's on the label. But the label is four
-            clicks deep, written in percentages, and by the time you've found it
-            you've already decided. So the check doesn't happen, and you find out
-            what you bought when it's already in your closet.
-          </p>
-          <p
-            style={{
-              fontSize: 16,
-              lineHeight: 1.7,
-              color: "var(--ink-2)",
-              margin: 0,
-            }}
-          >
-            Toxome does the check for you, on the page, in the second you land on
-            it.
-          </p>
-        </div>
-      </section>
-
       {/* What it catches */}
       <section className="shell" style={{ paddingTop: 110 }}>
         <div style={{ maxWidth: 720, margin: "0 auto 48px", textAlign: "center" }}>
