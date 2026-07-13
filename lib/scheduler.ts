@@ -35,6 +35,11 @@ export type SchedulerDraft = {
   media_type?: string | null; // image | carousel | video | null
   scheduled_at?: string | null; // ISO; if in the future, publish then instead of now
   link?: string | null; // Pinterest pin destination URL (defaults to the site root)
+  // Pinterest board to file the pin under. Pinterest is a search engine, so a
+  // pin only ranks on a topically-matched keyword board — callers that know the
+  // topic (e.g. the journal cron's cluster()) pass the board id here. Omitted →
+  // BLOTATO_PINTEREST_BOARD_ID, the generic catch-all board.
+  boardId?: string | null;
 };
 
 export type PushResult =
@@ -145,9 +150,9 @@ async function pushToBlotato(draft: SchedulerDraft): Promise<PushResult> {
 
   const target: Record<string, unknown> = { targetType: platform };
   if (platform === "pinterest") {
-    const boardId = process.env.BLOTATO_PINTEREST_BOARD_ID;
+    const boardId = draft.boardId || process.env.BLOTATO_PINTEREST_BOARD_ID;
     if (!boardId) {
-      return { ok: false, configured: true, error: "Pinterest needs BLOTATO_PINTEREST_BOARD_ID" };
+      return { ok: false, configured: true, error: "Pinterest needs a boardId on the draft or BLOTATO_PINTEREST_BOARD_ID" };
     }
     target.boardId = boardId;
     if (draft.title) target.title = draft.title;

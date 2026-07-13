@@ -79,8 +79,9 @@ export default async function ArticlePage({
   const taxonomy = await getShopTaxonomy();
   const shareUrl = `${SITE}/journal/${slug}`;
   const shareImage = OG_IMAGE;
-  // Tall hero+title card used specifically as the Pinterest pin media.
-  const pinImage = `${SITE}/journal/${slug}/pin`;
+  // Pin media for a reader-initiated save: photo 0 of the article's pin pool
+  // (the hero), rendered bare at 2:3. Same image the auto-pin cron uses.
+  const pinImage = `${SITE}/journal/${slug}/pin/0`;
   const pinDescription = `${article.title}: ${article.dek}`;
 
   const articleSchema = {
