@@ -2,9 +2,18 @@
 
 import { useEffect, useRef, useState } from "react";
 
+// An option can be a bare string (value === label) or a value/label pair when
+// the two differ, e.g. the cert filter's slug "oeko-tex-standard-100" → "OEKO-TEX".
+// `meta` renders right-aligned and muted, used for match counts.
+export type SelectOption = { value: string; label: string; meta?: string };
+
+function toOption(o: string | SelectOption): SelectOption {
+  return typeof o === "string" ? { value: o, label: o } : o;
+}
+
 type Props = {
   label: string;
-  options: string[];
+  options: (string | SelectOption)[];
   value: string;
   onChange: (v: string) => void;
   allLabel?: string;
@@ -20,6 +29,13 @@ type Props = {
   // "pill" (default) is the bordered pill trigger. "text" renders the trigger
   // as bare underlined text — used for the mobile Sort control.
   variant?: "pill" | "text";
+  // Multi-select mode: checkboxes instead of radios, the menu stays open across
+  // picks, and selection lives in `values`. `onChange` fires with the toggled
+  // option's value, or "All" when the shopper clears. Parent owns the toggle.
+  multiple?: boolean;
+  values?: string[];
+  // Multi-select only: a "Select all" row that checks every option at once.
+  onSelectAll?: () => void;
 };
 
 function Chevron({ open }: { open: boolean }) {
@@ -77,6 +93,36 @@ function Radio({ checked }: { checked: boolean }) {
   );
 }
 
+function Check({ checked }: { checked: boolean }) {
+  return (
+    <span
+      style={{
+        flexShrink: 0,
+        width: 16,
+        height: 16,
+        borderRadius: 5,
+        border: `1px solid ${checked ? "var(--ink)" : "var(--hairline-strong)"}`,
+        background: checked ? "var(--ink)" : "transparent",
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        transition: "border-color 160ms var(--ease), background 160ms var(--ease)",
+      }}
+    >
+      <svg width="9" height="7" viewBox="0 0 9 7" fill="none" aria-hidden="true">
+        <path
+          d="M1 3.6L3.3 5.9L8 1.2"
+          stroke="var(--cream)"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          style={{ opacity: checked ? 1 : 0, transition: "opacity 160ms var(--ease)" }}
+        />
+      </svg>
+    </span>
+  );
+}
+
 export default function FrostedSelect({
   label,
   options,
@@ -88,6 +134,9 @@ export default function FrostedSelect({
   capitalize = false,
   stickyLabel = false,
   variant = "pill",
+  multiple = false,
+  values = [],
+  onSelectAll,
 }: Props) {
   const isText = variant === "text";
   const [open, setOpen] = useState(false);
@@ -97,7 +146,12 @@ export default function FrostedSelect({
   // it, a pill on the right side of a phone row opens a 240px menu that runs off
   // the right edge of the screen.
   const [shiftX, setShiftX] = useState(0);
-  const isActive = hideAll ? true : value !== "All";
+  const opts = options.map(toOption);
+  const isActive = multiple
+    ? values.length > 0
+    : hideAll
+      ? true
+      : value !== "All";
 
   // After the menu renders, measure it and shift it back on-screen if either
   // edge spills past the viewport (12px breathing room).
@@ -132,7 +186,17 @@ export default function FrostedSelect({
     };
   }, [open]);
 
-  const triggerLabel = isActive && !stickyLabel ? value : label;
+  // In multi-select, one pick reads as itself and several read as a count, so the
+  // pill never grows into a run-on list of cert names.
+  const multiLabel =
+    values.length === 1
+      ? opts.find((o) => o.value === values[0])?.label ?? label
+      : `${label} · ${values.length}`;
+  const triggerLabel = !isActive || stickyLabel
+    ? label
+    : multiple
+      ? multiLabel
+      : value;
 
   return (
     <div
@@ -219,25 +283,39 @@ export default function FrostedSelect({
         >
           {!hideAll && (
             <DropdownItem
-              isSelected={value === "All"}
+              isSelected={multiple ? values.length === 0 : value === "All"}
               onClick={() => {
                 onChange("All");
-                setOpen(false);
+                if (!multiple) setOpen(false);
               }}
               label={allLabel}
               muted
+              multiple={multiple}
             />
           )}
-          {options.map((opt) => (
+          {multiple && onSelectAll && (
             <DropdownItem
-              key={opt}
-              isSelected={value === opt}
+              isSelected={values.length === opts.length}
+              onClick={onSelectAll}
+              label="Select all"
+              muted
+              multiple
+            />
+          )}
+          {opts.map((opt) => (
+            <DropdownItem
+              key={opt.value}
+              isSelected={
+                multiple ? values.includes(opt.value) : value === opt.value
+              }
               onClick={() => {
-                onChange(opt);
-                setOpen(false);
+                onChange(opt.value);
+                if (!multiple) setOpen(false);
               }}
-              label={opt}
+              label={opt.label}
+              meta={opt.meta}
               capitalize={capitalize}
+              multiple={multiple}
             />
           ))}
         </div>
@@ -261,16 +339,20 @@ export default function FrostedSelect({
 
 function DropdownItem({
   label,
+  meta,
   isSelected,
   onClick,
   muted = false,
   capitalize = false,
+  multiple = false,
 }: {
   label: string;
+  meta?: string;
   isSelected: boolean;
   onClick: () => void;
   muted?: boolean;
   capitalize?: boolean;
+  multiple?: boolean;
 }) {
   const [hovered, setHovered] = useState(false);
   return (
@@ -300,8 +382,20 @@ function DropdownItem({
         transition: "background 140ms var(--ease)",
       }}
     >
-      <Radio checked={isSelected} />
-      <span>{label}</span>
+      {multiple ? <Check checked={isSelected} /> : <Radio checked={isSelected} />}
+      <span style={{ flex: 1 }}>{label}</span>
+      {meta && (
+        <span
+          style={{
+            flexShrink: 0,
+            fontSize: 12,
+            color: "var(--ink-3)",
+            fontVariantNumeric: "tabular-nums",
+          }}
+        >
+          {meta}
+        </span>
+      )}
     </button>
   );
 }

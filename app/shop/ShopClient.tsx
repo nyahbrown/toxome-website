@@ -15,30 +15,16 @@ import { normalizeFiber } from "@/lib/fabricScores";
 import { EDITORS_PICKS, isEditorsPick } from "@/lib/editorsPicks";
 import { track } from "@/lib/track";
 import {
-  resolveRung,
   healthCertBadge,
-  type VerificationRung,
+  productCertSlugs,
+  HEALTH_CERTS,
+  TOXOME_VERIFIED,
 } from "@/lib/verification";
 import { KIDS_AGE_BANDS, sizesToBands, type KidsAgeBand } from "@/lib/kidsSizes";
 
 export type ShopSection = "women" | "men" | "kids" | "home" | null;
 
 const PAGE_SIZE = 16;
-
-// Numeric rank for the verification ladder so the filter can express a minimum
-// trust threshold. lab_verified is internal-only — it ranks as "verified or
-// better" for matching but is never shown as a public label.
-const RUNG_RANK: Record<VerificationRung, number> = {
-  undisclosed: 0,
-  self_disclosed: 1,
-  verified: 2,
-  lab_verified: 3,
-};
-function productRungRank(p: Product): number {
-  return RUNG_RANK[
-    resolveRung({ certifications: p.certifications, verification_rung: p.verification_rung })
-  ];
-}
 
 // The set of active filter constraints. Shared by the live grid and the mobile
 // Refine sheet's "Show N results" count so the two never disagree.
@@ -47,7 +33,7 @@ type FilterState = {
   section: string | null;
   fiber: string | null;
   category: string; // "All" or a category name
-  verificationThreshold: number | null;
+  certSlugs: string[]; // empty = no cert constraint
   occasion: string | null;
   age: KidsAgeBand | null;
   brand: string | null;
@@ -66,7 +52,11 @@ function matchesFilters(p: Product, f: FilterState): boolean {
     if (!fibers.includes(target)) return false;
   }
   if (f.category !== "All" && p.category !== f.category) return false;
-  if (f.verificationThreshold !== null && productRungRank(p) < f.verificationThreshold)
+  // ANY-match: picking GOTS + OEKO-TEX shows products carrying either, not both.
+  if (
+    f.certSlugs.length > 0 &&
+    !productCertSlugs(p).some((s) => f.certSlugs.includes(s))
+  )
     return false;
   if (f.occasion && !(p.occasion ?? []).includes(f.occasion)) return false;
   if (f.section === "kids" && f.age && !sizesToBands(p.sizes).includes(f.age))
@@ -86,8 +76,10 @@ function matchesFilters(p: Product, f: FilterState): boolean {
   return true;
 }
 
-// Public verification filter options (lab_verified intentionally excluded).
-const VERIFICATION_OPTIONS = ["Verified", "Self-disclosed or better"];
+// Every cert the registry knows about, plus the doc-verified pseudo-cert. The
+// filter only ever offers the subset that has stock in the current section (see
+// certOptions), so a shopper can never pick an option that returns nothing.
+const ALL_CERT_BADGES = [...HEALTH_CERTS, TOXOME_VERIFIED];
 
 // Sort menu — shared by the desktop sort pill and the mobile Sort dropdown.
 const SORT_OPTIONS = [
@@ -558,17 +550,50 @@ export default function ShopClient({
       : null;
   const query = (searchParams.get("q") || "").trim();
 
-  // Verification trust threshold: "verified" keeps rank >= 2 (verified or above),
-  // "self_disclosed" keeps rank >= 1 (self-disclosed or above).
-  const verificationRaw = searchParams.get("verification");
-  const verificationThreshold =
-    verificationRaw === "verified" ? 2 : verificationRaw === "self_disclosed" ? 1 : null;
-  const verificationValue =
-    verificationThreshold === 2
-      ? "Verified"
-      : verificationThreshold === 1
-        ? "Self-disclosed or better"
-        : "All";
+  // Certification filter. Options are built from the live catalog for this
+  // section and ranked by stock, so the list only ever offers certs that return
+  // products, and the ones shoppers actually see (GOTS, OEKO-TEX) sit on top.
+  const certOptions = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const p of products) {
+      if (sectionGender && p.gender !== sectionGender) continue;
+      for (const slug of productCertSlugs(p)) {
+        counts.set(slug, (counts.get(slug) ?? 0) + 1);
+      }
+    }
+    return ALL_CERT_BADGES.filter((c) => (counts.get(c.slug) ?? 0) > 0)
+      .map((c) => ({
+        value: c.slug,
+        label: c.label,
+        meta: String(counts.get(c.slug)),
+        count: counts.get(c.slug)!,
+      }))
+      .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
+  }, [products, sectionGender]);
+
+  // ?certs=gots,oeko-tex-standard-100 → ["gots", "oeko-tex-standard-100"].
+  // Unknown or out-of-stock slugs are dropped so a stale link can't filter the
+  // grid down to nothing with an option the shopper can't even see to remove.
+  const certSlugs = useMemo(() => {
+    const raw = searchParams.get("certs");
+    if (!raw) return [];
+    const available = new Set(certOptions.map((o) => o.value));
+    return raw
+      .split(",")
+      .map((s) => s.trim())
+      .filter((s) => available.has(s));
+  }, [searchParams, certOptions]);
+
+  const certKey = certSlugs.join(",");
+  const toParam = (slugs: string[]) => (slugs.length ? slugs.join(",") : null);
+  const toggleCert = (slug: string) =>
+    updateParams({
+      certs: toParam(
+        certSlugs.includes(slug)
+          ? certSlugs.filter((s) => s !== slug)
+          : [...certSlugs, slug]
+      ),
+    });
 
   // Record committed searches (debounced so we log the settled term, not every
   // keystroke), a free read on what shoppers want, including gaps we don't stock.
@@ -652,19 +677,21 @@ export default function ShopClient({
       section,
       fiber: fiberFilter,
       category,
-      verificationThreshold,
+      certSlugs,
       occasion: occasionFilter,
       age: ageFilter,
       brand: brandFilter,
       priceBand,
       query: query.toLowerCase(),
     }),
+    // certKey (not certSlugs) — the array is a new identity every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       sectionGender,
       section,
       fiberFilter,
       category,
-      verificationThreshold,
+      certKey,
       occasionFilter,
       ageFilter,
       brandFilter,
@@ -751,14 +778,16 @@ export default function ShopClient({
     !!priceBand ||
     category !== "All" ||
     query.length > 0 ||
-    verificationThreshold !== null;
+    certSlugs.length > 0;
 
   // Count of filters the mobile Refine sheet controls (search box excluded —
   // it lives in the nav, not the sheet). Drives the "Refine · N" badge.
+  // Certs count once no matter how many are ticked, matching the one-row-per-
+  // filter shape of the sheet.
   const refineCount =
     (category !== "All" ? 1 : 0) +
     (fiberFilter ? 1 : 0) +
-    (verificationThreshold !== null ? 1 : 0) +
+    (certSlugs.length > 0 ? 1 : 0) +
     (occasionFilter ? 1 : 0) +
     (brandFilter ? 1 : 0) +
     (priceBand ? 1 : 0) +
@@ -773,7 +802,7 @@ export default function ShopClient({
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
-  }, [section, fiberFilter, occasionFilter, ageFilter, category, query, sort, verificationThreshold, brandFilter, priceBand]);
+  }, [section, fiberFilter, occasionFilter, ageFilter, category, query, sort, certKey, brandFilter, priceBand]);
   const visible = filtered.slice(0, visibleCount);
   const hiddenCount = Math.max(0, filtered.length - visibleCount);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
@@ -966,9 +995,9 @@ export default function ShopClient({
               stickyLabel
             />
           )}
-          {/* Fiber + Verification are uniform across the kids catalog (all
-              organic cotton, none rung-verified yet), so they'd be dead filters
-              there — hidden in favor of Brand + Price below. */}
+          {/* Fiber + Certification are uniform across the kids catalog (all
+              organic cotton, all GOTS), so they'd be dead filters there — hidden
+              in favor of Brand + Price below. */}
           {section !== "kids" && (
           <FrostedSelect
             label="Fiber"
@@ -979,20 +1008,16 @@ export default function ShopClient({
             stickyLabel
           />
           )}
-          {section !== "kids" && (
+          {section !== "kids" && certOptions.length > 0 && (
           <FrostedSelect
-            label="Verification"
-            options={VERIFICATION_OPTIONS}
-            value={verificationValue}
-            onChange={(v) =>
-              updateParams({
-                verification:
-                  v === "Verified"
-                    ? "verified"
-                    : v === "Self-disclosed or better"
-                      ? "self_disclosed"
-                      : null,
-              })
+            label="Certification"
+            options={certOptions}
+            multiple
+            values={certSlugs}
+            value="All"
+            onChange={(v) => (v === "All" ? updateParams({ certs: null }) : toggleCert(v))}
+            onSelectAll={() =>
+              updateParams({ certs: toParam(certOptions.map((o) => o.value)) })
             }
             stickyLabel
           />
@@ -1103,16 +1128,13 @@ export default function ShopClient({
         section={section}
         sectionCategories={sectionCategories}
         sectionBrands={sectionBrands}
+        certOptions={certOptions}
         products={products}
         baseFilters={activeFilters}
         applied={{
           category,
           fiber: fiberFilter,
-          verification: verificationRaw === "verified"
-            ? "verified"
-            : verificationRaw === "self_disclosed"
-              ? "self_disclosed"
-              : null,
+          certs: certSlugs,
           occasion: occasionFilter,
           brand: brandFilter,
           price: priceRaw ?? null,
@@ -1122,7 +1144,7 @@ export default function ShopClient({
           updateParams({
             category: v.category,
             fiber: v.fiber,
-            verification: v.verification,
+            certs: v.certs,
             occasion: v.occasion,
             brand: v.brand,
             price: v.price,
@@ -1168,12 +1190,13 @@ export default function ShopClient({
               onRemove={() => updateParams({ fiber: null })}
             />
           )}
-          {verificationThreshold !== null && (
+          {certSlugs.map((slug) => (
             <FilterChip
-              label={verificationValue}
-              onRemove={() => updateParams({ verification: null })}
+              key={slug}
+              label={certOptions.find((o) => o.value === slug)?.label ?? slug}
+              onRemove={() => toggleCert(slug)}
             />
-          )}
+          ))}
           {occasionFilter && (
             <FilterChip
               label={occasionFilter}
@@ -1217,7 +1240,7 @@ export default function ShopClient({
                   occasion: null,
                   age: null,
                   q: null,
-                  verification: null,
+                  certs: null,
                   brand: null,
                   price: null,
                 })
@@ -1264,12 +1287,14 @@ export default function ShopClient({
 type RefineValues = {
   category: string | null;
   fiber: string | null;
-  verification: string | null;
+  certs: string | null; // comma-joined slugs, null when none picked
   occasion: string | null;
   brand: string | null;
   price: string | null;
   age: string | null;
 };
+
+type CertOption = { value: string; label: string; meta: string };
 
 // Mobile-only (<=640px) filter side sheet. All filters live here as accordion
 // sections; selections are staged locally and only committed when the shopper
@@ -1280,6 +1305,7 @@ function RefineSheet({
   section,
   sectionCategories,
   sectionBrands,
+  certOptions,
   products,
   baseFilters,
   applied,
@@ -1290,12 +1316,13 @@ function RefineSheet({
   section: string | null;
   sectionCategories: string[];
   sectionBrands: string[];
+  certOptions: CertOption[];
   products: Product[];
   baseFilters: FilterState;
   applied: {
     category: string;
     fiber: string | null;
-    verification: string | null;
+    certs: string[];
     occasion: string | null;
     brand: string | null;
     price: string | null;
@@ -1306,7 +1333,7 @@ function RefineSheet({
   const emptyStaged = {
     category: "All",
     fiber: null as string | null,
-    verification: null as string | null,
+    certs: [] as string[],
     occasion: null as string | null,
     brand: null as string | null,
     price: null as string | null,
@@ -1321,7 +1348,7 @@ function RefineSheet({
     setStaged({
       category: applied.category,
       fiber: applied.fiber,
-      verification: applied.verification,
+      certs: applied.certs,
       occasion: applied.occasion,
       brand: applied.brand,
       price: applied.price,
@@ -1352,8 +1379,13 @@ function RefineSheet({
     label: string;
     value: string | null;
     displayValue: string;
-    options: { label: string; value: string }[];
+    options: { label: string; value: string; meta?: string }[];
     onSelect: (value: string | null) => void;
+    // Multi-select rows (certs) tick checkboxes and stage an array. `onSelect(null)`
+    // still clears the whole row, so the shared "All" option needs no special case.
+    multi?: boolean;
+    values?: string[];
+    onToggle?: (value: string) => void;
   };
   const sections: Sec[] = [];
   if (sectionCategories.length > 0) {
@@ -1375,22 +1407,31 @@ function RefineSheet({
       options: FIBERS.map((f) => ({ label: f.name, value: f.name })),
       onSelect: (v) => setStaged((s) => ({ ...s, fiber: v })),
     });
-    sections.push({
-      key: "verification",
-      label: "Verification",
-      value: staged.verification,
-      displayValue:
-        staged.verification === "verified"
-          ? "Verified"
-          : staged.verification === "self_disclosed"
-            ? "Self-disclosed or better"
-            : "All",
-      options: [
-        { label: "Verified", value: "verified" },
-        { label: "Self-disclosed or better", value: "self_disclosed" },
-      ],
-      onSelect: (v) => setStaged((s) => ({ ...s, verification: v })),
-    });
+    if (certOptions.length > 0) {
+      sections.push({
+        key: "certs",
+        label: "Certification",
+        value: null,
+        displayValue:
+          staged.certs.length === 0
+            ? "All"
+            : staged.certs.length === 1
+              ? certOptions.find((o) => o.value === staged.certs[0])?.label ??
+                staged.certs[0]
+              : `${staged.certs.length} selected`,
+        options: certOptions,
+        multi: true,
+        values: staged.certs,
+        onSelect: () => setStaged((s) => ({ ...s, certs: [] })),
+        onToggle: (v) =>
+          setStaged((s) => ({
+            ...s,
+            certs: s.certs.includes(v)
+              ? s.certs.filter((c) => c !== v)
+              : [...s.certs, v],
+          })),
+      });
+    }
   }
   if (section === "kids" && sectionBrands.length > 0) {
     sections.push({
@@ -1436,12 +1477,6 @@ function RefineSheet({
   }
 
   // Live match count for the staged selection → the apply-button label.
-  const verThreshold =
-    staged.verification === "verified"
-      ? 2
-      : staged.verification === "self_disclosed"
-        ? 1
-        : null;
   const band = staged.price
     ? KIDS_PRICE_BANDS.find((b) => b.value === staged.price)
     : null;
@@ -1449,7 +1484,7 @@ function RefineSheet({
     ...baseFilters,
     category: staged.category,
     fiber: staged.fiber,
-    verificationThreshold: verThreshold,
+    certSlugs: staged.certs,
     occasion: staged.occasion,
     brand: staged.brand,
     priceBand: band ? { min: band.min, max: band.max } : null,
@@ -1463,7 +1498,7 @@ function RefineSheet({
   const stagedCount =
     (staged.category !== "All" ? 1 : 0) +
     (staged.fiber ? 1 : 0) +
-    (staged.verification ? 1 : 0) +
+    (staged.certs.length > 0 ? 1 : 0) +
     (staged.occasion ? 1 : 0) +
     (staged.brand ? 1 : 0) +
     (staged.price ? 1 : 0) +
@@ -1473,7 +1508,7 @@ function RefineSheet({
     onApply({
       category: staged.category === "All" ? null : staged.category,
       fiber: staged.fiber,
-      verification: staged.verification,
+      certs: staged.certs.length ? staged.certs.join(",") : null,
       occasion: staged.occasion,
       brand: staged.brand,
       price: staged.price,
@@ -1528,18 +1563,33 @@ function RefineSheet({
                   </svg>
                 </button>
                 {isOpen && (
-                  <div className="refine-acc__body" role="radiogroup" aria-label={sec.label}>
+                  <div
+                    className="refine-acc__body"
+                    role={sec.multi ? "group" : "radiogroup"}
+                    aria-label={sec.label}
+                  >
                     <RefineOption
                       label="All"
-                      selected={sec.value === null}
+                      selected={sec.multi ? (sec.values?.length ?? 0) === 0 : sec.value === null}
                       onClick={() => sec.onSelect(null)}
+                      multi={sec.multi}
                     />
                     {sec.options.map((opt) => (
                       <RefineOption
                         key={opt.value}
                         label={opt.label}
-                        selected={sec.value === opt.value}
-                        onClick={() => sec.onSelect(opt.value)}
+                        meta={opt.meta}
+                        selected={
+                          sec.multi
+                            ? !!sec.values?.includes(opt.value)
+                            : sec.value === opt.value
+                        }
+                        onClick={() =>
+                          sec.multi
+                            ? sec.onToggle?.(opt.value)
+                            : sec.onSelect(opt.value)
+                        }
+                        multi={sec.multi}
                       />
                     ))}
                   </div>
@@ -1571,23 +1621,31 @@ function RefineSheet({
 
 function RefineOption({
   label,
+  meta,
   selected,
   onClick,
+  multi = false,
 }: {
   label: string;
+  meta?: string;
   selected: boolean;
   onClick: () => void;
+  multi?: boolean;
 }) {
   return (
     <button
       type="button"
-      role="radio"
+      role={multi ? "checkbox" : "radio"}
       aria-checked={selected}
       className={`refine-opt${selected ? " is-selected" : ""}`}
       onClick={onClick}
     >
-      <span className="refine-opt__radio" aria-hidden="true" />
+      <span
+        className={multi ? "refine-opt__check" : "refine-opt__radio"}
+        aria-hidden="true"
+      />
       <span>{label}</span>
+      {meta && <span className="refine-opt__meta">{meta}</span>}
     </button>
   );
 }

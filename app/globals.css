@@ -915,6 +915,39 @@ button { font-family: inherit; }
   border-radius: 999px;
   background: var(--ink);
 }
+/* Square mark for multi-select rows (Certification), so ticking several reads as
+   checkboxes rather than a radio group that somehow allows more than one. */
+.refine-opt__check {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 5px;
+  border: 1px solid var(--hairline-strong);
+  position: relative;
+  transition: border-color 160ms var(--ease), background 160ms var(--ease);
+}
+.refine-opt.is-selected .refine-opt__check {
+  border-color: var(--ink);
+  background: var(--ink);
+}
+.refine-opt.is-selected .refine-opt__check::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+  border: solid var(--cream);
+  border-width: 0 1.6px 1.6px 0;
+  transform: rotate(45deg);
+}
+.refine-opt__meta {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: 12px;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
 .refine-panel__foot {
   flex-shrink: 0;
   display: flex;
