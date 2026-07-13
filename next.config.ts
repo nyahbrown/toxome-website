@@ -21,6 +21,20 @@ const nextConfig: NextConfig = {
       { source: "/compare/polyester-vs-nylon", destination: "/journal/polyester-vs-cotton", permanent: true },
       { source: "/compare", destination: "/journal", permanent: true },
       { source: "/compare/:path*", destination: "/journal", permanent: true },
+      // Cashmere and merino each shipped as two collections with the same match()
+      // and the same heading, so they cannibalized each other. Merged into the
+      // shorter slugs (the only two with any impressions in Search Console) and
+      // kept the richer copy from the -clothing versions.
+      {
+        source: "/shop/collection/non-toxic-cashmere-clothing",
+        destination: "/shop/collection/non-toxic-cashmere",
+        permanent: true,
+      },
+      {
+        source: "/shop/collection/non-toxic-merino-wool-clothing",
+        destination: "/shop/collection/non-toxic-merino-wool",
+        permanent: true,
+      },
     ];
   },
 };

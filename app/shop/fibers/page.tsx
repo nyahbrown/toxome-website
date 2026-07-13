@@ -53,7 +53,7 @@ const FIBERS: FiberCard[] = [
   {
     name: "merino wool",
     guide: "merino_wool",
-    collection: "non-toxic-merino-wool-clothing",
+    collection: "non-toxic-merino-wool",
     note: "fine enough to feel soft, regulates temperature without synthetic finishes.",
   },
   {
@@ -65,7 +65,7 @@ const FIBERS: FiberCard[] = [
   {
     name: "cashmere",
     guide: "cashmere",
-    collection: "non-toxic-cashmere-clothing",
+    collection: "non-toxic-cashmere",
     note: "soft goat down that insulates without the plastic of acrylic knits.",
   },
   {

@@ -301,45 +301,58 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
   },
   {
     slug: "non-toxic-cashmere",
-    title: "Non-Toxic Cashmere, Scored by Fiber | Toxome",
+    title: "Non-Toxic Cashmere, Ethically Sourced | Toxome",
     heading: "non-toxic cashmere",
     description:
-      "Pure cashmere scored by Toxome. A natural animal fiber that insulates without the plastic of acrylic 'soft' knits.",
+      "Pure cashmere scored by Toxome. A natural goat fiber that insulates without the plastic of acrylic knits, dehaired for softness and free of synthetic blends.",
     intro:
-      "many soft sweaters are acrylic, a plastic fiber that pills, traps heat, and sheds microplastics. real cashmere is a natural animal fiber that insulates and breathes. every piece here is scored by toxome for its real fiber content, so you can tell pure cashmere from a synthetic blend.",
+      "many soft sweaters are acrylic, a plastic fiber that pills, traps heat, and sheds microplastics in the wash. real cashmere is the fine under-layer combed from cashmere goats, and how good it feels comes down to how well it was made. the fine fluff is dehaired to pull out the coarse guard hairs, and only a rushed job leaves those hairs in to scratch. every piece here is scored by toxome for its real fiber content, so you can tell well-made, pure cashmere from a synthetic blend.",
     faqs: [
       {
-        q: "Is cashmere a non-toxic fabric?",
-        a: "Cashmere is a natural fiber from cashmere goats, free of the plastics in acrylic and polyester knits. It is warm, breathable, and gentle on skin. Toxome scores each piece so you can confirm it is real cashmere and not a synthetic blend.",
+        q: "Is cashmere non-toxic?",
+        a: "Cashmere is a natural fiber from cashmere goats, free of the plastics in acrylic and polyester knits. It is warm, breathable, and gentle on skin. Look for OEKO-TEX Standard 100 for safe dyes and finishes. Toxome scores each piece so you can confirm it is real cashmere and not a synthetic blend.",
       },
       {
         q: "Is cashmere better than acrylic?",
         a: "Cashmere is a natural fiber that breathes and regulates warmth, while acrylic is a plastic that traps heat, pills quickly, and sheds microplastics in the wash. The two feel similar when new, but wear very differently.",
       },
       {
+        q: "Why is some cashmere scratchy?",
+        a: "It takes only a few missed guard hairs to make soft cashmere itch. That poking is prickle, not an allergy. Cheap cashmere is usually cheap because the dehairing step was rushed, so buy on fineness and how well it was dehaired, not just the word cashmere.",
+      },
+      {
+        q: "Is cashmere ethically sourced?",
+        a: "Cashmere goats graze close to the ground and can wear out fragile grassland, and each goat gives so little fiber that one sweater takes many goats. Responsibly sourced cashmere manages grazing and animal welfare, so look for that alongside OEKO-TEX certification.",
+      },
+      {
         q: "Why does Toxome score clothes by fiber?",
         a: "Fiber content is what touches the skin. Toxome reads each garment's composition and rates it, so the score reflects what the clothing is made of, not a brand's marketing.",
       },
     ],
     section: null,
+    guideSlug: "cashmere",
     match: (p) => hasFiber(p, "cashmere"),
   },
   {
     slug: "non-toxic-merino-wool",
-    title: "Non-Toxic Merino Wool Clothing, Scored | Toxome",
+    title: "Non-Toxic Merino Wool Clothing | Toxome",
     heading: "non-toxic merino wool",
     description:
-      "Merino wool clothing scored by Toxome. A fine natural fiber that regulates temperature and resists odor without synthetic treatments.",
+      "Merino wool clothing scored by Toxome. A fine natural fiber that regulates temperature and resists odor, without the superwash plastic coating on most machine-washable knits.",
     intro:
-      "merino wool is a fine natural fiber that keeps you warm when it is cold and cool when it is warm, and it resists odor without the chemical finishes added to synthetic activewear. every piece here is scored by toxome for its real fiber content.",
+      "merino wool comes from sheep bred for an especially fine fleece, fine enough to feel soft against the skin instead of scratchy, which is why it is used for base layers worn right on the body. it keeps you warm when it is cold and cool when it is warm, and it resists odor on its own without the antimicrobial finishes added to synthetic activewear. the catch is the superwash treatment, a chlorine bath and thin plastic coating many merinos get so they can be machine washed. every piece here is scored by toxome for its real fiber content, so you can choose fine, untreated merino.",
     faqs: [
       {
         q: "Is merino wool non-toxic?",
-        a: "Merino wool is a natural animal fiber, free of the plastics in polyester and nylon activewear. It regulates temperature and resists odor on its own, without antimicrobial chemical treatments. Toxome scores each piece by its fiber content.",
+        a: "Merino wool is a natural animal fiber, free of the plastics in polyester and nylon activewear. It regulates temperature and resists odor on its own, without antimicrobial chemical treatments. The concern is the superwash coating, so choose untreated merino with OEKO-TEX Standard 100 and the Responsible Wool Standard, which also bans mulesing. Toxome scores each piece by its fiber content.",
       },
       {
         q: "Is merino wool itchy?",
-        a: "Merino fibers are much finer than regular wool, so they feel soft rather than scratchy against the skin. That fineness is why merino is used for base layers worn next to the body.",
+        a: "Merino fibers are much finer than regular wool, so they feel soft rather than scratchy against the skin. Any itch is prickle, a physical poking, not a true allergy. That fineness is why merino is worn as a base layer next to the body.",
+      },
+      {
+        q: "Is merino wool good for sensitive skin?",
+        a: "Because it is so fine, merino is well tolerated and can even suit eczema-prone skin. Pick fine grades around 17 to 18.5 microns and untreated, non-superwash merino when you can.",
       },
       {
         q: "Why does Toxome score clothes by fiber?",
@@ -347,6 +360,7 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
       },
     ],
     section: null,
+    guideSlug: "merino_wool",
     match: (p) => hasFiber(p, "merino"),
   },
   {
@@ -742,66 +756,6 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
     match: (p) => hasFiber(p, "wool"),
   },
   {
-    slug: "non-toxic-merino-wool-clothing",
-    title: "Non-Toxic Merino Wool Clothing | Toxome",
-    heading: "non-toxic merino wool clothing",
-    description:
-      "Merino wool clothing scored by Toxome. A fine natural fiber that regulates temperature and resists odor, without the superwash plastic coating on most machine-washable knits.",
-    intro:
-      "merino wool comes from sheep bred for an especially fine fleece, fine enough to feel soft against the skin instead of scratchy, which is why it is used for base layers worn right on the body. it keeps you warm when it is cold and cool when it is warm, and it resists odor on its own without the antimicrobial finishes added to synthetic activewear. the catch is the superwash treatment, a chlorine bath and thin plastic coating many merinos get so they can be machine washed. every piece here is scored by toxome for its real fiber content, so you can choose fine, untreated merino.",
-    faqs: [
-      {
-        q: "Is merino wool non-toxic?",
-        a: "Merino wool is a natural animal fiber, free of the plastics in polyester and nylon activewear. It regulates temperature and resists odor on its own, without antimicrobial chemical treatments. The concern is the superwash coating, so choose untreated merino with OEKO-TEX Standard 100 and the Responsible Wool Standard, which also bans mulesing. Toxome scores each piece by its fiber content.",
-      },
-      {
-        q: "Is merino wool itchy?",
-        a: "Merino fibers are much finer than regular wool, so they feel soft rather than scratchy against the skin. Any itch is prickle, a physical poking, not a true allergy. That fineness is why merino is worn as a base layer next to the body.",
-      },
-      {
-        q: "Is merino wool good for sensitive skin?",
-        a: "Because it is so fine, merino is well tolerated and can even suit eczema-prone skin. Pick fine grades around 17 to 18.5 microns and untreated, non-superwash merino when you can.",
-      },
-      {
-        q: "Why does Toxome score clothes by fiber?",
-        a: "Fiber content is what touches the skin. Toxome reads each garment's composition and rates it, so the score reflects what the clothing is made of, not a brand's marketing.",
-      },
-    ],
-    section: null,
-    guideSlug: "merino_wool",
-    match: (p) => hasFiber(p, "merino"),
-  },
-  {
-    slug: "non-toxic-cashmere-clothing",
-    title: "Non-Toxic Cashmere, Ethically Sourced | Toxome",
-    heading: "non-toxic cashmere",
-    description:
-      "Pure cashmere scored by Toxome. A natural goat fiber that insulates without the plastic of acrylic knits, dehaired for softness and free of synthetic blends.",
-    intro:
-      "many soft sweaters are acrylic, a plastic fiber that pills, traps heat, and sheds microplastics in the wash. real cashmere is the fine under-layer combed from cashmere goats, and how good it feels comes down to how well it was made. the fine fluff is dehaired to pull out the coarse guard hairs, and only a rushed job leaves those hairs in to scratch. every piece here is scored by toxome for its real fiber content, so you can tell well-made, pure cashmere from a synthetic blend.",
-    faqs: [
-      {
-        q: "Is cashmere non-toxic?",
-        a: "Cashmere is a natural fiber from cashmere goats, free of the plastics in acrylic and polyester knits. It is warm, breathable, and gentle on skin. Look for OEKO-TEX Standard 100 for safe dyes and finishes. Toxome scores each piece so you can confirm it is real cashmere and not a synthetic blend.",
-      },
-      {
-        q: "Why is some cashmere scratchy?",
-        a: "It takes only a few missed guard hairs to make soft cashmere itch. That poking is prickle, not an allergy. Cheap cashmere is usually cheap because the dehairing step was rushed, so buy on fineness and how well it was dehaired, not just the word cashmere.",
-      },
-      {
-        q: "Is cashmere ethically sourced?",
-        a: "Cashmere goats graze close to the ground and can wear out fragile grassland, and each goat gives so little fiber that one sweater takes many goats. Responsibly sourced cashmere manages grazing and animal welfare, so look for that alongside OEKO-TEX certification.",
-      },
-      {
-        q: "Why does Toxome score clothes by fiber?",
-        a: "Fiber content is what touches the skin. Toxome reads each garment's composition and rates it, so the score reflects what the clothing is made of, not a brand's marketing.",
-      },
-    ],
-    section: null,
-    guideSlug: "cashmere",
-    match: (p) => hasFiber(p, "cashmere"),
-  },
-  {
     slug: "non-toxic-tencel-lyocell-clothing",
     title: "Non-Toxic TENCEL Lyocell Clothing | Toxome",
     heading: "non-toxic tencel lyocell clothing",
@@ -899,8 +853,8 @@ const FIBER_TO_COLLECTION: [string, string][] = [
   ["organic cotton", "non-toxic-organic-cotton-clothing"],
   // "merino" must precede "wool": a "merino wool" key should route to merino,
   // not the broad wool page.
-  ["merino", "non-toxic-merino-wool-clothing"],
-  ["cashmere", "non-toxic-cashmere-clothing"],
+  ["merino", "non-toxic-merino-wool"],
+  ["cashmere", "non-toxic-cashmere"],
   ["tencel", "non-toxic-tencel-lyocell-clothing"],
   ["ramie", "non-toxic-ramie-clothing"],
   ["alpaca", "non-toxic-alpaca-clothing"],
