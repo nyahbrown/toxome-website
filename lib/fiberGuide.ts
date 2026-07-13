@@ -6,7 +6,7 @@
 // 12-year-old can follow, *italics* (asterisks) for emphasis, never em dashes.
 // Sources are real and shown in fine print on each fiber page.
 
-import { fiberScore, scoreToRiskLevel, hazardColor } from "./fabricScores";
+import { fiberScore, scoreToRiskLevel, hazardColor, resolveFiber } from "./fabricScores";
 import { FIBER_RICH } from "./fiberGuideRich";
 
 export type FiberSource = { title: string; publisher: string; url: string };
@@ -1358,4 +1358,30 @@ export function fibersByBand(): { band: FiberBand; fibers: GuideFiber[] }[] {
 
 export function allFiberSlugs(): string[] {
   return FIBER_GUIDE.map((f) => f.slug);
+}
+
+// Canonical score keys that have no page of their own: same fiber under another
+// name (flax/linen, spandex/elastane), or a grade that lives inside another
+// fiber's page. Values may carry a hash to land on that section.
+const GUIDE_TARGET: Record<string, string> = {
+  flax: "linen",
+  merino: "merino_wool",
+  lyocell: "tencel_lyocell",
+  tencel: "tencel_lyocell",
+  lenzing_ecovero: "ecovero",
+  tencel_modal: "modal",
+  spandex: "elastane",
+  recycled_polyester: "polyester",
+  rpet: "polyester",
+  regenerative_organic_cotton: "organic_cotton#top-tier",
+};
+
+/** URL of the guide page covering a raw fiber name (a fabric_composition key,
+ *  a fibers_present entry, a label string). null when no page covers it. */
+export function fiberGuideHref(fiber: string): string | null {
+  const key = resolveFiber(fiber);
+  if (!key) return null;
+  const target = GUIDE_TARGET[key] ?? key;
+  const slug = target.split("#")[0];
+  return FIBER_GUIDE.some((f) => f.slug === slug) ? `/guide/${target}` : null;
 }

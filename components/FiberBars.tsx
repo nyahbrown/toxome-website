@@ -3,12 +3,15 @@ import Link from "next/link";
 // page and the Quick Shop sheet render an identical treatment: labeled row
 // (fiber name left, percentage right) over a thin hazard-colored bar.
 import { fiberHazardColor, prettyFiber } from "@/lib/fabricScores";
+import { fiberGuideHref } from "@/lib/fiberGuide";
 import { collectionSlugForFiber } from "@/lib/shopPages";
 
-// Link a fiber to its dedicated collection page when one exists (a stronger SEO
-// + commerce target than the generic ?fiber= filter); otherwise fall back to
-// the filtered shop.
+// A named fiber goes to its guide page: the reader looking at a composition is
+// asking what the fiber IS, not what else is made of it. Fibers with no guide
+// page fall back to their collection page, then to the filtered shop.
 function fiberHref(fiber: string): string {
+  const guide = fiberGuideHref(fiber);
+  if (guide) return guide;
   const slug = collectionSlugForFiber(fiber);
   return slug
     ? `/shop/collection/${slug}`
