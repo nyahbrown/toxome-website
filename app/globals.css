@@ -684,6 +684,46 @@ button { font-family: inherit; }
   .card-verified-badge { bottom: 48px; left: 14px; right: auto; }
 }
 
+/* Cert circles on the MiniProductCard (homepage Editor's Picks). Same marks as
+   .card-cert-stack, but there's no wishlist heart here, so the rail starts flush
+   at the top instead of hanging below one. */
+.mini-cert-stack {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  pointer-events: none;
+  z-index: 2;
+}
+.mini-cert-stack__more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  background: var(--white);
+  box-shadow: inset 0 0 0 1px var(--hairline-strong),
+    0 4px 14px -8px rgba(44, 36, 32, 0.25);
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+@media (max-width: 640px) {
+  /* Phone cards are ~half width — scale the rail down, anchored top-right. */
+  .mini-cert-stack {
+    transform: scale(0.62);
+    transform-origin: top right;
+    top: 10px;
+    right: 10px;
+    gap: 8px;
+  }
+}
+
 /* Journal "Shop the edit" rail — a horizontal strip of small (~half-size)
    cards, single row, aligned to the body column. Fits 5 across on desktop;
    scrolls horizontally on narrower viewports instead of wrapping. */

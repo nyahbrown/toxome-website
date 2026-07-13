@@ -217,7 +217,7 @@ function EditorsPicksSection({ products }: { products: Product[] }) {
         </div>
         <div className="product-grid">
           {products.map((p) => (
-            <MiniProductCard key={p.id} p={p} showScore />
+            <MiniProductCard key={p.id} p={p} showScore showCerts />
           ))}
         </div>
         <div style={{ textAlign: "center", marginTop: 44 }}>
@@ -584,10 +584,10 @@ export default function HomeClient({
         </div>
       </section>
 
-      {/* Newsletter lifted above the Journal — the audience is the core value
-          driver, so the capture leads the lower page instead of closing it. */}
-      <NewsletterSection />
+      {/* Journal leads the lower page and the newsletter closes it: the reading
+          block is what earns the signup, so it comes before the ask. */}
       <JournalSection articles={articles} />
+      <NewsletterSection />
 
       <NewsletterPopup />
       <Footer />
