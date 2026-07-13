@@ -50,10 +50,15 @@ const STEPS = [
   },
 ];
 
-const FEATURES = [
+const FEATURES: {
+  label: string;
+  body: string;
+  link?: { href: string; label: string };
+}[] = [
   {
     label: "A rating, not a guess",
     body: "The same wearer-health rubric as the Toxome app, scored out of 100 with a plain verdict: great, good, okay, or bad.",
+    link: { href: "/methodology", label: "How we score" },
   },
   {
     label: "The full composition",
@@ -112,7 +117,8 @@ const FAQ = [
   },
   {
     q: "How is the rating calculated?",
-    a: "On the same wearer-health rubric the Toxome app uses. It scores what the garment does to the person wearing it, starting from the fiber and then applying penalties for the chemistry a fiber usually brings with it. You can read the full method on our methodology page.",
+    a: "On the same wearer-health rubric the Toxome app uses. It scores what the garment does to the person wearing it, starting from the fiber and then applying penalties for the chemistry a fiber usually brings with it.",
+    link: { href: "/methodology", label: "Read the full method." },
   },
   {
     q: "Does it track my browsing?",
@@ -505,6 +511,14 @@ export default async function ExtensionPage() {
                 }}
               >
                 {f.body}
+                {f.link && (
+                  <>
+                    {" "}
+                    <Link className="inline-link" href={f.link.href}>
+                      {f.link.label}
+                    </Link>
+                  </>
+                )}
               </p>
             </div>
           ))}

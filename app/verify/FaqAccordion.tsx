@@ -1,8 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
-type Item = { q: string; a: string };
+// `link` is optional: an answer that refers the reader somewhere ("read the full
+// method") should be able to actually take them there. The schema still uses `a`
+// alone, so adding a link never changes what search engines read.
+type Item = { q: string; a: string; link?: { href: string; label: string } };
 
 // Smooth drop-down FAQ. Uses the grid-template-rows 0fr -> 1fr trick so the
 // panel height animates fluidly (no max-height guesswork), with a caret that
@@ -50,7 +54,17 @@ export default function FaqAccordion({ items }: { items: Item[] }) {
             </button>
             <div className="vf-faq__panel">
               <div className="vf-faq__panelInner">
-                <p className="vf-faq__a">{f.a}</p>
+                <p className="vf-faq__a">
+                  {f.a}
+                  {f.link && (
+                    <>
+                      {" "}
+                      <Link className="inline-link" href={f.link.href}>
+                        {f.link.label}
+                      </Link>
+                    </>
+                  )}
+                </p>
               </div>
             </div>
           </div>

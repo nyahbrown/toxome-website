@@ -710,7 +710,10 @@ export default async function FiberGuidePage({
                     <div className="gp-aside">
                       <div className="gp-lbl">How we scored it</div>
                       <p>
-                        <RichText text={f.scoredNote} />
+                        <RichText text={f.scoredNote} />{" "}
+                        <Link className="inline-link" href="/methodology">
+                          See the full method.
+                        </Link>
                       </p>
                     </div>
                   )}

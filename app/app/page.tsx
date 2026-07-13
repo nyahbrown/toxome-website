@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { getShopTaxonomy } from "@/lib/supabase";
@@ -38,10 +39,15 @@ const STEPS = [
   },
 ];
 
-const FEATURES = [
+const FEATURES: {
+  label: string;
+  body: string;
+  link?: { href: string; label: string };
+}[] = [
   {
     label: "A hazard score you can trust",
     body: "Every garment rated 0–100 on what it does to your body, using the same rubric across the app, the website, and the extension.",
+    link: { href: "/methodology", label: "How we score" },
   },
   {
     label: "The full composition",
@@ -308,6 +314,14 @@ export default async function AppPage() {
                 }}
               >
                 {f.body}
+                {f.link && (
+                  <>
+                    {" "}
+                    <Link className="inline-link" href={f.link.href}>
+                      {f.link.label}
+                    </Link>
+                  </>
+                )}
               </p>
             </div>
           ))}

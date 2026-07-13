@@ -2854,3 +2854,15 @@ button { font-family: inherit; }
   .vf-faq__caret,
   .vf-faq__panel { transition: none; }
 }
+
+/* Quiet inline link for body copy that refers the reader somewhere ("how we
+   score", "read the full method"). Used in FAQ answers and feature cards. */
+.inline-link {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--hairline-strong);
+}
+@media (hover: hover) and (pointer: fine) {
+  .inline-link:hover { text-decoration-color: var(--ink); }
+}
