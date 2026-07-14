@@ -542,6 +542,13 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     environment:
       "It uses at least 50 percent less water and creates about half the carbon emissions of regular viscose.",
     shopFilter: null,
+    heroStat: {
+      value: 50,
+      prefix: "up to ",
+      suffix: "%",
+      label: "less water and lower CO₂ emissions than conventional viscose",
+      sub: "Lenzing's own figure, and an upper bound rather than a guarantee. ECOVERO is cleaner viscose, not a different fiber.",
+    },
     sources: [
       { title: "LENZING ECOVERO Viscose", publisher: "Lenzing", url: "https://www.lenzing.com/products/textile-fibers/lenzingtm-ecoverotm/" },
       { title: "The Ongoing History of Harm Caused by the Viscose Rayon Industry", publisher: "PMC (peer-reviewed)", url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC6137800/" },
