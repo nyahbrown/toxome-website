@@ -100,9 +100,14 @@ function extractOffer(prodLd, shopify) {
 async function shopifyProduct(url) {
   try {
     const u = new URL(url);
-    const m = u.pathname.match(/\/products\/([^/?#]+)/);
+    const m = u.pathname.match(/^(.*)\/products\/([^/?#]+)/);
     if (!m) return null;
-    const res = await fetch(`${u.origin}/products/${m[1]}.js`, {
+    // Preserve the market/locale prefix (e.g. "/en-us"). Dropping it hits the
+    // shop's DEFAULT market, which can price in another currency — the Studio.K
+    // shorts read $105 on the bare path but $79 under /en-us. Keep whatever
+    // storefront the sourced URL points at.
+    const prefix = m[1] || "";
+    const res = await fetch(`${u.origin}${prefix}/products/${m[2]}.js`, {
       headers: { "User-Agent": UA, Accept: "application/json" },
       signal: AbortSignal.timeout(15000),
     });
@@ -250,7 +255,16 @@ function parseComposition(text) {
     const fw = fwMatch[0].toLowerCase();
     const before = window.slice(0, fwMatch.index + fw.length);
     let name = fw;
-    if (fw === "flax") name = "linen";
+    // "LENZING" is a brand umbrella, not a fiber — it always precedes the real
+    // fiber (LENZING™ ECOVERO™, LENZING™ Modal). Matching it alone keys the comp
+    // as unknown and mis-scores (ECOVERO shorts read 47 instead of 70). Reach
+    // ahead to the fiber that follows; LENZING's base process is viscose.
+    if (fw === "lenzing") {
+      if (/ecovero/i.test(window)) name = "ecovero";
+      else if (/modal/i.test(window)) name = "modal";
+      else if (/lyocell|tencel/i.test(window)) name = "lyocell";
+      else name = "viscose";
+    } else if (fw === "flax") name = "linen";
     // Only regenerative ORGANIC cotton earns the distinguished fiber; bare
     // "regenerative" (no organic) stays conventional cotton.
     else if (fw === "cotton" && /regenerativ/i.test(before) && /organic/i.test(before)) name = "regenerative organic cotton";
