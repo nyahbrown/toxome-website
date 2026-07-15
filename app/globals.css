@@ -2866,3 +2866,245 @@ button { font-family: inherit; }
 @media (hover: hover) and (pointer: fine) {
   .inline-link:hover { text-decoration-color: var(--ink); }
 }
+
+/* ── Journal pick cards ────────────────────────────────────────────────────
+   Shoppable product entries inside a roundup article body (.j-prose). Each
+   pick shows the item's photo, its Toxome Rating, its composition, and a link
+   out to the brand's product page. Authored as raw HTML in the article
+   markdown; marked passes it through untouched. Card language matches the
+   FAQ/verify surfaces: white card, hairline border, 14px radius, no dividers. */
+/* Numbered editorial pieces, no card chrome. Odd pieces run image-left;
+   even pieces add `j-pick--reverse` to flip the image to the right. */
+/* Each piece: a full-width header line (number + title + brand subtitle), then
+   a row below it — image on the left, score + composition + description in the
+   middle, and the shop CTA on the right. */
+.j-prose .j-pick {
+  margin: 64px 0;
+}
+.j-prose .j-pick__head {
+  margin: 0 0 22px;
+}
+.j-prose .j-pick__row {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 40px;
+  align-items: start;
+}
+.j-prose .j-pick--reverse .j-pick__row {
+  grid-template-columns: 1fr 260px;
+}
+.j-prose .j-pick--reverse .j-pick__media { order: 2; }
+.j-prose .j-pick--reverse .j-pick__mid { order: 1; }
+.j-prose .j-pick__mid { min-width: 0; }
+.j-prose .j-pick__media {
+  display: block;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--tan);
+  aspect-ratio: 3 / 4;
+}
+.j-prose .j-pick__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  margin: 0;
+  transition: transform 600ms var(--ease-out-strong);
+}
+.j-prose .j-pick__media:hover img { transform: scale(1.03); }
+.j-prose .j-pick__body { min-width: 0; }
+.j-prose .j-pick__name {
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 21px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin: 0 0 5px;
+  text-transform: none;
+}
+.j-prose .j-pick__brand {
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink-2);
+  margin: 0;
+}
+/* Rating row: a product-page-style score dial + any applicable certifications.
+   The dial is a conic-gradient ring driven by the inline `--score` custom
+   property (0–100); `--band` defaults to the clean-green band and can be
+   overridden inline for a moderate/high score. */
+.j-prose .j-pick__rating {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0 0 14px;
+}
+.j-prose .j-pick__ring {
+  --band: var(--risk-low);
+  position: relative;
+  width: 58px;
+  height: 58px;
+  flex: none;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--band) calc(var(--score) * 1%),
+    var(--tan) calc(var(--score) * 1%)
+  );
+  display: grid;
+  place-items: center;
+}
+.j-prose .j-pick__ring::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  background: var(--white);
+}
+.j-prose .j-pick__ring-num {
+  position: relative;
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 17px;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.j-prose .j-pick__rating-side {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+.j-prose .j-pick__rating-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin: 0;
+}
+.j-prose .j-pick__certs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+  margin: 0 0 14px;
+}
+/* Certification shown as its issuer's logo mark in a circular badge, linking to
+   that cert's entry on the certifications guide. */
+.j-prose .j-pick__cert {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--hairline-strong);
+  background: var(--white);
+  overflow: hidden;
+  transition: border-color 200ms var(--ease);
+}
+.j-prose .j-pick__cert:hover { border-color: var(--ink-3); }
+.j-prose .j-pick__cert img {
+  width: 66%;
+  height: 66%;
+  object-fit: contain;
+  margin: 0;
+}
+.j-prose .j-pick__fiber {
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink-3);
+  margin: 0 0 12px;
+  text-transform: none;
+}
+.j-prose .j-pick__text {
+  margin: 0 0 16px;
+}
+.j-prose .j-pick__text p {
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink-2);
+  margin: 0 0 8px;
+  text-transform: none;
+}
+.j-prose .j-pick__text p:last-child {
+  margin-bottom: 0;
+}
+.j-prose .j-pick__cta {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 11px 22px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--bg);
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  text-transform: none;
+  transition: opacity 200ms var(--ease);
+}
+.j-prose .j-pick__cta:hover { opacity: 0.82; }
+@media (max-width: 640px) {
+  .j-prose .j-pick__row,
+  .j-prose .j-pick--reverse .j-pick__row { grid-template-columns: 1fr; gap: 20px; }
+  .j-prose .j-pick--reverse .j-pick__media,
+  .j-prose .j-pick--reverse .j-pick__mid { order: 0; }
+  .j-prose .j-pick__media { max-width: 280px; }
+}
+
+/* ── Journal split header ──────────────────────────────────────────────────
+   Roundup header: tall portrait image on the left, headline + byline + updated
+   date on the right. Opt in per article with `headerLayout: "split"`. The
+   headline is this page's single serif element, per the locked type rule. */
+.j-split {
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  gap: 72px;
+  align-items: center;
+  max-width: 1120px;
+  margin: 0 auto;
+}
+.j-split__media {
+  border-radius: 18px;
+  overflow: hidden;
+  background: var(--tan);
+  aspect-ratio: 944 / 1535;
+}
+.j-split__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.j-split__body { min-width: 0; }
+.j-split__title {
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: clamp(32px, 3.8vw, 52px);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  text-transform: none;
+  color: var(--ink);
+  margin: 0 0 30px;
+}
+.j-split__updated {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin: 0;
+}
+@media (max-width: 900px) {
+  .j-split { grid-template-columns: 1fr; gap: 32px; }
+  .j-split__media { max-width: 340px; }
+}
