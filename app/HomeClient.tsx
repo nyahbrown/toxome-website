@@ -493,20 +493,24 @@ export default function HomeClient({
           style={{
             position: "absolute",
             inset: 0,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "flex-end",
-            flexDirection: "column",
-            padding: "0 clamp(12px, 4vw, 40px) clamp(56px, 11vw, 96px)",
+            pointerEvents: "none",
           }}
         >
+          {/* Button sits just below the headline that's baked into the video
+              at its vertical center. Percentage top keeps it hugging the text
+              at every viewport (the video, and its text, scale together). */}
           <div
+            className="home-hero-cta-wrap"
             style={{
+              position: "absolute",
+              top: "66%",
+              left: "50%",
+              transform: "translateX(-50%)",
               display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: "clamp(24px, 5vw, 32px)",
-              maxWidth: 720,
+              justifyContent: "center",
+              width: "100%",
+              padding: "0 16px",
+              pointerEvents: "auto",
             }}
           >
             <Link
