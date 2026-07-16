@@ -50,18 +50,16 @@ const cols: FooterCol[] = [
       { label: "Men", href: "/shop/men" },
       { label: "Kids", href: "/shop/kids" },
       { label: "Home", href: "/shop/home" },
+      { label: "Collections", href: "/shop/collections" },
     ],
   },
   {
-    h: "Explore",
+    h: "Learn",
     items: [
-      { label: "Collections", href: "/shop/collections" },
       { label: "Fabric Guide", href: "/guide" },
       { label: "Certifications", href: "/guide/certifications" },
-      { label: "How We Score", href: "/methodology" },
+      { label: "Methodology", href: "/methodology" },
       { label: "Journal", href: "/journal" },
-      { label: "Extension", href: "/extension" },
-      { label: "Get the app", href: "/app" },
     ],
   },
   {
@@ -71,6 +69,8 @@ const cols: FooterCol[] = [
       { label: "Get Verified", href: "/verify" },
       { label: "Partnerships", href: "/partnerships" },
       { label: "Contact", href: "/contact" },
+      { label: "App", href: "/app" },
+      { label: "Extension", href: "/extension" },
     ],
   },
   {
