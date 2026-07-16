@@ -379,7 +379,7 @@ export default function ClosetMockupPage() {
         <span className="eyebrow" style={{ display: "block", marginBottom: 12 }}>
           your closet
         </span>
-        <h1 style={{ fontFamily: "var(--serif)", fontWeight: 500, fontSize: 40, letterSpacing: "-0.015em", color: "var(--ink)", margin: "0 0 8px" }}>
+        <h1 style={{ fontFamily: "var(--sans)", fontWeight: 600, fontSize: 40, letterSpacing: "-0.02em", color: "var(--ink)", margin: "0 0 8px" }}>
           know what&rsquo;s in your clothes.
         </h1>
         <p style={{ fontSize: 16, color: "var(--ink-2)", lineHeight: 1.5, margin: "0 0 40px", maxWidth: 520 }}>

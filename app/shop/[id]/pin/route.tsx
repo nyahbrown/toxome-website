@@ -8,7 +8,7 @@ import { getProductById } from "@/lib/supabase";
 // next/og so the products-pinterest cron can auto-publish it without Puppeteer
 // (Satori runs on Vercel). Full-bleed product photo, soft top + bottom scrims,
 // Toxome eye+wordmark top-left aligned with a score ring top-right, brand
-// eyebrow + Cormorant title + "shop on toxome.app →" over the bottom scrim.
+// eyebrow + Inter title + "shop on toxome.app →" over the bottom scrim.
 // The score ring matches the app (lib/design/score_ring.dart): tan/cream track,
 // thick round-cap arc colored by verdict band, center number + "score" label.
 
@@ -81,7 +81,6 @@ export async function GET(
   const ringSize = 148;
   const ringStroke = 17;
 
-  const cormorantMedium = fontData("Cormorant-Medium.ttf");
   const interRegular = fontData("Inter-Regular.ttf");
   const interSemiBold = fontData("Inter-SemiBold.ttf");
 
@@ -140,7 +139,7 @@ export async function GET(
           </div>
         ) : null}
 
-        {/* Brand eyebrow + Cormorant title + CTA, over the bottom scrim. */}
+        {/* Brand eyebrow + Inter title + CTA, over the bottom scrim. */}
         <div style={{ position: "absolute", left: PAD, right: PAD, bottom: PAD, display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
           {brand ? (
             <div style={{ fontFamily: "Inter", fontSize: 22, fontWeight: 600, letterSpacing: "0.13em", textTransform: "uppercase", color: "rgba(252,251,247,0.72)" }}>
@@ -150,11 +149,11 @@ export async function GET(
           <div
             style={{
               marginTop: 16,
-              fontFamily: "Cormorant",
+              fontFamily: "Inter",
               fontSize: 62,
-              fontWeight: 500,
+              fontWeight: 600,
               lineHeight: 1.06,
-              letterSpacing: "-0.015em",
+              letterSpacing: "-0.02em",
               color: "#FCFBF7",
               maxWidth: W - PAD * 2,
               display: "flex",
@@ -178,7 +177,6 @@ export async function GET(
       width: W,
       height: H,
       fonts: [
-        { name: "Cormorant", data: cormorantMedium, weight: 500, style: "normal" },
         { name: "Inter", data: interRegular, weight: 400, style: "normal" },
         { name: "Inter", data: interSemiBold, weight: 600, style: "normal" },
       ],

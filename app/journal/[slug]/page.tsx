@@ -9,6 +9,7 @@ import ShareBar from "@/components/ShareBar";
 import ArticleCta from "@/components/ArticleCta";
 import JournalNewsletterCard from "@/components/JournalNewsletterCard";
 import ShopTheEdit from "@/components/ShopTheEdit";
+import FaqAccordion from "@/components/FaqAccordion";
 import TrendEditSections from "@/components/TrendEditSections";
 import InlineMediaPlay from "@/components/InlineMediaPlay";
 import { getShopTaxonomy } from "@/lib/supabase";
@@ -75,6 +76,8 @@ export default async function ArticlePage({
   // `sections` array render TrendEditSections in place of the .j-prose body +
   // ShopTheEdit rail. Every other article keeps the exact original render.
   const isTrendEdit = (article.sections?.length ?? 0) > 0;
+  // Roundup header: portrait image left, title + byline right.
+  const isSplitHeader = article.headerLayout === "split" && !isTrendEdit;
 
   const taxonomy = await getShopTaxonomy();
   const shareUrl = `${SITE}/journal/${slug}`;
@@ -91,11 +94,19 @@ export default async function ArticlePage({
     description: article.dek,
     image: shareImage,
     datePublished: article.date,
-    dateModified: article.date,
+    dateModified: article.updated || article.date,
     articleSection: article.pillar,
     inLanguage: "en-US",
     keywords: article.keywords.join(", "),
-    author: { "@type": "Organization", name: "Toxome", url: SITE },
+    // A named human author with a stated role is what Google reads as E-E-A-T.
+    // Falls back to the Toxome org byline for pieces with no named author.
+    author: article.author
+      ? {
+          "@type": "Person",
+          name: article.author,
+          ...(article.authorRole ? { jobTitle: article.authorRole } : {}),
+        }
+      : { "@type": "Organization", name: "Toxome", url: SITE },
     publisher: {
       "@type": "Organization",
       name: "Toxome",
@@ -103,6 +114,21 @@ export default async function ArticlePage({
     },
     mainEntityOfPage: shareUrl,
   };
+
+  // FAQ drop-downs (same accordion as /verify + the fiber guides). The schema
+  // makes the answers eligible for "People also ask".
+  const faqSchema =
+    article.faq.length > 0
+      ? {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: article.faq.map((f) => ({
+            "@type": "Question",
+            name: f.q,
+            acceptedAnswer: { "@type": "Answer", text: f.a },
+          })),
+        }
+      : null;
 
   const breadcrumbSchema = {
     "@context": "https://schema.org",
@@ -118,9 +144,50 @@ export default async function ArticlePage({
     <main style={{ background: "var(--bg)", minHeight: "100vh" }}>
       <JsonLd data={articleSchema} />
       <JsonLd data={breadcrumbSchema} />
+      {faqSchema && <JsonLd data={faqSchema} />}
       <Nav taxonomy={taxonomy} />
 
+      {/* Split header (roundups): tall portrait image left, title + byline
+          right. Carries its own image, so the full-width hero figure below is
+          skipped for these articles. */}
+      {isSplitHeader && (
+        <header className="shell" style={{ paddingTop: 124 }}>
+          <div className="j-split j-rise">
+            <div className="j-split__media">
+              <Image
+                src={article.hero}
+                alt={article.heroAlt || article.dek || article.title}
+                width={944}
+                height={1535}
+                sizes="(max-width: 900px) 100vw, 420px"
+                priority
+                data-pin-media={pinImage}
+                data-pin-description={pinDescription}
+              />
+            </div>
+            <div className="j-split__body">
+              <Link href="/journal" className="eyebrow" style={{ display: "inline-block", marginBottom: 20 }}>
+                {article.pillar} · Fashion Wellness
+              </Link>
+              <h1 className="j-split__title">{article.title}</h1>
+              <p className="j-split__updated">
+                Updated {formatDate(article.updated || article.date)} · {article.readingTime}
+              </p>
+              <div style={{ marginTop: 22 }}>
+                <ShareBar
+                  url={shareUrl}
+                  title={article.title}
+                  description={article.dek}
+                  image={pinImage}
+                />
+              </div>
+            </div>
+          </div>
+        </header>
+      )}
+
       {/* Header */}
+      {!isSplitHeader && (
       <header className="shell" style={{ paddingTop: 124 }}>
         <div className="j-article j-rise" style={{ textAlign: "center" }}>
           <Link
@@ -134,10 +201,10 @@ export default async function ArticlePage({
             style={
               isTrendEdit
                 ? {
-                    // Cormorant, the single serif element on this page (the
-                    // article title), per the locked type rule.
-                    fontFamily: "var(--serif)",
-                    fontWeight: 500,
+                    // Inter 600 with tight tracking, per the Inter-only type
+                    // rule (supersedes the 2026-06-01 Cormorant rule).
+                    fontFamily: "var(--sans)",
+                    fontWeight: 600,
                     fontSize: "clamp(38px, 5.4vw, 66px)",
                     lineHeight: 1.05,
                     letterSpacing: "-0.02em",
@@ -198,11 +265,13 @@ export default async function ArticlePage({
           </div>
         </div>
       </header>
+      )}
 
       {/* Lead image, leads the essay, magazine-style. The trend-edit layout
           renders its own product-photography lead image inside
-          TrendEditSections, so the shared hero figure is skipped there. */}
-      {article.hero && !isTrendEdit && (
+          TrendEditSections, so the shared hero figure is skipped there. The
+          split header already shows the image, so it is skipped there too. */}
+      {article.hero && !isTrendEdit && !isSplitHeader && (
         <figure className="shell" style={{ margin: 0, paddingTop: 56 }}>
           <div
             className="j-article j-rise"
@@ -258,6 +327,18 @@ export default async function ArticlePage({
               dangerouslySetInnerHTML={{ __html: article.html }}
             />
             <InlineMediaPlay />
+
+            {/* Drop-down FAQ, the same accordion used on /verify and the fiber
+                guides. Renders only when the article ships a `faq` block. */}
+            {article.faq.length > 0 && (
+              <div className="j-article" style={{ marginTop: 64 }}>
+                <p className="eyebrow" style={{ marginBottom: 20, textAlign: "center" }}>
+                  Frequently asked
+                </p>
+                <FaqAccordion items={article.faq} />
+              </div>
+            )}
+
             {/* In-body CTA. Skipped for "shop" articles: the end-of-article
                 "Shop the edit" product rail is the single, stronger shop moment,
                 so we don't double up on shopping prompts. */}

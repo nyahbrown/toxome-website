@@ -22,9 +22,13 @@
   --bg:       var(--cream);
   --bg-2:     var(--white);
 
-  --serif: var(--font-serif), Georgia, "Times New Roman", serif;
   --sans:  var(--font-sans), -apple-system, BlinkMacSystemFont,
            "Helvetica Neue", Helvetica, Arial, system-ui, sans-serif;
+  /* Inter-only site-wide (2026-07-15, supersedes the 2026-06-01 Cormorant rule).
+     --serif and --font-serif are kept only as Inter aliases so any stray
+     var(--serif) / var(--font-serif) renders Inter, never a browser serif. */
+  --serif: var(--sans);
+  --font-serif: var(--sans);
   --mono:  var(--sans); /* eyebrow/label role — Inter at weight 600, not system mono */
   --ease:  cubic-bezier(.22, .61, .36, 1);
   --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
@@ -1940,11 +1944,11 @@ button { font-family: inherit; }
    than shrink to a clipped single line. text-shadow guarantees legibility
    over the brighter regions of the photo. */
 .hero-h1 {
-  font-family: var(--serif);
-  font-weight: 500;
+  font-family: var(--sans);
+  font-weight: 600;
   font-size: clamp(22px, 6.4vw, 72px);
   line-height: 1.15;
-  letter-spacing: -0.018em;
+  letter-spacing: -0.02em;
   color: var(--white);
   text-align: center;
   margin: 0;
@@ -3063,7 +3067,7 @@ button { font-family: inherit; }
 /* ── Journal split header ──────────────────────────────────────────────────
    Roundup header: tall portrait image on the left, headline + byline + updated
    date on the right. Opt in per article with `headerLayout: "split"`. The
-   headline is this page's single serif element, per the locked type rule. */
+   headline is Inter 600 with tight tracking, per the Inter-only type rule. */
 .j-split {
   display: grid;
   grid-template-columns: 420px 1fr;

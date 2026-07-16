@@ -38,7 +38,7 @@ Toxome is a **Fashion Wellness** brand — "the goop of what you wear." The webs
 app/
   page.tsx           — homepage shell (renders HomeClient)
   HomeClient.tsx     — editorial homepage: video hero + Browse by Fiber grid
-  layout.tsx         — root layout + fonts (Cormorant + Inter)
+  layout.tsx         — root layout + fonts (Inter only)
   globals.css        — global styles + brand tokens
   blog/page.tsx      — blog index (placeholder)
   shop/page.tsx      — shop shell
@@ -82,10 +82,10 @@ public/
 
 ## Typography
 
-Two families only. No system monospace.
+One family only: Inter. No serif, no system monospace. **Inter-only, locked 2026-07-15 (supersedes the 2026-06-01 Cormorant rule).**
 
-- **Cormorant (serif) — PAGE HEADERS ONLY (LOCKED 2026-06-01):** Cormorant appears on exactly ONE element per page — that page's single top headline (homepage hero h1, page-title h1). NOTHING else uses it: not section headlines, not card titles, not deks. Loaded as a variable font via `--serif`/`--font-serif` (keep the import). Homepage hero runs Medium (500).
-- **Inter — EVERYTHING else:** section headlines, card titles, body, deks, labels, buttons, nav, eyebrows. -0.011em tracking; Medium (500) for buttons/nav; SemiBold (600) for eyebrow labels.
+- **Inter — EVERYTHING:** page headlines, section headlines, card titles, body, deks, labels, buttons, nav, eyebrows. -0.011em tracking at body sizes; Medium (500) for buttons/nav; SemiBold (600) for eyebrow labels.
+- **Page headlines (LOCKED 2026-07-15):** The top page-title H1s (homepage hero h1, page-title h1, article title) are Inter SemiBold (600) with tight tracking (`letter-spacing: -0.02em`) so they hold display presence. There is no serif anywhere on the site. `--serif`/`--font-serif` remain in globals.css only as Inter aliases so any stray reference renders Inter, never a browser serif; do not re-add a serif font import.
 - **Body size — 16px (LOCKED 2026-06-01):** Non-header body/supporting copy is **16px**; for emphasis use **bold weight, never a larger size**. EXEMPT (keep their own sizes): all headings (page H1 + section headlines + card-title headings), the homepage hero subtext, display stat numbers (e.g. account closet score), eyebrows/micro-labels, buttons/inputs, and the product grid (shop ProductCard + homepage MiniProductCard).
 - **No divider lines (LOCKED 2026-06-01):** Never use hairline/divider rule lines — `borderTop`/`borderBottom` separators, `.soft-divider`, `<hr>`, section-dividing `--hairline`/`--line` rules. Separate sections with spacing, not lines. (Box outlines on cards/inputs/buttons/images are fine — those are not divider lines.)
 
@@ -96,7 +96,7 @@ Two families only. No system monospace.
 - Used on: section labels, journal kickers, article-end CTAs, share labels
 - White overrides (`color: rgba(255,255,255,0.5)`) are set as inline styles on individual elements and are not affected by the base eyebrow token
 
-**Rule:** Cormorant carries emotion and authority. Inter carries everything functional — reading, acting, labeling. Never mix roles.
+**Rule:** Inter carries everything: reading, acting, labeling, and display headlines. Presence at headline scale comes from SemiBold (600) weight and tight tracking (-0.02em), not from a second typeface.
 
 **Case rule:** Body text renders lowercase site-wide (`text-transform: lowercase` on `body`). Exceptions: (1) `.j-prose` (article reading body only) — `text-transform: none` restores natural sentence case so the author's capitalization is preserved; the article grid/index cards stay lowercase (intended). (2) **Eyebrows / section labels = ALL CAPS** — the `.eyebrow` class is `text-transform: uppercase` (weight 600, 0.13em tracking, 10–11px). Every section label renders in caps (A NEW CATEGORY, BROWSE BY FIBER, EDITOR'S PICKS, THE JOURNAL, THE FASHION WELLNESS LETTER, etc.). Do not revert eyebrows to lowercase.
 

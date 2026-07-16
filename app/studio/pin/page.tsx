@@ -5,7 +5,7 @@
 //   v=1  band   — dominant product image up top, cream editorial band below
 //   v=2  cover  — full-bleed product image, text over a soft bottom scrim
 //   v=3  frame  — product image framed on cream, centered editorial layout
-// Inter for everything functional; Cormorant on the single headline only.
+// Inter site-wide (the single typeface); headlines run Inter 600.
 // Score ring matches the app (lib/design/score_ring.dart): tan track, thick
 // round-cap arc colored by verdict band, center number + "score" label.
 // Pin CONTENT comes from the `products` table via getProductById; this file owns

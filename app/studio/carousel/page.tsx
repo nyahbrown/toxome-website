@@ -218,7 +218,7 @@ function SlideView({ slide, index, total, variant = "educational" }: { slide: Sl
 }
 
 // Editorial / NYT-style design (style="editorial"): a Journal teaser that drives
-// traffic to the article. Serif (Cormorant) headlines, photo + headline-overlay
+// traffic to the article. Inter 600 headlines, photo + headline-overlay
 // cover, attributed pull-quote, cream interiors, article CTA close. No stat, no ring.
 function EditorialSlide({ slide, index, total }: { slide: Slide; index: number; total: number }) {
   const frame: React.CSSProperties = {

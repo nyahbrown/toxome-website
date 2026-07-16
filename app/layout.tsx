@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cormorant, Inter } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import AnimationProvider from "@/components/AnimationProvider";
 import CookieBanner from "@/components/CookieBanner";
@@ -20,24 +20,23 @@ const organizationSchema = {
   name: "Toxome",
   url: "https://toxome.app",
   logo: "https://toxome.app/icon.png",
+  slogan: "know what's in your clothes.",
   description:
-    "Toxome reads the fibers in your clothes and tells you what they do to your body and the planet.",
+    "Toxome reads the fibers in your clothes and tells you what they do to your body and the planet. Toxome is the curated directory of non-toxic clothing and the company behind Fashion Wellness, the practice of choosing clothes by what they do to your body.",
+  knowsAbout: [
+    "Fashion Wellness",
+    "non-toxic clothing",
+    "endocrine disruptors in textiles",
+    "PFAS in clothing",
+    "microplastics in fabric",
+    "synthetic fabric chemicals",
+  ],
   sameAs: [
     "https://www.instagram.com/toxome_app/",
     "https://www.pinterest.com/toxomeApp/",
     "https://www.tiktok.com/@toxome",
   ],
 };
-
-// Cormorant, high-contrast editorial serif. Loaded as a variable font so the
-// full 300–700 weight axis is available; headlines run Light (300). Replaced
-// Source Serif 4.
-const cormorant = Cormorant({
-  subsets: ["latin"],
-  style: ["normal", "italic"],
-  variable: "--font-serif",
-  display: "swap",
-});
 
 const inter = Inter({
   subsets: ["latin"],
@@ -92,7 +91,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${cormorant.variable} ${inter.variable}`}>
+    <html lang="en" className={inter.variable}>
       <body>
         <JsonLd data={organizationSchema} />
         <AnimationProvider />

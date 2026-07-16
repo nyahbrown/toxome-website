@@ -130,8 +130,9 @@ export default async function BrandPage({
         </div>
         <h1
           style={{
-            fontFamily: "var(--font-serif)",
-            fontWeight: 500,
+            fontFamily: "var(--sans)",
+            fontWeight: 600,
+            letterSpacing: "-0.02em",
             fontSize: "clamp(38px, 6vw, 64px)",
             lineHeight: 1.05,
             color: "var(--ink)",

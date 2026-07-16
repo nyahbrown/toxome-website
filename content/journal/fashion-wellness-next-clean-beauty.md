@@ -31,7 +31,7 @@ One thing is left that we've never thought to question. It covers most of your b
 
 Your clothes.
 
-We think that's about to change. We think your clothes are the next thing you'll learn to read, the same way you learned to read food and skincare. There's a name for that idea. We call it Fashion Wellness.
+We think that's about to change. We think your clothes are the next thing you'll learn to read, the same way you learned to read food and skincare. There's a name for that idea. We call it [Fashion Wellness](/fashion-wellness).
 
 Fashion Wellness is a simple thought: what you wear is a health choice, the same as what you eat or what you put on your skin. For something so obvious, it's strange how long it's gone unsaid.
 
