@@ -441,6 +441,7 @@ export default function HomeClient({
       {/* Hero, 670px on desktop; on phones cap to the viewport (svh avoids
           the iOS URL-bar resize jump) so the hero never overflows the screen. */}
       <section
+        className="home-hero"
         style={{
           position: "relative",
           height: "min(670px, 92svh)",
@@ -449,6 +450,7 @@ export default function HomeClient({
         }}
       >
         <video
+          className="home-hero-video"
           aria-hidden="true"
           autoPlay
           muted
@@ -467,29 +469,6 @@ export default function HomeClient({
         >
           <source src="/hero-loop.mp4" type="video/mp4" />
         </video>
-        {/* Overlay so the white headline + CTA stay legible over the photo,             slightly deeper through the middle where the text sits. */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background:
-              "linear-gradient(180deg, rgba(10,6,2,0.30) 0%, rgba(10,6,2,0.50) 52%, rgba(10,6,2,0.42) 100%)",
-          }}
-        />
-        {/* Film grain, fine fractal noise blended over the photo for an analog,             shot-on-film texture. */}
-        <div
-          aria-hidden="true"
-          style={{
-            position: "absolute",
-            inset: 0,
-            backgroundImage:
-              "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
-            backgroundSize: "150px 150px",
-            mixBlendMode: "normal",
-            opacity: 0.14,
-            pointerEvents: "none",
-          }}
-        />
 
         {/* Visually hidden: the headline lives inside the hero video now, so
             keep a crawlable/screen-reader h1 for SEO + accessibility. */}
@@ -510,6 +489,7 @@ export default function HomeClient({
         </h1>
 
         <div
+          className="home-hero-overlay"
           style={{
             position: "absolute",
             inset: 0,

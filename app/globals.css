@@ -1969,6 +1969,29 @@ button { font-family: inherit; }
 }
 @media (prefers-reduced-motion: reduce) { .hero-cta { transition: none; } }
 
+/* Mobile hero: the loop is a 16:9 landscape clip with the headline baked in.
+   A tall portrait hero would cover-crop it and chop the text off both sides,
+   so on phones show the whole frame at full width (uncropped) and drop the
+   CTA onto the cream below it instead of overlaying the short video band. */
+@media (max-width: 768px) {
+  .home-hero {
+    height: auto !important;
+    background: var(--cream) !important;
+  }
+  .home-hero-video {
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    object-fit: contain !important;
+  }
+  .home-hero-overlay {
+    position: static !important;
+    inset: auto !important;
+    justify-content: center !important;
+    padding: clamp(22px, 6vw, 30px) 16px !important;
+  }
+}
+
 /* ── Certification badge (circular logo) ──────────────────────────────────── */
 .cert-badge {
   display: inline-flex;
