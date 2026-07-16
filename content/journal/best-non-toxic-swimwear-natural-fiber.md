@@ -10,7 +10,7 @@ author: "Nyah Brown"
 authorRole: "Founder"
 updated: "2026-07-16"
 hero: "/journal/best-non-toxic-swimwear-natural-fiber.jpg"
-heroAlt: "A woman on a quiet beach in an undyed hemp and organic cotton swimsuit, the natural colour of the fiber against pale sand."
+heroAlt: "A woman standing on sunlit rock in BeachCandy's square-neck one-piece, cut from hemp and organic cotton, in a deep slate against a clear sky."
 keywords:
   - "non toxic swimwear"
   - "natural fiber swimwear"
@@ -45,8 +45,6 @@ sources:
   - label: "The Woolmark Company. Woolmark certification."
     href: "https://www.woolmark.com/certification/"
 ---
-
-Sixty percent of the average closet is plastic. Swimwear is where that number goes to a hundred.
 
 Your swimsuit is the most synthetic thing you own, and it earns the title. It has to stretch, recover when wet, hold a shape against a moving body, and dry before the drive home. Nylon and elastane do all of it cheaply, which is why the standard construction has not moved in fifty years: roughly eighty percent nylon, twenty percent elastane. Run that composition through a fiber score and it lands in the twenties. Recycled polyester, the version sold with a leaf on the tag, lands lower. Recycling the plastic changes where it came from and not what it does sitting wet against your skin in direct sun for six hours.
 
