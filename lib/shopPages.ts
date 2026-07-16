@@ -587,6 +587,41 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
       hasFiber(p, "organic cotton"),
   },
   {
+    slug: "non-toxic-bras",
+    title: "Non-Toxic Bras & Bralettes for Women, Scored | Toxome",
+    heading: "non-toxic bras",
+    description:
+      "Bras and bralettes made from natural fibers, scored by Toxome. Breathable organic cotton, hemp, and silk against your chest all day, without polyester or synthetic finishes.",
+    intro:
+      "a bra sits against your chest and breast tissue every waking hour, so the fiber matters more here than almost anywhere. most bras are polyester, nylon, and elastane, plastic worn tight against warm skin all day. every piece here is built on a natural fiber, organic cotton, hemp, or silk, and scored by toxome for its real fiber content.",
+    faqs: [
+      {
+        q: "What is the healthiest fabric for a bra?",
+        a: "A breathable natural fiber worn against the skin all day: organic cotton and hemp let heat and moisture escape, and silk regulates temperature without trapping it. All three beat polyester and nylon, which hold heat against warm skin. Every bra here is built on a natural fiber and scored by Toxome.",
+      },
+      {
+        q: "Are polyester bras bad for you?",
+        a: "Polyester and nylon are plastic fibers that trap heat and moisture and don't breathe the way cotton does. Worn tight against warm, sensitive skin all day, a natural fiber like organic cotton, hemp, or silk is the cleaner choice.",
+      },
+      {
+        q: "Why does Toxome score clothes by fiber?",
+        a: "Fiber content is what touches the skin. Toxome reads each garment's composition and rates it, so the score reflects what the clothing is made of, not a brand's marketing.",
+      },
+    ],
+    section: "women",
+    match: (p) =>
+      p.gender?.toLowerCase() === "women" &&
+      p.category === "Intimates" &&
+      /\bbra(lette)?s?\b/i.test(p.item_name) &&
+      (hasFiber(p, "cotton") ||
+        hasFiber(p, "hemp") ||
+        hasFiber(p, "silk") ||
+        hasFiber(p, "linen") ||
+        hasFiber(p, "tencel") ||
+        hasFiber(p, "bamboo") ||
+        hasFiber(p, "wool")),
+  },
+  {
     slug: "non-toxic-pajamas",
     title: "Non-Toxic Pajamas & Sleepwear, Scored | Toxome",
     heading: "non-toxic pajamas",
