@@ -1970,18 +1970,22 @@ button { font-family: inherit; }
 @media (prefers-reduced-motion: reduce) { .hero-cta { transition: none; } }
 
 /* Mobile hero: the loop is a 16:9 landscape clip with the headline baked in.
-   A tall portrait hero would cover-crop it and chop the text off both sides,
-   so on phones show the whole frame at full width (uncropped). The CTA is
-   overlaid just below the headline (see .home-hero-cta-wrap), same as desktop. */
+   A full portrait hero would crop the sides enough to chop the text, so use a
+   taller 4:3 box and cover-fill it: the video scales to height and crops only
+   ~12% off each side, which stays inside the headline's ~20% side margins.
+   The CTA is overlaid just below the headline (see .home-hero-cta-wrap). */
 @media (max-width: 768px) {
   .home-hero {
     height: auto !important;
+    aspect-ratio: 4 / 3 !important;
   }
   .home-hero-video {
-    position: static !important;
+    position: absolute !important;
+    inset: 0 !important;
     width: 100% !important;
-    height: auto !important;
-    object-fit: contain !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center !important;
   }
 }
 
