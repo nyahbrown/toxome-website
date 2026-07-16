@@ -448,17 +448,25 @@ export default function HomeClient({
           background: "var(--ink)",
         }}
       >
-        <Image
-          src="/hero-wool.jpg"
-          alt="A shepherd shearing a sheep by hand in a mountain pasture, wool at its source"
-          fill
-          priority
-          sizes="100vw"
+        <video
+          aria-hidden="true"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          poster="/hero-loop-poster.jpg"
           style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
             objectFit: "cover",
             objectPosition: "center 40%",
           }}
-        />
+        >
+          <source src="/hero-loop.mp4" type="video/mp4" />
+        </video>
         {/* Overlay so the white headline + CTA stay legible over the photo,             slightly deeper through the middle where the text sits. */}
         <div
           style={{
@@ -483,14 +491,33 @@ export default function HomeClient({
           }}
         />
 
+        {/* Visually hidden: the headline lives inside the hero video now, so
+            keep a crawlable/screen-reader h1 for SEO + accessibility. */}
+        <h1
+          style={{
+            position: "absolute",
+            width: 1,
+            height: 1,
+            padding: 0,
+            margin: -1,
+            overflow: "hidden",
+            clip: "rect(0, 0, 0, 0)",
+            whiteSpace: "nowrap",
+            border: 0,
+          }}
+        >
+          know what&apos;s in your clothes.
+        </h1>
+
         <div
           style={{
             position: "absolute",
             inset: 0,
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
-            padding: "0 clamp(12px, 4vw, 40px)",
+            justifyContent: "flex-end",
+            flexDirection: "column",
+            padding: "0 clamp(12px, 4vw, 40px) clamp(56px, 11vw, 96px)",
           }}
         >
           <div
@@ -502,18 +529,6 @@ export default function HomeClient({
               maxWidth: 720,
             }}
           >
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 16,
-              }}
-            >
-              <h1 className="hero-h1">
-                know what&apos;s in your clothes.
-              </h1>
-            </div>
             <Link
               href="/shop"
               className="hero-cta"
