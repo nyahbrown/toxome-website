@@ -1,0 +1,72 @@
+name: Publish swimwear roundup
+
+# One-shot scheduled publish for the swimwear roundup.
+#
+# The Journal has no draft state: lib/journal.ts publishes a piece the moment
+# its .md lands in content/journal/, and Vercel deploys on push to main. So
+# "schedule a post" means "merge the branch on a timer", which is what this does.
+#
+# Fires Sat 2026-07-18 at 10:00 America/Los_Angeles (17:00 UTC, PDT = UTC-7).
+# GitHub cron is UTC-only and has no DST awareness, hence the hardcoded 17.
+#
+# DELETE THIS FILE once it has run. The date guard below makes it inert on any
+# other Saturday, but leaving dead workflows around is how they get re-triggered
+# by accident later.
+
+on:
+  schedule:
+    - cron: "0 17 * * 6"
+  workflow_dispatch: # lets Nyah publish early from the Actions tab
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Only run on the intended date
+        id: gate
+        run: |
+          TODAY="$(date -u +%F)"
+          # workflow_dispatch is a deliberate manual trigger, so let it through
+          # regardless of date. The cron path is pinned to the one Saturday.
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "Manual trigger, proceeding."
+            echo "go=true" >> "$GITHUB_OUTPUT"
+          elif [ "$TODAY" = "2026-07-18" ]; then
+            echo "Scheduled date reached ($TODAY), proceeding."
+            echo "go=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Today is $TODAY, not 2026-07-18. Nothing to do."
+            echo "go=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.go == 'true'
+        with:
+          fetch-depth: 0
+
+      # The article carries headerLayout: "split", which renders the hero as the
+      # portrait beside the title. A missing hero is a visibly broken published
+      # page, so fail loudly here rather than ship it.
+      - name: Verify the hero image exists
+        if: steps.gate.outputs.go == 'true'
+        run: |
+          git checkout swimwear-roundup
+          HERO="public/journal/best-non-toxic-swimwear-natural-fiber.jpg"
+          if [ ! -f "$HERO" ]; then
+            echo "::error::$HERO is missing. Refusing to publish an article with a broken hero."
+            exit 1
+          fi
+          echo "Hero present: $(wc -c < "$HERO") bytes"
+
+      - name: Merge swimwear-roundup into main
+        if: steps.gate.outputs.go == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout main
+          git merge --no-ff swimwear-roundup -m "Publish: non-toxic swimwear roundup + shop collection"
+          git push origin main
+          echo "Merged and pushed. Vercel will deploy from main."
