@@ -10,6 +10,12 @@ const JOURNAL_DIR = path.join(process.cwd(), "content/journal");
 
 export type Source = { label: string; href: string };
 
+// Optional FAQ block. When an article ships `faq` in its frontmatter, the
+// /journal/[slug] page renders the shared FaqAccordion (the same drop-down UI
+// as /verify, the fiber guides, and /extension) and emits FAQPage JSON-LD, so
+// the answers are eligible for the "People also ask" snippet.
+export type FaqItem = { q: string; a: string };
+
 // Structured "trend edit" section for the Goop-style shoppable layout. Optional
 // and article-specific: only the summer-edit piece uses it. When `sections` is
 // present on an article, the /journal/[slug] page renders TrendEditSections
@@ -42,6 +48,15 @@ export type ArticleMeta = {
   products?: string[];
   readingTime: string;
   sources: Source[];
+  faq: FaqItem[]; // optional drop-down FAQ; empty when the article has none
+  // Header treatment. Default (undefined) = the centered title + full-width
+  // hero. "split" = the roundup header: tall portrait image on the left, title
+  // + byline + updated date on the right. The hero figure is skipped in split
+  // mode because the header already carries the image.
+  headerLayout?: string;
+  author?: string; // byline name; falls back to "Our Editors"
+  authorRole?: string; // e.g. "Founder, Toxome" — the E-E-A-T line
+  updated?: string; // ISO date shown as "UPDATED <date>"; falls back to `date`
   // ── Optional Goop-style "trend edit" layout (summer-edit only) ──────────
   // Full-width lead image (product photography) + caption above the intro.
   leadImageUrl?: string;
@@ -55,6 +70,18 @@ export type ArticleMeta = {
 };
 
 export type Article = ArticleMeta & { html: string };
+
+function normalizeFaq(raw: unknown): FaqItem[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .map((item) => {
+      if (!item || typeof item !== "object") return null;
+      const { q, a } = item as Record<string, unknown>;
+      if (!q || !a) return null;
+      return { q: String(q), a: String(a) };
+    })
+    .filter((x): x is FaqItem => x !== null);
+}
 
 function normalizeSources(raw: unknown): Source[] {
   if (!Array.isArray(raw)) return [];
@@ -144,6 +171,11 @@ function readArticle(slug: string): Article | null {
       : undefined,
     readingTime: `${minutes} min read`,
     sources: normalizeSources(data.sources),
+    faq: normalizeFaq(data.faq),
+    headerLayout: data.headerLayout ? String(data.headerLayout) : undefined,
+    author: data.author ? String(data.author) : undefined,
+    authorRole: data.authorRole ? String(data.authorRole) : undefined,
+    updated: data.updated ? String(data.updated) : undefined,
     leadImageUrl: data.leadImageUrl ? String(data.leadImageUrl) : undefined,
     leadImageAlt: data.leadImageAlt ? String(data.leadImageAlt) : undefined,
     leadImageHref: data.leadImageHref ? String(data.leadImageHref) : undefined,
