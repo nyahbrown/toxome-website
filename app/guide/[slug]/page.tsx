@@ -10,7 +10,7 @@ import CountUp from "@/components/CountUp";
 import OriginBars from "@/components/OriginBars";
 import MiniProductCard from "@/components/MiniProductCard";
 import NewsletterCard from "@/components/NewsletterCard";
-import FaqAccordion from "@/app/verify/FaqAccordion";
+import FaqAccordion from "@/components/FaqAccordion";
 import CertBadge from "@/components/CertBadge";
 import { CERTIFICATIONS } from "@/lib/certifications";
 import { availableLogos } from "@/lib/certLogos";

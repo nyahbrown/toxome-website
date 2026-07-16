@@ -4,7 +4,7 @@ import Link from "next/link";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import JsonLd from "@/components/JsonLd";
-import FaqAccordion from "@/app/verify/FaqAccordion";
+import FaqAccordion from "@/components/FaqAccordion";
 import ExtensionWaitlist from "@/components/ExtensionWaitlist";
 import { getShopTaxonomy } from "@/lib/supabase";
 

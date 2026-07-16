@@ -9,10 +9,17 @@
  *   node --env-file=.env.local scripts/add-home.js            # inserts the built-in batch
  *   node --env-file=.env.local scripts/add-home.js --draft    # queue instead of live
  *
- * Each ITEM below is { url, brand, name, category, occasion }. category
- * defaults to "Bedding"; occasion defaults to ["Sleep"]. Score bar: >= 67
+ * Each ITEM below is { url, brand, name, category, occasion, comp, description }.
+ * category defaults to "Bedding"; occasion defaults to ["Sleep"]. Score bar: >= 67
  * (clean). Home goods rarely carry a gender/apparel category, so we set those
  * explicitly here rather than inferring from the item name.
+ *
+ * `comp` (optional) is an explicit composition override, e.g. { "organic cotton": 100 }.
+ * Some home brands (Takasa) render the fabric breakdown via JS, so getValidatedProduct
+ * returns composition:null. In that case READ the composition off the live PDP by hand
+ * (browser get_page_text) and pass it here. Still page-grounded, never model-guessed,
+ * and never the Anthropic API. `description` (optional) is the Toxome-voice blurb;
+ * when omitted it is left null for a later backfill pass.
  */
 const { createClient } = require("@supabase/supabase-js");
 const { getValidatedProduct } = require("./scrape");
@@ -24,21 +31,52 @@ const isBlacklisted = (b) => !!b && BLACKLIST.some((x) => b.toLowerCase().includ
 const SCORE_BAR = 67;
 
 // --- The batch to add ------------------------------------------------------
+// Bath batch (2026-07-12). Bath was the thinnest Home subcategory (9 items, 5 of
+// them Under the Canopy), so this widens it with a new brand (Takasa) plus Coyuchi.
+const BATH = { category: "Bath", occasion: ["home", "bath"] };
 const ITEMS = [
   {
-    url: "https://www.lilysilk.com/us/product/19-momme-seamless-silk-sheets-set.html",
-    brand: "LilySilk",
-    name: "19 Momme Seamless Silk Sheets Set",
+    ...BATH,
+    url: "https://takasa.co/products/organic-and-fairtrade-cotton-bath-towel",
+    brand: "Takasa",
+    name: "Organic and Fairtrade Cotton Bath Towel",
+    comp: { "organic cotton": 100 }, // PDP: "700 GSM, 100% organic cotton" (JS-rendered)
+    description:
+      "A plush 700 GSM bath towel in 100% organic cotton, woven with an ultra-low twist so it actually drinks up water instead of pushing it around. GOTS and Fairtrade certified, finished with a clean hem and coloured only with GOTS-approved dyes, so nothing harsh sits against skin you have just washed. Shown in a soft white.",
   },
   {
-    url: "https://jungmaven.com/products/hemp-duvet-cover",
-    brand: "Jungmaven",
-    name: "Hemp Duvet Cover",
+    ...BATH,
+    url: "https://takasa.co/products/organic-and-fairtrade-cotton-bath-sheet",
+    brand: "Takasa",
+    name: "Organic and Fairtrade Cotton Bath Sheet",
+    comp: { "organic cotton": 100 },
+    description:
+      "The oversized version of the bath towel, in the same 700 GSM 100% organic cotton. Wraps all the way around, dries fast for its weight, and carries both GOTS organic and Fairtrade certification from farm to finished hem. Shown in a soft white.",
   },
   {
-    url: "https://nordicknots.com/us/product/percale-duvet-cover-set-shirt-bluered-twin",
-    brand: "Nordic Knots",
-    name: "Percale Duvet Cover Set",
+    ...BATH,
+    url: "https://takasa.co/products/organic-and-fairtrade-cotton-bath-mat",
+    brand: "Takasa",
+    name: "Organic and Fairtrade Cotton Bath Mat",
+    comp: { "organic cotton": 100 },
+    description:
+      "A thick 100% organic cotton bath mat that stays underfoot without a plastic backing, which is where most bath mats hide their synthetics. GOTS and Fairtrade certified, free of harmful dyes and finishes. Shown in a soft white.",
+  },
+  {
+    ...BATH,
+    url: "https://www.coyuchi.com/products/air-weight-organic-twill-bath-mat-undyed",
+    brand: "Coyuchi",
+    name: "Air Weight Organic Twill Bath Mat",
+    description:
+      "A lightweight organic cotton twill bath mat, left undyed so the fiber shows up exactly as it grew. GOTS and Fair Trade certified, quick to dry and easy to wash, with no plastic backing and no synthetic pile.",
+  },
+  {
+    ...BATH,
+    url: "https://www.coyuchi.com/products/sycamore-organic-cotton-linen-towels-flax-w-praline",
+    brand: "Coyuchi",
+    name: "Sycamore Organic Cotton Linen Towels",
+    description:
+      "An organic cotton and linen towel with a waffled, textured hand that gets softer and thirstier the more you wash it. The linen keeps it airy so it dries between uses instead of staying damp. Shown in flax.",
   },
 ];
 // ---------------------------------------------------------------------------
@@ -75,8 +113,10 @@ async function addOne(supabase, item, live) {
 
   const v = await getValidatedProduct(url);
   if (!v.ok) return { url, skip: v.reason };
-  const comp = toFractions(v.composition);
-  if (!comp) return { url, skip: "no page composition parsed" };
+  // Prefer the composition parsed off the page; fall back to an explicit,
+  // hand-read-from-the-PDP override for brands that render fabric via JS.
+  const comp = toFractions(v.composition) || toFractions(item.comp);
+  if (!comp) return { url, skip: "no page composition parsed (pass `comp` to override)" };
   const score = calcToxomeScore(comp);
   if (score == null || score < SCORE_BAR) return { url, skip: `score ${score} below bar` };
 
@@ -99,7 +139,7 @@ async function addOne(supabase, item, live) {
     affiliate_url: null,
     fabric_composition: comp,
     materials_text: materialsFromComp(comp),
-    description: null, // backfilled later (Toxome voice)
+    description: item.description || null, // Toxome voice; null => later backfill pass
     certifications: v.certifications && v.certifications.length ? v.certifications : null,
     toxome_score: score,
     risk_level: scoreToRiskLevel(score),

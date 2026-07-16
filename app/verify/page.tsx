@@ -11,7 +11,7 @@ import { availableLogos } from "@/lib/certLogos";
 import CertBadge from "@/components/CertBadge";
 import VerifyForm from "./VerifyForm";
 import SmoothScrollLink from "./SmoothScrollLink";
-import FaqAccordion from "./FaqAccordion";
+import FaqAccordion from "@/components/FaqAccordion";
 
 export const metadata: Metadata = {
   title: "Get Verified | Toxome",
