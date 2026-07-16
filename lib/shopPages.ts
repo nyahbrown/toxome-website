@@ -683,6 +683,45 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
         hasFiber(p, "hemp")),
   },
   {
+    slug: "non-toxic-swimwear",
+    title: "Non-Toxic Swimwear: Natural Fiber Swimsuits, Scored | Toxome",
+    heading: "non-toxic swimwear",
+    description:
+      "Swimwear made from hemp, organic cotton, and merino wool instead of the nylon and elastane nearly every swimsuit is built from. Each piece scored by Toxome on its real fiber content.",
+    intro:
+      "your swimsuit is the most synthetic thing you own. nylon and elastane, or recycled polyester, worn wet against skin for hours in direct sun. a conventional suit scores in the twenties on fiber content alone. the pieces here are the exception: hemp and organic cotton blends, and merino wool, the only fiber that stretches and recovers on its own without a synthetic doing the work. this collection is small because the category is small. about a half dozen brands worldwide make swimwear out of natural fiber, and these are the ones whose labels hold up.",
+    faqs: [
+      {
+        q: "Is there such a thing as plastic-free swimwear?",
+        a: "Almost. A handful of brands make suits from hemp and organic cotton, or from merino wool, with no synthetic fiber at all. They use silicone or natural rubber elastic instead of elastane. The category is tiny, and most swimwear sold as sustainable is recycled polyester or regenerated nylon, which is still plastic.",
+      },
+      {
+        q: "Why is nearly all swimwear synthetic?",
+        a: "Swimwear has to stretch, hold its shape when wet, and dry fast. Nylon and elastane do all three cheaply. Natural fibers can do it too, but they cost more and behave differently in water, so very few brands bother.",
+      },
+      {
+        q: "Is recycled polyester swimwear a good alternative?",
+        a: "It is a better use of existing plastic, but it is still plastic against your skin, and it still sheds microfibers when it moves in water. Recycled polyester and regenerated nylon score no better on fiber content than virgin synthetics, because the fiber is the same.",
+      },
+      {
+        q: "Does merino wool actually work as swimwear?",
+        a: "Yes. Wool fibers are naturally crimped, so they stretch and spring back without elastane. Merino is fine enough to wear against skin, resists odor on its own, and dries faster than cotton. It is the only route to a swimsuit with no plastic in it at all.",
+      },
+      {
+        q: "Why does Toxome score clothes by fiber?",
+        a: "Fiber content is what touches the skin. Toxome reads each garment's composition and rates it, so the score reflects what the clothing is made of, not a brand's marketing.",
+      },
+    ],
+    section: null,
+    match: (p) =>
+      p.category === "Swimwear" &&
+      (hasFiber(p, "hemp") ||
+        hasFiber(p, "cotton") ||
+        hasFiber(p, "merino") ||
+        hasFiber(p, "wool") ||
+        hasFiber(p, "linen")),
+  },
+  {
     slug: "non-toxic-wool-sweaters",
     title: "Non-Toxic Wool & Cashmere Sweaters, Scored | Toxome",
     heading: "non-toxic wool sweaters",
