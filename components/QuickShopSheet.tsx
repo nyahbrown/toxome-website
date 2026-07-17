@@ -68,9 +68,15 @@ function SheetGallery({ images, alt }: { images: string[]; alt: string }) {
 export default function QuickShopSheet({
   product,
   onClose,
+  outboundHref = null,
 }: {
   product: Product | null;
   onClose: () => void;
+  // Resolved by the server component hosting QuickShopProvider: "/out/<id>" when
+  // one of our own wrappers applies, a direct merchant link otherwise. Null when
+  // the host passed nothing for this product, in which case we fall back to the
+  // direct link below — Skimlinks still earns on that, so it is the safe default.
+  outboundHref?: string | null;
 }) {
   const router = useRouter();
   const { user, wishlist, toggleWishlist } = useAuth();
@@ -143,8 +149,20 @@ export default function QuickShopSheet({
   if (!shown) return null;
 
   const p = shown;
+  // Prefer the server-resolved href. The fallback is the old direct-link
+  // behaviour, for a host that passes no map at all — never a guess at /out,
+  // which would hide the click from Skimlinks and earn nothing if the brand has
+  // no working program row.
   const buyUrl = p.affiliate_url || p.item_url || null;
-  const outboundUrl = buyUrl ? withUtm(buyUrl) : null;
+  const outboundUrl = outboundHref ?? (buyUrl ? withUtm(buyUrl) : null);
+
+  // A same-origin /out link must keep sending its Referer: the route logs it to
+  // outbound_clicks to show which page drove the click, and OUTBOUND_REL's
+  // `noreferrer` would blank that column. Nothing leaks by dropping it — the link
+  // is same-origin, and /out sets its own Referrer-Policy on the onward hop.
+  const outboundRel = outboundUrl?.startsWith("/out/")
+    ? "noopener sponsored"
+    : OUTBOUND_REL;
   const isWishlisted = wishlist.has(p.id);
 
   const gallery = Array.from(
@@ -275,7 +293,7 @@ export default function QuickShopSheet({
             <a
               href={outboundUrl}
               target="_blank"
-              rel={OUTBOUND_REL}
+              rel={outboundRel}
               className="pill-cta qs-sheet__buy"
               onClick={() =>
                 track("outbound_click", {

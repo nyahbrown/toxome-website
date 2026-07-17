@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Article } from "@/lib/journal";
 import type { Product } from "@/types/product";
 import { getProductsByIds } from "@/lib/supabase";
+import { outboundHrefMap } from "@/lib/affiliatePrograms";
 import { QuickShopProvider } from "@/components/QuickShopProvider";
 import QuickShopCard from "@/components/QuickShopCard";
 
@@ -33,8 +34,22 @@ export default async function TrendEditSections({
   const products = await getProductsByIds(allIds);
   const byId = new Map(products.map((p) => [p.id, p]));
 
+  // Where each Quick Shop "Buy" goes, resolved here because the sheet is a client
+  // component and brand_affiliate_programs is service-role only. One batched
+  // query for the whole grid. A brand with a working program row gets /out (which
+  // Skimlinks cannot see, so our own wrapper survives); everything else keeps a
+  // direct merchant link so Skimlinks goes on earning. See lib/affiliatePrograms.
+  const outboundHrefs = await outboundHrefMap(
+    products.map((p) => ({
+      id: p.id,
+      brand: p.brand,
+      item_url: p.item_url ?? null,
+      affiliate_url: p.affiliate_url ?? null,
+    }))
+  );
+
   return (
-    <QuickShopProvider>
+    <QuickShopProvider outboundHrefs={outboundHrefs}>
       <div className="shell" style={{ paddingTop: 40, paddingBottom: 8 }}>
       <div className="j-article">
         {/* Full-width lead image + caption */}
