@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getProductById, getShopTaxonomy } from "@/lib/supabase";
+import { outboundHrefFor } from "@/lib/affiliatePrograms";
 import { findCertification } from "@/lib/certifications";
 import { availableLogos } from "@/lib/certLogos";
 import Nav from "@/components/Nav";
@@ -51,6 +52,25 @@ export default async function ProductPage({
     getShopTaxonomy(),
   ]);
   if (!product) notFound();
+
+  // Where the Buy button points. Resolved on the server because it reads
+  // brand_affiliate_programs, which is service-role only (it holds publisher_id).
+  //
+  // Returns /out/<id> only for a brand whose program row actually builds a
+  // wrapper, and a direct merchant link otherwise — routing an unwrapped click
+  // through /out would hide it from Skimlinks, which is the only thing earning on
+  // the 154 brands with no row. See lib/affiliatePrograms.ts.
+  //
+  // ⚠ This page is ISR-cached (revalidate below), so the href is decided at
+  // render time, not click time. A brand's first program row does not reach the
+  // Buy button until this page revalidates — POST /api/revalidate after inserting
+  // one instead of waiting out the weekly backstop.
+  const outboundHref = await outboundHrefFor({
+    id: product.id,
+    brand: product.brand,
+    item_url: product.item_url ?? null,
+    affiliate_url: product.affiliate_url ?? null,
+  });
 
   // Resolve each free-form certification string to a guide entry so the detail
   // page can render the same circular badge the certifications guide uses. The
@@ -110,7 +130,11 @@ export default async function ProductPage({
     <>
       <JsonLd data={schema} />
       <Nav taxonomy={taxonomy} />
-      <ProductDetailClient product={product} certBadges={certBadges} />
+      <ProductDetailClient
+        product={product}
+        certBadges={certBadges}
+        outboundHref={outboundHref}
+      />
       <Footer />
     </>
   );

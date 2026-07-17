@@ -18,7 +18,7 @@ import FiberBars from "@/components/FiberBars";
 import { fiberGuideHref } from "@/lib/fiberGuide";
 import { collectionSlugForFiber } from "@/lib/shopPages";
 import { productSeoDescription } from "@/lib/productSeo";
-import { track, withUtm } from "@/lib/track";
+import { track } from "@/lib/track";
 import { OUTBOUND_REL } from "@/lib/affiliate";
 
 // A named fiber goes to its guide page: the reader looking at a composition is
@@ -183,16 +183,29 @@ function ProductGallery({ images, alt }: { images: string[]; alt: string }) {
 export default function ProductDetailClient({
   product,
   certBadges = [],
+  outboundHref = null,
 }: {
   product: Product;
   certBadges?: CertBadgeItem[];
+  // Resolved on the server (lib/affiliatePrograms.ts): /out/<id> when one of our
+  // own wrappers applies, a direct UTM-tagged merchant link when Skimlinks is the
+  // only earner. Never rebuild it here — a client cannot read
+  // brand_affiliate_programs, and a wrong guess silently costs the commission.
+  outboundHref?: string | null;
 }) {
   const router = useRouter();
   const { user, wishlist, toggleWishlist } = useAuth();
   const isWishlisted = wishlist.has(product.id);
-  const buyUrl = product.affiliate_url || product.item_url || null;
-  // UTM-tagged so the brand can verify Toxome-referred traffic in their own GA.
-  const outboundUrl = buyUrl ? withUtm(buyUrl) : null;
+  const outboundUrl = outboundHref;
+
+  // A same-origin /out link must keep sending its Referer: the route logs it to
+  // outbound_clicks to show which page drove the click, and OUTBOUND_REL's
+  // `noreferrer` would blank that column. Nothing leaks by dropping it here —
+  // the link is same-origin, and /out sets its own Referrer-Policy: no-referrer
+  // on the onward hop to the brand.
+  const outboundRel = outboundUrl?.startsWith("/out/")
+    ? "noopener sponsored"
+    : OUTBOUND_REL;
 
   // Record a product view once per product, so the dashboard can show demand
   // (and click-through rate) even for products that don't get a Buy click.
@@ -398,11 +411,11 @@ export default function ProductDetailClient({
 
           {/* Buy CTA */}
           <div style={{ marginBottom: 12 }}>
-            {buyUrl ? (
+            {outboundUrl ? (
               <a
-                href={outboundUrl!}
+                href={outboundUrl}
                 target="_blank"
-                rel={OUTBOUND_REL}
+                rel={outboundRel}
                 className="pill-cta"
                 style={{ width: "100%", justifyContent: "center" }}
                 onClick={() =>

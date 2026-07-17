@@ -186,6 +186,59 @@ function rakutenLink(
   return url;
 }
 
+// VERIFIED against the live merchant (wayvewear.com, 2026-07-16) rather than a
+// doc, because UpPromote publishes no publisher-facing link spec.
+//
+// UpPromote is a per-merchant Shopify app, not a network: there is no wrapper
+// domain and no encoding step. `sca_ref` is an ordinary query param appended to
+// any URL on the merchant's own domain, so a product link IS buildable and the
+// store-level base_link below is not the only option.
+//
+// Confirmed end-to-end on the hardest row in the catalog — `/products/quad-short
+// ?variant=50828305236252`, a stale handle that already carries its own query
+// string:
+//   - Shopify 301'd the stale handle to /products/quad-short-natural-fiber-short
+//   - sca_ref survived the redirect, and so did `variant`
+//   - UpPromote set its attribution cookies crediting the publisher id
+// So stale item_urls are safe here, and `?`-vs-`&` is handled by URL/searchParams
+// rather than string concatenation.
+//
+// `sca_source` is UpPromote's own sub-id: it segments the affiliate dashboard by
+// surface, which is what lets us later show a brand which Toxome surface drove
+// their revenue. Optional — omitted when network_extra doesn't configure it.
+//
+// Do NOT paste the link UpPromote's own "Get product link" tool emits. It
+// prepends the affiliate's source as utm_source/utm_medium and then appends the
+// merchant's program defaults on top, so the URL carries utm_source TWICE
+// (verified: `utm_source=toxome.app` and `utm_source=wayve_collective` in one
+// link). Which one wins is parser-dependent, so the brand's GA may credit their
+// own program instead of Toxome. Composing here keeps exactly one of each.
+function uppromoteLink(
+  program: BrandAffiliateProgram,
+  destination: string
+): string | null {
+  const ref = program.publisher_id;
+  if (!ref) return null;
+
+  const extra = program.network_extra ?? {};
+  const refParam = str(extra.ref_param) ?? "sca_ref";
+  const sourceParam = str(extra.source_param);
+  const sourceValue = str(extra.source_value);
+
+  try {
+    const u = new URL(destination);
+    // set(), not append(): destination already carries utm_source/utm_medium from
+    // withUtm, and a second copy of any param is the exact bug described above.
+    u.searchParams.set(refParam, ref);
+    if (sourceParam && sourceValue) u.searchParams.set(sourceParam, sourceValue);
+    return u.toString();
+  } catch {
+    // Malformed item_url: fall through to the caller's degrade path rather than
+    // hand back a half-built link.
+    return null;
+  }
+}
+
 function str(v: unknown): string | null {
   return typeof v === "string" && v.trim() ? v.trim() : null;
 }
@@ -279,17 +332,29 @@ export function resolveAffiliateLink(
       const url = rakutenLink(program, destination, product.id);
       return url ? { url, network: "rakuten" } : { url: destination, network: "none" };
     }
-    // Refersion and UpPromote are per-merchant apps, not networks: the merchant
-    // issues a finished link and there is no template to build. Whatever they
-    // gave us is stored in base_link and used as-is.
+    // UpPromote appends its ref to the merchant's own product URL, so unlike
+    // refersion/direct below there IS a template and the buyer keeps the product
+    // they clicked. Degrades to base_link (store-level) only if publisher_id is
+    // missing or item_url won't parse — a homepage landing still converts, a
+    // half-built link does not.
+    case "uppromote": {
+      const url = uppromoteLink(program, destination);
+      if (url) return { url, network: "uppromote" };
+      const base = str(program.base_link);
+      return base
+        ? { url: base, network: "uppromote" }
+        : { url: destination, network: "none" };
+    }
+    // Refersion is a per-merchant app where the merchant issues a finished link
+    // and there is no template to build. Whatever they gave us is stored in
+    // base_link and used as-is.
     //
     // NOTE these are usually STORE-level links, which land the buyer on the
     // brand's homepage and throw away the product they clicked. Use the tool's
-    // own per-product link generator ("Get product link" in UpPromote) and store
-    // that per-product link on products.affiliate_url instead, which is checked
-    // above. A homepage link converts far worse than a product link.
+    // own per-product link generator and store that per-product link on
+    // products.affiliate_url instead, which is checked above. A homepage link
+    // converts far worse than a product link.
     case "refersion":
-    case "uppromote":
     case "direct": {
       const base = str(program.base_link);
       if (!base) return { url: destination, network: "none" };

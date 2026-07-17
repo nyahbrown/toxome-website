@@ -1,11 +1,6 @@
 import { after } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
-import { withUtm } from "@/lib/track";
-import {
-  pickProgram,
-  resolveAffiliateLink,
-  type BrandAffiliateProgram,
-} from "@/lib/affiliate";
+import { resolveOutbound } from "@/lib/affiliatePrograms";
 
 // GET /out/[productId] — the single door every outbound product click goes
 // through.
@@ -21,25 +16,26 @@ import {
 // 3. Nothing is baked into HTML. A product page that hardcoded a network URL
 //    would serve a stale one from the CDN long after the deal changed.
 //
-// ⚠ NOT WIRED, on purpose. No page links here yet, and routing a click through
-// this door BYPASSES SKIMLINKS: Skimlinks rewrites merchant hrefs in the DOM
-// client-side, and a same-origin /out link gives its script nothing to recognize,
-// so the 302 to the brand happens where Skimlinks can never see it. That is fine
-// for a brand with a program row (we wrapped the link ourselves and earn more) and
-// a straight revenue loss for one without (Skimlinks was the only earner).
+// ⚠ WIRED PER-BRAND ONLY. Routing a click through this door BYPASSES SKIMLINKS:
+// Skimlinks rewrites merchant hrefs in the DOM client-side, and a same-origin
+// /out link gives its script nothing to recognize, so the 302 to the brand
+// happens where Skimlinks can never see it. That is fine for a brand with a
+// program row (we wrapped the link ourselves and earn more) and a straight
+// revenue loss for one without (Skimlinks was the only earner).
 //
-// brand_affiliate_programs is currently EMPTY, so wiring every buy button here
-// today would take all 733 published products from monetized to unmonetized.
-// Wire it per brand as each program row lands, not all at once.
+// So pages must NOT link here unconditionally. They ask outboundHrefFor()
+// (lib/affiliatePrograms.ts), which returns /out only when a wrapper actually
+// applied and a direct merchant href otherwise, leaving Skimlinks to earn on the
+// brands we have no program for. Brands flip over as their rows land.
+//
+// Live as of 2026-07-16: Wayve Wear (uppromote), 3 of 727 published products.
+// The other 154 brands still have no row and still go direct to Skimlinks.
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-const PROGRAM_COLUMNS =
-  "brand, network, advertiser_id, publisher_id, network_extra, base_link, commission_rate, cookie_days, coupon_code, active";
 
 export async function GET(
   req: Request,
@@ -69,37 +65,12 @@ export async function GET(
   }
   if (!product) return new Response("Not found", { status: 404 });
 
-  // Case-insensitive: catalog capitalization drifts ("MATE the Label" vs "MATE
-  // The Label") and a program silently missing its brand is a link that silently
-  // stops earning. `ilike` with no wildcards is an exact, case-insensitive match.
-  const { data: programs, error: programError } = await supabaseAdmin
-    .from("brand_affiliate_programs")
-    .select(PROGRAM_COLUMNS)
-    .ilike("brand", product.brand)
-    .eq("active", true);
-
-  if (programError) {
-    // A program lookup failure must not cost the sale. Fall through with no
-    // program: the buyer still reaches the brand and buys. The commission on that
-    // click is lost (nothing wraps it, and Skimlinks can't see a server redirect
-    // — see the header note), but a dead end would lose the sale itself.
-    console.error("outbound program fetch error:", programError.message);
-  }
-
-  const program = pickProgram((programs ?? []) as BrandAffiliateProgram[]);
-
-  // UTM goes on the DESTINATION, before the network wraps it, so the brand sees
-  // the referral in their own GA. Tagging the wrapper instead would put
-  // utm_source on awin1.com and tell the brand nothing.
-  const resolved = resolveAffiliateLink(
-    {
-      id: product.id,
-      brand: product.brand,
-      item_url: product.item_url ? withUtm(product.item_url) : null,
-      affiliate_url: product.affiliate_url,
-    },
-    program
-  );
+  // Shared with the pages that decide whether to link here, so the two can never
+  // disagree about what resolves. A lookup failure inside degrades to no program
+  // rather than throwing: the buyer still reaches the brand and buys. The
+  // commission on that click is lost (nothing wraps it, and Skimlinks can't see a
+  // server redirect, see the header note), but a dead end would lose the sale.
+  const resolved = await resolveOutbound(product);
 
   // No item_url and no affiliate link: there is nowhere to send them. Back to
   // the product page rather than a dead end.
