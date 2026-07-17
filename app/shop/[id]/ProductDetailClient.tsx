@@ -19,6 +19,7 @@ import { fiberGuideHref } from "@/lib/fiberGuide";
 import { collectionSlugForFiber } from "@/lib/shopPages";
 import { productSeoDescription } from "@/lib/productSeo";
 import { track, withUtm } from "@/lib/track";
+import { OUTBOUND_REL } from "@/lib/affiliate";
 
 // A named fiber goes to its guide page: the reader looking at a composition is
 // asking what the fiber IS, not what else is made of it. Fibers with no guide
@@ -401,7 +402,7 @@ export default function ProductDetailClient({
               <a
                 href={outboundUrl!}
                 target="_blank"
-                rel="noopener noreferrer sponsored"
+                rel={OUTBOUND_REL}
                 className="pill-cta"
                 style={{ width: "100%", justifyContent: "center" }}
                 onClick={() =>

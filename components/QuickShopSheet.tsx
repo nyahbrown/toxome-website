@@ -11,6 +11,7 @@ import CertBadge from "@/components/CertBadge";
 import FiberBars from "@/components/FiberBars";
 import { findCertification } from "@/lib/certifications";
 import { withUtm, track } from "@/lib/track";
+import { OUTBOUND_REL } from "@/lib/affiliate";
 
 // Right-side quick-view sheet opened from a QuickShopCard. Score-forward: leads
 // with the Toxome rating and fiber breakdown (Toxome's edge), then certs, price,
@@ -274,7 +275,7 @@ export default function QuickShopSheet({
             <a
               href={outboundUrl}
               target="_blank"
-              rel="noopener noreferrer sponsored"
+              rel={OUTBOUND_REL}
               className="pill-cta qs-sheet__buy"
               onClick={() =>
                 track("outbound_click", {

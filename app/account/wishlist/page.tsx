@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import type { WishlistItem } from "@/lib/firestore";
 import { DEV_WISHLIST } from "@/lib/devAccountData";
 import WishlistHeart from "@/components/WishlistHeart";
+import { OUTBOUND_REL } from "@/lib/affiliate";
 
 function WishlistCard({
   item,
@@ -22,7 +23,7 @@ function WishlistCard({
       <a
         href={shopUrl || "#"}
         target={shopUrl ? "_blank" : undefined}
-        rel={shopUrl ? "noopener noreferrer sponsored" : undefined}
+        rel={shopUrl ? OUTBOUND_REL : undefined}
         style={{ textDecoration: "none", display: "block" }}
       >
         <div
