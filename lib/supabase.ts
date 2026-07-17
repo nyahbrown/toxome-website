@@ -23,28 +23,62 @@ export const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-export async function getPublishedProducts(): Promise<Product[]> {
-  const { data, error } = await supabase
-    .from("products")
-    .select("*")
-    .eq("published", true)
-    .order("created_at", { ascending: false });
+// PostgREST caps any select at 1000 rows and reports NO error — it just returns
+// the first page. The queries below are each meant to return the WHOLE published
+// catalog, so a plain select silently drops products from the shop grid, the
+// fiber filter, and the brand directory once the catalog passes the cap, with
+// nothing in the logs to say so. Page until a short page comes back.
+//
+// Callers must supply a total order (a unique tiebreaker like id), or rows can
+// shift between pages and be duplicated or skipped at a boundary.
+const PAGE_SIZE = 1000;
 
-  if (error) {
-    console.error("Supabase fetch error:", error.message);
+async function selectAllPages<T>(
+  buildPage: (from: number, to: number) => PromiseLike<{
+    data: T[] | null;
+    error: { message: string } | null;
+  }>
+): Promise<T[]> {
+  const rows: T[] = [];
+  for (let from = 0; ; from += PAGE_SIZE) {
+    const { data, error } = await buildPage(from, from + PAGE_SIZE - 1);
+    if (error) throw new Error(error.message);
+    const page = data ?? [];
+    rows.push(...page);
+    if (page.length < PAGE_SIZE) return rows;
+  }
+}
+
+export async function getPublishedProducts(): Promise<Product[]> {
+  try {
+    return await selectAllPages<Product>((from, to) =>
+      supabase
+        .from("products")
+        .select("*")
+        .eq("published", true)
+        .order("created_at", { ascending: false })
+        .order("id", { ascending: true })
+        .range(from, to)
+    );
+  } catch (e) {
+    console.error("Supabase fetch error:", (e as Error).message);
     return [];
   }
-  return data ?? [];
 }
 
 export const getShopTaxonomy = cache(async (): Promise<ShopTaxonomy> => {
-  const { data, error } = await supabase
-    .from("products")
-    .select("category, gender")
-    .eq("published", true);
-
-  if (error) {
-    console.error("Supabase taxonomy fetch error:", error.message);
+  let data: { category: string | null; gender: string | null }[];
+  try {
+    data = await selectAllPages((from, to) =>
+      supabase
+        .from("products")
+        .select("category, gender")
+        .eq("published", true)
+        .order("id", { ascending: true })
+        .range(from, to)
+    );
+  } catch (e) {
+    console.error("Supabase taxonomy fetch error:", (e as Error).message);
     return { women: [], men: [], kids: [], home: [] };
   }
 
@@ -111,13 +145,18 @@ export async function getCleanerAlternatives(
 // product count. Computed with the SAME resolver the product pages use, so the
 // directory and the pills can never drift. Sorted by count desc, then name.
 export const getVerifiedBrands = cache(async (): Promise<VerifiedBrand[]> => {
-  const { data, error } = await supabase
-    .from("products")
-    .select("brand, certifications, verification_rung")
-    .eq("published", true);
-
-  if (error) {
-    console.error("Supabase verified-brands fetch error:", error.message);
+  let data: Pick<Product, "brand" | "certifications" | "verification_rung">[];
+  try {
+    data = await selectAllPages((from, to) =>
+      supabase
+        .from("products")
+        .select("brand, certifications, verification_rung")
+        .eq("published", true)
+        .order("id", { ascending: true })
+        .range(from, to)
+    );
+  } catch (e) {
+    console.error("Supabase verified-brands fetch error:", (e as Error).message);
     return [];
   }
 
