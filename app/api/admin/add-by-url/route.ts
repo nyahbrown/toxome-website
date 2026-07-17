@@ -58,6 +58,7 @@ export async function POST(req: Request) {
   });
   product.category = guard.category;
   product.gender = guard.gender;
+  product.subcategory = guard.subcategory;
 
   if (isBlacklisted(product.brand)) {
     return NextResponse.json(

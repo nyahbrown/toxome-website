@@ -10,17 +10,21 @@
 // NOTE: keep this in sync with scripts/categoryGuard.js (CommonJS mirror used by
 // the node sourcing scripts, which can't import TypeScript).
 
+import { deriveIntimatesSubcategory } from "@/lib/intimates";
+
 export type GuardInput = {
   item_name: string;
   category: string | null;
   gender: string | null;
   age_band?: string | null;
+  subcategory?: string | null;
 };
 
 export type GuardResult = {
   category: string | null;
   gender: string | null;
   age_band: string | null;
+  subcategory: string | null;
   changed: boolean;
   reason?: string;
 };
@@ -54,6 +58,7 @@ export function guardCategory(input: GuardInput): GuardResult {
   const category = input.category;
   const gender = input.gender;
   const age_band = input.age_band ?? null;
+  const subcategory = input.subcategory ?? null;
 
   // 1) Home goods mis-filed as apparel — force the Home department + its real
   //    subcategory, and clear any age band that an apparel mis-tag left behind.
@@ -63,7 +68,12 @@ export function guardCategory(input: GuardInput): GuardResult {
       category: sub,
       gender: "Home",
       age_band: null,
-      changed: category !== sub || gender !== "Home" || age_band !== null,
+      subcategory: null,
+      changed:
+        category !== sub ||
+        gender !== "Home" ||
+        age_band !== null ||
+        subcategory !== null,
       reason: "home-good",
     };
   }
@@ -78,7 +88,8 @@ export function guardCategory(input: GuardInput): GuardResult {
         category: "Rompers & Sets",
         gender,
         age_band,
-        changed: category !== "Rompers & Sets",
+        subcategory: null,
+        changed: category !== "Rompers & Sets" || subcategory !== null,
         reason: "kids-set",
       };
     }
@@ -88,11 +99,36 @@ export function guardCategory(input: GuardInput): GuardResult {
         category: "Bodysuits & Onesies",
         gender,
         age_band,
-        changed: category !== "Bodysuits & Onesies",
+        subcategory: null,
+        changed: category !== "Bodysuits & Onesies" || subcategory !== null,
         reason: "kids-bodysuit",
       };
     }
   }
 
-  return { category, gender, age_band, changed: false };
+  // 4) Women's Underwear is folded into Intimates — they were one shopping
+  //    intent split by nothing, so any importer still proposing Underwear gets
+  //    normalized here rather than re-forking the category. The real bra-vs-
+  //    underwear distinction moves onto `subcategory`.
+  //
+  //    Kids keep their own Underwear category on purpose: "Intimates" is the
+  //    wrong word for a 4-year-old, and there are no kids' bras to split.
+  //
+  //    An explicit subcategory always wins — the title is only the default.
+  if (
+    (gender || "").toLowerCase() === "women" &&
+    (category === "Intimates" || category === "Underwear")
+  ) {
+    const sub = subcategory || deriveIntimatesSubcategory(name);
+    return {
+      category: "Intimates",
+      gender,
+      age_band,
+      subcategory: sub,
+      changed: category !== "Intimates" || subcategory !== sub,
+      reason: "intimates-merge",
+    };
+  }
+
+  return { category, gender, age_band, subcategory, changed: false };
 }

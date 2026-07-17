@@ -10,6 +10,10 @@ export interface Product {
   currency: string;
   budget: string | null;
   category: string | null;
+  // Optional second level beneath category. Today only Women > Intimates uses
+  // it (Bras / Underwear). Null is a real answer, not missing data: a camisole
+  // filed under Intimates is neither. See lib/intimates.ts.
+  subcategory?: string | null;
   gender: string | null;
   region: string | null;
   item_image: string | null;

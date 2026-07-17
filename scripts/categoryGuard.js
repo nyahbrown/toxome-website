@@ -22,15 +22,28 @@ const SET_RE = /\b(set|sets)\b/;
 const PIECE_RE = /\bpiece\b/;
 const BODYSUIT_RE = /\b(bodysuit|bodysuits|onesie|onesies|coverall|coveralls)\b/;
 
+// Women's Intimates splits into Bras / Underwear on `subcategory`. Mirror of
+// lib/intimates.ts — see it for why "balconette" is listed and "demi" is not.
+const BRA_RE = /\b(bras?|bralettes?|balconettes?)\b/;
+const UNDERWEAR_RE =
+  /\b(thongs?|briefs?|bikinis?|boxers?|boyshorts?|boy shorts?|hipsters?|panty|panties|shorty|shorties|cheeky|knickers?)\b/;
+
+function deriveIntimatesSubcategory(name) {
+  if (BRA_RE.test(name)) return "Bras";
+  if (UNDERWEAR_RE.test(name)) return "Underwear";
+  return null;
+}
+
 /**
- * @param {{item_name:string, category:string|null, gender:string|null, age_band?:string|null}} input
- * @returns {{category:string|null, gender:string|null, age_band:string|null, changed:boolean, reason?:string}}
+ * @param {{item_name:string, category:string|null, gender:string|null, age_band?:string|null, subcategory?:string|null}} input
+ * @returns {{category:string|null, gender:string|null, age_band:string|null, subcategory:string|null, changed:boolean, reason?:string}}
  */
 function guardCategory(input) {
   const name = (input.item_name || "").toLowerCase();
   const category = input.category;
   const gender = input.gender;
   const age_band = input.age_band == null ? null : input.age_band;
+  const subcategory = input.subcategory == null ? null : input.subcategory;
 
   if (HOME_RE.test(name)) {
     const sub = homeSubcategory(name);
@@ -38,7 +51,12 @@ function guardCategory(input) {
       category: sub,
       gender: "Home",
       age_band: null,
-      changed: category !== sub || gender !== "Home" || age_band !== null,
+      subcategory: null,
+      changed:
+        category !== sub ||
+        gender !== "Home" ||
+        age_band !== null ||
+        subcategory !== null,
       reason: "home-good",
     };
   }
@@ -50,7 +68,8 @@ function guardCategory(input) {
         category: "Rompers & Sets",
         gender,
         age_band,
-        changed: category !== "Rompers & Sets",
+        subcategory: null,
+        changed: category !== "Rompers & Sets" || subcategory !== null,
         reason: "kids-set",
       };
     }
@@ -59,13 +78,31 @@ function guardCategory(input) {
         category: "Bodysuits & Onesies",
         gender,
         age_band,
-        changed: category !== "Bodysuits & Onesies",
+        subcategory: null,
+        changed: category !== "Bodysuits & Onesies" || subcategory !== null,
         reason: "kids-bodysuit",
       };
     }
   }
 
-  return { category, gender, age_band, changed: false };
+  // Women's Underwear folds into Intimates; the distinction moves to
+  // subcategory. Kids keep their own Underwear category on purpose.
+  if (
+    (gender || "").toLowerCase() === "women" &&
+    (category === "Intimates" || category === "Underwear")
+  ) {
+    const sub = subcategory || deriveIntimatesSubcategory(name);
+    return {
+      category: "Intimates",
+      gender,
+      age_band,
+      subcategory: sub,
+      changed: category !== "Intimates" || subcategory !== sub,
+      reason: "intimates-merge",
+    };
+  }
+
+  return { category, gender, age_band, subcategory, changed: false };
 }
 
 module.exports = { guardCategory };

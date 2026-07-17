@@ -10,6 +10,7 @@ import {
   scoreToRiskLevel,
 } from "@/lib/fabricScores";
 import type { Product } from "@/types/product";
+import { INTIMATES_SUBCATEGORIES } from "@/lib/intimates";
 import AdminTabs from "@/components/admin/AdminTabs";
 
 const ADMIN_EMAIL = "nyah@toxome.app";
@@ -1697,16 +1698,23 @@ const reviewEmptyStyle: React.CSSProperties = {
 };
 
 // ---- Edit panel ------------------------------------------------------
-// Fixed option sets for the edit form dropdowns (mirror the DB values).
+// Fixed option sets for the edit form dropdowns. These MUST mirror the live DB
+// values: `category` has no CHECK constraint, so an option listed here that
+// nothing uses becomes a real category the moment it's picked (and shows up as
+// a nav pill, since the taxonomy is derived from published rows), while a live
+// category missing from the list silently reverts when its product is saved.
 const CATEGORY_OPTIONS = [
   "Tops", "Bottoms", "Dresses", "Outerwear", "Sweaters", "Activewear",
-  "Loungewear", "Pajamas", "Intimates", "Undergarments", "Footwear",
+  "Loungewear", "Pajamas", "Intimates", "Swimwear", "Footwear",
   "Accessories",
+  // Kids-only categories (gender = "Kids"). Kids keep their own Underwear
+  // category; the women's one was merged into Intimates.
+  "Underwear", "Bodysuits & Onesies", "Rompers & Sets",
   // Home department categories (gender = "Home")
   "Bedding", "Throws & Blankets", "Bath", "Rugs",
   "Other",
 ];
-const GENDER_OPTIONS = ["Women", "Men", "Unisex", "Home"];
+const GENDER_OPTIONS = ["Women", "Men", "Kids", "Unisex", "Home"];
 const OCCASION_OPTIONS = [
   "Everyday", "Workwear", "Evening", "Special Occasion", "Vacation/Resort",
 ];
@@ -1724,6 +1732,7 @@ function EditPanel({
   const [brand, setBrand] = useState(p.brand ?? "");
   const [price, setPrice] = useState(p.item_price != null ? String(p.item_price) : "");
   const [category, setCategory] = useState(p.category ?? "");
+  const [subcategory, setSubcategory] = useState(p.subcategory ?? "");
   const [gender, setGender] = useState(p.gender ?? "");
   const [occasion, setOccasion] = useState<string[]>(p.occasion ?? []);
   const [itemImage, setItemImage] = useState(p.item_image ?? "");
@@ -1733,6 +1742,10 @@ function EditPanel({
     JSON.stringify(p.fabric_composition ?? {}, null, 2)
   );
   const [jsonError, setJsonError] = useState("");
+
+  // Tracks the live dropdowns, not the saved row, so the Type field appears the
+  // moment an editor sets Women + Intimates rather than after a save.
+  const showSubcategory = gender === "Women" && category === "Intimates";
 
   // Live preview of the recomputed score from the JSON textarea.
   let previewScore: number | null = null;
@@ -1764,6 +1777,9 @@ function EditPanel({
       brand,
       item_price: price.trim() === "" ? null : Number(price),
       category: category || null,
+      // Only Women > Intimates splits, so anything else saves null rather than
+      // carrying a stale Bras/Underwear value out of the category it belongs to.
+      subcategory: showSubcategory ? subcategory || null : null,
       gender: gender || null,
       occasion: occasion.length ? occasion : null,
       item_image: itemImage || null,
@@ -1817,6 +1833,24 @@ function EditPanel({
             ))}
           </select>
         </Field>
+        {/* The manual override for the Bras/Underwear split. New products get a
+            guess from their title on insert; this is how a bra that never says
+            "bra" (Cou Cou's "The Balconette") gets filed correctly. "(none)" is
+            a valid answer for a camisole, which is neither. */}
+        {showSubcategory && (
+          <Field label="Type">
+            <select
+              style={editInputStyle}
+              value={subcategory}
+              onChange={(e) => setSubcategory(e.target.value)}
+            >
+              <option value="">(none)</option>
+              {INTIMATES_SUBCATEGORIES.map((s) => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+          </Field>
+        )}
         <Field label="Image URL">
           <input style={editInputStyle} value={itemImage} onChange={(e) => setItemImage(e.target.value)} />
         </Field>

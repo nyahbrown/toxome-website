@@ -32,6 +32,9 @@ export type ProductDraft = {
   item_price: number | null;
   budget: string | null;
   category: string | null;
+  // Not extracted by the LLM. Written by guardCategory after extraction, which
+  // derives it from the title for Women > Intimates. See lib/intimates.ts.
+  subcategory?: string | null;
   gender: string | null;
   item_image: string | null;
   images: string[];
@@ -269,8 +272,23 @@ function cleanText(html: string): string {
     .trim();
 }
 
-/** Normalize a {fabric: percentage} map (any scale) to fractions summing to ~1. */
-function toFractions(
+/**
+ * Clean a {fabric: percentage} map from extraction: lowercase/trim the keys and
+ * drop non-finite or non-positive values. Values stay PERCENTS (0-100) — the
+ * scale the prompt asks for — and are passed through UNSCALED on purpose.
+ *
+ * Do NOT renormalize to a fixed sum. The prompt says "use only fabrics
+ * explicitly stated on the page", so a partial composition is expected and the
+ * shortfall is real signal: a page listing 85% cotton + 10% nylon has 5%
+ * undisclosed, quite plausibly an elastane. Dividing by the sum (what this
+ * function used to do) rewrote that to 89.5% cotton and silently absorbed the
+ * synthetic that should have lowered the score.
+ *
+ * products.fabric_composition is canonically percent, enforced by the
+ * normalize_product_write trigger — which also scales any stray fraction-scaled
+ * map by 100, so this staying unscaled is safe.
+ */
+function cleanComposition(
   comp: Record<string, number> | null | undefined
 ): Record<string, number> | null {
   if (!comp || typeof comp !== "object") return null;
@@ -278,9 +296,8 @@ function toFractions(
     .map(([k, v]) => [String(k).toLowerCase().trim(), Number(v)] as const)
     .filter(([k, v]) => k && Number.isFinite(v) && v > 0);
   if (entries.length === 0) return null;
-  const sum = entries.reduce((s, [, v]) => s + v, 0);
   const out: Record<string, number> = {};
-  for (const [k, v] of entries) out[k] = Math.round((v / sum) * 1000) / 1000;
+  for (const [k, v] of entries) out[k] = Math.round(v * 100) / 100;
   return out;
 }
 
@@ -462,7 +479,7 @@ export async function extractProductFromUrl(
     return { ok: false, error: "No working product image found" };
   }
 
-  const composition = toFractions(fields.fabric_composition);
+  const composition = cleanComposition(fields.fabric_composition);
   const score = calcToxomeScore(composition);
   const price =
     typeof fields.item_price === "number" && Number.isFinite(fields.item_price)

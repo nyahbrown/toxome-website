@@ -21,6 +21,7 @@ import {
   TOXOME_VERIFIED,
 } from "@/lib/verification";
 import { KIDS_AGE_BANDS, sizesToBands, type KidsAgeBand } from "@/lib/kidsSizes";
+import { INTIMATES_SUBCATEGORIES, hasIntimatesSplit } from "@/lib/intimates";
 
 export type ShopSection = "women" | "men" | "kids" | "home" | null;
 
@@ -33,6 +34,8 @@ type FilterState = {
   section: string | null;
   fiber: string | null;
   category: string; // "All" or a category name
+  // Second level beneath category, only meaningful under Women > Intimates.
+  subcategory: string | null;
   certSlugs: string[]; // empty = no cert constraint
   occasion: string | null;
   age: KidsAgeBand | null;
@@ -52,6 +55,10 @@ function matchesFilters(p: Product, f: FilterState): boolean {
     if (!fibers.includes(target)) return false;
   }
   if (f.category !== "All" && p.category !== f.category) return false;
+  // Guarded by the category check above: subcategory is only ever set while a
+  // category that has a split is selected, so this can't strand products in
+  // other categories that legitimately carry no subcategory.
+  if (f.subcategory && p.subcategory !== f.subcategory) return false;
   // ANY-match: picking GOTS + OEKO-TEX shows products carrying either, not both.
   if (
     f.certSlugs.length > 0 &&
@@ -619,6 +626,18 @@ export default function ShopClient({
         )!
       : "All";
 
+  // Second-level filter, offered only under a category that splits (today just
+  // Women > Intimates). Dropped when the parent category isn't selected, so a
+  // stale ?sub=bras link can't silently filter the whole grid down to nothing
+  // with a pill the shopper can't see to remove.
+  const subRaw = searchParams.get("sub");
+  const subcategoryFilter =
+    subRaw && hasIntimatesSplit(section, category)
+      ? INTIMATES_SUBCATEGORIES.find(
+          (s) => s.toLowerCase() === subRaw.toLowerCase()
+        ) ?? null
+      : null;
+
   // Brands available in the current section, ranked by stock (kids only for now).
   // Lets parents narrow to the baby brands they already trust.
   const sectionBrands = useMemo<string[]>(() => {
@@ -677,6 +696,7 @@ export default function ShopClient({
       section,
       fiber: fiberFilter,
       category,
+      subcategory: subcategoryFilter,
       certSlugs,
       occasion: occasionFilter,
       age: ageFilter,
@@ -691,6 +711,7 @@ export default function ShopClient({
       section,
       fiberFilter,
       category,
+      subcategoryFilter,
       certKey,
       occasionFilter,
       ageFilter,
@@ -786,6 +807,7 @@ export default function ShopClient({
   // filter shape of the sheet.
   const refineCount =
     (category !== "All" ? 1 : 0) +
+    (subcategoryFilter ? 1 : 0) +
     (fiberFilter ? 1 : 0) +
     (certSlugs.length > 0 ? 1 : 0) +
     (occasionFilter ? 1 : 0) +
@@ -991,7 +1013,22 @@ export default function ShopClient({
               label="Category"
               options={sectionCategories}
               value={category}
-              onChange={(v) => updateParams({ category: v })}
+              // Leaving a category drops its sub-filter — a Bras pill would be
+              // meaningless under Tops, and stale ones shouldn't lie in wait in
+              // the URL for the next time Intimates is picked.
+              onChange={(v) => updateParams({ category: v, sub: null })}
+              stickyLabel
+            />
+          )}
+          {/* Bras / Underwear, the second cut shoppers actually want once
+              they're inside Intimates. Women only — men's Intimates has no
+              bras in it, so the pill would offer a dead option. */}
+          {hasIntimatesSplit(section, category) && (
+            <FrostedSelect
+              label="Type"
+              options={[...INTIMATES_SUBCATEGORIES]}
+              value={subcategoryFilter ?? "All"}
+              onChange={(v) => updateParams({ sub: v === "All" ? null : v })}
               stickyLabel
             />
           )}
@@ -1133,6 +1170,7 @@ export default function ShopClient({
         baseFilters={activeFilters}
         applied={{
           category,
+          subcategory: subcategoryFilter,
           fiber: fiberFilter,
           certs: certSlugs,
           occasion: occasionFilter,
@@ -1143,6 +1181,7 @@ export default function ShopClient({
         onApply={(v) => {
           updateParams({
             category: v.category,
+            sub: v.subcategory,
             fiber: v.fiber,
             certs: v.certs,
             occasion: v.occasion,
@@ -1181,7 +1220,13 @@ export default function ShopClient({
           {category !== "All" && (
             <FilterChip
               label={category}
-              onRemove={() => updateParams({ category: null })}
+              onRemove={() => updateParams({ category: null, sub: null })}
+            />
+          )}
+          {subcategoryFilter && (
+            <FilterChip
+              label={subcategoryFilter}
+              onRemove={() => updateParams({ sub: null })}
             />
           )}
           {fiberFilter && (
@@ -1236,6 +1281,7 @@ export default function ShopClient({
               onClear={() =>
                 updateParams({
                   category: null,
+                  sub: null,
                   fiber: null,
                   occasion: null,
                   age: null,
@@ -1286,6 +1332,7 @@ export default function ShopClient({
 // updateParams expects (null clears a param).
 type RefineValues = {
   category: string | null;
+  subcategory: string | null;
   fiber: string | null;
   certs: string | null; // comma-joined slugs, null when none picked
   occasion: string | null;
@@ -1321,6 +1368,7 @@ function RefineSheet({
   baseFilters: FilterState;
   applied: {
     category: string;
+    subcategory: string | null;
     fiber: string | null;
     certs: string[];
     occasion: string | null;
@@ -1332,6 +1380,7 @@ function RefineSheet({
 }) {
   const emptyStaged = {
     category: "All",
+    subcategory: null as string | null,
     fiber: null as string | null,
     certs: [] as string[],
     occasion: null as string | null,
@@ -1347,6 +1396,7 @@ function RefineSheet({
     if (!open) return;
     setStaged({
       category: applied.category,
+      subcategory: applied.subcategory,
       fiber: applied.fiber,
       certs: applied.certs,
       occasion: applied.occasion,
@@ -1395,7 +1445,21 @@ function RefineSheet({
       value: staged.category === "All" ? null : staged.category,
       displayValue: staged.category === "All" ? "All" : staged.category,
       options: sectionCategories.map((c) => ({ label: c, value: c })),
-      onSelect: (v) => setStaged((s) => ({ ...s, category: v ?? "All" })),
+      // Changing category drops the sub-filter with it, matching the desktop
+      // pill — otherwise the Type row vanishes still holding a staged value.
+      onSelect: (v) =>
+        setStaged((s) => ({ ...s, category: v ?? "All", subcategory: null })),
+    });
+  }
+  // Appears the moment Intimates is staged, disappears when it isn't.
+  if (hasIntimatesSplit(section, staged.category)) {
+    sections.push({
+      key: "subcategory",
+      label: "Type",
+      value: staged.subcategory,
+      displayValue: staged.subcategory ?? "All",
+      options: INTIMATES_SUBCATEGORIES.map((s) => ({ label: s, value: s })),
+      onSelect: (v) => setStaged((s) => ({ ...s, subcategory: v })),
     });
   }
   if (section !== "kids") {
@@ -1483,6 +1547,7 @@ function RefineSheet({
   const stagedFilters: FilterState = {
     ...baseFilters,
     category: staged.category,
+    subcategory: staged.subcategory,
     fiber: staged.fiber,
     certSlugs: staged.certs,
     occasion: staged.occasion,
@@ -1497,6 +1562,7 @@ function RefineSheet({
 
   const stagedCount =
     (staged.category !== "All" ? 1 : 0) +
+    (staged.subcategory ? 1 : 0) +
     (staged.fiber ? 1 : 0) +
     (staged.certs.length > 0 ? 1 : 0) +
     (staged.occasion ? 1 : 0) +
@@ -1507,6 +1573,7 @@ function RefineSheet({
   const apply = () =>
     onApply({
       category: staged.category === "All" ? null : staged.category,
+      subcategory: staged.subcategory,
       fiber: staged.fiber,
       certs: staged.certs.length ? staged.certs.join(",") : null,
       occasion: staged.occasion,

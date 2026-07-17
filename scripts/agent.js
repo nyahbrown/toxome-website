@@ -468,6 +468,7 @@ async function run() {
         item_price: item.item_price ?? null,
         budget: item.budget ?? null,
         category: guard.category,
+        subcategory: guard.subcategory,
         gender: guard.gender,
         age_band: guard.age_band,
         item_image: item.item_image,
