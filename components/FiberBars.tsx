@@ -28,10 +28,22 @@ export default function FiberBars({
   onNavigate?: () => void;
 }) {
   if (entries.length === 0) return null;
+  // Render each fiber as its share of the row's own total, which is what the
+  // scorer does (calcToxomeScore divides by the same sum), so a bar can never
+  // disagree with the score it sits next to. Stored composition is canonically
+  // percent — the normalize_product_write trigger scales any fraction-convention
+  // write by 100 — so the total is normally 100 and this is an identity.
+  //
+  // It replaces a per-value guess, `pct > 1 ? pct : pct * 100`, which read any
+  // value <= 1 as a fraction and multiplied it. A 1% fiber is <= 1, so five live
+  // products rendered one as 100%: the Sézane Will Jacket (95 organic cotton /
+  // 4 polyester / 1 elastane) and Warp + Weft's jeans (99 cotton / 1 elastane)
+  // all claimed "elastane 100%". Never infer a row's convention from one value.
+  const total = entries.reduce((sum, [, v]) => sum + v, 0);
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10, ...style }}>
       {entries.map(([fiber, pct]) => {
-        const percent = pct > 1 ? pct : pct * 100;
+        const percent = total > 0 ? (pct / total) * 100 : 0;
         return (
           <div key={fiber}>
             <div
