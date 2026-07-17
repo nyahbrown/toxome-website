@@ -38,6 +38,29 @@ export function deriveIntimatesSubcategory(
   return null;
 }
 
+// The lookalikes. A bra-or-underwear noun in the title does NOT mean Intimates —
+// what the garment is FOR decides that, and the catalog proves it: six sports
+// bras live in Activewear ("Organic Cotton Sports Bra", "Racer Bra") and three
+// bikini pieces in Swimwear ("Merino Wool Triangle Bikini Top"). Both would match
+// BRA_RE / UNDERWEAR_RE above.
+//
+// So these are never derived FROM a title — they only veto an importer that
+// proposed Intimates for one, keeping a sports bra out of the Bras filter.
+// "bikini" alone is deliberately absent: an unqualified bikini IS underwear in
+// this catalog (Subset's "Organic Cotton Mid-Rise Bikini"); only an explicit
+// top/bottom is swim.
+const SPORTS_BRA_RE = /\bsports?\s*bra(lette)?s?\b/;
+const SWIM_PIECE_RE = /\bbikini\s+(top|bottom)s?\b|\bswimsuits?\b|\bswim\s/;
+
+// Returns the category an Intimates proposal should be corrected TO, or null if
+// the proposal stands.
+export function intimatesLookalikeCategory(itemName: string): string | null {
+  const name = (itemName || "").toLowerCase();
+  if (SPORTS_BRA_RE.test(name)) return "Activewear";
+  if (SWIM_PIECE_RE.test(name)) return "Swimwear";
+  return null;
+}
+
 // The sub-filter is offered only where it means something: Women > Intimates.
 // Men's Intimates is boxers and briefs with no bras in it, so a Bras pill there
 // would be a dead option.

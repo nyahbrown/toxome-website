@@ -15,6 +15,10 @@ const UA =
   "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
 const MAX_IMAGES = 8;
 
+// Doubles as the schema enum AND the accept-list that validates the model's
+// answer, so a category missing here can never reach the catalog by this path:
+// it is stripped to null on the way in. Intimates was absent while 72 Intimates
+// products were live, which is why a bra added by URL landed in Tops.
 const CATEGORIES = [
   "Tops",
   "Bottoms",
@@ -22,6 +26,9 @@ const CATEGORIES = [
   "Outerwear",
   "Activewear",
   "Loungewear",
+  "Intimates",
+  "Underwear",
+  "Swimwear",
   "Footwear",
   "Accessories",
 ] as const;
@@ -332,7 +339,7 @@ const EXTRACT_TOOL: Anthropic.Tool = {
       category: {
         type: ["string", "null"],
         description:
-          "One of: Tops, Bottoms, Dresses, Outerwear, Activewear, Loungewear, Footwear, Accessories. Pick the best fit. null if unclear.",
+          "One of: Tops, Bottoms, Dresses, Outerwear, Activewear, Loungewear, Intimates, Underwear, Swimwear, Footwear, Accessories. Pick by what the garment is FOR, not the noun in its name: Intimates = everyday bras, bralettes and underwear; a SPORTS bra is Activewear; a bikini top or bottom is Swimwear; Underwear is for kids' underwear only. Pick the best fit. null if unclear.",
         enum: [...CATEGORIES, null],
       },
       gender: {

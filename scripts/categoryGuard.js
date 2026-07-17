@@ -34,6 +34,19 @@ function deriveIntimatesSubcategory(name) {
   return null;
 }
 
+// Lookalikes: a bra/underwear noun in the title does NOT mean Intimates. Six
+// sports bras live in Activewear and three bikini pieces in Swimwear, and all
+// would match the two regexes above. These only veto an Intimates proposal.
+// "bikini" alone is absent on purpose — unqualified, it IS underwear here.
+const SPORTS_BRA_RE = /\bsports?\s*bra(lette)?s?\b/;
+const SWIM_PIECE_RE = /\bbikini\s+(top|bottom)s?\b|\bswimsuits?\b|\bswim\s/;
+
+function intimatesLookalikeCategory(name) {
+  if (SPORTS_BRA_RE.test(name)) return "Activewear";
+  if (SWIM_PIECE_RE.test(name)) return "Swimwear";
+  return null;
+}
+
 /**
  * @param {{item_name:string, category:string|null, gender:string|null, age_band?:string|null, subcategory?:string|null}} input
  * @returns {{category:string|null, gender:string|null, age_band:string|null, subcategory:string|null, changed:boolean, reason?:string}}
@@ -91,6 +104,19 @@ function guardCategory(input) {
     (gender || "").toLowerCase() === "women" &&
     (category === "Intimates" || category === "Underwear")
   ) {
+    // Only ever corrects an Intimates proposal, so a correctly-filed sports bra
+    // or bikini is never dragged out of its own category.
+    const lookalike = intimatesLookalikeCategory(name);
+    if (lookalike) {
+      return {
+        category: lookalike,
+        gender,
+        age_band,
+        subcategory: null,
+        changed: category !== lookalike || subcategory !== null,
+        reason: "intimates-lookalike",
+      };
+    }
     const sub = subcategory || deriveIntimatesSubcategory(name);
     return {
       category: "Intimates",

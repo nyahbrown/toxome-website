@@ -10,7 +10,10 @@
 // NOTE: keep this in sync with scripts/categoryGuard.js (CommonJS mirror used by
 // the node sourcing scripts, which can't import TypeScript).
 
-import { deriveIntimatesSubcategory } from "@/lib/intimates";
+import {
+  deriveIntimatesSubcategory,
+  intimatesLookalikeCategory,
+} from "@/lib/intimates";
 
 export type GuardInput = {
   item_name: string;
@@ -119,6 +122,21 @@ export function guardCategory(input: GuardInput): GuardResult {
     (gender || "").toLowerCase() === "women" &&
     (category === "Intimates" || category === "Underwear")
   ) {
+    // A sports bra is Activewear and a bikini top is Swimwear, however the
+    // importer filed them. Vetoed here rather than earlier, so this only ever
+    // corrects an Intimates proposal and never drags a correctly-filed garment
+    // out of its own category.
+    const lookalike = intimatesLookalikeCategory(name);
+    if (lookalike) {
+      return {
+        category: lookalike,
+        gender,
+        age_band,
+        subcategory: null,
+        changed: category !== lookalike || subcategory !== null,
+        reason: "intimates-lookalike",
+      };
+    }
     const sub = subcategory || deriveIntimatesSubcategory(name);
     return {
       category: "Intimates",

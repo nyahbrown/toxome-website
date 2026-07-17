@@ -230,7 +230,12 @@ For each product extract:
 - item_price: number in USD (no $)
 - item_url: direct product page URL
 - item_image: direct main image URL
-- category: one of [Tops, Bottoms, Dresses, Outerwear, Activewear, Loungewear, Footwear, Accessories]
+- category: one of [Tops, Bottoms, Dresses, Outerwear, Activewear, Loungewear, Intimates, Underwear, Swimwear, Footwear, Accessories]
+  Pick the category by what the garment is FOR, not by the noun in its name:
+  * Intimates = everyday bras, bralettes and underwear (thongs, briefs, boxers, hipsters, panties). Use for Women and Men.
+  * Underwear = kids' underwear ONLY. Never use Intimates for a kids' item.
+  * A SPORTS bra is Activewear, not Intimates.
+  * A bikini top or bikini bottom is Swimwear, not Intimates.
 - gender: one of [Women, Men, Unisex]
 - budget: $ (<50), $$ (50-150), $$$ (>150)
 - fabric_composition: object mapping fabric name to PERCENTAGE number (e.g. {"organic cotton": 95, "elastane": 5})
