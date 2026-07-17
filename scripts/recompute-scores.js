@@ -20,13 +20,24 @@ const supabase = createClient(
     console.error("Missing SUPABASE_SERVICE_ROLE_KEY");
     process.exit(1);
   }
-  const { data, error } = await supabase
-    .from("products")
-    .select("id, brand, item_name, fabric_composition, toxome_score, risk_level")
-    .not("fabric_composition", "is", null);
-  if (error) {
-    console.error(error.message);
-    process.exit(1);
+  // Page through the table. PostgREST caps a select at 1000 rows by default, so
+  // a plain .select() silently drops everything past the first page — the tail
+  // of the catalog would keep its stale score and no run would ever report it.
+  const PAGE = 1000;
+  const data = [];
+  for (let from = 0; ; from += PAGE) {
+    const { data: page, error } = await supabase
+      .from("products")
+      .select("id, brand, item_name, fabric_composition, toxome_score, risk_level")
+      .not("fabric_composition", "is", null)
+      .order("id", { ascending: true })
+      .range(from, from + PAGE - 1);
+    if (error) {
+      console.error(error.message);
+      process.exit(1);
+    }
+    data.push(...page);
+    if (page.length < PAGE) break;
   }
   let changed = 0;
   for (const p of data) {
