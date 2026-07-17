@@ -476,6 +476,14 @@ async function run() {
         images: validated.images,
         affiliate_url: null,
         fabric_composition: composition,
+        // The page text the composition was read out of. Without this a row is
+        // unauditable later: you can't tell whether a stored composition came
+        // from the page or from the model, and 308 agent rows had no evidence at
+        // all. Keep it even when fiberUnverified, since then it's the proof the
+        // page stated nothing.
+        materials_text: validated.descText
+          ? String(validated.descText).replace(/\s+/g, " ").trim().slice(0, 600)
+          : null,
         certifications: certs,
         toxome_score: score,
         risk_level: scoreToRiskLevel(score),
