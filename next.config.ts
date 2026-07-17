@@ -19,6 +19,18 @@ const nextConfig: NextConfig = {
       // organic cotton page so the ranking signal consolidates instead of two
       // near-duplicate cotton pages competing.
       { source: "/guide/regenerative_organic_cotton", destination: "/guide/organic_cotton#top-tier", permanent: true },
+      // /journal/what-is-ecovero and /guide/ecovero were the same article written
+      // twice, and Search Console shows them cannibalizing on ~22 shared queries:
+      // the journal held "what is ecovero" (202 impressions, pos 7.4) while the
+      // guide sat at pos 32.75 on the same query, and the guide held "is lenzing
+      // ecovero viscose toxic" (141, pos 4.5) while the journal trailed. ~1,220
+      // impressions across both, 9 clicks. Merged into the guide, not the journal:
+      // the guide is the systematic per-fiber page (every fiber has one), its FAQ
+      // already answers every query the journal ranked for, and its title template
+      // is answer-first ("Is X Toxic or Safe? Health Score N/100"). The journal was
+      // the anomaly — it was the only "what is [fiber]" piece in a Journal that is
+      // otherwise comparisons and news. Same reasoning as the viscose→rayon merge.
+      { source: "/journal/what-is-ecovero", destination: "/guide/ecovero", permanent: true },
       // The old /compare/* fiber-comparison pages were retired and their content
       // moved into Journal articles. 301 the URLs Google still has indexed so the
       // ranking signal (modal-vs-viscose pulled 100+ impressions) is reclaimed
