@@ -1,0 +1,55 @@
+name: Link Sweep
+
+# Weekly health check on every PUBLISHED product: is the buy link still alive,
+# is it in stock, does it still have a composition and images.
+#
+# NO ANTHROPIC API. scripts/audit-live.js -> scripts/scrape.js is pure fetch +
+# regex, no LLM anywhere. The only secret it needs is the Supabase service key.
+#
+# Why this exists: the first full sweep (16 Jul 2026) found 29 dead links across
+# 733 live products (~4%). 20 of the 29 returned a healthy HTTP 200 while
+# silently redirecting the shopper to the store's homepage, so a plain
+# status-code check would have missed the majority of them. 6 of the dead were
+# Faithfull the Brand — the top brand-partnership target — which would have made
+# an outreach email claiming "we publish 22 of your pieces" embarrassingly wrong.
+# A dead buy button also earns zero affiliate commission no matter how well the
+# tracking is wired.
+#
+# REPORT ONLY. It never unpublishes anything: the sweep can't tell a
+# discontinued colorway from a URL that should be repointed, and 403-blocked
+# stores (Sézane, Todd Snyder) are unverifiable by script. Read the run summary,
+# then act.
+
+on:
+  schedule:
+    - cron: "0 8 * * 1" # Mondays 08:00 UTC, an hour before the Shop Agent
+  workflow_dispatch: # manual trigger from the Actions tab
+
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45 # ~730 real page fetches at concurrency 6
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Sweep live products
+        env:
+          # No ANTHROPIC_API_KEY on purpose — this job must never call the API.
+          NEXT_PUBLIC_SUPABASE_URL: https://xclvodbmllglmharezqa.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/audit-live.js # report only, never --apply
+
+      - name: Upload full report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-report
+          path: /tmp/audit_report.json
+          retention-days: 90
