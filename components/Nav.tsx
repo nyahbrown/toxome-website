@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import NavDropdown from "./NavDropdown";
 import type { ShopTaxonomy } from "@/lib/supabase";
+import { KIDS_AGE_BANDS } from "@/lib/kidsSizes";
 
 const FALLBACK_TAXONOMY: ShopTaxonomy = {
   women: ["Activewear", "Bottoms", "Outerwear", "Tops"],
@@ -31,16 +32,16 @@ function buildShopColumns(taxonomy: ShopTaxonomy) {
       ],
     };
   };
-  // Kids carries an age split (Baby / Kids) ahead of its category links.
+  // Kids is browsed by age, not garment type. The column shows the four age
+  // bands (Newborn / Baby / Toddler / Kids) from KIDS_AGE_BANDS; garment
+  // categories are refined on the /shop/kids page itself.
   const kidsCol = {
     heading: "Kids",
     items: [
       { label: "All Kids", href: "/shop/kids", muted: true },
-      { label: "Baby", href: "/shop/kids?age=baby" },
-      { label: "Kids", href: "/shop/kids?age=kids" },
-      ...taxonomy.kids.map((c) => ({
-        label: c,
-        href: `/shop/kids?category=${encodeURIComponent(c)}`,
+      ...KIDS_AGE_BANDS.map((b) => ({
+        label: b.label,
+        href: `/shop/kids?age=${b.value}`,
       })),
     ],
   };
