@@ -21,7 +21,7 @@ import {
   TOXOME_VERIFIED,
 } from "@/lib/verification";
 import { KIDS_AGE_BANDS, sizesToBands, type KidsAgeBand } from "@/lib/kidsSizes";
-import { INTIMATES_SUBCATEGORIES, hasIntimatesSplit } from "@/lib/intimates";
+import { getSubfilter } from "@/lib/subfilters";
 
 export type ShopSection = "women" | "men" | "kids" | "home" | null;
 
@@ -626,14 +626,15 @@ export default function ShopClient({
         )!
       : "All";
 
-  // Second-level filter, offered only under a category that splits (today just
-  // Women > Intimates). Dropped when the parent category isn't selected, so a
-  // stale ?sub=bras link can't silently filter the whole grid down to nothing
-  // with a pill the shopper can't see to remove.
+  // Second-level filter, offered only under a category that splits (Women >
+  // Intimates or Women > Activewear). getSubfilter returns null for everything
+  // else, so a stale ?sub= link can't silently filter the whole grid down to
+  // nothing with a pill the shopper can't see to remove.
+  const subfilter = getSubfilter(section, category);
   const subRaw = searchParams.get("sub");
   const subcategoryFilter =
-    subRaw && hasIntimatesSplit(section, category)
-      ? INTIMATES_SUBCATEGORIES.find(
+    subRaw && subfilter
+      ? subfilter.options.find(
           (s) => s.toLowerCase() === subRaw.toLowerCase()
         ) ?? null
       : null;
@@ -1020,13 +1021,14 @@ export default function ShopClient({
               stickyLabel
             />
           )}
-          {/* Bras / Underwear, the second cut shoppers actually want once
-              they're inside Intimates. Women only — men's Intimates has no
-              bras in it, so the pill would offer a dead option. */}
-          {hasIntimatesSplit(section, category) && (
+          {/* Second cut shoppers want once they're inside a category that splits
+              — Bras/Underwear under Intimates, Sports Bras/Leggings/Shorts/Tops
+              under Activewear. Women only; getSubfilter returns null elsewhere so
+              the pill never offers a dead option. */}
+          {subfilter && (
             <FrostedSelect
-              label="Type"
-              options={[...INTIMATES_SUBCATEGORIES]}
+              label={subfilter.label}
+              options={[...subfilter.options]}
               value={subcategoryFilter ?? "All"}
               onChange={(v) => updateParams({ sub: v === "All" ? null : v })}
               stickyLabel
@@ -1451,14 +1453,16 @@ function RefineSheet({
         setStaged((s) => ({ ...s, category: v ?? "All", subcategory: null })),
     });
   }
-  // Appears the moment Intimates is staged, disappears when it isn't.
-  if (hasIntimatesSplit(section, staged.category)) {
+  // Appears the moment a splitting category (Intimates / Activewear) is staged,
+  // disappears when it isn't.
+  const stagedSubfilter = getSubfilter(section, staged.category);
+  if (stagedSubfilter) {
     sections.push({
       key: "subcategory",
-      label: "Type",
+      label: stagedSubfilter.label,
       value: staged.subcategory,
       displayValue: staged.subcategory ?? "All",
-      options: INTIMATES_SUBCATEGORIES.map((s) => ({ label: s, value: s })),
+      options: stagedSubfilter.options.map((s) => ({ label: s, value: s })),
       onSelect: (v) => setStaged((s) => ({ ...s, subcategory: v })),
     });
   }

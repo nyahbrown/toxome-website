@@ -47,6 +47,23 @@ function intimatesLookalikeCategory(name) {
   return null;
 }
 
+// Women's Activewear splits into Sports Bras / Leggings / Shorts / Tops on
+// `subcategory`. Mirror of lib/activewear.ts — see it for the ordering rationale
+// (Shorts checked before Leggings so "Bike Shorts" isn't a legging).
+const AW_BRA_RE = /\b(bras?|bralettes?)\b/;
+const AW_SHORTS_RE = /\bshorts?\b/;
+const AW_LEGGING_RE = /\b(leggings?|tights?|pants?|flares?|capris?|joggers?)\b/;
+const AW_TOP_RE =
+  /\b(tops?|tanks?|crops?|tees?|t-shirts?|singlets?|camis?|camisoles?|sleeveless)\b/;
+
+function deriveActivewearSubcategory(name) {
+  if (AW_BRA_RE.test(name)) return "Sports Bras";
+  if (AW_SHORTS_RE.test(name)) return "Shorts";
+  if (AW_LEGGING_RE.test(name)) return "Leggings";
+  if (AW_TOP_RE.test(name)) return "Tops";
+  return null;
+}
+
 /**
  * @param {{item_name:string, category:string|null, gender:string|null, age_band?:string|null, subcategory?:string|null}} input
  * @returns {{category:string|null, gender:string|null, age_band:string|null, subcategory:string|null, changed:boolean, reason?:string}}
@@ -125,6 +142,21 @@ function guardCategory(input) {
       subcategory: sub,
       changed: category !== "Intimates" || subcategory !== sub,
       reason: "intimates-merge",
+    };
+  }
+
+  // Women's Activewear splits into Sports Bras / Leggings / Shorts / Tops on the
+  // same column. Category is already right; this only seeds the subcategory from
+  // the title, and an explicit subcategory wins.
+  if ((gender || "").toLowerCase() === "women" && category === "Activewear") {
+    const sub = subcategory || deriveActivewearSubcategory(name);
+    return {
+      category: "Activewear",
+      gender,
+      age_band,
+      subcategory: sub,
+      changed: subcategory !== sub,
+      reason: "activewear-subcategory",
     };
   }
 

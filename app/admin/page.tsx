@@ -10,7 +10,7 @@ import {
   scoreToRiskLevel,
 } from "@/lib/fabricScores";
 import type { Product } from "@/types/product";
-import { INTIMATES_SUBCATEGORIES } from "@/lib/intimates";
+import { getSubfilter } from "@/lib/subfilters";
 import AdminTabs from "@/components/admin/AdminTabs";
 
 const ADMIN_EMAIL = "nyah@toxome.app";
@@ -1744,8 +1744,11 @@ function EditPanel({
   const [jsonError, setJsonError] = useState("");
 
   // Tracks the live dropdowns, not the saved row, so the Type field appears the
-  // moment an editor sets Women + Intimates rather than after a save.
-  const showSubcategory = gender === "Women" && category === "Intimates";
+  // moment an editor sets a splitting pairing (Women + Intimates or Women +
+  // Activewear) rather than after a save. getSubfilter is the single source of
+  // truth for which category+gender carries a second-level Type filter.
+  const subfilter = getSubfilter((gender || "").toLowerCase(), category);
+  const showSubcategory = !!subfilter;
 
   // Live preview of the recomputed score from the JSON textarea.
   let previewScore: number | null = null;
@@ -1833,19 +1836,20 @@ function EditPanel({
             ))}
           </select>
         </Field>
-        {/* The manual override for the Bras/Underwear split. New products get a
-            guess from their title on insert; this is how a bra that never says
-            "bra" (Cou Cou's "The Balconette") gets filed correctly. "(none)" is
-            a valid answer for a camisole, which is neither. */}
-        {showSubcategory && (
-          <Field label="Type">
+        {/* The manual override for the second-level Type split (Bras/Underwear
+            under Intimates, Sports Bras/Leggings/Shorts/Tops under Activewear).
+            New products get a guess from their title on insert; this is how a bra
+            that never says "bra" (Cou Cou's "The Balconette") gets filed
+            correctly. "(none)" is a valid answer for a piece that fits none. */}
+        {subfilter && (
+          <Field label={subfilter.label}>
             <select
               style={editInputStyle}
               value={subcategory}
               onChange={(e) => setSubcategory(e.target.value)}
             >
               <option value="">(none)</option>
-              {INTIMATES_SUBCATEGORIES.map((s) => (
+              {subfilter.options.map((s) => (
                 <option key={s} value={s}>{s}</option>
               ))}
             </select>

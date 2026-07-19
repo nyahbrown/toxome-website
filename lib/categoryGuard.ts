@@ -14,6 +14,7 @@ import {
   deriveIntimatesSubcategory,
   intimatesLookalikeCategory,
 } from "@/lib/intimates";
+import { deriveActivewearSubcategory } from "@/lib/activewear";
 
 export type GuardInput = {
   item_name: string;
@@ -145,6 +146,24 @@ export function guardCategory(input: GuardInput): GuardResult {
       subcategory: sub,
       changed: category !== "Intimates" || subcategory !== sub,
       reason: "intimates-merge",
+    };
+  }
+
+  // 5) Women's Activewear splits into Sports Bras / Leggings / Shorts / Tops on
+  //    the same subcategory column. The category is already right here, so this
+  //    only seeds the subcategory from the title; an explicit subcategory wins.
+  if (
+    (gender || "").toLowerCase() === "women" &&
+    category === "Activewear"
+  ) {
+    const sub = subcategory || deriveActivewearSubcategory(name);
+    return {
+      category: "Activewear",
+      gender,
+      age_band,
+      subcategory: sub,
+      changed: subcategory !== sub,
+      reason: "activewear-subcategory",
     };
   }
 
