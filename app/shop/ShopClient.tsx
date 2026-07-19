@@ -544,12 +544,6 @@ export default function ShopClient({
     ? FIBERS.find((f) => f.name.toLowerCase() === fiberFilter.toLowerCase())
         ?.name ?? "All"
     : "All";
-  const occasionRaw = searchParams.get("occasion");
-  const occasionFilter =
-    occasionRaw &&
-    OCCASIONS.some((o) => o.toLowerCase() === occasionRaw.toLowerCase())
-      ? OCCASIONS.find((o) => o.toLowerCase() === occasionRaw.toLowerCase())!
-      : null;
   const ageRaw = searchParams.get("age");
   const ageFilter =
     ageRaw && KIDS_AGE_BANDS.some((a) => a.value === ageRaw.toLowerCase())
@@ -625,6 +619,18 @@ export default function ShopClient({
           (c) => c.toLowerCase() === categoryRaw.toLowerCase()
         )!
       : "All";
+
+  // Occasion is an apparel concept — Everyday, Workwear, Evening. It's dead under
+  // Activewear (all inherently everyday/athletic), so it's dropped there and a
+  // stale ?occasion= link resolves to nothing rather than filtering the grid
+  // invisibly with a pill the shopper can't see to remove.
+  const occasionRaw = searchParams.get("occasion");
+  const occasionFilter =
+    occasionRaw &&
+    category !== "Activewear" &&
+    OCCASIONS.some((o) => o.toLowerCase() === occasionRaw.toLowerCase())
+      ? OCCASIONS.find((o) => o.toLowerCase() === occasionRaw.toLowerCase())!
+      : null;
 
   // Second-level filter, offered only under a category that splits (Women >
   // Intimates or Women > Activewear). getSubfilter returns null for everything
@@ -1088,8 +1094,9 @@ export default function ShopClient({
             stickyLabel
           />
           )}
-          {/* Occasion is an apparel concept, irrelevant for home goods and kids. */}
-          {section !== "home" && section !== "kids" && (
+          {/* Occasion is an apparel concept, irrelevant for home goods and kids,
+              and dead under Activewear (everything there is everyday/athletic). */}
+          {section !== "home" && section !== "kids" && category !== "Activewear" && (
           <FrostedSelect
             label="Occasion"
             options={OCCASIONS}
@@ -1449,8 +1456,14 @@ function RefineSheet({
       options: sectionCategories.map((c) => ({ label: c, value: c })),
       // Changing category drops the sub-filter with it, matching the desktop
       // pill — otherwise the Type row vanishes still holding a staged value.
+      // Activewear also drops Occasion, which isn't offered there.
       onSelect: (v) =>
-        setStaged((s) => ({ ...s, category: v ?? "All", subcategory: null })),
+        setStaged((s) => ({
+          ...s,
+          category: v ?? "All",
+          subcategory: null,
+          occasion: v === "Activewear" ? null : s.occasion,
+        })),
     });
   }
   // Appears the moment a splitting category (Intimates / Activewear) is staged,
@@ -1522,7 +1535,7 @@ function RefineSheet({
       onSelect: (v) => setStaged((s) => ({ ...s, price: v })),
     });
   }
-  if (section !== "home" && section !== "kids") {
+  if (section !== "home" && section !== "kids" && staged.category !== "Activewear") {
     sections.push({
       key: "occasion",
       label: "Occasion",
