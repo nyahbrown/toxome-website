@@ -11,7 +11,8 @@ import { getShopTaxonomy } from "@/lib/supabase";
 // Flip the extension page from "coming soon / waitlist" to a live "Add to
 // Chrome" button by pasting the Chrome Web Store URL here the day it ships.
 // Empty string = pre-launch (waitlist mode).
-const CHROME_STORE_URL = "";
+const CHROME_STORE_URL =
+  "https://chromewebstore.google.com/detail/toxome-%E2%80%94-fabric-health-wh/aagflgkagakcjbhogcemekbjiphgmhdi";
 const IS_LIVE = CHROME_STORE_URL.length > 0;
 
 const APP_STORE = "https://apps.apple.com/us/app/toxome/id6748622034";
@@ -548,11 +549,11 @@ export default async function ExtensionPage() {
         </div>
       </section>
 
-      {/* Closing, app cross-sell while the extension is pre-launch */}
+      {/* Closing, app cross-sell: extension checks what you're buying, app checks what you own */}
       <section className="shell" style={{ paddingTop: 110, paddingBottom: 130 }}>
         <div style={{ maxWidth: 620, margin: "0 auto", textAlign: "center" }}>
           <p className="eyebrow" style={{ margin: "0 0 16px" }}>
-            In the meantime
+            The app, too
           </p>
           <h2
             style={{
