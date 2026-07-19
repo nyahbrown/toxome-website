@@ -40,6 +40,37 @@ const DOMAIN: Record<string, string> = {
   "certified-vegan": "vegan.org",
 };
 
+// High-res official logos living in /public/certs, by slug → filename. This
+// mirrors what certLogos.ts finds via `fs` at build time, but is client-safe so
+// CertBadge (a client component on the shop grid + QuickShop sheet) can prefer
+// the local file before falling back to the remote favicon. Keep in sync with
+// the files in /public/certs — add a slug here when you drop a new logo in.
+const LOCAL: Record<string, string> = {
+  "b-corp": "b-corp.png",
+  bluesign: "bluesign.png",
+  "cradle-to-cradle": "cradle-to-cradle.jpg",
+  "european-flax": "european-flax.png",
+  "fair-trade": "fair-trade.png",
+  gots: "gots.png",
+  grs: "grs.png",
+  "made-safe": "made-safe.webp",
+  ocs: "ocs.png",
+  "one-percent-for-the-planet": "one-percent-for-the-planet.jpg",
+  pefc: "pefc.png",
+  rds: "rds.png",
+  "regenerative-organic-certified": "regenerative-organic-certified.png",
+  "responsible-alpaca-standard": "responsible-alpaca-standard.jpg",
+  "responsible-mohair-standard": "responsible-mohair-standard.jpg",
+  rws: "rws.png",
+  "the-good-cashmere-standard": "the-good-cashmere-standard.jpg",
+  "usda-organic": "usda-organic.svg",
+};
+
+/** Local /public/certs path for a cert, or null if no file exists for it. */
+export function localLogo(slug: string): string | null {
+  return LOCAL[slug] ? `/certs/${LOCAL[slug]}` : null;
+}
+
 /** Remote logo URLs to try for a cert, in order. Empty when the body is unknown. */
 export function remoteCandidates(slug: string, size = 128): string[] {
   const domain = DOMAIN[slug];

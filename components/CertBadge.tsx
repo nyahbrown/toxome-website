@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { markFor, remoteCandidates } from "@/lib/certMarks";
+import { localLogo, markFor, remoteCandidates } from "@/lib/certMarks";
 
 // Circular certification badge. Resolves the logo in order:
 //   1. a local file in /public/certs (passed as `logoSrc`) — best quality
@@ -29,7 +29,7 @@ export default function CertBadge({
   size?: number;
   logoSrc?: string;
 }) {
-  const candidates = [logoSrc, ...remoteCandidates(slug)].filter(
+  const candidates = [logoSrc, localLogo(slug), ...remoteCandidates(slug)].filter(
     Boolean
   ) as string[];
   const [idx, setIdx] = useState(0);
