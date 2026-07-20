@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { verifyAdmin } from "@/lib/adminAuth";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { isJunkClosetBrand, canonicalClosetKey } from "@/lib/closetBrandDisplay";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -50,7 +51,11 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  const rows = data ?? [];
+  // Drop non-brand junk (descriptions, placeholders, non-clothing) before we
+  // aggregate, so both the brand rows and the totals reflect real brands only.
+  const rows = (data ?? []).filter(
+    (r) => !isJunkClosetBrand((r.brand_name as string) || (r.brand_normalized as string))
+  );
 
   // Aggregate in JS — volume is low enough that this is fine.
   type BrandAgg = {
@@ -65,8 +70,10 @@ export async function GET(req: Request) {
   const map = new Map<string, BrandAgg>();
 
   for (const row of rows) {
-    const key = (row.brand_normalized as string) || (row.brand_name as string) || "";
-    if (!key) continue;
+    const rawKey = (row.brand_normalized as string) || (row.brand_name as string) || "";
+    if (!rawKey) continue;
+    // Fold short-forms (e.g. "ref" -> "reformation") into one canonical row.
+    const key = canonicalClosetKey(rawKey);
 
     let agg = map.get(key);
     if (!agg) {

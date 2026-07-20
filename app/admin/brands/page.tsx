@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import AdminTabs from "@/components/admin/AdminTabs";
+import { formatBrandName } from "@/lib/closetBrandDisplay";
 
 const ADMIN_EMAIL = "nyah@toxome.app";
 
@@ -425,10 +426,10 @@ export default function AdminBrandsPage() {
                           overflow: "hidden",
                           textOverflow: "ellipsis",
                           whiteSpace: "nowrap",
-                          textTransform: "capitalize",
+                          textTransform: "none",
                         }}
                       >
-                        {sub.raw_name}
+                        {formatBrandName(sub.raw_name)}
                       </div>
                       <div style={{ fontSize: 11, color: "var(--ink-3)", marginTop: 2 }}>
                         {sub.normalized}
@@ -613,10 +614,10 @@ export default function AdminBrandsPage() {
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                         whiteSpace: "nowrap",
-                        textTransform: "capitalize",
+                        textTransform: "none",
                       }}
                     >
-                      {brand.brand_name}
+                      {formatBrandName(brand.brand_name)}
                     </div>
                   </div>
                   <div
