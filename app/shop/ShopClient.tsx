@@ -908,7 +908,7 @@ export default function ShopClient({
               ? category !== "All"
                 ? `${header.title} | ${category.toLowerCase()}`
                 : header.title
-              : "There is no wellness without what touches the skin all day."}
+              : "There is no wellness without considering what touches your skin all day."}
         </h1>
       </div>
 
