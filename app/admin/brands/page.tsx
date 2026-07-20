@@ -425,6 +425,7 @@ export default function AdminBrandsPage() {
                           overflow: "hidden",
                           textOverflow: "ellipsis",
                           whiteSpace: "nowrap",
+                          textTransform: "capitalize",
                         }}
                       >
                         {sub.raw_name}
@@ -612,6 +613,7 @@ export default function AdminBrandsPage() {
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                         whiteSpace: "nowrap",
+                        textTransform: "capitalize",
                       }}
                     >
                       {brand.brand_name}
