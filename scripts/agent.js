@@ -135,11 +135,21 @@ async function ensureBrandInDirectory(supabase, brandName, website) {
   const normalized = normalizeBrand(brandName);
   if (!normalized) return;
   try {
+    // Catalog brands are Toxome-approved (supply side) -> approved = true.
     const { error } = await supabase.from("brands").upsert(
-      { name: String(brandName).trim(), normalized, website: website || null, status: "active" },
+      { name: String(brandName).trim(), normalized, website: website || null, status: "active", approved: true },
       { onConflict: "normalized", ignoreDuplicates: true }
     );
     if (error) console.warn(`  ⚠ brand-directory upsert failed for ${brandName}: ${error.message}`);
+    // If this brand already existed as a picker-only (demand) entry, promote it:
+    // getting a catalog product makes it approved. ignoreDuplicates skips the
+    // upsert's update, so flip the flag explicitly.
+    const { error: flagErr } = await supabase
+      .from("brands")
+      .update({ approved: true })
+      .eq("normalized", normalized)
+      .eq("approved", false);
+    if (flagErr) console.warn(`  ⚠ brand approved-flag update failed for ${brandName}: ${flagErr.message}`);
   } catch (e) {
     console.warn(`  ⚠ brand-directory upsert error for ${brandName}: ${e.message}`);
   }
