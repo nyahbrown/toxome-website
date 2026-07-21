@@ -69,31 +69,73 @@ function findProductLd(ldArr) {
  * in JSON-LD with priceCurrency / price / availability; Shopify exposes
  * price (cents) + available on /products/{handle}.js.
  *
- * IMPORTANT (US-only sourcing): JSON-LD price is only trusted when the
- * currency is USD — this env/cron can geo-resolve to a EUR/GBP storefront,
- * and recording that price would be wrong. inStock is always returned.
+ * IMPORTANT (US-only sourcing): price is only trusted when the currency is
+ * USD — this env/cron can geo-resolve to a EUR/GBP/CAD storefront, and
+ * recording that number as dollars would be wrong. inStock is always returned.
+ *
+ * The Shopify branch USED to skip that check entirely, because it read
+ * `shopify.currency` and /products/{handle}.js has no currency field at all —
+ * so the guard was always comparing undefined and every foreign price sailed
+ * through as USD. That recorded Takasa (CAD) and Cou Cou (GBP) as dollars.
+ * Currency now comes from the page instead, in order of reliability:
+ *   1. priceCurrency on the parsed Product JSON-LD
+ *   2. any "priceCurrency" in the raw HTML — findProductLd misses Takasa's
+ *      block, and that miss is exactly how CAD got through as USD
+ *   3. Shopify.currency = {"active":"XXX"}, which themes inline on every
+ *      storefront (Araks publishes no priceCurrency at all)
+ * Deliberately NOT matched: a bare `currency = 'USD'` assignment. Themes ship
+ * that as a hardcoded default, and on Takasa it reads USD on a CAD store.
+ * A price whose currency we cannot establish is dropped, matching the JSON-LD
+ * branch below. Silently recording a foreign number is worse than no number.
  */
-function extractOffer(prodLd, shopify) {
+function pageCurrency(prodLd, html) {
+  const offers = prodLd && prodLd.offers
+    ? (Array.isArray(prodLd.offers) ? prodLd.offers : [prodLd.offers])
+    : [];
+  const fromLd = offers.length ? offers[0].priceCurrency : null;
+  if (fromLd) return String(fromLd).toUpperCase();
+  const h = html || "";
+  const ld = /["']priceCurrency["']\s*:\s*["']([A-Za-z]{3})["']/.exec(h);
+  if (ld) return ld[1].toUpperCase();
+  const active = /currency\s*[:=]\s*\{[^}]*["']active["']\s*:\s*["']([A-Za-z]{3})["']/i.exec(h);
+  return active ? active[1].toUpperCase() : null;
+}
+
+function ldOffers(prodLd) {
+  if (!prodLd || !prodLd.offers) return [];
+  return Array.isArray(prodLd.offers) ? prodLd.offers : [prodLd.offers];
+}
+
+function extractOffer(prodLd, shopify, html) {
+  const currency = pageCurrency(prodLd, html) || (shopify && shopify.currency) || null;
+  const offers = ldOffers(prodLd);
+
+  const inStock =
+    shopify && typeof shopify.available === "boolean"
+      ? shopify.available
+      : offers.length
+        ? offers.some((o) => /InStock/i.test(String(o.availability || "")))
+        : null;
+
+  if (currency !== "USD") return { price: null, currency, inStock };
+
+  // Prefer the JSON-LD price over the Shopify one. /products/{handle}.js always
+  // answers for the shop's DEFAULT market, which on a multi-market store is a
+  // different currency AND a different number: Takasa's .js returns 9500 (CAD)
+  // while its US page reads $86. Taking .js first recorded the Canadian figure
+  // as dollars. The rendered page is the market the shopper actually sees.
+  const ldPrices = offers.map((o) => Number(o.price)).filter(Number.isFinite);
+  if (ldPrices.length) return { price: Math.min(...ldPrices), currency, inStock };
+
   if (shopify && typeof shopify.price !== "undefined") {
     const cents = Number(shopify.price);
     return {
       price: Number.isFinite(cents) ? Math.round(cents / 100) : null,
-      currency: shopify.currency || null,
-      inStock: typeof shopify.available === "boolean" ? shopify.available : null,
+      currency,
+      inStock,
     };
   }
-  if (prodLd && prodLd.offers) {
-    const offers = Array.isArray(prodLd.offers) ? prodLd.offers : [prodLd.offers];
-    if (!offers.length) return { price: null, currency: null, inStock: null };
-    const currency = offers[0].priceCurrency || null;
-    const prices = offers.map((o) => Number(o.price)).filter(Number.isFinite);
-    const price = prices.length ? Math.min(...prices) : null;
-    const inStock = offers.some((o) =>
-      /InStock/i.test(String(o.availability || ""))
-    );
-    return { price: currency === "USD" ? price : null, currency, inStock };
-  }
-  return { price: null, currency: null, inStock: null };
+  return { price: null, currency, inStock };
 }
 
 /** Shopify exposes /products/{handle}.js — the most reliable source when present. */
@@ -241,7 +283,16 @@ const FIBER_WORD_RE = new RegExp("\\b(" + FIBER_WORDS.join("|") + ")\\b", "i");
  */
 function parseComposition(text) {
   if (!text) return null;
-  const main = decodeEntities(text).split(/lining|trim\s*:|contrast\s*:/i)[0];
+  // The lining marker also catches the prose form "(fully) lined with 100% X":
+  // when the shell fibre is named WITHOUT a percentage (e.g. "woven from recycled
+  // wool") but the lining carries the only "NN% fibre" on the page, the uncut
+  // text would report the LINING as the whole garment. Cutting there yields null
+  // (honestly unverifiable) instead of a wrong shell. (20 Jul 2026: Outerknown
+  // Woolaroo — shell "recycled wool" + "fully lined with 100% organic cotton" —
+  // was being read as 100% organic cotton.)
+  const main = decodeEntities(text).split(
+    /\blining\b|\b(?:fully\s+)?lined\s+(?:with|in)\b|\bbacked\s+with\b|trim\s*:|contrast\s*:/i
+  )[0];
   const pctRe = /(\d{1,3})\s*%/g;
   const comp = {};
   let m;
@@ -404,7 +455,7 @@ async function getValidatedProduct(url) {
     return { ok: false, reason: "no working product image found" };
   }
 
-  const offer = extractOffer(prodLd, shopify);
+  const offer = extractOffer(prodLd, shopify, page.html);
 
   // Page-grounded composition + certs (NEVER the model's guess). Prefer the
   // structured description; fall back to visible page text for composition only
