@@ -1926,6 +1926,10 @@ export const FIBER_RICH: Record<string, Partial<FiberGuideEntry>> = {
   "polyester": {
     "dek": "Petroleum melted into thread. The most common fiber in your closet, and the single biggest source of textile microplastic.",
     "history": "British chemists John Rex Whinfield and James Dickson first made polyester in 1941. DuPont brought it to the US as *Dacron* in the early 1950s, and it is now the most produced fiber on earth by a wide margin.",
+    "historyImage": {
+      "src": "/fibers/polyester/history.jpg",
+      "alt": "A chemist in a 1930s laboratory stretching a length of synthetic filament between his hands"
+    },
     "madeStory": [
       "Polyester is *PET*, the same plastic used in water bottles, melted and pushed through tiny holes to form thread. Most of it is polymerized with *antimony trioxide* as the catalyst, dosed at roughly 200 to 300 parts per million, and a residue of that antimony stays locked in the finished fiber (commonly measured around 200 ppm).",
       "Once spun, polyester is almost always colored with *disperse dyes*, which sit on the surface of the fiber instead of bonding into it.",

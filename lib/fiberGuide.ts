@@ -43,6 +43,8 @@ export type FiberGuideEntry = {
   about?: string;
   /** The "a brief history" aside body. */
   history?: string;
+  /** Image shown inside the "a brief history" aside, under its copy. */
+  historyImage?: { src: string; alt: string; caption?: string };
   /** Paragraphs for "how it's cultivated & made". */
   madeStory?: string[];
   /** Image shown inside the made section. */

@@ -463,6 +463,22 @@ export default async function FiberGuidePage({
                       </p>
                     </div>
                   )}
+                  {f.historyImage && (
+                    <figure className="gp-histfig">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={f.historyImage.src}
+                        alt={f.historyImage.alt}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                      {f.historyImage.caption && (
+                        <figcaption className="gp-figcap">
+                          {f.historyImage.caption}
+                        </figcaption>
+                      )}
+                    </figure>
+                  )}
                 </section>
 
                 {/* CULTIVATED & MADE */}
@@ -1082,6 +1098,13 @@ export default async function FiberGuidePage({
         }
         .guide-page .gp-figure img { width: 100%; aspect-ratio: 16/10; object-fit: cover; }
         .guide-page .gp-figcap { font-size: 12px; color: #6B7178; margin-top: 10px; letter-spacing: .02em; }
+        /* history photo, under the "a brief history" aside. Capped at the
+           source width so it never upscales into softness, and left at its
+           natural aspect so the subject is not cropped. */
+        .guide-page .gp-histfig { margin: 16px 0 0; max-width: 570px; }
+        .guide-page .gp-histfig img {
+          width: 100%; height: auto; display: block; border-radius: 10px;
+        }
         .guide-page .gp-aside { background: var(--tan); border-radius: 14px; padding: 18px 22px; margin: 24px 0; }
         .guide-page .gp-aside p { font-size: 14.5px; color: var(--ink-2); line-height: 1.62; }
         .guide-page .gp-subh { font-size: 14px; font-weight: 600; color: var(--ink); margin: 30px 0 12px; }
