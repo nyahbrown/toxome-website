@@ -108,7 +108,7 @@ Eight mattresses that will tell you what is inside them, ordered by how much the
     <p class="j-pick__brand">My Green Mattress</p>
   </div>
   <div class="j-pick__row">
-    <a class="j-pick__media" href="https://www.mygreenmattress.com/products/natural-escape" target="_blank" rel="noopener nofollow">
+    <a class="j-pick__media" href="https://www.mygreenmattress.com/product/natural-escape/" target="_blank" rel="noopener nofollow">
       <img src="https://www.mygreenmattress.com/wp-content/uploads/2025/12/Natural-Escape-Main-Img.jpg" alt="The My Green Mattress Natural Escape, a quilted organic cotton mattress." loading="lazy" />
     </a>
     <div class="j-pick__mid">
@@ -134,7 +134,7 @@ Eight mattresses that will tell you what is inside them, ordered by how much the
       <div class="j-pick__text">
         <p>The best certification per dollar on this list, and the only brand besides Avocado that prints certificate numbers where a buyer can check them. A family-run operation in Illinois that has been doing this longer than most of the venture-funded names. Nothing on the page claims more scope than it holds.</p>
       </div>
-      <a class="j-pick__cta" href="https://www.mygreenmattress.com/products/natural-escape" target="_blank" rel="noopener nofollow">Shop My Green Mattress</a>
+      <a class="j-pick__cta" href="https://www.mygreenmattress.com/product/natural-escape/" target="_blank" rel="noopener nofollow">Shop My Green Mattress</a>
     </div>
   </div>
 </div>
