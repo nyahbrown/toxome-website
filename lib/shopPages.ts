@@ -218,7 +218,7 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
       },
     ],
     section: null,
-    guideSlug: "organic_cotton",
+    guideSlug: "organic-cotton",
     match: (p) => hasFiber(p, "organic cotton"),
   },
   {
@@ -360,7 +360,7 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
       },
     ],
     section: null,
-    guideSlug: "merino_wool",
+    guideSlug: "merino-wool",
     match: (p) => hasFiber(p, "merino"),
   },
   {
@@ -856,7 +856,7 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
       },
     ],
     section: null,
-    guideSlug: "tencel_lyocell",
+    guideSlug: "lyocell",
     match: (p) => hasFiber(p, "tencel"),
   },
   {
@@ -939,7 +939,9 @@ const FIBER_TO_COLLECTION: [string, string][] = [
 ];
 
 export function collectionSlugForFiber(fiber: string): string | null {
-  const k = fiber.toLowerCase().replace(/_/g, " ");
+  // Accept either separator: guide slugs are hyphenated URLs ("organic-cotton")
+  // while the canonical score keys still use underscores ("organic_cotton").
+  const k = fiber.toLowerCase().replace(/[_-]/g, " ");
   for (const [key, slug] of FIBER_TO_COLLECTION) {
     if (k.includes(key)) return slug;
   }

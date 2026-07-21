@@ -12,7 +12,22 @@ import { FIBER_RICH } from "./fiberGuideRich";
 export type FiberSource = { title: string; publisher: string; url: string };
 
 export type FiberGuideEntry = {
-  slug: string; // also the canonical score key in fiber-scores.json
+  /**
+   * URL segment only: /guide/<slug>. Hyphenated, and named after the term
+   * people actually search (the material, not the trademark). This is NOT the
+   * data key. Renaming a slug changes a URL and nothing else, so long as a
+   * redirect is added in next.config.ts.
+   */
+  slug: string;
+  /**
+   * The canonical data key, and the thing every internal lookup hangs off:
+   * fiber-scores.json, FIBER_SUMMARY, FIBER_RICH, the fiber family sets, and
+   * the /fibers/guide/<key>.jpg hero asset. Defaults to `slug`, and is only set
+   * where the URL has been renamed away from the data key. Keep these in sync
+   * with fiber-scores.json, which is mirrored to the app, the extension, and
+   * Firebase; renaming a key there would drift the score across surfaces.
+   */
+  scoreKey?: string;
   name: string;
   natural: boolean;
   whatItIs: string;
@@ -33,6 +48,22 @@ export type FiberGuideEntry = {
   /** Sentence-form name for inline headings. Defaults to name.toLowerCase();
    *  set for branded/trademarked names that should keep their form. */
   sentenceName?: string;
+  /**
+   * The answer-first paragraph, rendered above the essay and reused as the
+   * Article description. It must lead with the verdict and the score, and it
+   * must stand on its own out of context, because retrieval models quote the
+   * top of the page and rarely read past it. Anything generic here is a
+   * sentence any other site could also write, which is a citation given away.
+   * Falls back to a composed line (see answerLine) when unwritten.
+   */
+  answer?: string;
+  /**
+   * ISO date this fiber's content was last substantively revised. Feeds
+   * dateModified in the Article schema. Only bump it when the prose or the
+   * verdict actually changed: a build stamp that moves on every deploy is both
+   * a spam signal and a lie about the content.
+   */
+  updated?: string;
   /** Eyebrow for the made section (default "How it's made"). */
   madeEyebrow?: string;
   /** H2 for the made section (default `How {name} is made`). */
@@ -377,7 +408,8 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     ],
   },
   {
-    slug: "organic_cotton",
+    slug: "organic-cotton",
+    scoreKey: "organic_cotton",
     name: "Organic Cotton",
     natural: true,
     whatItIs:
@@ -455,8 +487,16 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
 
   // ---- Regenerated cellulosics ----
   {
-    slug: "tencel_lyocell",
-    name: "Tencel Lyocell",
+    // URL is the material, not the trademark: "lyocell" is the term people
+    // search and the one competitors rank for. TENCEL stays in the display
+    // name because it is the mark that guarantees the closed-loop process.
+    slug: "lyocell",
+    scoreKey: "tencel_lyocell",
+    name: "Lyocell (TENCEL)",
+    sentenceName: "lyocell",
+    updated: "2026-07-21",
+    answer:
+      "Lyocell scores 88 out of 100 for wearer health on Toxome's fiber scale, where 100 is cleanest. No regenerated fiber scores higher. It earns that on one thing: the liquid used to dissolve the wood is non-toxic, and the mill recaptures over 99 percent of it instead of discharging it, so lyocell skips the *carbon disulfide* that plain viscose depends on. The 88 does not cover the finish. Mills add dyes and wrinkle-proof coatings after the fiber is spun, and that is where formaldehyde shows up, so read the label on the piece you buy.",
     natural: false,
     whatItIs:
       "TENCEL Lyocell starts as wood. The wood pulp gets dissolved into a thick goo, then squeezed back out into thread. What makes it special is the liquid used to dissolve it. It is non-toxic, and the factory runs a *closed-loop* system, which just means it captures over 99 percent of that liquid and reuses it instead of dumping it. So it skips the smelly, harsh chemical called *carbon disulfide* that older fabrics like viscose rely on.",
@@ -676,6 +716,12 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
   },
   {
     slug: "alpaca",
+    updated: "2026-07-21",
+    // Hand-written for the same reason as merino: the summary line ("no lanolin
+    // and a smooth surface, ...") is not a noun phrase, so it cannot take the
+    // "Alpaca is ..." frame the fallback builds.
+    answer:
+      "Alpaca scores 92 out of 100 for wearer health on Toxome's fiber scale, where 100 is cleanest. That puts it in the safest band to wear, and no animal fiber scores higher here. Alpaca carries no lanolin and has a smoother surface than sheep wool, so it often suits skin that finds wool itchy. The score covers the fiber, not the finish. Mills add dyes and shrink-resist treatments afterwards, so check the label for those.",
     name: "Alpaca",
     natural: true,
     whatItIs:
@@ -716,7 +762,13 @@ export const FIBER_GUIDE: FiberGuideEntry[] = [
     ],
   },
   {
-    slug: "merino_wool",
+    slug: "merino-wool",
+    scoreKey: "merino_wool",
+    updated: "2026-07-21",
+    // Hand-written: this fiber's FIBER_SUMMARY line is a verb-initial fragment,
+    // so the composed fallback in answerLine reads as a comma splice.
+    answer:
+      "Merino wool scores 90 out of 100 for wearer health on Toxome's fiber scale, where 100 is cleanest. That puts it in the safest band to wear. Merino is fine enough to feel soft against skin, and it handles temperature and odor on its own, so it does not need the antimicrobial or wicking finishes mills add to synthetics. Check two things. Mills coat *superwash* and machine-washable merino to stop it shrinking, and the welfare question is *mulesing*, which RWS-certified wool bans.",
     name: "Merino Wool",
     natural: true,
     whatItIs:
@@ -1294,16 +1346,25 @@ export const FIBER_SUMMARY: Record<string, string> = {
   polyurethane: "a plastic film or coating, the faux-leather layer laminated onto fabric.",
 };
 
-/** Attach the canonical score, risk band, hazard color, family, and summary. */
+/** The canonical data key for an entry. See FiberGuideEntry.scoreKey: the URL
+ *  slug and the data key are deliberately allowed to differ. */
+export function dataKey(entry: FiberGuideEntry): string {
+  return entry.scoreKey ?? entry.slug;
+}
+
+/** Attach the canonical score, risk band, hazard color, family, and summary.
+ *  Every lookup here is by data key, never by URL slug, so a page can be
+ *  renamed for search without moving its score or its content. */
 export function withScore(entry: FiberGuideEntry): GuideFiber {
-  const score = fiberScore(entry.slug);
+  const key = dataKey(entry);
+  const score = fiberScore(key);
   return {
     ...entry,
     score,
     band: (scoreToRiskLevel(score) ?? "moderate") as FiberBand,
     color: hazardColor(score),
-    kind: fiberKind(entry.slug),
-    summary: FIBER_SUMMARY[entry.slug] ?? entry.dek ?? "",
+    kind: fiberKind(key),
+    summary: FIBER_SUMMARY[key] ?? entry.dek ?? "",
   };
 }
 
@@ -1312,9 +1373,37 @@ export function getFiber(slug: string): GuideFiber | null {
   if (!entry) return null;
   // Layer the generated rich content (the new detail sections) over the base
   // entry. Linen carries its rich fields inline, so it is absent from FIBER_RICH.
-  const rich = FIBER_RICH[entry.slug];
+  const rich = FIBER_RICH[dataKey(entry)];
   return withScore(rich ? { ...entry, ...rich } : entry);
 }
+
+/**
+ * The answer-first line shown above the essay. Prefers hand-written `answer`
+ * copy; otherwise composes one that still leads with the two things only
+ * Toxome can supply, the score and the verdict, then hands off to the fiber's
+ * own health copy. Attribution is explicit ("on Toxome's ... scale") because an
+ * unattributed number is one a model will happily repeat without naming us.
+ */
+export function answerLine(f: GuideFiber): string {
+  if (f.answer) return f.answer;
+  const name = f.sentenceName ?? f.name.toLowerCase();
+  // Use the fiber's summary, not the first sentence of healthStory. The health
+  // copy is written to follow the essay, so its opening line leans on earlier
+  // context ("that antimony", "studied this") and dangles when lifted out. The
+  // summary is already a standalone clause, which is what this block needs.
+  const gloss = f.summary
+    ? `${name.charAt(0).toUpperCase()}${name.slice(1)} is ${f.summary} `
+    : "";
+  return `${f.name} scores ${f.score} out of 100 for wearer health on Toxome's fiber scale, where 100 is cleanest. ${VERDICT_SENTENCE[f.band]} ${gloss}The score rates the fiber, not the finished garment. Mills add dyes and finishes later, so check the label for those.`;
+}
+
+/** Verdict as a full sentence, for the answer block. The hero chip uses the
+ *  shorter label in the page component. */
+const VERDICT_SENTENCE: Record<FiberBand, string> = {
+  low: "That puts it in the safest band to wear.",
+  moderate: "That puts it in the middle band. It is fine to wear, but you have to read the label.",
+  high: "That puts it in the band worth avoiding.",
+};
 
 export const BAND_META: Record<
   FiberBand,
@@ -1360,18 +1449,25 @@ export function allFiberSlugs(): string[] {
 // Canonical score keys that have no page of their own: same fiber under another
 // name (flax/linen, spandex/elastane), or a grade that lives inside another
 // fiber's page. Values may carry a hash to land on that section.
+// Values are URL slugs, keys are canonical score keys from resolveFiber. Where
+// a page's URL differs from its data key (see FiberGuideEntry.scoreKey), the
+// data key MUST be listed here or fiberGuideHref will resolve to a dead slug.
 const GUIDE_TARGET: Record<string, string> = {
   flax: "linen",
-  merino: "merino_wool",
-  lyocell: "tencel_lyocell",
-  tencel: "tencel_lyocell",
+  merino: "merino-wool",
+  merino_wool: "merino-wool",
+  // resolveFiber collapses tencel/lyocell text to "lyocell", which is now the
+  // page slug itself; tencel_lyocell is kept for callers passing the data key.
+  tencel: "lyocell",
+  tencel_lyocell: "lyocell",
+  organic_cotton: "organic-cotton",
   lenzing_ecovero: "ecovero",
   tencel_modal: "modal",
   spandex: "elastane",
   viscose: "rayon",
   recycled_polyester: "polyester",
   rpet: "polyester",
-  regenerative_organic_cotton: "organic_cotton#top-tier",
+  regenerative_organic_cotton: "organic-cotton#top-tier",
 };
 
 /** URL of the guide page covering a raw fiber name (a fabric_composition key,

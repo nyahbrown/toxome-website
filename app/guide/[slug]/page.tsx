@@ -26,6 +26,8 @@ import {
   allFiberSlugs,
   FIBER_GUIDE,
   withScore,
+  dataKey,
+  answerLine,
   KIND_LABEL,
   type FiberBand,
   type GuideFiber,
@@ -35,6 +37,13 @@ export const revalidate = 86400;
 
 const SITE = "https://toxome.app";
 const APP_URL = "https://apps.apple.com/us/app/toxome/id6748622034";
+
+// Fallback dateModified for fibers without their own `updated` stamp. Every
+// fiber page gained the answer block on this date, so it is accurate for all of
+// them. Deliberately a literal and NOT a build-time date: a dateModified that
+// moves on every deploy is a spam signal and a claim we cannot back up. Bump it
+// only on a real, site-wide content revision; set `updated` per fiber otherwise.
+const GUIDE_REVISED = "2026-07-21";
 
 // Strip the *emphasis* asterisks from editorial prose for plain-text schema.
 const plain = (s: string) => s.replace(/\*/g, "").trim();
@@ -83,14 +92,14 @@ const ALT_FIBERS: Record<
   // moderate
   acetate: { names: ["silk", "cupro"], filters: ["silk"], slugs: ["silk", "cupro"] },
   // rayon covers viscose too: same fiber, one page (see fiberGuide GUIDE_TARGET).
-  rayon: { names: ["LENZING™ ECOVERO™", "TENCEL lyocell"], filters: ["tencel"], slugs: ["ecovero", "tencel_lyocell"] },
-  bamboo: { names: ["TENCEL lyocell", "organic cotton"], filters: ["tencel", "organic cotton"], slugs: ["tencel_lyocell", "organic_cotton"] },
+  rayon: { names: ["LENZING™ ECOVERO™", "TENCEL lyocell"], filters: ["tencel"], slugs: ["ecovero", "lyocell"] },
+  bamboo: { names: ["TENCEL lyocell", "organic cotton"], filters: ["tencel", "organic cotton"], slugs: ["lyocell", "organic-cotton"] },
   leather: { names: ["vegetable-tanned leather"], filters: [], slugs: [] },
   // high
-  acrylic: { names: ["cashmere", "merino wool"], filters: ["cashmere", "merino wool"], slugs: ["cashmere", "merino_wool"] },
-  polyester: { names: ["organic cotton", "TENCEL lyocell"], filters: ["organic cotton", "tencel", "linen"], slugs: ["organic_cotton", "tencel_lyocell", "linen"] },
-  nylon: { names: ["merino wool", "organic cotton"], filters: ["merino wool", "organic cotton"], slugs: ["merino_wool", "organic_cotton"] },
-  elastane: { names: ["organic cotton", "TENCEL lyocell"], filters: ["organic cotton", "tencel"], slugs: ["organic_cotton", "tencel_lyocell"] },
+  acrylic: { names: ["cashmere", "merino wool"], filters: ["cashmere", "merino wool"], slugs: ["cashmere", "merino-wool"] },
+  polyester: { names: ["organic cotton", "TENCEL lyocell"], filters: ["organic cotton", "tencel", "linen"], slugs: ["organic-cotton", "lyocell", "linen"] },
+  nylon: { names: ["merino wool", "organic cotton"], filters: ["merino wool", "organic cotton"], slugs: ["merino-wool", "organic-cotton"] },
+  elastane: { names: ["organic cotton", "TENCEL lyocell"], filters: ["organic cotton", "tencel"], slugs: ["organic-cotton", "lyocell"] },
   polyurethane: { names: ["vegetable-tanned leather"], filters: [], slugs: ["leather"] },
 };
 
@@ -261,9 +270,12 @@ export default async function FiberGuidePage({
     ]
   ).map((x) => ({ q: x.q, a: plain(x.a) }));
 
-  const heroImage = f.heroImage ?? `/fibers/guide/${slug}.jpg`;
+  // Hero assets are filed under the data key, not the URL slug, so renaming a
+  // page for search does not orphan its image.
+  const heroImage = f.heroImage ?? `/fibers/guide/${dataKey(f)}.jpg`;
   const ringOffset = RING_C * (1 - f.score / 100);
 
+  const answer = answerLine(f);
   const pageUrl = `${SITE}/guide/${slug}`;
   const schema = {
     "@context": "https://schema.org",
@@ -279,10 +291,13 @@ export default async function FiberGuidePage({
       {
         "@type": "Article",
         headline: `${f.name}: fiber safety and health score`,
-        description: plain(f.about ?? f.whatItIs).slice(0, 200),
+        // The answer paragraph, not the definition. A retrieval model that
+        // reads only the description should still get the verdict and score.
+        description: plain(answer).slice(0, 300),
         about: f.name,
         inLanguage: "en",
         mainEntityOfPage: pageUrl,
+        dateModified: f.updated ?? GUIDE_REVISED,
         author: { "@type": "Organization", name: "Toxome", url: SITE },
         publisher: {
           "@type": "Organization",
@@ -295,6 +310,33 @@ export default async function FiberGuidePage({
           name: s.title,
           url: s.url,
         })),
+      },
+      {
+        // The score as an attributed, machine-readable claim. This is the one
+        // fact on the page that exists nowhere else, so it is the reason a
+        // model has to name Toxome rather than paraphrase the chemistry.
+        // itemReviewed is a Thing, not a Product: a fiber is not something we
+        // sell, and we do not want star treatment on an unbuyable item.
+        "@type": "Review",
+        name: `Toxome health score for ${f.name}`,
+        reviewBody: plain(answer),
+        dateModified: f.updated ?? GUIDE_REVISED,
+        author: { "@type": "Organization", name: "Toxome", url: SITE },
+        itemReviewed: {
+          "@type": "Thing",
+          name: f.name,
+          description: f.summary,
+          url: pageUrl,
+        },
+        reviewRating: {
+          "@type": "Rating",
+          ratingValue: f.score,
+          bestRating: 100,
+          worstRating: 0,
+          alternateName: VERDICT[f.band],
+          description:
+            "Toxome wearer-health score for the fiber itself, on a 0 to 100 scale where 100 is cleanest. It rates the fiber, not the finished garment: dyes and finishes are scored separately.",
+        },
       },
       {
         // Synced to the visible FAQ (same faqItems array rendered below).
@@ -328,7 +370,11 @@ export default async function FiberGuidePage({
             <span className="eyebrow">
               {KIND_LABEL[f.kind]} fiber · The fabric guide
             </span>
-            <h1>{lower}</h1>
+            {/* Proper case in the markup, lowercased visually by the site-wide
+                body rule. Crawlers and extraction models read the DOM text, so
+                the trademark has to be cased correctly here even though the
+                locked design renders it lowercase. */}
+            <h1>{f.name}</h1>
             {(f.summary || f.dek) && <p className="gp-dek">{f.summary || f.dek}</p>}
             <span className="gp-chip">
               <span className="gp-dot" style={{ background: f.color }} />
@@ -448,6 +494,18 @@ export default async function FiberGuidePage({
 
               {/* RIGHT COLUMN */}
               <main>
+                {/* ANSWER — deliberately the first thing in the column, above
+                    the essay. Retrieval models quote the top of a page and
+                    rarely read to the bottom, and skimmers behave the same way.
+                    Not a .reveal target: this block must not depend on scroll
+                    JS to become visible. */}
+                <section className="gp-sec gp-answer" id="answer">
+                  <div className="eyebrow gp-kick">The short answer</div>
+                  <p className="gp-answer-text">
+                    <RichText text={answer} />
+                  </p>
+                </section>
+
                 {/* ABOUT */}
                 <section className="gp-sec reveal" id="about">
                   <div className="eyebrow gp-kick">About</div>
@@ -956,6 +1014,14 @@ export default async function FiberGuidePage({
 
         .guide-page .gp-wrap { max-width: 1160px; margin: 0 auto; padding: 0 32px; }
         .guide-page .gp-prose { font-size: 17px; line-height: 1.74; color: var(--ink-2); }
+        /* The answer block reads a step up from body prose: full ink, slightly
+           larger, so it is visibly the lead and not another paragraph. No card
+           and no rule, per the no-divider-lines rule; the spacing separates it. */
+        .guide-page .gp-answer { margin-bottom: 56px; }
+        .guide-page .gp-answer-text {
+          margin: 0; max-width: 68ch; font-size: 19px; line-height: 1.66;
+          color: var(--ink); letter-spacing: -0.011em;
+        }
         .guide-page .gp-prose + .gp-prose { margin-top: 16px; }
 
         /* HERO */

@@ -18,7 +18,20 @@ const nextConfig: NextConfig = {
       // Regenerative organic is the top tier of the same fiber; folded into the
       // organic cotton page so the ranking signal consolidates instead of two
       // near-duplicate cotton pages competing.
-      { source: "/guide/regenerative_organic_cotton", destination: "/guide/organic_cotton#top-tier", permanent: true },
+      { source: "/guide/regenerative_organic_cotton", destination: "/guide/organic-cotton#top-tier", permanent: true },
+      { source: "/guide/regenerative-organic-cotton", destination: "/guide/organic-cotton#top-tier", permanent: true },
+      // Fiber guide URLs renamed off their data keys. Two reasons: Google reads
+      // "_" as a word joiner rather than a separator, so "tencel_lyocell"
+      // tokenized as one blob; and the lyocell page was named after the
+      // trademark while the searched term, and the term competitors rank for,
+      // is the material. The score keys in lib/fiber-scores.json intentionally
+      // did NOT move (they are mirrored to the app, extension, and Firebase);
+      // see FiberGuideEntry.scoreKey.
+      { source: "/guide/tencel_lyocell", destination: "/guide/lyocell", permanent: true },
+      { source: "/guide/tencel-lyocell", destination: "/guide/lyocell", permanent: true },
+      { source: "/guide/tencel", destination: "/guide/lyocell", permanent: true },
+      { source: "/guide/organic_cotton", destination: "/guide/organic-cotton", permanent: true },
+      { source: "/guide/merino_wool", destination: "/guide/merino-wool", permanent: true },
       // /journal/what-is-ecovero and /guide/ecovero were the same article written
       // twice, and Search Console shows them cannibalizing on ~22 shared queries:
       // the journal held "what is ecovero" (202 impressions, pos 7.4) while the

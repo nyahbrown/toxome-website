@@ -15,12 +15,16 @@ export const metadata: Metadata = {
   alternates: { canonical: "/shop/fibers" },
 };
 
-// The fibers featured on the hub. `guide` is the fiber-guide slug (also the image
-// name at /fibers/guide/<guide>.jpg); `collection` is the shop collection page.
+// The fibers featured on the hub. `guide` is the fiber-guide URL slug;
+// `collection` is the shop collection page. `asset` is the image name at
+// /fibers/guide/<asset>.jpg, and defaults to `guide`: it is only set where the
+// guide page was renamed for search and its image file kept the old data key
+// (see FiberGuideEntry.scoreKey in lib/fiberGuide.ts).
 // TENCEL lyocell is placed last as the one clean regenerated (not natural) fiber.
 type FiberCard = {
   name: string;
   guide: string;
+  asset?: string;
   collection: string;
   note: string;
 };
@@ -28,7 +32,8 @@ type FiberCard = {
 const FIBERS: FiberCard[] = [
   {
     name: "organic cotton",
-    guide: "organic_cotton",
+    guide: "organic-cotton",
+    asset: "organic_cotton",
     collection: "non-toxic-organic-cotton-clothing",
     note: "grown without synthetic pesticides, a soft, breathable everyday plant fiber.",
   },
@@ -52,7 +57,8 @@ const FIBERS: FiberCard[] = [
   },
   {
     name: "merino wool",
-    guide: "merino_wool",
+    guide: "merino-wool",
+    asset: "merino_wool",
     collection: "non-toxic-merino-wool",
     note: "fine enough to feel soft, regulates temperature without synthetic finishes.",
   },
@@ -82,7 +88,8 @@ const FIBERS: FiberCard[] = [
   },
   {
     name: "tencel lyocell",
-    guide: "tencel_lyocell",
+    guide: "lyocell",
+    asset: "tencel_lyocell",
     collection: "non-toxic-tencel-lyocell-clothing",
     note: "a clean fiber regenerated from wood in a closed loop that reuses its solvent.",
   },
@@ -158,7 +165,7 @@ export default async function FibersHub() {
               >
                 <div style={{ position: "relative", width: "100%", aspectRatio: "4 / 5" }}>
                   <Image
-                    src={`/fibers/guide/${f.guide}.jpg`}
+                    src={`/fibers/guide/${f.asset ?? f.guide}.jpg`}
                     alt={`${f.name} fiber`}
                     fill
                     sizes="(max-width: 720px) 50vw, 260px"
