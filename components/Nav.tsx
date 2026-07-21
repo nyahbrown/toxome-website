@@ -55,20 +55,25 @@ function buildShopColumns(taxonomy: ShopTaxonomy) {
       { label: "Collections", href: "/shop/collections", muted: true },
     ],
   };
-  // Mattresses is the one Home category sold as editorial rather than catalog.
-  // A mattress has no fiber score, so the roundup and its certification scopes
-  // ARE the storefront, and taxonomy.home only lists categories that have
-  // published products. Pinning the link keeps the category in the menu without
-  // pointing shoppers at an empty grid. The moment mattress rows go live the
-  // taxonomy supplies the real category and this drops out on its own.
+  // Mattresses routes to its own collection page rather than the generic
+  // ?category= filter, because it is the only category whose products carry no
+  // Toxome score: that page explains why and leads with certifications instead.
+  // It is also the SEO target for "non toxic mattress".
+  //
+  // The entry appears only once mattress products are published, since the menu
+  // must never open an empty grid. Approving the rows in /admin turns it on.
   const homeCol = (() => {
-    const base = makeDept("Home", taxonomy.home);
-    if (taxonomy.home.includes("Mattresses")) return base;
+    const hasMattresses = taxonomy.home.includes("Mattresses");
+    const base = makeDept(
+      "Home",
+      taxonomy.home.filter((c) => c !== "Mattresses")
+    );
+    if (!hasMattresses) return base;
     return {
       ...base,
       items: [
         ...base.items,
-        { label: "Mattresses", href: "/journal/best-non-toxic-mattresses" },
+        { label: "Mattresses", href: "/shop/collection/non-toxic-mattresses" },
       ],
     };
   })();

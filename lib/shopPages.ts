@@ -447,6 +447,39 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
       ),
   },
   {
+    // The one collection whose products carry no Toxome score. A mattress is
+    // latex, coils and a flame barrier, so the fiber engine has nothing honest
+    // to say about it; the cards show certifications instead. See the roundup at
+    // /journal/best-non-toxic-mattresses for what each certification covers.
+    slug: "non-toxic-mattresses",
+    title: "Non-Toxic Mattresses, Certified Organic Latex | Toxome",
+    heading: "non-toxic mattresses",
+    description:
+      "Organic latex mattresses with named flame barriers and verified certifications, hand-checked by Toxome. No fiberglass, no polyurethane foam.",
+    intro:
+      "california bans fiberglass in mattresses from january 2027, which is why every brand now advertises fiberglass-free and almost none will say what they use instead. the honest answers are organic wool or no barrier at all. these mattresses carry no toxome score, because the score reads fiber content and a mattress is latex, coils and a flame barrier. what they carry instead is certifications, and each one covers less than the marketing suggests: gols certifies the latex and nothing else.",
+    faqs: [
+      {
+        q: "Why do these mattresses have no Toxome score?",
+        a: "The Toxome score reads fiber composition, which is the right question for something you wear and the wrong one for a bed built from latex, coils and a flame barrier. Scoring the cover fabric and calling it a mattress score would be a number that means nothing. These are sorted by what their certifications actually cover instead.",
+      },
+      {
+        q: "Does GOLS mean the whole mattress is organic?",
+        a: "No. GOLS certifies the latex and only the latex. It requires at least 95% certified organic natural rubber by polymer weight, and it says nothing about the cover, the wool, the coils, the adhesives or the flame barrier. A bed whose only certification is GOLS is certified from the third layer down.",
+      },
+      {
+        q: "Why is there fiberglass in mattresses?",
+        a: "The federal flammability rule is a performance test, not a materials rule: a mattress has to survive an open flame and the regulation does not say how. Fiberglass passes cheaply without chemical treatment, so it became the default barrier in budget beds. California banned it in mattresses sold in the state from January 1, 2027.",
+      },
+      {
+        q: "Can a mattress have no flame barrier at all?",
+        a: "Yes. The rule is about passing the burn test, not about carrying a barrier. Remove enough of the fast-burning synthetics and a bed passes on its own construction. Two of the mattresses here do exactly that.",
+      },
+    ],
+    section: "home",
+    match: (p) => p.category === "Mattresses",
+  },
+  {
     slug: "non-toxic-silk-tops",
     title: "Non-Toxic Silk Tops, Scored by Fiber | Toxome",
     heading: "non-toxic silk tops",
