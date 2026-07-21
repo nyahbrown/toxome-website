@@ -111,6 +111,22 @@ function altHeading(alt: { names: string[]; filters: string[] }): string {
   return `shop ${alt.names.slice(0, 2).join(" & ")} instead`;
 }
 
+// Comparison articles, keyed by the fiber pages they belong to. These pieces
+// are `unlisted` in the Journal (see ArticleMeta.unlisted): search-only, kept
+// off the editorial index. They are NOT orphaned, though. A page with no
+// inbound links ranks badly however complete the sitemap is, so every
+// comparison earns one contextual link from each fiber it covers.
+const COMPARISONS: Record<string, { slug: string; label: string }[]> = {
+  lyocell: [
+    { slug: "lyocell-vs-modal", label: "lyocell vs modal" },
+    { slug: "lyocell-vs-viscose", label: "lyocell vs viscose" },
+    { slug: "lyocell-vs-cotton", label: "lyocell vs cotton" },
+  ],
+  modal: [{ slug: "lyocell-vs-modal", label: "lyocell vs modal" }],
+  rayon: [{ slug: "lyocell-vs-viscose", label: "lyocell vs viscose" }],
+  cotton: [{ slug: "lyocell-vs-cotton", label: "lyocell vs cotton" }],
+};
+
 export function generateStaticParams() {
   return allFiberSlugs().map((slug) => ({ slug }));
 }
@@ -276,6 +292,7 @@ export default async function FiberGuidePage({
   const ringOffset = RING_C * (1 - f.score / 100);
 
   const answer = answerLine(f);
+  const comparisons = COMPARISONS[f.slug] ?? [];
   const pageUrl = `${SITE}/guide/${slug}`;
   const schema = {
     "@context": "https://schema.org",
@@ -965,6 +982,21 @@ export default async function FiberGuidePage({
                     advice.
                   </p>
                 </section>
+
+                {/* COMPARISONS — the one inbound link each search-only
+                    comparison article gets. See COMPARISONS above. */}
+                {comparisons.length > 0 && (
+                  <section className="gp-sec reveal">
+                    <div className="eyebrow gp-kick">Compare</div>
+                    <div className="gp-related">
+                      {comparisons.map((c) => (
+                        <Link key={c.slug} href={`/journal/${c.slug}`}>
+                          {c.label}
+                        </Link>
+                      ))}
+                    </div>
+                  </section>
+                )}
 
                 {/* RELATED */}
                 {related.length > 0 && (

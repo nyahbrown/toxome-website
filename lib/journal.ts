@@ -37,6 +37,17 @@ export type ArticleMeta = {
   pillar: string;
   mode?: string;
   pinned: boolean; // featured as the standing Journal cover
+  /**
+   * Search-only article. The page still routes and still ships in the sitemap,
+   * so Google indexes it, but it is kept off every surface that *displays* a
+   * list: the Journal index, the homepage rail, the app's journal feed, and the
+   * Pinterest auto-pin cron. Use for comparison/SEO pieces that should earn
+   * organic traffic without appearing in the editorial Journal.
+   * Unlisted is NOT orphaned: these pages are still linked contextually from
+   * the fiber guides they belong to, because pages with no inbound links rank
+   * badly no matter what the sitemap says.
+   */
+  unlisted: boolean;
   hero: string; // card/listing image (path under /public); also the video poster
   heroVideo?: string; // optional looping hero video (path under /public); poster = hero
   heroAlt?: string; // alt text for the hero/lead image
@@ -161,6 +172,7 @@ function readArticle(slug: string): Article | null {
     pillar: String(data.pillar ?? "Journal"),
     mode: data.mode ? String(data.mode) : undefined,
     pinned: data.pinned === true,
+    unlisted: data.unlisted === true,
     hero: String(data.hero ?? "/fibers/linen.jpg"),
     heroVideo: data.heroVideo ? String(data.heroVideo) : undefined,
     heroAlt: data.heroAlt ? String(data.heroAlt) : undefined,
@@ -200,10 +212,21 @@ export function getArticle(slug: string): Article | null {
   return readArticle(slug);
 }
 
-export function getAllArticles(): Article[] {
+/**
+ * Every article that should appear in a *list*. Unlisted (search-only) pieces
+ * are excluded here, which is what keeps them out of the Journal index, the
+ * homepage rail, /api/journal, and the Pinterest cron in one place rather than
+ * four. Routing and the sitemap use getAllSlugs, so unlisted pages still exist
+ * and still get indexed. Pass { includeUnlisted: true } only for tooling that
+ * genuinely needs the full set.
+ */
+export function getAllArticles(
+  opts: { includeUnlisted?: boolean } = {}
+): Article[] {
   return getAllSlugs()
     .map(readArticle)
     .filter((a): a is Article => a !== null)
+    .filter((a) => opts.includeUnlisted || !a.unlisted)
     .sort((a, b) => (a.date < b.date ? 1 : -1)); // newest first
 }
 
