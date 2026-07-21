@@ -55,12 +55,29 @@ function buildShopColumns(taxonomy: ShopTaxonomy) {
       { label: "Collections", href: "/shop/collections", muted: true },
     ],
   };
+  // Mattresses is the one Home category sold as editorial rather than catalog.
+  // A mattress has no fiber score, so the roundup and its certification scopes
+  // ARE the storefront, and taxonomy.home only lists categories that have
+  // published products. Pinning the link keeps the category in the menu without
+  // pointing shoppers at an empty grid. The moment mattress rows go live the
+  // taxonomy supplies the real category and this drops out on its own.
+  const homeCol = (() => {
+    const base = makeDept("Home", taxonomy.home);
+    if (taxonomy.home.includes("Mattresses")) return base;
+    return {
+      ...base,
+      items: [
+        ...base.items,
+        { label: "Mattresses", href: "/journal/best-non-toxic-mattresses" },
+      ],
+    };
+  })();
   return [
     byFiberCol,
     makeDept("Women", taxonomy.women),
     makeDept("Men", taxonomy.men),
     kidsCol,
-    makeDept("Home", taxonomy.home),
+    homeCol,
   ];
 }
 
