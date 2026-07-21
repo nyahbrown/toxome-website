@@ -36,17 +36,29 @@ export type GuardResult = {
 // Standalone home/bedding nouns. Deliberately conservative — excludes ambiguous
 // apparel-adjacent words like "blanket" (swaddle blankets) and "scarf".
 const HOME_RE =
-  /\b(rugs?|towels?|washcloths?|wash cloths?|duvets?|comforters?|coverlets?|quilts?|pillowcases?|pillow shams?|shams?|napkins?|tablecloths?|table runners?|curtains?|bath mats?|crib sheets?|crib skirts?|playard sheets?|playpen sheets?|fitted sheets?|sheet sets?)\b/;
+  /\b(rugs?|towels?|washcloths?|wash cloths?|duvets?|comforters?|coverlets?|quilts?|pillowcases?|pillow shams?|shams?|napkins?|tablecloths?|table runners?|curtains?|bath mats?|crib sheets?|crib skirts?|playard sheets?|playpen sheets?|fitted sheets?|sheet sets?|mattress(es)?)\b/;
+
+// A mattress accessory is not a mattress. A pad, topper, protector, or encasement
+// is a textile you put ON a mattress, so it has a real fiber composition and
+// belongs in Bedding with the sheets. The mattress itself is a different kind of
+// object: its toxicity lives in the foam core and the flame barrier, not in a
+// fiber percentage, which is why it gets its own subcategory and no score.
+const MATTRESS_ACCESSORY_RE =
+  /\b(pads?|toppers?|protectors?|encasements?|covers?)\b/;
 
 // Home department has real subcategories (Bedding / Bath / Throws & Blankets /
-// Rugs), mirroring apparel. This picks the subcategory from the noun so the nav
-// never shows a flat "Home" bucket again. Order matters: check the specific
-// buckets first, default the rest (sheets, duvets, shams, pillowcases, quilts,
-// mattress pads, bed pillows) to Bedding. Bed pillows live in Bedding by design.
+// Rugs / Mattresses), mirroring apparel. This picks the subcategory from the noun
+// so the nav never shows a flat "Home" bucket again. Order matters: check the
+// specific buckets first, default the rest (sheets, duvets, shams, pillowcases,
+// quilts, mattress pads, bed pillows) to Bedding. Bed pillows live in Bedding by
+// design.
 function homeSubcategory(name: string): string {
   if (/\b(rugs?|curtains?)\b/.test(name)) return "Rugs";
   if (/\b(towels?|washcloths?|wash cloths?|bath mats?|robes?)\b/.test(name)) return "Bath";
   if (/\b(throws?|blankets?)\b/.test(name)) return "Throws & Blankets";
+  if (/\bmattress(es)?\b/.test(name) && !MATTRESS_ACCESSORY_RE.test(name)) {
+    return "Mattresses";
+  }
   return "Bedding";
 }
 

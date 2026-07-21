@@ -3023,6 +3023,13 @@ button { font-family: inherit; }
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  /* The badge is a link, so j-prose's prose-link underline lands under a
+     monogram and reads as a typo. Badges are marks, never underlined text. */
+  text-decoration: none;
+  /* Fixed circle. Without flex:none a monogram child (GOLS, GG) sets the flex
+     item's min-content width and stretches the badge into a pill. */
+  flex: 0 0 34px;
+  min-width: 0;
   width: 34px;
   height: 34px;
   border-radius: 50%;
@@ -3037,6 +3044,73 @@ button { font-family: inherit; }
   height: 66%;
   object-fit: contain;
   margin: 0;
+}
+/* ---- Certs-as-credential variant (mattresses and other unscored goods) -------
+   A mattress has no Toxome Score. Its toxicity lives in the foam core and the
+   flame barrier, not in a fiber percentage, so the fiber engine has nothing
+   honest to say about it and we show no ring rather than score the cover fabric
+   and imply we scored the mattress. The certifications take the ring's slot as
+   the credential, so the card still leads with a verifiable claim.
+   Used with `j-pick--certs` on the wrapper, replacing the .j-pick__rating block. */
+.j-prose .j-pick--certs .j-pick__certs {
+  gap: 10px;
+  margin: 0 0 8px;
+}
+.j-prose .j-pick--certs .j-pick__cert {
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
+}
+/* Two kinds of mark, two treatments.
+
+   The files in /public/certs are full seals: GOTS, RWS and MADE SAFE are
+   circular text lockups that already carry their own ring. At the base 66%
+   inset they collapse into featureless dots, so they fill the badge and the
+   badge drops its own ring rather than drawing a second one around theirs. */
+.j-prose .j-pick--certs .j-pick__cert:has(img[src^="/certs/"]) {
+  border-color: transparent;
+  background: transparent;
+}
+.j-prose .j-pick--certs .j-pick__cert:has(img[src^="/certs/"]):hover {
+  border-color: transparent;
+}
+.j-prose .j-pick--certs .j-pick__cert img[src^="/certs/"] {
+  width: 100%;
+  height: 100%;
+}
+/* Everything else resolves to the certifier's favicon, which is a bare icon and
+   not a seal: OEKO-TEX's drop, UL's red ring, eco-INSTITUT's red tile, Control
+   Union's wave. Those need the chip and its ring to read as a badge at all, so
+   they keep both and sit inset inside it. */
+.j-prose .j-pick--certs .j-pick__cert img:not([src^="/certs/"]) {
+  width: 62%;
+  height: 62%;
+}
+/* Monogram badge, used when a certifier publishes no logo we can serve. The
+   favicon fallback is wrong for most certification bodies: global-standard.org
+   returns a black circle, oeko-tex.com a green blob, neither of which is the
+   mark. A wrong logo on a certification badge is worse than no logo, so those
+   certs render their short monogram from lib/certMarks.ts MARK instead. */
+.j-prose .j-pick__cert--text {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--ink-2);
+  text-transform: none;
+  line-height: 1;
+}
+/* What each mark actually covers. GOLS certifies the latex, GOTS the cotton or
+   wool, and neither certifies the whole mattress. Printing the scope under the
+   badges is the point of the format: a cert row without it reads as a blanket
+   endorsement the certifier never gave. */
+.j-prose .j-pick__cert-scope {
+  font-family: var(--sans);
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ink-3);
+  margin: 0 0 14px;
+  text-transform: none;
 }
 .j-prose .j-pick__fiber {
   font-family: var(--sans);

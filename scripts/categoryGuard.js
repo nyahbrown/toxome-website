@@ -7,15 +7,24 @@
 // only overrides when the title carries an unambiguous signal.
 
 const HOME_RE =
-  /\b(rugs?|towels?|washcloths?|wash cloths?|duvets?|comforters?|coverlets?|quilts?|pillowcases?|pillow shams?|shams?|napkins?|tablecloths?|table runners?|curtains?|bath mats?|crib sheets?|crib skirts?|playard sheets?|playpen sheets?|fitted sheets?|sheet sets?)\b/;
+  /\b(rugs?|towels?|washcloths?|wash cloths?|duvets?|comforters?|coverlets?|quilts?|pillowcases?|pillow shams?|shams?|napkins?|tablecloths?|table runners?|curtains?|bath mats?|crib sheets?|crib skirts?|playard sheets?|playpen sheets?|fitted sheets?|sheet sets?|mattress(es)?)\b/;
 
-// Home department subcategories (Bedding / Bath / Throws & Blankets / Rugs).
-// Picks the subcategory from the noun so the nav never shows a flat "Home"
-// bucket. Bed pillows fall to Bedding by design.
+// A pad, topper, protector, or encasement is a textile you put ON a mattress, so
+// it has a real fiber composition and stays in Bedding. The mattress itself is
+// scored on its foam core and flame barrier, not a fiber percentage.
+const MATTRESS_ACCESSORY_RE =
+  /\b(pads?|toppers?|protectors?|encasements?|covers?)\b/;
+
+// Home department subcategories (Bedding / Bath / Throws & Blankets / Rugs /
+// Mattresses). Picks the subcategory from the noun so the nav never shows a flat
+// "Home" bucket. Bed pillows fall to Bedding by design.
 function homeSubcategory(name) {
   if (/\b(rugs?|curtains?)\b/.test(name)) return "Rugs";
   if (/\b(towels?|washcloths?|wash cloths?|bath mats?|robes?)\b/.test(name)) return "Bath";
   if (/\b(throws?|blankets?)\b/.test(name)) return "Throws & Blankets";
+  if (/\bmattress(es)?\b/.test(name) && !MATTRESS_ACCESSORY_RE.test(name)) {
+    return "Mattresses";
+  }
   return "Bedding";
 }
 const SET_RE = /\b(set|sets)\b/;

@@ -13,7 +13,13 @@ const DOMAIN: Record<string, string> = {
   greenguard: "ul.com",
   "made-safe": "madesafe.org",
   "nordic-swan": "svanen.se",
-  gols: "global-standard.org",
+  // Control Union, not global-standard.org. GOTS is administered by Global
+  // Standard gGmbH; GOLS is Control Union's program. Pointing both slugs at the
+  // same domain made the favicon service return one identical mark for two
+  // different certifications, so a mattress carrying both showed the badge twice.
+  // Keep the `www.`: the bare apex returns a 16px generic globe placeholder,
+  // while the www host serves Control Union's real 128px mark.
+  gols: "www.controlunion.com",
   "regenerative-organic-certified": "regenorganic.org",
   bluesign: "bluesign.com",
   "cradle-to-cradle": "c2ccertified.org",
