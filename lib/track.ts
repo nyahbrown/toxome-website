@@ -14,6 +14,7 @@
 import { supabase } from "./supabase";
 import { analyticsAllowed } from "./consent";
 import { mpTrack } from "./mixpanel";
+import { getAttribution } from "./attribution";
 
 const ANON_KEY = "toxome_anon_id";
 
@@ -73,6 +74,19 @@ export function track(eventType: string, payload: TrackPayload = {}): void {
   if (host === "localhost" || host === "127.0.0.1" || host.endsWith(".local")) {
     return;
   }
+  // First-touch channel (Substack, Pinterest, etc.), when one is on file, so
+  // every event — not just the landing pageview — can be rolled up by acquisition
+  // source. Caller-supplied metadata wins on key collision: it's more specific
+  // than a device-wide first touch.
+  const attribution = getAttribution();
+  const attributionMetadata: Record<string, unknown> = attribution
+    ? {
+        attr_source: attribution.source,
+        attr_medium: attribution.medium,
+        attr_campaign: attribution.campaign,
+      }
+    : {};
+
   void supabase
     .from("events")
     .insert({
@@ -85,7 +99,7 @@ export function track(eventType: string, payload: TrackPayload = {}): void {
       category: payload.category ?? null,
       score_at_time: payload.scoreAtTime ?? null,
       source: "web",
-      metadata: payload.metadata ?? {},
+      metadata: { ...attributionMetadata, ...(payload.metadata ?? {}) },
     })
     .then(({ error }) => {
       if (error && process.env.NODE_ENV !== "production") {
@@ -103,6 +117,7 @@ export function track(eventType: string, payload: TrackPayload = {}): void {
     category: payload.category ?? undefined,
     score_at_time: payload.scoreAtTime ?? undefined,
     source: "web",
+    ...attributionMetadata,
     ...(payload.metadata ?? {}),
   });
 }

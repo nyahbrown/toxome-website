@@ -37,16 +37,37 @@ export const dynamic = "force-dynamic";
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+// Attribution params (as/am/ac, set by attachOutboundAttribution() in
+// lib/attribution.ts) come off the query string of a client-built URL, so
+// treat them as untrusted input, not as our own JSON: cap length and reject
+// anything outside the lowercase-slug shape a UTM source/medium/campaign
+// actually takes, rather than writing junk into outbound_clicks.
+const ATTR_VALUE_RE = /^[a-z0-9_-]{1,64}$/;
+
+function sanitizeAttrParam(value: string | null): string | null {
+  if (!value) return null;
+  return ATTR_VALUE_RE.test(value) ? value : null;
+}
+
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ productId: string }> }
 ) {
   const { productId } = await params;
+  const url = new URL(req.url);
 
   // Shape-check before touching the database: /out/<junk> is a bot, not a buyer.
   if (!UUID_RE.test(productId)) {
     return new Response("Not found", { status: 404 });
   }
+
+  // Absent when the visitor has no first-touch attribution on file (organic,
+  // consent not given, etc.) — sanitizeAttrParam() also returns null for
+  // anything absent or malformed, so a missing param and a bad one log
+  // identically: NULL, not a guess.
+  const attrSource = sanitizeAttrParam(url.searchParams.get("as"));
+  const attrMedium = sanitizeAttrParam(url.searchParams.get("am"));
+  const attrCampaign = sanitizeAttrParam(url.searchParams.get("ac"));
 
   // Deliberately NOT filtered on `published`. An unpublished product is absent
   // from the shop grid, but its link can still be live in a wishlist, an old
@@ -87,6 +108,9 @@ export async function GET(
       brand: product.brand,
       network: resolved.network,
       referrer: req.headers.get("referer"),
+      attr_source: attrSource,
+      attr_medium: attrMedium,
+      attr_campaign: attrCampaign,
     });
     if (error) console.error("outbound click log error:", error.message);
   });

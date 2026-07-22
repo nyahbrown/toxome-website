@@ -19,6 +19,7 @@ import { fiberGuideHref } from "@/lib/fiberGuide";
 import { collectionSlugForFiber } from "@/lib/shopPages";
 import { productSeoDescription } from "@/lib/productSeo";
 import { track } from "@/lib/track";
+import { attachOutboundAttribution } from "@/lib/attribution";
 import { OUTBOUND_REL } from "@/lib/affiliate";
 
 // A named fiber goes to its guide page: the reader looking at a composition is
@@ -196,7 +197,11 @@ export default function ProductDetailClient({
   const router = useRouter();
   const { user, wishlist, toggleWishlist } = useAuth();
   const isWishlisted = wishlist.has(product.id);
-  const outboundUrl = outboundHref;
+  // Server-resolved /out href can't carry attribution (it can't read
+  // localStorage) — the client appends it here so app/out/[productId]/route.ts
+  // can log which channel drove the outbound click. No-op on a direct
+  // merchant link or when there's no first touch on file.
+  const outboundUrl = attachOutboundAttribution(outboundHref);
 
   // A same-origin /out link must keep sending its Referer: the route logs it to
   // outbound_clicks to show which page drove the click, and OUTBOUND_REL's

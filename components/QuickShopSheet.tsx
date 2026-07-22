@@ -11,6 +11,7 @@ import CertBadge from "@/components/CertBadge";
 import FiberBars from "@/components/FiberBars";
 import { findCertification } from "@/lib/certifications";
 import { withUtm, track } from "@/lib/track";
+import { attachOutboundAttribution } from "@/lib/attribution";
 import { OUTBOUND_REL } from "@/lib/affiliate";
 
 // Right-side quick-view sheet opened from a QuickShopCard. Score-forward: leads
@@ -154,7 +155,12 @@ export default function QuickShopSheet({
   // which would hide the click from Skimlinks and earn nothing if the brand has
   // no working program row.
   const buyUrl = p.affiliate_url || p.item_url || null;
-  const outboundUrl = outboundHref ?? (buyUrl ? withUtm(buyUrl) : null);
+  // See ProductDetailClient.tsx: attribution rides along as query params
+  // because the server-resolved href can't read localStorage. No-op on the
+  // direct-link fallback (attachOutboundAttribution only touches /out hrefs).
+  const outboundUrl = attachOutboundAttribution(
+    outboundHref ?? (buyUrl ? withUtm(buyUrl) : null)
+  );
 
   // A same-origin /out link must keep sending its Referer: the route logs it to
   // outbound_clicks to show which page drove the click, and OUTBOUND_REL's
