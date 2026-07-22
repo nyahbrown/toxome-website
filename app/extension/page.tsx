@@ -33,6 +33,19 @@ export const metadata: Metadata = {
   },
 };
 
+// The proof shot: a whole browser window, so it reads as the extension running
+// on a real store rather than a UI mockup. The source PNG had a transparent
+// margin around the window shadow, flattened onto --cream at export, which is
+// why this needs no frame or shadow of its own in the markup.
+const SHOT = {
+  src: "/extension/score-bad.jpg",
+  width: 2000,
+  height: 1308,
+  caption:
+    "Mostly nylon, so the panel names cleaner pieces before you add to cart.",
+  alt: "A browser window on the Vuori AllTheFeels legging product page with the Toxome extension panel open, showing a 30 out of 100 'Bad' health rating, a composition of 75% nylon and 25% elastane, and three cleaner alternative leggings from Woolly Clothing Co and Groceries Apparel, each rated Good.",
+};
+
 const STEPS = [
   {
     n: "01",
@@ -170,7 +183,7 @@ export default async function ExtensionPage() {
           url: SITE,
           logo: { "@type": "ImageObject", url: `${SITE}/icon.png` },
         },
-        screenshot: `${SITE}/extension/preview.jpg`,
+        screenshot: `${SITE}/extension/score-bad.jpg`,
       },
       {
         // Synced to the visible FAQ (same FAQ array rendered below).
@@ -296,28 +309,31 @@ export default async function ExtensionPage() {
         </div>
       </header>
 
-      {/* Product screenshot, the proof shot */}
+      {/* Proof shot. A low rating with somewhere else to go is the whole pitch
+          in one frame. */}
       <section className="shell" style={{ paddingTop: 56 }}>
-        <div
-          style={{
-            maxWidth: 1040,
-            margin: "0 auto",
-            borderRadius: 18,
-            overflow: "hidden",
-            boxShadow:
-              "0 30px 70px -34px rgba(59,60,58,0.30), 0 10px 24px -14px rgba(59,60,58,0.14)",
-          }}
-        >
+        <figure style={{ maxWidth: 1140, margin: "0 auto" }}>
           <Image
-            src="/extension/preview.jpg"
-            alt="The Toxome Chrome extension open on a DISSH clothing product page, showing a 67/100 'Okay' health rating, a 57% cupro / 43% viscose fiber composition breakdown, why-this-score notes, and Save to Wishlist and Add to Closet buttons."
-            width={2000}
-            height={1294}
-            sizes="(max-width: 1100px) 100vw, 1040px"
+            src={SHOT.src}
+            alt={SHOT.alt}
+            width={SHOT.width}
+            height={SHOT.height}
+            sizes="(max-width: 1200px) 100vw, 1140px"
             style={{ display: "block", width: "100%", height: "auto" }}
             priority
           />
-        </div>
+          <figcaption
+            style={{
+              fontSize: 16,
+              lineHeight: 1.55,
+              color: "var(--ink-2)",
+              margin: "18px 0 0",
+              textAlign: "center",
+            }}
+          >
+            {SHOT.caption}
+          </figcaption>
+        </figure>
       </section>
 
       {/* What it catches */}
