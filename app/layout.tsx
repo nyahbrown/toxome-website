@@ -93,6 +93,11 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <body>
+        {/* .reveal starts at opacity 0 and is switched on by AnimationProvider.
+            If JS never runs, the page would render blank below the fold. */}
+        <noscript>
+          <style>{`.reveal { opacity: 1 !important; transform: none !important; }`}</style>
+        </noscript>
         <JsonLd data={organizationSchema} />
         <AnimationProvider />
         <AuthProvider>
