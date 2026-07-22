@@ -234,11 +234,19 @@ export default async function ExtensionPage() {
               }}
             >
               <a
-                className="pill-cta"
+                className="pill-cta chrome"
                 href={CHROME_STORE_URL}
                 target="_blank"
                 rel="noopener noreferrer"
               >
+                <Image
+                  src="/chrome-logo.png"
+                  alt=""
+                  aria-hidden="true"
+                  width={20}
+                  height={20}
+                  style={{ display: "block", width: 20, height: 20 }}
+                />
                 Add to Chrome, free
                 <ArrowIcon />
               </a>

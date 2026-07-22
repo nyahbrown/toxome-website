@@ -112,6 +112,22 @@ button { font-family: inherit; }
   box-shadow: 0 0 0 1px var(--hairline-strong) inset;
   transform: translateY(-1px);
 }
+/* Chrome Web Store CTA — white chip so the Chrome mark reads as itself
+   instead of sitting on the ink fill. Hairline inset keeps the edge legible
+   against the cream ground. */
+.pill-cta.chrome {
+  background: var(--white);
+  color: var(--ink);
+  /* Opts out of the site-wide lowercase body transform: this button reads as
+     Chrome's own install affordance, so "Add to Chrome" keeps its casing. */
+  text-transform: none;
+  box-shadow: 0 0 0 1px var(--hairline-strong) inset,
+    0 6px 22px rgba(59, 60, 58, 0.1);
+}
+.pill-cta.chrome:hover {
+  box-shadow: 0 0 0 1px var(--hairline-strong) inset,
+    0 10px 28px rgba(59, 60, 58, 0.16);
+}
 /* Press feedback — the button confirms it heard the tap. Overrides the hover
    lift on press so it reads as pushing down. */
 .pill-cta:active,

@@ -98,7 +98,7 @@ One family only: Inter. No serif, no system monospace. **Inter-only, locked 2026
 
 **Rule:** Inter carries everything: reading, acting, labeling, and display headlines. Presence at headline scale comes from SemiBold (600) weight and tight tracking (-0.02em), not from a second typeface.
 
-**Case rule:** Body text renders lowercase site-wide (`text-transform: lowercase` on `body`). Exceptions: (1) `.j-prose` (article reading body only) — `text-transform: none` restores natural sentence case so the author's capitalization is preserved; the article grid/index cards stay lowercase (intended). (2) **Eyebrows / section labels = ALL CAPS** — the `.eyebrow` class is `text-transform: uppercase` (weight 600, 0.13em tracking, 10–11px). Every section label renders in caps (A NEW CATEGORY, BROWSE BY FIBER, EDITOR'S PICKS, THE JOURNAL, THE FASHION WELLNESS LETTER, etc.). Do not revert eyebrows to lowercase.
+**Case rule:** Body text renders lowercase site-wide (`text-transform: lowercase` on `body`). Exceptions: (1) `.j-prose` (article reading body only) — `text-transform: none` restores natural sentence case so the author's capitalization is preserved; the article grid/index cards stay lowercase (intended). (2) **Eyebrows / section labels = ALL CAPS** — the `.eyebrow` class is `text-transform: uppercase` (weight 600, 0.13em tracking, 10–11px). Every section label renders in caps (A NEW CATEGORY, BROWSE BY FIBER, EDITOR'S PICKS, THE JOURNAL, THE FASHION WELLNESS LETTER, etc.). Do not revert eyebrows to lowercase. (3) **`.pill-cta.chrome`** (the Add to Chrome button on `/extension`) — `text-transform: none`, so it reads as Chrome's own install affordance: "Add to Chrome, free". Do not revert it to lowercase.
 
 ---
 
