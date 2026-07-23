@@ -218,34 +218,6 @@ export default async function ContactPage() {
         </div>
       </Section>
 
-      {/* Who you are writing to */}
-      <Section title="A small company, on purpose.">
-        <Prose>
-          Nyah Brown runs Toxome. The score, the shop, the Journal, and the
-          scanner all come out of one place, so the method stays public and
-          nobody buys their way around it.
-        </Prose>
-        <Prose>
-          Brands, we are glad to hear from you, and it changes nothing about your
-          number. We score every product before any commercial conversation, by
-          the same method, whether we have spoken or not.
-        </Prose>
-        <div style={{ textAlign: "center", marginTop: 32 }}>
-          <Link
-            href="/about"
-            style={{
-              fontSize: 13.5,
-              fontWeight: 500,
-              color: "var(--ink)",
-              borderBottom: "1px solid var(--hairline-strong)",
-              paddingBottom: 2,
-            }}
-          >
-            About Toxome
-          </Link>
-        </div>
-      </Section>
-
       <div style={{ height: 120 }} />
       <Footer />
     </main>
@@ -285,22 +257,5 @@ function Section({
       </div>
       {children}
     </section>
-  );
-}
-
-function Prose({ children }: { children: React.ReactNode }) {
-  return (
-    <p
-      style={{
-        maxWidth: 640,
-        margin: "0 auto 20px",
-        fontSize: 17,
-        lineHeight: 1.62,
-        color: "var(--ink-2)",
-        textAlign: "center",
-      }}
-    >
-      {children}
-    </p>
   );
 }
