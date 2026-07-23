@@ -5,6 +5,10 @@ const nextConfig: NextConfig = {
   // /privacypolicy path. The canonical route is /privacy.
   async redirects() {
     return [
+      // Vanity short-link for the founding-partner kit sent to prospective
+      // brands. Temporary (307) so the destination can be re-pointed later
+      // without browsers caching a permanent redirect.
+      { source: "/kit", destination: "/partners/founding-kit.html", permanent: false },
       { source: "/privacypolicy", destination: "/privacy", permanent: true },
       { source: "/privacy-policy", destination: "/privacy", permanent: true },
       // Elastane and spandex are the same fiber; merged into one page at /guide/elastane.
