@@ -99,12 +99,16 @@
   .aud-copy em { font-style: italic; color: var(--ink); }
   @media (max-width: 620px) { .aud { grid-template-columns: 1fr; gap: 20px; text-align: left; } .stat { text-align: left; } }
 
-  /* ---------- Concerns list ---------- */
-  .concerns { list-style: none; margin: 30px 0 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 26px 44px; max-width: 760px; }
-  .concerns li { padding-left: 16px; border-left: 2px solid var(--green); }
-  .concerns .ct { font-size: 16px; font-weight: 600; color: var(--ink); margin: 0 0 5px; }
-  .concerns .cd { font-size: 15px; line-height: 1.5; color: var(--ink-2); margin: 0; }
-  @media (max-width: 620px) { .concerns { grid-template-columns: 1fr; gap: 22px; } }
+  /* ---------- Concerns stats ---------- */
+  .cstats { margin-top: 32px; display: grid; gap: 18px; max-width: 620px; }
+  .cstat { display: grid; grid-template-columns: 190px 1fr 50px; align-items: center; gap: 18px; }
+  .cstat .cl { font-size: 15px; color: var(--ink); font-weight: 500; }
+  .cstat .ctk { height: 10px; border-radius: 999px; background: var(--tan); overflow: hidden; }
+  .cstat .cfl { display: block; height: 100%; border-radius: 999px; background: var(--green); }
+  .cstat .cv { font-size: 17px; font-weight: 600; color: var(--ink); text-align: right; font-variant-numeric: tabular-nums; }
+  .cstat.muted .cfl { background: var(--ink-3); }
+  .cstat.muted .cl, .cstat.muted .cv { color: var(--ink-3); font-weight: 500; }
+  @media (max-width: 560px) { .cstat { grid-template-columns: 128px 1fr 44px; gap: 12px; } }
 
   /* ---------- Deliverables ---------- */
   .deliverables { list-style: none; margin: 26px 0 0; padding: 0; }
@@ -232,30 +236,13 @@
   <section>
     <div class="reveal">
       <p class="kick"><span class="dot"></span> Their top concerns</p>
-      <h2>They are health-first, not trend-first.</h2>
-      <p>Toxome's readers do not arrive for a look. They arrive worried about what they cannot see on the label, and they buy accordingly. This is what they are actually avoiding.</p>
-      <ul class="concerns">
-        <li>
-          <p class="ct">Endocrine disruption</p>
-          <p class="cd">Hormone-mimicking chemicals in synthetic dyes, finishes, and coatings, and what they do over sixteen hours against skin.</p>
-        </li>
-        <li>
-          <p class="ct">Toxic chemical load</p>
-          <p class="cd">PFAS, formaldehyde, azo dyes, and the "forever" finishes sprayed onto conventional clothing.</p>
-        </li>
-        <li>
-          <p class="ct">Microplastics</p>
-          <p class="cd">Plastic fibers shedding off synthetic fabric onto the body and into the home, all day.</p>
-        </li>
-        <li>
-          <p class="ct">Hormone health</p>
-          <p class="cd">PCOS, endometriosis, and fertility, the conditions that send many of them looking in the first place.</p>
-        </li>
-        <li>
-          <p class="ct">Skin reactivity</p>
-          <p class="cd">Irritation and sensitivity from chemically treated fabric worn directly against skin.</p>
-        </li>
-      </ul>
+      <h2>Toxins outrank sustainability.</h2>
+      <p>When we asked our users their top concerns, <strong>87%</strong> named toxins and <strong>73%</strong> named endocrine disruption, both above a garment's environmental impact. This is a health-first audience, and it rewards the brands that speak to that.</p>
+      <div class="cstats">
+        <div class="cstat"><span class="cl">Toxins</span><span class="ctk"><span class="cfl" style="width:87%"></span></span><span class="cv">87%</span></div>
+        <div class="cstat"><span class="cl">Endocrine disruption</span><span class="ctk"><span class="cfl" style="width:73%"></span></span><span class="cv">73%</span></div>
+        <div class="cstat muted"><span class="cl">Environmental impact</span><span class="ctk"><span class="cfl" style="width:53%"></span></span><span class="cv">53%</span></div>
+      </div>
     </div>
   </section>
 
