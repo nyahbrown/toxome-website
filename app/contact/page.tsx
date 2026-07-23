@@ -4,7 +4,8 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { getShopTaxonomy } from "@/lib/supabase";
 
-const EMAIL = "nyah@toxome.app";
+const EMAIL = "contact@toxome.app";
+const PARTNERSHIPS_EMAIL = "partnerships@toxome.app";
 
 export const metadata: Metadata = {
   title: "Contact Toxome",
@@ -26,6 +27,7 @@ type Route = {
   name: string;
   body: string;
   subject: string;
+  email?: string;
   link?: { href: string; label: string };
 };
 
@@ -35,6 +37,7 @@ const ROUTES: Route[] = [
     name: "Brands & partnerships",
     body: "You make clothing we should be scoring, or you want to work with us on a feature, an edit, or a partnership. Tell us what you make and what it is made of.",
     subject: "Partnership",
+    email: PARTNERSHIPS_EMAIL,
     link: { href: "/partnerships", label: "Partnerships" },
   },
   {
@@ -184,7 +187,7 @@ export default async function ContactPage() {
               </p>
               <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
                 <a
-                  href={`mailto:${EMAIL}?subject=${encodeURIComponent(r.subject)}`}
+                  href={`mailto:${r.email ?? EMAIL}?subject=${encodeURIComponent(r.subject)}`}
                   style={{
                     fontSize: 13.5,
                     fontWeight: 500,
@@ -216,7 +219,7 @@ export default async function ContactPage() {
       </Section>
 
       {/* Who you are writing to */}
-      <Section eyebrow="Who reads it" title="A small company, on purpose.">
+      <Section title="A small company, on purpose.">
         <Prose>
           Nyah Brown runs Toxome. The score, the shop, the Journal, and the
           scanner all come out of one place, so the method stays public and
@@ -254,16 +257,18 @@ function Section({
   title,
   children,
 }: {
-  eyebrow: string;
+  eyebrow?: string;
   title: string;
   children: React.ReactNode;
 }) {
   return (
     <section className="shell" style={{ paddingTop: 110 }}>
       <div style={{ maxWidth: 720, margin: "0 auto 48px", textAlign: "center" }}>
-        <p className="eyebrow" style={{ margin: "0 0 16px" }}>
-          {eyebrow}
-        </p>
+        {eyebrow && (
+          <p className="eyebrow" style={{ margin: "0 0 16px" }}>
+            {eyebrow}
+          </p>
+        )}
         <h2
           style={{
             fontFamily: "var(--sans)",
