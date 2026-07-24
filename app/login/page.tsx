@@ -45,7 +45,11 @@ function LoginContent() {
 
   const { user, loading, signInWithGoogle, signInWithApple, signInWithEmail, signUpWithEmail, sendPasswordReset, toggleWishlist, pendingLink, completePendingLink, clearPendingLink } = useAuth();
 
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  // Deep links (e.g. the shop save-prompt's "create account") can open the page
+  // straight into signup; everything else defaults to sign in.
+  const [mode, setMode] = useState<"signin" | "signup">(
+    searchParams.get("mode") === "signup" ? "signup" : "signin",
+  );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");

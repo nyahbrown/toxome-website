@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useLayoutEffect, useRef } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import type { Product } from "@/types/product";
 import type { ShopTaxonomy } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import { triggerAppPrompt } from "@/components/AppInstallPrompt";
 import FrostedSelect from "@/components/FrostedSelect";
 import WishlistHeart from "@/components/WishlistHeart";
+import SaveSignInPopup from "@/components/SaveSignInPopup";
 import ScoreBadge from "@/components/ScoreBadge";
 import CertBadge from "@/components/CertBadge";
 import { normalizeFiber } from "@/lib/fabricScores";
@@ -26,6 +27,10 @@ import { getSubfilter } from "@/lib/subfilters";
 export type ShopSection = "women" | "men" | "kids" | "home" | null;
 
 const PAGE_SIZE = 16;
+
+// useLayoutEffect warns during the one server render a client component gets;
+// fall back to useEffect there so scroll restoration stays warning-free.
+const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 // The set of active filter constraints. Shared by the live grid and the mobile
 // Refine sheet's "Show N results" count so the two never disagree.
@@ -501,8 +506,41 @@ export default function ShopClient({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const { user, wishlist, toggleWishlist } = useAuth();
+  // Signed-out save flow: the product a shopper tried to like, held so the
+  // heart can fill the moment auth completes (see effect below), plus the
+  // product driving the sign-in popup.
+  const pendingLikeRef = useRef<Product | null>(null);
+  const [authPromptProduct, setAuthPromptProduct] = useState<Product | null>(
+    null,
+  );
   const fiberRailRef = useRef<HTMLDivElement | null>(null);
+
+  // Apply the pending like once the user signs in (inline via the popup's
+  // Google/Apple buttons — signInWithPopup resolves in-page but the user state
+  // flips a tick later, so toggleWishlist can't run synchronously in the click
+  // handler). Ref is only ever set from a fresh save tap this session, so a
+  // returning signed-in visitor with no pending tap is a no-op. The /login
+  // redirect paths (email create-account / sign-in) are handled separately by
+  // the pendingLike sessionStorage the login page reads.
+  useEffect(() => {
+    if (!user) return;
+    const p = pendingLikeRef.current;
+    if (!p) return;
+    pendingLikeRef.current = null;
+    if (!wishlist.has(p.id)) toggleWishlist(p);
+    try {
+      sessionStorage.removeItem("pendingLike");
+      sessionStorage.removeItem("pendingLikeProduct");
+    } catch {
+      // ignore storage errors
+    }
+    setAuthPromptProduct(null);
+    // Applies once on the null -> signed-in transition; wishlist/toggleWishlist
+    // are intentionally not deps (would re-run as the wishlist listener loads).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
   const scrollRail = (dir: 1 | -1) =>
     fiberRailRef.current?.scrollBy({ left: dir * 340, behavior: "smooth" });
 
@@ -686,11 +724,20 @@ export default function ShopClient({
   function handleToggle(p: Product) {
     if (!user) {
       // iOS: saving is peak intent, funnel to the app (closet lives there).
-      // Off iOS, triggerAppPrompt returns false and we fall back to web login.
+      // Off iOS, triggerAppPrompt returns false and we fall back to web auth.
       if (triggerAppPrompt("save")) return;
-      sessionStorage.setItem("pendingLike", p.id);
-      sessionStorage.setItem("pendingLikeProduct", JSON.stringify(p));
-      router.push(`/login?return=${sectionPath}`);
+      // Hold the item so the heart fills once auth completes, and stash it for
+      // the /login redirect paths (email create-account / sign-in) to read.
+      pendingLikeRef.current = p;
+      try {
+        sessionStorage.setItem("pendingLike", p.id);
+        sessionStorage.setItem("pendingLikeProduct", JSON.stringify(p));
+      } catch {
+        // ignore storage errors
+      }
+      // Open the inline sign-in / create-account popup instead of a full-page
+      // redirect, so the shopper stays on the grid.
+      setAuthPromptProduct(p);
       return;
     }
     toggleWishlist(p);
@@ -829,7 +876,14 @@ export default function ShopClient({
   // sentinel below the grid scrolls into view. Reset to first page
   // whenever any filter changes.
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  // Collapse back to page one when a filter changes, but NOT on the initial
+  // mount, where scroll restoration below may reopen the previous page count.
+  const firstFilterRun = useRef(true);
   useEffect(() => {
+    if (firstFilterRun.current) {
+      firstFilterRun.current = false;
+      return;
+    }
     setVisibleCount(PAGE_SIZE);
   }, [section, fiberFilter, occasionFilter, ageFilter, category, query, sort, certKey, brandFilter, priceBand]);
   const visible = filtered.slice(0, visibleCount);
@@ -850,6 +904,73 @@ export default function ShopClient({
     io.observe(el);
     return () => io.disconnect();
   }, [hiddenCount, visibleCount]);
+
+  // ── Scroll restoration ────────────────────────────────────────────────────
+  // Infinite scroll defeats the browser's native restore: click a product, come
+  // back, and the grid has remounted at its first page (visibleCount === PAGE_SIZE),
+  // so the saved scroll position points past the end of a now-short page and you
+  // land at the top. Persist BOTH the scroll offset and how many pages were
+  // revealed, keyed to this exact filtered view (path + query), and replay them.
+  const scrollKey = `shop-scroll:${pathname}?${searchParams.toString()}`;
+  const visibleCountRef = useRef(visibleCount);
+  useEffect(() => {
+    visibleCountRef.current = visibleCount;
+  }, [visibleCount]);
+  const pendingScrollY = useRef<number | null>(null);
+
+  // Save on the way out (unmount fires when you navigate into a product), and
+  // keep the latest offset warm as the user scrolls.
+  useEffect(() => {
+    const save = () => {
+      try {
+        sessionStorage.setItem(
+          scrollKey,
+          JSON.stringify({ count: visibleCountRef.current, y: window.scrollY })
+        );
+      } catch {}
+    };
+    let raf = 0;
+    const onScroll = () => {
+      if (raf) return;
+      raf = window.requestAnimationFrame(() => {
+        raf = 0;
+        save();
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+      save();
+    };
+  }, [scrollKey]);
+
+  // On mount, reveal as many pages as were open before, then jump back to the
+  // saved offset. Runs once per filtered view; a fresh visit has no saved entry.
+  const restoredKey = useRef<string | null>(null);
+  useIsoLayoutEffect(() => {
+    if (restoredKey.current === scrollKey) return;
+    restoredKey.current = scrollKey;
+    let saved: { count?: number; y?: number } | null = null;
+    try {
+      const raw = sessionStorage.getItem(scrollKey);
+      if (raw) saved = JSON.parse(raw);
+    } catch {}
+    if (!saved || typeof saved.y !== "number") return;
+    if (saved.count && saved.count > visibleCountRef.current) {
+      setVisibleCount(saved.count);
+      pendingScrollY.current = saved.y; // scroll after the taller grid commits
+    } else {
+      window.scrollTo(0, saved.y);
+    }
+  }, [scrollKey]);
+
+  // Apply the deferred scroll once the restored pages have actually rendered.
+  useIsoLayoutEffect(() => {
+    if (pendingScrollY.current == null) return;
+    window.scrollTo(0, pendingScrollY.current);
+    pendingScrollY.current = null;
+  }, [visibleCount]);
 
   const header = section ? SECTION_META[section] : null;
 
@@ -1333,6 +1454,14 @@ export default function ShopClient({
           Some products may contain affiliate links.
         </p>
       </div>
+
+      {authPromptProduct && (
+        <SaveSignInPopup
+          productId={authPromptProduct.id}
+          returnPath={sectionPath}
+          onClose={() => setAuthPromptProduct(null)}
+        />
+      )}
     </main>
   );
 }
