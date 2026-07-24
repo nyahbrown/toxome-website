@@ -17,6 +17,7 @@ export default function LoadingImage({
   wrapperClassName,
   wrapperStyle,
   onLoad,
+  alt,
   ...imageProps
 }: Props) {
   const [loaded, setLoaded] = useState(false);
@@ -38,9 +39,7 @@ export default function LoadingImage({
       <span className="limg__skel" aria-hidden="true" />
       <Image
         ref={ref}
-        // alt="" is overridden by imageProps.alt (spread below); it exists only
-        // so jsx-a11y sees a literal alt, since it can't trace the spread.
-        alt=""
+        alt={alt}
         {...imageProps}
         onLoad={(e) => {
           setLoaded(true);
