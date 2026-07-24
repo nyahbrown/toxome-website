@@ -129,9 +129,9 @@ export async function PATCH(
     return NextResponse.json({ error: "Product not found" }, { status: 404 });
   }
 
-  // Any successful mutation can change a product's visibility, so flush every
-  // cached surface that renders product data immediately (on-demand revalidation).
-  revalidateProductSurfaces(id);
+  // Any successful mutation can change a product's visibility, so flush the
+  // surfaces this product touches immediately (on-demand revalidation).
+  revalidateProductSurfaces(id, data?.brand);
 
   return NextResponse.json({ product: data });
 }

@@ -29,13 +29,47 @@ function isAuthorized(req: Request): boolean {
   return provided === secret;
 }
 
+type ProductRow = { id?: string; brand?: string | null } & Record<string, unknown>;
+
 type SupabaseWebhookPayload = {
   type?: "INSERT" | "UPDATE" | "DELETE";
   table?: string;
-  record?: { id?: string } | null;
-  old_record?: { id?: string } | null;
+  record?: ProductRow | null;
+  old_record?: ProductRow | null;
   id?: string;
 };
+
+/**
+ * Columns that never change what a product surface renders. An UPDATE that only
+ * touches these (e.g. a re-scrape stamping `updated_at`, an internal re-review)
+ * shouldn't flush any cache — that no-op fan-out was the main ISR-write drain.
+ * Everything NOT in this set is treated as shopper-visible, so new columns fail
+ * safe (they trigger a flush) rather than silently going stale.
+ */
+const NON_RENDERING_COLUMNS = new Set([
+  "id",
+  "created_at",
+  "updated_at",
+  "reviewed_at",
+  "added_by",
+  "unpublish_reason",
+  "commission_rate",
+]);
+
+/**
+ * True if an UPDATE changed at least one shopper-visible column. INSERT / DELETE
+ * (no `old_record` to diff against) always count as meaningful.
+ */
+function isMeaningfulChange(payload: SupabaseWebhookPayload): boolean {
+  if (payload.type !== "UPDATE") return true;
+  const { record, old_record } = payload;
+  if (!record || !old_record) return true; // can't diff — fail safe, flush.
+  for (const key of new Set([...Object.keys(record), ...Object.keys(old_record)])) {
+    if (NON_RENDERING_COLUMNS.has(key)) continue;
+    if (JSON.stringify(record[key]) !== JSON.stringify(old_record[key])) return true;
+  }
+  return false;
+}
 
 export async function POST(req: Request) {
   if (!isAuthorized(req)) {
@@ -50,7 +84,15 @@ export async function POST(req: Request) {
   }
 
   const id = body.id ?? body.record?.id ?? body.old_record?.id ?? undefined;
-  revalidateProductSurfaces(id);
+
+  // Skip no-op updates (e.g. a re-scrape that only bumped updated_at). These
+  // used to flush the whole catalog for a change no shopper would ever see.
+  if (!isMeaningfulChange(body)) {
+    return NextResponse.json({ revalidated: false, skipped: "no-op", id: id ?? null });
+  }
+
+  const brand = body.record?.brand ?? body.old_record?.brand ?? undefined;
+  revalidateProductSurfaces(id, brand);
 
   return NextResponse.json({ revalidated: true, id: id ?? null });
 }

@@ -98,7 +98,7 @@ export async function POST(req: Request) {
   }
 
   // Make it appear across the catalog right away (on-demand revalidation).
-  revalidateProductSurfaces(data?.id);
+  revalidateProductSurfaces(data?.id, data?.brand);
 
   return NextResponse.json({ product: data });
 }
