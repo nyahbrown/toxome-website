@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Nav from "@/components/Nav";
@@ -111,8 +111,12 @@ export default function AccountClient() {
   // own /shop/[id] page or should link out to the store it was saved from.
   const [catalogIds, setCatalogIds] = useState<Set<string> | null>(null);
 
+  // Set when the user taps sign out, so the auth guard below sends them home
+  // instead of racing them to /login the instant `user` clears.
+  const signingOutRef = useRef(false);
+
   useEffect(() => {
-    if (!loading && !user && !devMode) {
+    if (!loading && !user && !devMode && !signingOutRef.current) {
       router.replace("/login?return=/account");
     }
   }, [user, loading, router, devMode]);
@@ -494,6 +498,7 @@ export default function AccountClient() {
               )}
               <button
                 onClick={async () => {
+                  signingOutRef.current = true;
                   await signOut();
                   router.replace("/");
                 }}
