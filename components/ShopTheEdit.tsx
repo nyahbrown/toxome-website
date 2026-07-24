@@ -25,7 +25,7 @@ export default async function ShopTheEdit({ article }: { article: Article }) {
             textWrap: "balance",
           }}
         >
-          non-toxic pieces worth reaching for.
+          {article.editHeading ?? "non-toxic pieces worth reaching for."}
         </h2>
       </div>
       {/* Constrained to the article column: a 5-up rail of small cards that

@@ -56,7 +56,13 @@ export type ArticleMeta = {
   // Optional curated override for the end-of-article "Shop the edit" rail:
   // an ordered list of /shop product IDs. When absent, products auto-match
   // the article topic. See components/ShopTheEdit.tsx.
+  // NOTE: curated IDs bypass the women's/unisex audience filter, which is how
+  // an article aimed at another reader (e.g. the cloth diaper roundup, whose
+  // rail is baby clothes) ships a rail the auto-matcher would never pick.
   products?: string[];
+  // Optional headline for that rail, when the default women's-audience line
+  // does not fit the article's edit. Lowercase to match the rendered body.
+  editHeading?: string;
   readingTime: string;
   sources: Source[];
   faq: FaqItem[]; // optional drop-down FAQ; empty when the article has none
@@ -181,6 +187,7 @@ function readArticle(slug: string): Article | null {
     products: Array.isArray(data.products)
       ? data.products.map(String).filter(Boolean)
       : undefined,
+    editHeading: data.editHeading ? String(data.editHeading) : undefined,
     readingTime: `${minutes} min read`,
     sources: normalizeSources(data.sources),
     faq: normalizeFaq(data.faq),

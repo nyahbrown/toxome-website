@@ -61,6 +61,10 @@ const LOCAL: Record<string, string> = {
   grs: "grs.png",
   "made-safe": "made-safe.webp",
   ocs: "ocs.png",
+  // Official OEKO-TEX mark. The favicon fallback for oeko-tex.com returns a
+  // 510-byte PNG that turns to mush at 34px, so the local SVG wins everywhere
+  // the badge renders (guide, shop grid, product page, journal pick cards).
+  "oeko-tex-standard-100": "oeko-tex-standard-100.svg",
   "one-percent-for-the-planet": "one-percent-for-the-planet.jpg",
   pefc: "pefc.png",
   rds: "rds.png",
