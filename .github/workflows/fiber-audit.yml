@@ -1,0 +1,55 @@
+name: Fiber Audit
+
+# Weekly WRONG-FIBER check on live products: does each product's stored fiber
+# actually match its own source PDP? Catches the failure the percent-sum audit
+# cannot — a fabricated fiber identity that still sums to a clean 100.
+#
+# NO ANTHROPIC API. scripts/audit-fibers.js -> scripts/scrape.js is pure fetch +
+# regex (re-parses each PDP's composition, falls back to the brand's material
+# tag), same engine the catalog is built on. Only secret is the Supabase key.
+#
+# Why this exists: on 20 Jul 2026 four Jenni Kayne items were live/queued as
+# `{cashmere:100}` / score 90 — one was really cotton, one raw silk, one an
+# 85/15 modal-poly blend that belonged at 53. Every composition summed to 100,
+# so the existing sum checker was blind to all of them. Three of the four were
+# scored too GENEROUSLY, i.e. the moat failing in the direction that matters.
+#
+# REPORT ONLY. It never edits the catalog. A mismatch can be a real bug OR a page
+# whose wording the parser reads differently than a human — every hit is a triage
+# item to confirm against the live PDP, same as the link sweep. The job exits
+# non-zero only when a LIVE product's primary fiber is wrong, so a real hit shows
+# as a failed check instead of a green run nobody opens.
+
+on:
+  schedule:
+    - cron: "30 8 * * 1" # Mondays 08:30 UTC, just after the link sweep (08:00)
+  workflow_dispatch: # manual trigger from the Actions tab
+
+jobs:
+  fiber-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45 # ~730 real page fetches at concurrency 6
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Audit live product fibers
+        env:
+          # No ANTHROPIC_API_KEY on purpose — this job must never call the API.
+          NEXT_PUBLIC_SUPABASE_URL: https://xclvodbmllglmharezqa.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/audit-fibers.js # published only, report only, never edits
+
+      - name: Upload full report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fiber-audit-report
+          path: /tmp/fiber_audit_report.json
+          retention-days: 90
