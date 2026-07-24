@@ -28,9 +28,15 @@ keywords:
   - "wool diaper cover"
   - "natural fiber diapers"
   - "non toxic baby"
+  - "PFAS in cloth diapers"
+  - "PFAS free diapers"
+  - "PUL vs TPU diaper cover"
+  - "non toxic diapers 2026"
 faq:
   - q: "What is PUL, and is it in most cloth diapers?"
     a: "PUL stands for polyurethane laminate, and it is the waterproof layer in nearly every pocket diaper and all-in-one on the market. Technically most of it is now TPU, which is polyester fabric with a polyurethane film heat-bonded to it. It is plastic, and it is what makes a reusable diaper waterproof without wool. A typical polyester cover scores 23 on the same scale the picks here are scored on, which is the gap the wool covers in this list exist to close."
+  - q: "Do cloth diapers contain PFAS?"
+    a: "Some do, and it is the waterproof cover that carries the risk, not the absorbent cotton against the baby. In 2023 the environmental site Mamavation, working with Environmental Health News, had 65 reusable diapers and covers from 40 brands screened at an EPA-certified lab for organic fluorine, the marker chemists use to flag PFAS, and found it in about 23 percent of them, at 10 to 323 parts per million. The detections clustered in the polyurethane laminate covers, the same PUL and TPU layers that score 23 on the scale used here, because a fluorinated finish is one of the ways a laminate is made to shed water. A wool cover sidesteps the question, since it holds moisture through the fiber's own structure with nothing coated onto it."
   - q: "Are disposable diapers toxic?"
     a: "The most thorough public assessment is the 2019 opinion from ANSES, the French health and safety agency, which tested disposables under realistic use and found health reference values exceeded for polycyclic aromatic hydrocarbons, dioxins and dioxin-like PCBs, along with formaldehyde and intentionally added fragrances including Lyral and Lilial. ANSES called for those substances to be eliminated or reduced and for a stricter regulatory framework. Cloth does not carry that particular question, because the material is a fiber you can read on a label."
   - q: "Do you need a waterproof cover with cloth diapers?"
@@ -46,6 +52,8 @@ sources:
     href: "https://www.anses.fr/en/content/anses-recommends-improving-baby-diaper-safety"
   - label: "ANSES. ANSES proposes an EU-wide restriction of hazardous chemicals in disposable diapers."
     href: "https://www.anses.fr/en/content/anses-proposes-eu-wide-restriction-hazardous-chemicals-disposable-diapers"
+  - label: "Environmental Health News with Mamavation. Cloth and disposable diapers tested for indications of PFAS (2023)."
+    href: "https://www.ehn.org/non-toxic-diapers"
   - label: "OEKO-TEX. STANDARD 100."
     href: "https://www.oeko-tex.com/en/our-standards/oeko-tex-standard-100"
   - label: "Global Organic Textile Standard (GOTS). The Standard."
@@ -56,7 +64,7 @@ A baby wears a diaper for close to three years, day and night, against skin that
 
 Contact time is the variable most shoppers skip. A shirt goes on for twelve hours and comes off. A diaper stays on around the clock, on the one part of the body where skin sits occluded, warm and damp for the whole wear. No other garment gets those terms.
 
-Cloth answers the question differently, because you can read the fiber on a label instead of trusting a proprietary core. The category has its own quiet substitution though, and it is easy to miss on a product page: nearly every pocket diaper and all-in-one is waterproofed with PUL, a polyester fabric with a polyurethane film bonded to it. A cover made of that scores 23. The cleanest systems separate the two jobs, putting natural fiber against the baby and either wool or a swappable cover on the part that holds moisture in.
+Cloth answers the question differently, because you can read the fiber on a label instead of trusting a proprietary core. The category has its own quiet substitution though, and it is easy to miss on a product page: nearly every pocket diaper and all-in-one is waterproofed with PUL, a polyester fabric with a polyurethane film bonded to it. A cover made of that scores 23, and it is also where the PFAS question sits. Independent lab screening has turned up organic fluorine, the marker for forever chemicals, in a share of the waterproof covers tested, because a fluorinated finish is one of the ways a laminate is made to shed water. The cleanest systems separate the two jobs, putting natural fiber against the baby and either wool or a swappable cover on the part that holds moisture in.
 
 A cloth diaper is two purchases rather than one: the absorbent part that holds the mess, and the cover that keeps it in. The list below covers both, ordered by score, starting at $11.95:
 
