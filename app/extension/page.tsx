@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import LoadingImage from "@/components/LoadingImage";
 import Link from "next/link";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
@@ -313,13 +314,14 @@ export default async function ExtensionPage() {
           in one frame. */}
       <section className="shell" style={{ paddingTop: 56 }}>
         <figure style={{ maxWidth: 1140, margin: "0 auto" }}>
-          <Image
+          <LoadingImage
             src={SHOT.src}
             alt={SHOT.alt}
             width={SHOT.width}
             height={SHOT.height}
             sizes="(max-width: 1200px) 100vw, 1140px"
             style={{ display: "block", width: "100%", height: "auto" }}
+            wrapperStyle={{ borderRadius: 10 }}
             priority
           />
           <figcaption
@@ -337,7 +339,7 @@ export default async function ExtensionPage() {
       </section>
 
       {/* What it catches */}
-      <section className="shell" style={{ paddingTop: 110 }}>
+      <section className="shell reveal" style={{ paddingTop: 110 }}>
         <div style={{ maxWidth: 720, margin: "0 auto 48px", textAlign: "center" }}>
           <p className="eyebrow" style={{ margin: "0 0 16px" }}>
             What it catches
@@ -415,7 +417,7 @@ export default async function ExtensionPage() {
       </section>
 
       {/* How it works */}
-      <section className="shell" style={{ paddingTop: 110 }}>
+      <section className="shell reveal" style={{ paddingTop: 110 }}>
         <div style={{ maxWidth: 720, margin: "0 auto 48px", textAlign: "center" }}>
           <p className="eyebrow" style={{ margin: "0 0 16px" }}>
             Getting started
@@ -485,7 +487,7 @@ export default async function ExtensionPage() {
       </section>
 
       {/* What you see */}
-      <section className="shell" style={{ paddingTop: 110 }}>
+      <section className="shell reveal" style={{ paddingTop: 110 }}>
         <div style={{ maxWidth: 720, margin: "0 auto 48px", textAlign: "center" }}>
           <p className="eyebrow" style={{ margin: "0 0 16px" }}>
             On every product page
@@ -551,7 +553,7 @@ export default async function ExtensionPage() {
       </section>
 
       {/* FAQ, synced to the FAQPage schema above */}
-      <section className="shell" style={{ paddingTop: 110 }}>
+      <section className="shell reveal" style={{ paddingTop: 110 }}>
         <div style={{ maxWidth: 760, margin: "0 auto" }}>
           <p className="eyebrow" style={{ margin: "0 0 16px" }}>
             Questions
@@ -574,7 +576,7 @@ export default async function ExtensionPage() {
       </section>
 
       {/* Closing, app cross-sell: extension checks what you're buying, app checks what you own */}
-      <section className="shell" style={{ paddingTop: 110, paddingBottom: 130 }}>
+      <section className="shell reveal" style={{ paddingTop: 110, paddingBottom: 130 }}>
         <div style={{ maxWidth: 620, margin: "0 auto", textAlign: "center" }}>
           <p className="eyebrow" style={{ margin: "0 0 16px" }}>
             The app, too

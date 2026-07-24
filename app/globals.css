@@ -306,6 +306,57 @@ button { font-family: inherit; }
   .reveal.in { transition: none; }
 }
 
+/* Image loading: a shimmer skeleton holds the frame, then the image blur-ups
+   and fades in on load (see components/LoadingImage.tsx). Only opacity/filter
+   animate, so it stays on the GPU. */
+.limg {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  background: var(--tan);
+}
+.limg > img {
+  opacity: 0;
+  filter: blur(12px);
+  transform: scale(1.015);
+  transition: opacity 500ms var(--ease), filter 500ms var(--ease),
+    transform 500ms var(--ease);
+}
+.limg.limg--in > img {
+  opacity: 1;
+  filter: blur(0);
+  transform: none;
+}
+.limg__skel {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    var(--tan) 0%,
+    rgba(255, 255, 255, 0.65) 50%,
+    var(--tan) 100%
+  );
+  background-size: 200% 100%;
+  animation: limgShimmer 1.4s linear infinite;
+  transition: opacity 400ms var(--ease);
+}
+.limg.limg--in .limg__skel {
+  opacity: 0;
+}
+@keyframes limgShimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+/* Reduced motion: no shimmer sweep, no blur/scale travel, just a gentle fade. */
+@media (prefers-reduced-motion: reduce) {
+  .limg > img {
+    filter: none;
+    transform: none;
+    transition: opacity 300ms var(--ease);
+  }
+  .limg__skel { animation: none; }
+}
+
 @keyframes pulse { 0%, 100% { opacity: 1 } 50% { opacity: .35 } }
 
 /* Fabric guide — editorial image tiles */
