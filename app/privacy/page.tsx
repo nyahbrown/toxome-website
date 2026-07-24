@@ -287,7 +287,7 @@ export default async function PrivacyPage() {
             the right to data portability, and the right to withdraw consent
             where processing is based on consent. You may exercise these rights,
             and those set out below, by emailing{" "}
-            <a href="mailto:nyah@toxome.app">nyah@toxome.app</a> from the email
+            <a href="mailto:contact@toxome.app">contact@toxome.app</a> from the email
             address associated with your account:
           </P>
           <Ul>
@@ -364,7 +364,7 @@ export default async function PrivacyPage() {
             This Policy is issued by Toxome LLC, a limited liability company
             registered in the State of New York. For any matter relating to
             privacy or this Policy, including the exercise of your rights, please
-            contact us at <a href="mailto:nyah@toxome.app">nyah@toxome.app</a>.
+            contact us at <a href="mailto:contact@toxome.app">contact@toxome.app</a>.
           </P>
 
           <Related>

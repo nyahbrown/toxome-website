@@ -100,7 +100,7 @@ export default async function TermsPage() {
             confidentiality of your sign-in credentials, and not to permit any
             other person to use your account. Accounts are limited to one per
             person. You must promptly notify us at{" "}
-            <a href="mailto:nyah@toxome.app">nyah@toxome.app</a> of any
+            <a href="mailto:contact@toxome.app">contact@toxome.app</a> of any
             unauthorised use of your account.
           </P>
 
@@ -124,7 +124,7 @@ export default async function TermsPage() {
               methodology, or probe, scan, or test the vulnerability of our
               systems without our prior written authorisation (security
               vulnerabilities may be reported to{" "}
-              <a href="mailto:nyah@toxome.app">nyah@toxome.app</a>, which we
+              <a href="mailto:contact@toxome.app">contact@toxome.app</a>, which we
               welcome); or
             </li>
             <li>
@@ -268,7 +268,7 @@ export default async function TermsPage() {
             without regard to its conflict-of-laws principles. In the event of a
             dispute, you agree first to attempt to resolve it informally by
             contacting us at{" "}
-            <a href="mailto:nyah@toxome.app">nyah@toxome.app</a>. If the dispute
+            <a href="mailto:contact@toxome.app">contact@toxome.app</a>. If the dispute
             is not resolved within sixty (60) days, it shall be subject to the
             exclusive jurisdiction of the state and federal courts located in New
             York County, New York, and the parties consent to the personal
@@ -301,7 +301,7 @@ export default async function TermsPage() {
             sale of assets. Toxome shall not be liable for any failure or delay in
             performance resulting from causes beyond its reasonable control. Any
             notice to Toxome under these Terms must be sent to{" "}
-            <a href="mailto:nyah@toxome.app">nyah@toxome.app</a>.
+            <a href="mailto:contact@toxome.app">contact@toxome.app</a>.
           </P>
 
           <H2 id="changes">17. Changes to these Terms</H2>
@@ -319,7 +319,7 @@ export default async function TermsPage() {
             These Terms are issued by Toxome LLC, a limited liability company
             registered in the State of New York. Questions, requests, and legal
             notices may be directed to{" "}
-            <a href="mailto:nyah@toxome.app">nyah@toxome.app</a>.
+            <a href="mailto:contact@toxome.app">contact@toxome.app</a>.
           </P>
 
           <Related>
