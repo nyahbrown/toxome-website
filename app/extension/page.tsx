@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import LoadingImage from "@/components/LoadingImage";
+import VideoEmbed from "@/components/VideoEmbed";
 import Link from "next/link";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
@@ -34,17 +34,20 @@ export const metadata: Metadata = {
   },
 };
 
-// The proof shot: a whole browser window, so it reads as the extension running
-// on a real store rather than a UI mockup. The source PNG had a transparent
-// margin around the window shadow, flattened onto --cream at export, which is
-// why this needs no frame or shadow of its own in the markup.
+// The proof shot, now the launch video: the extension running on a real store
+// rather than a UI mockup. Self-hosted, so the page makes no third-party
+// request at all, and nothing of the video loads until someone presses play
+// (see VideoEmbed).
 const SHOT = {
-  src: "/extension/score-bad.jpg",
-  width: 2000,
-  height: 1308,
-  caption:
-    "Mostly nylon, so the panel names cleaner pieces before you add to cart.",
-  alt: "A browser window on the Vuori AllTheFeels legging product page with the Toxome extension panel open, showing a 30 out of 100 'Bad' health rating, a composition of 75% nylon and 25% elastane, and three cleaner alternative leggings from Woolly Clothing Co and Groceries Apparel, each rated Good.",
+  video: "/extension/extension-launch.mp4",
+  videoTitle: "Toxome, while you shop online",
+  // Pulled from the video at 6.2s: the frame where the score lands low and the
+  // cleaner alternatives appear under it, which is the pitch in one still.
+  poster: "/extension/extension-launch-poster.jpg",
+  width: 1920,
+  height: 1080,
+  uploadDate: "2026-07-25",
+  duration: "PT17S",
 };
 
 const STEPS = [
@@ -187,6 +190,25 @@ export default async function ExtensionPage() {
         screenshot: `${SITE}/extension/score-bad.jpg`,
       },
       {
+        // The launch video embedded above. Without this Google has no way to
+        // know the page carries video, and the video rich result is worth more
+        // than the markup costs.
+        "@type": "VideoObject",
+        name: SHOT.videoTitle,
+        description:
+          "The Toxome Chrome extension reading the fiber composition on a live clothing product page and rating the garment out of 100.",
+        thumbnailUrl: `${SITE}${SHOT.poster}`,
+        uploadDate: SHOT.uploadDate,
+        duration: SHOT.duration,
+        contentUrl: `${SITE}${SHOT.video}`,
+        publisher: {
+          "@type": "Organization",
+          name: "Toxome",
+          url: SITE,
+          logo: { "@type": "ImageObject", url: `${SITE}/icon.png` },
+        },
+      },
+      {
         // Synced to the visible FAQ (same FAQ array rendered below).
         "@type": "FAQPage",
         mainEntity: FAQ.map((x) => ({
@@ -313,29 +335,17 @@ export default async function ExtensionPage() {
       {/* Proof shot. A low rating with somewhere else to go is the whole pitch
           in one frame. */}
       <section className="shell" style={{ paddingTop: 56 }}>
-        <figure style={{ maxWidth: 1140, margin: "0 auto" }}>
-          <LoadingImage
-            src={SHOT.src}
-            alt={SHOT.alt}
-            width={SHOT.width}
-            height={SHOT.height}
+        <div style={{ maxWidth: 1140, margin: "0 auto" }}>
+          <VideoEmbed
+            src={SHOT.video}
+            title={SHOT.videoTitle}
+            poster={SHOT.poster}
+            posterWidth={SHOT.width}
+            posterHeight={SHOT.height}
             sizes="(max-width: 1200px) 100vw, 1140px"
-            style={{ display: "block", width: "100%", height: "auto" }}
-            wrapperStyle={{ borderRadius: 10 }}
             priority
           />
-          <figcaption
-            style={{
-              fontSize: 16,
-              lineHeight: 1.55,
-              color: "var(--ink-2)",
-              margin: "18px 0 0",
-              textAlign: "center",
-            }}
-          >
-            {SHOT.caption}
-          </figcaption>
-        </figure>
+        </div>
       </section>
 
       {/* What it catches */}
