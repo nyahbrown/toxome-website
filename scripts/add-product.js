@@ -9,7 +9,7 @@
 const Anthropic = require("@anthropic-ai/sdk");
 const { createClient } = require("@supabase/supabase-js");
 const { getValidatedProduct, fetchPage, shopifyProduct } = require("./scrape");
-const { calcToxomeScore, scoreToRiskLevel } = require("./fabricScores");
+const { scoreProductRow } = require("./fabricScores");
 
 const SUPABASE_URL = "https://xclvodbmllglmharezqa.supabase.co";
 const MODEL = "claude-haiku-4-5-20251001";
@@ -90,23 +90,28 @@ async function run() {
   const { data: dup } = await supabase.from("products").select("id").eq("item_url", v.finalUrl).maybeSingle();
   if (dup) { console.error("✗ Already in catalog:", dup.id); process.exit(1); }
 
-  const comp = toFractions(f.fabric_composition);
-  const score = calcToxomeScore(comp);
   const price = typeof f.item_price === "number" ? f.item_price : null;
+  // Build the disclosure fields FIRST, then score from the row itself, so the
+  // score is always derived from exactly what gets stored. Scoring before the
+  // row was assembled is how certifications ended up extracted, written, and
+  // then ignored by the scorer. See ~/TOXOME/scoring-drift/PLAN.md Phase 1.
   const row = {
     item_name: f.item_name.trim(), brand: f.brand.trim(), item_price: price, budget: budget(price),
     category: CATEGORIES.includes(f.category) ? f.category : null,
     gender: ["Women", "Men", "Unisex"].includes(f.gender) ? f.gender : null,
     item_image: v.images[0], images: v.images, item_url: v.finalUrl, affiliate_url: null,
-    fabric_composition: comp, materials_text: f.materials_text || null, description: f.description || null,
+    fabric_composition: toFractions(f.fabric_composition),
+    materials_text: f.materials_text || null, description: f.description || null,
     certifications: Array.isArray(f.certifications) && f.certifications.length ? f.certifications : null,
-    toxome_score: score, risk_level: scoreToRiskLevel(score),
     published: !draft, rejected: false, added_by: "manual", reviewed_at: new Date().toISOString(),
   };
+  const { score, risk } = scoreProductRow(row);
+  row.toxome_score = score;
+  row.risk_level = risk;
   const { data, error } = await supabase.from("products").insert(row).select("id").single();
   if (error) { console.error("✗ Insert failed:", error.message); process.exit(1); }
   console.log(`\n✓ ${draft ? "Queued (draft)" : "PUBLISHED LIVE"}: ${row.brand} — ${row.item_name}`);
-  console.log(`  score ${score} (${row.risk_level})${row.certifications ? " · " + row.certifications.join(", ") : ""} · ${v.images.length} imgs`);
+  console.log(`  score ${score} (${risk})${row.certifications ? " · " + row.certifications.join(", ") : ""} · ${v.images.length} imgs`);
   console.log(`  id ${data.id}`);
 }
 run().catch((e) => { console.error(e); process.exit(1); });

@@ -13,7 +13,7 @@
  *   node --env-file=.env.local scripts/score-movers-report.js --worse-only
  */
 const { createClient } = require("@supabase/supabase-js");
-const { calcToxomeScore, scoreToRiskLevel } = require("./fabricScores");
+const { scoreProductRow, getUnresolvedFibers } = require("./fabricScores");
 
 const WORSE_ONLY = process.argv.includes("--worse-only");
 const RANK = { low: 0, moderate: 1, high: 2 };
@@ -28,19 +28,35 @@ const supabase = createClient(
     console.error("Missing SUPABASE_SERVICE_ROLE_KEY");
     process.exit(1);
   }
-  const { data, error } = await supabase
-    .from("products")
-    .select("id, brand, item_name, published, fabric_composition, toxome_score, risk_level")
-    .not("fabric_composition", "is", null);
-  if (error) { console.error(error.message); process.exit(1); }
+  // Page through: PostgREST caps a select at 1000 rows, and 1156 products carry
+  // a composition. Without this the report silently covered 86% of the catalog
+  // and read as if it had covered all of it. Mirrors recompute-scores.js.
+  const PAGE = 1000;
+  const data = [];
+  for (let from = 0; ; from += PAGE) {
+    const { data: page, error } = await supabase
+      .from("products")
+      // certifications + materials_text are required: the score is not a
+      // function of composition alone. `description` is intentionally NOT
+      // scored — see scoreProductRow in fabricScores.js.
+      .select(
+        "id, brand, item_name, published, fabric_composition, toxome_score, " +
+          "risk_level, certifications, materials_text"
+      )
+      .not("fabric_composition", "is", null)
+      .order("id", { ascending: true })
+      .range(from, from + PAGE - 1);
+    if (error) { console.error(error.message); process.exit(1); }
+    data.push(...page);
+    if (page.length < PAGE) break;
+  }
 
   const rows = [];
   const transitions = {};
   let bandChanged = 0, gotWorse = 0, gotBetter = 0, nullNew = 0;
 
   for (const p of data) {
-    const newScore = calcToxomeScore(p.fabric_composition);
-    const newRisk = scoreToRiskLevel(newScore);
+    const { score: newScore, risk: newRisk } = scoreProductRow(p);
     if (newScore == null) { nullNew++; continue; }
     const oldRisk = p.risk_level || "(none)";
     const changed = oldRisk !== newRisk;
@@ -82,6 +98,13 @@ const supabase = createClient(
     console.log(
       `  ${flag} ${String(r.brand || "").slice(0, 18).padEnd(18)} ${String(r.name || "").slice(0, 34).padEnd(34)} ` +
       `${String(r.oldScore).padStart(3)}/${r.oldRisk.padEnd(8)} -> ${String(r.newScore).padStart(3)}/${r.newRisk}${pub}`
+    );
+  }
+  const unresolved = getUnresolvedFibers();
+  if (unresolved.length) {
+    console.log(
+      `\n⚠ ${unresolved.length} unrecognized fiber name(s) scored as 50:\n` +
+        unresolved.map((f) => `    ${JSON.stringify(f)}`).join("\n")
     );
   }
   console.log("\nRead-only. To apply: node --env-file=.env.local scripts/recompute-scores.js [--dry-run]\n");

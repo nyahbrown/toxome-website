@@ -60,13 +60,44 @@ function floorUnlocked(fiberK, text, certs) {
     case "rayon":
     case "bamboo": return oekoOrGots || /closed[-\s]?loop|lyocell|tencel|ecovero/.test(text);
     case "modal": return oekoOrGots || /tencel/.test(text);
+    // Branded TENCEL Modal already prices the closed-loop-ish process into its
+    // 26 default, so the only disclosure left to earn is a finished-garment
+    // chemical test. Without this case an OEKO-TEX-certified TENCEL Modal piece
+    // scored WORSE (67) than the same garment labeled generic "Modal" with
+    // "tencel" in the copy (70) — better disclosure was costing points.
+    case "tencel_modal": return oekoOrGots;
+    // GOLS is the organic-latex standard; it caps the vulcanization
+    // accelerators and fillers that make latex foam a contact sensitizer.
+    case "latex_foam": return oekoOrGots || hasCert("gols") || /\bgols\b/.test(text);
+    case "kapok": return oekoOrGots;
     default: return false;
   }
 }
 
+// Mirrors lib/fabricScores.ts. An unrecognized fiber silently scores 50, which
+// reads as a mid-range result rather than as a failure. That silence is how 20
+// fiber names went unnoticed in the app's table. Warn once per distinct name
+// and expose the set. See ~/TOXOME/scoring-drift/PLAN.md Phase 0.
+const unresolvedFibers = new Set();
+function getUnresolvedFibers() {
+  return [...unresolvedFibers];
+}
+function clearUnresolvedFibers() {
+  unresolvedFibers.clear();
+}
+
 function fiberHazard(name, text, certs) {
   const k = resolveFiber(name);
-  if (!k) return 50;
+  if (!k) {
+    if (!unresolvedFibers.has(name)) {
+      unresolvedFibers.add(name);
+      console.warn(
+        `[toxome-score] unrecognized fiber ${JSON.stringify(name)} scored as 50. ` +
+          `Add it to lib/fiber-scores.json or to resolveFiber().`
+      );
+    }
+    return 50;
+  }
   const f = FIBERS[k];
   if (f.floor != null && floorUnlocked(k, text || "", certs || [])) return f.floor;
   return f.default;
@@ -144,4 +175,60 @@ function scoreToRiskLevel(clean) {
   return "high";
 }
 
-module.exports = { FABRIC_SCORES, fabricScore, resolveFiber, calcToxomeScore, scoreToRiskLevel };
+/**
+ * Score a catalog ROW. Use this everywhere a product row becomes a score.
+ *
+ * Every writer used to call calcToxomeScore(composition) with no second
+ * argument, so certifications, finish penalties, the dye prior and the
+ * red-flag cap were never applied to a single catalog row. add-product.js
+ * extracted certifications, wrote them to the row, then scored without them.
+ * 446 published products carried certs that the score ignored.
+ *
+ * The composition-only call is still valid for scoring a bare fiber mix (a
+ * scan, a probe, a what-if). It is the wrong call for a row that has
+ * disclosure fields sitting next to it. This helper exists so the distinction
+ * is made once rather than at 30 call sites.
+ *
+ * See ~/TOXOME/scoring-drift/PLAN.md Phase 1.
+ *
+ * @param {object} row  a products row: fabric_composition, certifications,
+ *                      description, materials_text, item_name
+ * @returns {{score: number|null, risk: string|null}}
+ */
+function scoreProductRow(row) {
+  if (!row) return { score: null, risk: null };
+  const score = calcToxomeScore(row.fabric_composition, {
+    certifications: row.certifications || [],
+    // ⚠ BRAND-STATED TEXT ONLY. `description` is deliberately excluded.
+    //
+    // The Layer-B finish rules are regexes looking for disclosed treatments
+    // ("wrinkle-free", "antimicrobial", "moisture-wicking"). `materials_text`
+    // and `item_name` are the brand's own words, so a hit there is a real
+    // disclosure. `description` is TOXOME's editorial copy, and the house
+    // voice names the villain to say the product avoids it. Feeding it to the
+    // finish rules penalizes the cleanest products for our own marketing:
+    //
+    //   Favorite Daughter Poplin  −12  "not the wrinkle-free resin finish
+    //                                   most office shirts hide"
+    //   Paka Breathe Hoodie        −8  "resists odor WITHOUT an antimicrobial
+    //                                   finish"
+    //   DL1961 Kaylen Jean         −6  "where most performance denim leans
+    //                                   synthetic"
+    //
+    // Measured over the full catalog: including `description` produced 13
+    // down-movers, 11 of them false positives of exactly this shape. Excluding
+    // it leaves 2, both genuine brand claims (a silver-ion pillowcase whose
+    // materials_text says "with silver ions", and an Ibex merino tee whose
+    // materials_text says "Moisture-wicking, odor-resistant"). All 8 upward
+    // band flips are preserved either way.
+    //
+    // Rule of thumb: score what the BRAND disclosed, never what we wrote about it.
+    descKeywords: [row.materials_text || "", row.item_name || ""],
+  });
+  return { score, risk: scoreToRiskLevel(score) };
+}
+
+module.exports = {
+  FABRIC_SCORES, fabricScore, resolveFiber, calcToxomeScore, scoreToRiskLevel,
+  scoreProductRow, getUnresolvedFibers, clearUnresolvedFibers,
+};

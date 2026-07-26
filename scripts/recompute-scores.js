@@ -7,7 +7,7 @@
  *   node --env-file=.env.local scripts/recompute-scores.js --dry-run  # preview
  */
 const { createClient } = require("@supabase/supabase-js");
-const { calcToxomeScore, scoreToRiskLevel } = require("./fabricScores");
+const { scoreProductRow, getUnresolvedFibers } = require("./fabricScores");
 
 const DRY = process.argv.includes("--dry-run");
 const supabase = createClient(
@@ -28,7 +28,14 @@ const supabase = createClient(
   for (let from = 0; ; from += PAGE) {
     const { data: page, error } = await supabase
       .from("products")
-      .select("id, brand, item_name, fabric_composition, toxome_score, risk_level")
+      // certifications + materials_text are REQUIRED here: the score is not a
+      // function of composition alone. Dropping them is what made every cert on
+      // every row invisible to the score. `description` is intentionally NOT
+      // scored (Toxome's own copy, not brand disclosure) — see scoreProductRow.
+      .select(
+        "id, brand, item_name, fabric_composition, toxome_score, risk_level, " +
+          "certifications, materials_text"
+      )
       .not("fabric_composition", "is", null)
       .order("id", { ascending: true })
       .range(from, from + PAGE - 1);
@@ -41,8 +48,7 @@ const supabase = createClient(
   }
   let changed = 0;
   for (const p of data) {
-    const score = calcToxomeScore(p.fabric_composition);
-    const risk = scoreToRiskLevel(score);
+    const { score, risk } = scoreProductRow(p);
     if (score !== p.toxome_score || risk !== p.risk_level) {
       changed++;
       console.log(
@@ -58,4 +64,14 @@ const supabase = createClient(
   console.log(
     `\n${changed} product(s) ${DRY ? "would change" : "updated"} of ${data.length} with a fabric breakdown.`
   );
+  // A fiber name nothing recognizes scores 50, which reads as an ordinary
+  // mid-range result. Surface it here so a bad name can't hide in a run.
+  const unresolved = getUnresolvedFibers();
+  if (unresolved.length) {
+    console.log(
+      `\n⚠ ${unresolved.length} unrecognized fiber name(s) scored as 50:\n` +
+        unresolved.map((f) => `    ${JSON.stringify(f)}`).join("\n") +
+        `\n  Add them to lib/fiber-scores.json or resolveFiber() and re-run.`
+    );
+  }
 })();

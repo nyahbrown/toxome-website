@@ -81,14 +81,46 @@ function floorUnlocked(fiberK: string, text: string, certs: string[]): boolean {
     case "rayon":
     case "bamboo": return oekoOrGots || /closed[-\s]?loop|lyocell|tencel|ecovero/.test(text);
     case "modal": return oekoOrGots || /tencel/.test(text);
+    // Branded TENCEL Modal already prices the closed-loop-ish process into its
+    // 26 default, so the only disclosure left to earn is a finished-garment
+    // chemical test. Without this case an OEKO-TEX-certified TENCEL Modal piece
+    // scored WORSE (67) than the same garment labeled generic "Modal" with
+    // "tencel" in the copy (70) — better disclosure was costing points.
+    case "tencel_modal": return oekoOrGots;
+    // GOLS is the organic-latex standard; it caps the vulcanization
+    // accelerators and fillers that make latex foam a contact sensitizer.
+    case "latex_foam": return oekoOrGots || hasCert("gols") || /\bgols\b/.test(text);
+    case "kapok": return oekoOrGots;
     default: return false;
   }
+}
+
+// An unrecognized fiber silently scores 50, which reads as a mid-range result
+// rather than as a failure. That silence is how 20 fiber names went unnoticed
+// in the app's table through several "0 drift confirmed" audits. Surface it:
+// warn once per distinct name, and expose the set so tests and scripts can
+// assert on it. See ~/TOXOME/scoring-drift/PLAN.md Phase 0.
+const unresolvedFibers = new Set<string>();
+export function getUnresolvedFibers(): string[] {
+  return [...unresolvedFibers];
+}
+export function clearUnresolvedFibers(): void {
+  unresolvedFibers.clear();
 }
 
 /** Internal: per-fiber HAZARD given disclosure context (default, or floor if unlocked). */
 function fiberHazard(name: string, text = "", certs: string[] = []): number {
   const k = resolveFiber(name);
-  if (!k) return 50;
+  if (!k) {
+    if (!unresolvedFibers.has(name)) {
+      unresolvedFibers.add(name);
+      console.warn(
+        `[toxome-score] unrecognized fiber ${JSON.stringify(name)} scored as 50. ` +
+          `Add it to lib/fiber-scores.json or to resolveFiber().`
+      );
+    }
+    return 50;
+  }
   const f = FIBERS[k];
   if (f.floor != null && floorUnlocked(k, text, certs)) return f.floor;
   return f.default;

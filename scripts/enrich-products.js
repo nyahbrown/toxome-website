@@ -73,7 +73,7 @@ function strFlag(name) {
 // ---------------------------------------------------------------------------
 // Toxome scoring — shared with agent.js (mirror in lib/fabricScores.ts)
 // ---------------------------------------------------------------------------
-const { fabricScore, calcToxomeScore, scoreToRiskLevel } = require("./fabricScores");
+const { fabricScore, scoreProductRow } = require("./fabricScores");
 
 /** Normalize a {fabric: percentage} map (any scale) to fractions summing to ~1. */
 function toFractions(comp) {
@@ -346,7 +346,10 @@ async function run() {
   let query = supabase
     .from("products")
     .select(
-      "id, brand, item_name, item_url, affiliate_url, fabric_composition, published"
+      // certifications + materials_text come along so a re-score sees the row's
+      // brand-stated disclosure, not just its composition. PLAN.md P1.
+      "id, brand, item_name, item_url, affiliate_url, fabric_composition, " +
+        "published, certifications, materials_text"
     )
     .eq("published", true)
     .order("created_at", { ascending: false });
@@ -476,17 +479,21 @@ async function run() {
     // Build a patch that only overwrites fields we actually obtained, so a
     // thin page never wipes good existing data.
     const patch = {};
-    if (composition) {
-      patch.fabric_composition = composition;
-      const score = calcToxomeScore(composition);
-      patch.toxome_score = score;
-      patch.risk_level = scoreToRiskLevel(score);
-    }
+    if (composition) patch.fabric_composition = composition;
     if (details.materials_text) patch.materials_text = details.materials_text;
     if (details.description) patch.description = details.description;
     if (Array.isArray(details.certifications) && details.certifications.length)
       patch.certifications = details.certifications;
     if (images.length) patch.images = images;
+
+    // Re-score AFTER the patch is assembled, against the row as it will exist.
+    // Scoring off `composition` alone here meant an enrich run that discovered
+    // a certification wrote it to the row and left the score blind to it.
+    if (composition) {
+      const { score, risk } = scoreProductRow({ ...p, ...patch });
+      patch.toxome_score = score;
+      patch.risk_level = risk;
+    }
 
     if (Object.keys(patch).length === 0) {
       stats.enrichSkipped++;
