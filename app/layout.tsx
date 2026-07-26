@@ -7,6 +7,7 @@ import AppInstallPrompt from "@/components/AppInstallPrompt";
 import JsonLd from "@/components/JsonLd";
 import Skimlinks from "@/components/Skimlinks";
 import { AuthProvider } from "@/contexts/AuthContext";
+import ExtensionSso from "@/components/ExtensionSso";
 import PageViewTracker from "@/components/PageViewTracker";
 import PinterestTag from "@/components/PinterestTag";
 import { Analytics } from "@vercel/analytics/next";
@@ -101,6 +102,7 @@ export default function RootLayout({
         <JsonLd data={organizationSchema} />
         <AnimationProvider />
         <AuthProvider>
+          <ExtensionSso />
           <PageViewTracker />
           <PinterestTag />
           {children}
