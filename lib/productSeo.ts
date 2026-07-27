@@ -38,15 +38,49 @@ function fiberBreakdown(p: Product): string | null {
   return null;
 }
 
+// Google truncates a result title around 60 characters. Everything past that is
+// spent, not shown.
+const TITLE_MAX = 60;
+
 /** Keyword-first SEO title: item name (matches the long-tail garment query),
  * brand, then the Toxome differentiator that earns the click over the retailer.
- * Avoids repeating the brand when it's already in the item name. */
+ * Avoids repeating the brand when it's already in the item name.
+ *
+ * Degrades to fit 60 chars instead of emitting one fixed shape. An audit on
+ * 2026-07-27 found 389 of 824 published titles (47%) over the limit, averaging
+ * 61: product names average 25 characters and 92 exceed 38, so " by {brand}"
+ * plus a 21-character " | Toxome Fiber Score" suffix pushed most of the catalog
+ * past it. The ladder keeps the fullest version that actually renders:
+ *
+ *   1. name by brand | Toxome Fiber Score   (the differentiator survives)
+ *   2. name by brand | Toxome               (brand survives)
+ *   3. name | Toxome Fiber Score            (long name, brand already implied)
+ *   4. name | Toxome
+ *   5. truncated name | Toxome              (last resort, cut on a word)
+ *
+ * The product NAME is never dropped — it is the long-tail query being matched.
+ */
 export function productSeoTitle(p: Product): string {
-  const lead =
-    !p.brand || p.item_name.toLowerCase().includes(p.brand.toLowerCase())
-      ? p.item_name
-      : `${p.item_name} by ${p.brand}`;
-  return `${lead} | Toxome Fiber Score`;
+  const name = p.item_name;
+  const brandIsRedundant =
+    !p.brand || name.toLowerCase().includes(p.brand.toLowerCase());
+  const withBrand = brandIsRedundant ? name : `${name} by ${p.brand}`;
+
+  for (const candidate of [
+    `${withBrand} | Toxome Fiber Score`,
+    `${withBrand} | Toxome`,
+    `${name} | Toxome Fiber Score`,
+    `${name} | Toxome`,
+  ]) {
+    if (candidate.length <= TITLE_MAX) return candidate;
+  }
+
+  // Name alone still overflows. Cut on a word boundary so the title never ends
+  // mid-word, and keep the suffix so the result is still identifiably Toxome.
+  const room = TITLE_MAX - " | Toxome".length;
+  const cut = name.slice(0, room);
+  const atWord = cut.slice(0, cut.lastIndexOf(" "));
+  return `${(atWord.length > room * 0.6 ? atWord : cut).trim()} | Toxome`;
 }
 
 /** Meta description + on-page About fallback, built from product data so every

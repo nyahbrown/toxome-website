@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getProductById, getShopTaxonomy } from "@/lib/supabase";
+import { getProductById, getShopTaxonomy, getCanonicalProductId } from "@/lib/supabase";
 import { outboundHrefFor } from "@/lib/affiliatePrograms";
 import { findCertification } from "@/lib/certifications";
 import { availableLogos } from "@/lib/certLogos";
@@ -26,14 +26,18 @@ export async function generateMetadata({
   }
   const title = productSeoTitle(product);
   const desc = product.description || productSeoDescription(product);
+  // Colorways of one garment are separate rows (dedupe is on item_url), so they
+  // ship identical titles and compete with each other. Point every twin's
+  // canonical at the oldest of the group; they all stay live and shoppable.
+  const canonicalId = await getCanonicalProductId(product);
   return {
     title,
     description: desc,
-    alternates: { canonical: `/shop/${id}` },
+    alternates: { canonical: `/shop/${canonicalId}` },
     openGraph: {
       title,
       description: desc,
-      url: `/shop/${id}`,
+      url: `/shop/${canonicalId}`,
       // Fall back to the site-wide og image (app/opengraph-image.tsx) when the
       // product has no image, rather than emitting an empty image list.
       images: product.item_image ? [product.item_image] : undefined,
@@ -52,6 +56,10 @@ export default async function ProductPage({
     getShopTaxonomy(),
   ]);
   if (!product) notFound();
+
+  // Same consolidation the canonical uses, so the Product schema's offer URL
+  // agrees with the <link rel="canonical"> instead of contradicting it.
+  const canonicalId = await getCanonicalProductId(product);
 
   // Where the Buy button points. Resolved on the server because it reads
   // brand_affiliate_programs, which is service-role only (it holds publisher_id).
@@ -120,7 +128,7 @@ export default async function ProductPage({
             price: product.item_price,
             priceCurrency: product.currency || "USD",
             availability: "https://schema.org/InStock",
-            url: `${SITE}/shop/${id}`,
+            url: `${SITE}/shop/${canonicalId}`,
           },
         }
       : {}),

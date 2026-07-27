@@ -226,3 +226,45 @@ export async function getProductById(id: string): Promise<Product | null> {
   }
   return data;
 }
+
+/**
+ * The id a product's canonical URL should point at.
+ *
+ * The catalog dedupes on `item_url`, so every COLORWAY of the same garment
+ * inserts as its own row: Outerknown's "The Field Pant" is three rows, BENI's
+ * "Beni Bed Cover" three, DÔEN's "Quinn Dress" two. An SEO audit on 2026-07-27
+ * found 30 published rows across 14 same-brand groups, each pair shipping a
+ * byte-identical <title> and competing with itself for the same query.
+ *
+ * Rather than unpublish real, buyable products, we do what ecommerce normally
+ * does with colorway variants: keep them all shoppable and point their canonical
+ * at ONE row, so search consolidates the signal instead of splitting it.
+ *
+ * The winner is the OLDEST row (created_at, id as a stable tiebreaker). Oldest
+ * because it is the one most likely already crawled and linked; deterministic
+ * because a canonical that moves between renders is worse than none.
+ *
+ * Returns `id` unchanged when the product has no twin, which is the common case.
+ */
+export async function getCanonicalProductId(
+  product: Pick<Product, "id" | "brand" | "item_name">,
+): Promise<string> {
+  if (!product.brand || !product.item_name) return product.id;
+  // Matched on exact (brand, item_name): that is precisely how the duplicate
+  // groups were identified, and an equality filter can't be defeated by a brand
+  // with more products than any row cap. Deliberately NOT a fuzzy match — a
+  // canonical pointing at the wrong garment is far worse than not setting one.
+  const { data, error } = await supabase
+    .from("products")
+    .select("id")
+    .eq("published", true)
+    .eq("brand", product.brand)
+    .eq("item_name", product.item_name)
+    .order("created_at", { ascending: true })
+    .order("id", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  if (error || !data) return product.id;
+  return data.id;
+}
