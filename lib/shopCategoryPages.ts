@@ -51,6 +51,10 @@ export type ShopCategoryPage = {
   // ShopClient renders the grid client-side.
   intro: string;
   faqs: CollectionFaq[];
+  // H1 override per `products.subcategory` value, for a category that splits
+  // (Women > Intimates, Women > Activewear). Keyed by the exact subcategory
+  // string the sub-filter emits. Absent = the category's own heading stands.
+  subcategoryHeadings?: Record<string, string>;
 };
 
 // The one FAQ every page shares: what the score actually is. Repeated verbatim
@@ -139,6 +143,14 @@ export const SHOP_CATEGORY_PAGES: ShopCategoryPage[] = [
       "Organic cotton bras and underwear scored by fiber content, including elastic-free and latex-free options for sensitive skin.",
     intro:
       "underwear is the highest-contact clothing you own: closest fit, longest wear, thinnest barrier, most sensitive skin. it is also almost entirely synthetic by default, because nylon and elastane are what make it stretch and hold shape. every piece here is a natural fiber base, mostly organic cotton, and includes the elastic-free and latex-free styles that exist for people who react to the usual construction.",
+    // Intimates splits into two shopping intents, and they take DIFFERENT
+    // terms (Nyah, 2026-07-27): bras go "non-toxic", matching the existing
+    // /shop/collection/non-toxic-bras page and the way people search for them;
+    // underwear goes "natural fiber" like the rest of the department.
+    subcategoryHeadings: {
+      Bras: "women's non-toxic bras",
+      Underwear: "women's natural fiber underwear",
+    },
     faqs: [
       {
         q: "Is organic cotton underwear worth it?",
@@ -330,11 +342,16 @@ export const SHOP_CATEGORY_PAGES: ShopCategoryPage[] = [
     ],
   },
   {
+    // Men's stock here is boxers, briefs and trunks with no bras in it, so
+    // "Intimates" was the wrong word (Nyah, 2026-07-27). The 13 rows were moved
+    // to category='Underwear' in Supabase, which is safe because the
+    // Underwear→Intimates merge in lib/categoryGuard.ts is gender-gated to
+    // women and both Intimates collections in lib/shopPages.ts are too.
     section: "men",
-    slug: "intimates",
-    category: "Intimates",
+    slug: "underwear",
+    category: "Underwear",
     title: "Men's Natural Fiber Underwear: Organic Cotton & Hemp | Toxome",
-    heading: "men's natural fiber intimates",
+    heading: "men's natural fiber underwear",
     description:
       "Organic cotton and hemp underwear for men, scored by Toxome. The highest-contact garment you own, read by fiber.",
     intro:

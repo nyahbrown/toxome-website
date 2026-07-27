@@ -106,12 +106,18 @@ export default async function CategoryPageView({
           taxonomy={taxonomy}
           section={section}
           heading={page.heading}
-          // No isDepartmentRoot: this page's H1 is fixed. Passing the slug map
-          // only so switching category from here lands on the sibling's real
-          // page rather than bouncing out to /shop/{section}?category=.
+          // The category lives in the route here, so hand it over explicitly:
+          // it is what makes the Bras/Underwear sub-filter appear on
+          // /shop/women/intimates and what keys the sub-heading lookup.
+          lockedCategory={page.category}
+          // No isDepartmentRoot: this page's H1 is fixed unless a sub-filter
+          // narrows it. Passing the slug map so switching category from here
+          // lands on the sibling's real page rather than bouncing out to
+          // /shop/{section}?category=.
           categoryPages={categorySlugsForSection(section).map((p) => ({
             category: p.category,
             slug: p.slug,
+            subHeadings: p.subcategoryHeadings,
           }))}
         />
       </Suspense>

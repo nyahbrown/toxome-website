@@ -10,6 +10,10 @@ const nextConfig: NextConfig = {
       // without browsers caching a permanent redirect.
       { source: "/kit", destination: "/partners/founding-kit.html", permanent: false },
       { source: "/privacypolicy", destination: "/privacy", permanent: true },
+      // Men's category renamed Intimates -> Underwear: the stock is boxers,
+      // briefs and trunks with no bras in it. The old URL shipped in the
+      // sitemap earlier the same day, so it gets a 301 rather than a 404.
+      { source: "/shop/men/intimates", destination: "/shop/men/underwear", permanent: true },
       { source: "/privacy-policy", destination: "/privacy", permanent: true },
       // Elastane and spandex are the same fiber; merged into one page at /guide/elastane.
       { source: "/guide/spandex", destination: "/guide/elastane", permanent: true },

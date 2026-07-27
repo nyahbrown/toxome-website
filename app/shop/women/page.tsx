@@ -28,6 +28,7 @@ export default async function WomenShopPage() {
   const categoryPages = categorySlugsForSection("women").map((p) => ({
     category: p.category,
     slug: p.slug,
+    subHeadings: p.subcategoryHeadings,
   }));
   return (
     <>

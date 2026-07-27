@@ -28,6 +28,7 @@ export default async function HomeShopPage() {
   const categoryPages = categorySlugsForSection("home").map((p) => ({
     category: p.category,
     slug: p.slug,
+    subHeadings: p.subcategoryHeadings,
   }));
   return (
     <>

@@ -502,6 +502,7 @@ export default function ShopClient({
   heading,
   isDepartmentRoot,
   categoryPages,
+  lockedCategory,
 }: {
   products: Product[];
   taxonomy: ShopTaxonomy;
@@ -521,7 +522,18 @@ export default function ShopClient({
   // in this department. Passed in from the server rather than imported, so the
   // 22 entries of page copy in lib/shopCategoryPages.ts stay out of the client
   // bundle. Categories missing from this list fall back to ?category=.
-  categoryPages?: { category: string; slug: string }[];
+  // `subHeadings` lets a splitting category retitle the page per sub-filter.
+  categoryPages?: {
+    category: string;
+    slug: string;
+    subHeadings?: Record<string, string>;
+  }[];
+  // Set by a category page (/shop/women/intimates), whose category lives in the
+  // ROUTE rather than in ?category=. Without it `category` reads "All" there,
+  // and getSubfilter would decide Intimates has no split, hiding the
+  // Bras/Underwear pill on the one page it belongs on. Products are already
+  // filtered server-side, so this only drives the sub-filter and the H1.
+  lockedCategory?: string;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -563,9 +575,14 @@ export default function ShopClient({
   const scrollRail = (dir: 1 | -1) =>
     fiberRailRef.current?.scrollBy({ left: dir * 340, behavior: "smooth" });
 
-  // Base path the section lives under, filter changes route here.
-  const sectionPath =
-    section === "women" ? "/shop/women"
+  // Base path the section lives under, filter changes route here. On a category
+  // page that base is the page's OWN url: routing to /shop/women there would
+  // drop the category out of the route on every filter change, and a ?sub= set
+  // from /shop/women/intimates would land on /shop/women where Intimates isn't
+  // selected and the sub is silently discarded.
+  const sectionPath = lockedCategory
+    ? pathname
+    : section === "women" ? "/shop/women"
     : section === "men" ? "/shop/men"
     : section === "kids" ? "/shop/kids"
     : section === "home" ? "/shop/home"
@@ -693,7 +710,10 @@ export default function ShopClient({
   // Intimates or Women > Activewear). getSubfilter returns null for everything
   // else, so a stale ?sub= link can't silently filter the whole grid down to
   // nothing with a pill the shopper can't see to remove.
-  const subfilter = getSubfilter(section, category);
+  // On a category page the category is the route, not a param; everywhere else
+  // it is whatever the dropdown set.
+  const effectiveCategory = lockedCategory ?? category;
+  const subfilter = getSubfilter(section, effectiveCategory);
   const subRaw = searchParams.get("sub");
   const subcategoryFilter =
     subRaw && subfilter
@@ -1020,14 +1040,25 @@ export default function ShopClient({
   // `heading` is authoritative: on a collection page the grid is already
   // constrained by that collection's predicate, so recomposing off the category
   // dropdown would produce a heading the products don't match.
+  // A sub-filter is a narrower page than the category, and it outranks both the
+  // passed heading and the category prefix: on Women > Intimates > Bras the
+  // page really is about bras, so it says so. Bras and Underwear take different
+  // terms on purpose (see subcategoryHeadings in lib/shopCategoryPages.ts).
+  const subHeading = subcategoryFilter
+    ? categoryPages?.find((p) => p.category === effectiveCategory)
+        ?.subHeadings?.[subcategoryFilter]
+    : undefined;
+
   const h1 =
-    isDepartmentRoot && header && category !== "All"
-      ? `${header.categoryPrefix} ${category.toLowerCase()}`
-      : heading
-        ? heading
-        : header
-          ? header.title
-          : "There is no wellness without considering what touches your skin all day.";
+    subHeading
+      ? subHeading
+      : isDepartmentRoot && header && category !== "All"
+        ? `${header.categoryPrefix} ${category.toLowerCase()}`
+        : heading
+          ? heading
+          : header
+            ? header.title
+            : "There is no wellness without considering what touches your skin all day.";
 
   return (
     <main style={{ background: "var(--linen)", minHeight: "100vh", paddingBottom: 120, paddingTop: 64 }}>

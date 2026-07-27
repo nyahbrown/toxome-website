@@ -28,6 +28,7 @@ export default async function KidsShopPage() {
   const categoryPages = categorySlugsForSection("kids").map((p) => ({
     category: p.category,
     slug: p.slug,
+    subHeadings: p.subcategoryHeadings,
   }));
   return (
     <>
