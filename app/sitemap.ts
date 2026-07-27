@@ -3,6 +3,7 @@ import { allFiberSlugs } from "@/lib/fiberGuide";
 import { getPublishedProducts } from "@/lib/supabase";
 import { getAllSlugs, getArticle } from "@/lib/journal";
 import { allCollectionSlugs } from "@/lib/shopPages";
+import { allCategoryPageParams } from "@/lib/shopCategoryPages";
 
 const BASE_URL = "https://toxome.app";
 
@@ -41,6 +42,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
+  // Department + category pages (/shop/women/tops, …). Priority sits above the
+  // attribute collections: these are the top of the category tree and each one
+  // links down to the products and across to its siblings.
+  const categoryRoutes: MetadataRoute.Sitemap = allCategoryPageParams().map(
+    ({ section, slug }) => ({
+      url: `${BASE_URL}/shop/${section}/${slug}`,
+      lastModified: now,
+      changeFrequency: "daily",
+      priority: 0.75,
+    }),
+  );
+
   // Fiber guide, the proprietary glossary, one indexable page per fiber.
   const fiberRoutes: MetadataRoute.Sitemap = allFiberSlugs().map((slug) => ({
     url: `${BASE_URL}/guide/${slug}`,
@@ -77,6 +90,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     ...staticRoutes,
+    ...categoryRoutes,
     ...collectionRoutes,
     ...fiberRoutes,
     ...journalRoutes,

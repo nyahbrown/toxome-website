@@ -7,13 +7,14 @@ import ShopClient from "../ShopClient";
 import ShopGridFallback from "../ShopGridFallback";
 import ShopIntro from "@/components/ShopIntro";
 import ShopNewsletter from "@/components/ShopNewsletter";
+import { categorySlugsForSection } from "@/lib/shopCategoryPages";
 
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: "Men's Non-Toxic Clothing | Toxome",
+  title: "Men's Natural Fiber Clothing, Scored by Fiber | Toxome",
   description:
-    "Non-plastic men's clothing, hand-curated by Toxome. Every item is low-toxin, made from cleaner natural fibers.",
+    "Natural fiber clothing for men, hand-curated and scored by Toxome. Organic cotton, linen, hemp and wool, without the plastic blends.",
   alternates: { canonical: "/shop/men" },
 };
 
@@ -22,6 +23,12 @@ export default async function MenShopPage() {
     getPublishedProducts(),
     getShopTaxonomy(),
   ]);
+  // Categories with their own indexable page, so the filter dropdown can
+  // route into them instead of appending ?category=.
+  const categoryPages = categorySlugsForSection("men").map((p) => ({
+    category: p.category,
+    slug: p.slug,
+  }));
   return (
     <>
       <Nav taxonomy={taxonomy} />
@@ -30,7 +37,7 @@ export default async function MenShopPage() {
           <ShopGridFallback
             products={products}
             section="men"
-            heading="non-toxic men's clothing"
+            heading="men's natural fiber clothing"
           />
         }
       >
@@ -38,7 +45,9 @@ export default async function MenShopPage() {
           products={products}
           taxonomy={taxonomy}
           section="men"
-          heading="non-toxic men's clothing"
+          isDepartmentRoot
+          categoryPages={categoryPages}
+          heading="men's natural fiber clothing"
         />
       </Suspense>
       <ShopIntro intro="men's clothing curated for what's in the fabric, not just the look. every piece is scored by toxome for its fiber content, so you can build a wardrobe of organic cotton, linen, hemp, and merino wool instead of plastic blends. filter by fiber to shop the cleanest options." />

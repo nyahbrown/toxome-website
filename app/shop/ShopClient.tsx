@@ -103,14 +103,19 @@ const SORT_OPTIONS = [
   "Price: High to Low",
 ];
 
+// `categoryPrefix` builds the H1 when a shopper filters to a category that has
+// no indexable page of its own (see lib/shopCategoryPages.ts) — "women's
+// natural fiber swimwear". Kids deliberately keeps "non-toxic": that is the
+// term parents search, and the inconsistency with the other departments is
+// intentional (Nyah, 2026-07-27).
 const SECTION_META: Record<
   "women" | "men" | "kids" | "home",
-  { title: string }
+  { title: string; categoryPrefix: string }
 > = {
-  women: { title: "women's" },
-  men: { title: "men's" },
-  kids: { title: "kids" },
-  home: { title: "home" },
+  women: { title: "women's", categoryPrefix: "women's natural fiber" },
+  men: { title: "men's", categoryPrefix: "men's natural fiber" },
+  kids: { title: "kids", categoryPrefix: "non-toxic kids'" },
+  home: { title: "home", categoryPrefix: "natural fiber" },
 };
 
 const FIBERS: { name: string; image: string; hover?: string }[] = [
@@ -495,6 +500,8 @@ export default function ShopClient({
   taxonomy,
   section,
   heading,
+  isDepartmentRoot,
+  categoryPages,
 }: {
   products: Product[];
   taxonomy: ShopTaxonomy;
@@ -503,6 +510,18 @@ export default function ShopClient({
   // clothes"). When set it replaces the section/default title so the page has
   // exactly one, keyword-accurate H1. Omitted everywhere else = unchanged.
   heading?: string;
+  // Set ONLY by the four department roots (/shop/women, /men, /kids, /home).
+  // It marks "this is the department landing page", which unlocks two things:
+  // picking a category routes to that category's indexable page instead of
+  // appending ?category=, and for the handful of categories with no page yet
+  // the H1 recomposes from SECTION_META.categoryPrefix. Collection pages and
+  // the category pages themselves leave it unset, so their fixed heading wins.
+  isDepartmentRoot?: boolean;
+  // {category name → route slug} for the categories that have an indexable page
+  // in this department. Passed in from the server rather than imported, so the
+  // 22 entries of page copy in lib/shopCategoryPages.ts stay out of the client
+  // bundle. Categories missing from this list fall back to ?category=.
+  categoryPages?: { category: string; slug: string }[];
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -719,6 +738,27 @@ export default function ShopClient({
     router.replace(qs ? `${sectionPath}?${qs}` : sectionPath, {
       scroll: false,
     });
+  }
+
+  // Picking a category from a department root sends the shopper to that
+  // category's own indexable page (/shop/women/tops) rather than stacking a
+  // ?category= param on the department URL. Two reasons: the destination is the
+  // page with the matching H1, title and copy, and it stops the same product
+  // set living at two URLs, which is what splits ranking signal. Categories
+  // with no page yet (thin stock, or already covered by a collection) keep the
+  // query-param behavior, as does every non-department use of ShopClient.
+  function selectCategory(v: string) {
+    // Routing is driven by `categoryPages` alone, not by isDepartmentRoot, so
+    // hopping between categories works the same from the department root and
+    // from inside a category page. isDepartmentRoot only controls the H1.
+    if (section && v !== "All") {
+      const page = categoryPages?.find((p) => p.category === v);
+      if (page) {
+        router.push(`/shop/${section}/${page.slug}`, { scroll: false });
+        return;
+      }
+    }
+    updateParams({ category: v, sub: null });
   }
 
   function handleToggle(p: Product) {
@@ -974,6 +1014,21 @@ export default function ShopClient({
 
   const header = section ? SECTION_META[section] : null;
 
+  // One H1 per page. On a department root a category filter rewrites it
+  // ("women's natural fiber swimwear") so the page never claims to be the whole
+  // department while showing one slice of it. Everywhere else the passed
+  // `heading` is authoritative: on a collection page the grid is already
+  // constrained by that collection's predicate, so recomposing off the category
+  // dropdown would produce a heading the products don't match.
+  const h1 =
+    isDepartmentRoot && header && category !== "All"
+      ? `${header.categoryPrefix} ${category.toLowerCase()}`
+      : heading
+        ? heading
+        : header
+          ? header.title
+          : "There is no wellness without considering what touches your skin all day.";
+
   return (
     <main style={{ background: "var(--linen)", minHeight: "100vh", paddingBottom: 120, paddingTop: 64 }}>
       {/* Page header */}
@@ -1023,13 +1078,7 @@ export default function ShopClient({
                 }
           }
         >
-          {heading
-            ? heading
-            : header
-              ? category !== "All"
-                ? `${header.title} | ${category.toLowerCase()}`
-                : header.title
-              : "There is no wellness without considering what touches your skin all day."}
+          {h1}
         </h1>
       </div>
 
@@ -1144,7 +1193,7 @@ export default function ShopClient({
               // Leaving a category drops its sub-filter — a Bras pill would be
               // meaningless under Tops, and stale ones shouldn't lie in wait in
               // the URL for the next time Intimates is picked.
-              onChange={(v) => updateParams({ category: v, sub: null })}
+              onChange={(v) => selectCategory(v)}
               stickyLabel
             />
           )}

@@ -7,6 +7,7 @@ import ShopClient from "../ShopClient";
 import ShopGridFallback from "../ShopGridFallback";
 import ShopIntro from "@/components/ShopIntro";
 import ShopNewsletter from "@/components/ShopNewsletter";
+import { categorySlugsForSection } from "@/lib/shopCategoryPages";
 
 export const revalidate = 86400;
 
@@ -22,6 +23,12 @@ export default async function KidsShopPage() {
     getPublishedProducts(),
     getShopTaxonomy(),
   ]);
+  // Categories with their own indexable page, so the filter dropdown can
+  // route into them instead of appending ?category=.
+  const categoryPages = categorySlugsForSection("kids").map((p) => ({
+    category: p.category,
+    slug: p.slug,
+  }));
   return (
     <>
       <Nav taxonomy={taxonomy} />
@@ -38,6 +45,8 @@ export default async function KidsShopPage() {
           products={products}
           taxonomy={taxonomy}
           section="kids"
+          isDepartmentRoot
+          categoryPages={categoryPages}
           heading="non-toxic kids' & baby clothing"
         />
       </Suspense>
