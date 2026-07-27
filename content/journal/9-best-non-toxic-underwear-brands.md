@@ -131,7 +131,7 @@ So here are nine pairs made of fiber worth sitting in, from $8 to $55:
     <p class="j-pick__brand">Arms of Andes</p>
   </div>
   <div class="j-pick__row">
-    <a class="j-pick__media" href="https://armsofandes.com/products/womens-alpaca-wool-thong-160-ultralight" target="_blank" rel="noopener nofollow">
+    <a class="j-pick__media" href="/out/fd7d24f7-ba18-4363-bed9-171c6f12a9bf" target="_blank" rel="noopener sponsored nofollow">
       <img src="https://cdn.shopify.com/s/files/1/0071/4748/7305/files/womens-low-impact-dye-thong-color-natural-blue.webp" alt="Arms of Andes ultralight alpaca wool thong in natural." loading="lazy" />
     </a>
     <div class="j-pick__mid">
@@ -145,7 +145,7 @@ So here are nine pairs made of fiber worth sitting in, from $8 to $55:
       <div class="j-pick__text">
         <p>The odd one out, and the most interesting pair on the list. Alpaca handles moisture and odor the way synthetics claim to, which makes this the honest answer to performance underwear rather than the polyester one. The waistband is natural tree rubber with cotton elastic, so the fiber story holds all the way to the edge.</p>
       </div>
-      <a class="j-pick__cta" href="https://armsofandes.com/products/womens-alpaca-wool-thong-160-ultralight" target="_blank" rel="noopener nofollow">Shop Arms of Andes</a>
+      <a class="j-pick__cta" href="/out/fd7d24f7-ba18-4363-bed9-171c6f12a9bf" target="_blank" rel="noopener sponsored nofollow">Shop Arms of Andes</a>
     </div>
   </div>
 </div>
