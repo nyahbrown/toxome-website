@@ -1707,8 +1707,10 @@ const CATEGORY_OPTIONS = [
   "Tops", "Bottoms", "Dresses", "Outerwear", "Sweaters", "Activewear",
   "Loungewear", "Pajamas", "Intimates", "Swimwear", "Footwear",
   "Accessories",
-  // Kids-only categories (gender = "Kids"). Kids keep their own Underwear
-  // category; the women's one was merged into Intimates.
+  // Underwear is used by KIDS and MEN. Women's Underwear was merged into
+  // Intimates (which splits Bras/Underwear on `subcategory`); men's went the
+  // other way in 2026-07 because that stock is boxers and briefs with no bras
+  // in it. Bodysuits/Rompers stay kids-only.
   "Underwear", "Bodysuits & Onesies", "Rompers & Sets",
   // Home department categories (gender = "Home")
   "Bedding", "Throws & Blankets", "Bath", "Rugs",

@@ -62,8 +62,10 @@ export function intimatesLookalikeCategory(itemName: string): string | null {
 }
 
 // The sub-filter is offered only where it means something: Women > Intimates.
-// Men's Intimates is boxers and briefs with no bras in it, so a Bras pill there
-// would be a dead option.
+// Men no longer have an Intimates category at all — that stock was boxers and
+// briefs with no bras in it, so it moved to Men > Underwear in 2026-07. This
+// stays gender-gated anyway, so a stray men's Intimates row can never surface a
+// dead Bras pill.
 export function hasIntimatesSplit(
   section: string | null,
   category: string
