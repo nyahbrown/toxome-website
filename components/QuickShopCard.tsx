@@ -1,5 +1,6 @@
 "use client";
 
+import { productHref } from "@/lib/productSlug";
 import Link from "next/link";
 import type { Product } from "@/types/product";
 import ScoreBadge from "@/components/ScoreBadge";
@@ -13,7 +14,7 @@ import { useQuickShop } from "@/components/QuickShopProvider";
 // instead of navigating.
 export default function QuickShopCard({ p }: { p: Product }) {
   const { open } = useQuickShop();
-  const href = `/shop/${p.id}`;
+  const href = productHref(p);
 
   return (
     <div className="qs-card">

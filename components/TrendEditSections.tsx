@@ -1,3 +1,4 @@
+import { productHref } from "@/lib/productSlug";
 import Link from "next/link";
 import type { Article } from "@/lib/journal";
 import type { Product } from "@/types/product";
@@ -103,7 +104,7 @@ export default async function TrendEditSections({
                 />
                 {lead && (
                   <figure className="trend-lead-figure">
-                    <Link href={`/shop/${lead.id}`}>
+                    <Link href={productHref(lead)}>
                       {lead.item_image && (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img

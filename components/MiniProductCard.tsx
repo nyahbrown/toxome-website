@@ -1,3 +1,4 @@
+import { productHref } from "@/lib/productSlug";
 import Link from "next/link";
 import type { Product } from "@/types/product";
 import ScoreBadge from "@/components/ScoreBadge";
@@ -40,7 +41,7 @@ export default function MiniProductCard({
 
   return (
     <Link
-      href={`/shop/${p.id}`}
+      href={productHref(p)}
       style={{ textDecoration: "none", display: "block" }}
     >
       <div

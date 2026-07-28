@@ -4,6 +4,11 @@ export type RiskLevel = "low" | "moderate" | "high";
 
 export interface Product {
   id: string;
+  // URL slug for /shop/{slug}, generated from brand + item_name. Stable once
+  // set: renaming a product must NOT move its URL. Optional because a row
+  // inserted before the backfill/trigger can still render, falling back to the
+  // id. See lib/productSlug.ts.
+  slug?: string | null;
   item_name: string;
   brand: string;
   item_price: number | null;

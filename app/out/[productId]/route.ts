@@ -1,3 +1,4 @@
+import { productHref } from "@/lib/productSlug";
 import { after } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { resolveOutbound } from "@/lib/affiliatePrograms";
@@ -96,7 +97,7 @@ export async function GET(
   // No item_url and no affiliate link: there is nowhere to send them. Back to
   // the product page rather than a dead end.
   if (!resolved) {
-    return Response.redirect(new URL(`/shop/${product.id}`, req.url), 302);
+    return Response.redirect(new URL(productHref(product), req.url), 302);
   }
 
   // after() runs once the response is already on its way, so the buyer never

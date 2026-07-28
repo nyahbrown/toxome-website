@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import fs from "fs";
 import path from "path";
-import { getProductById } from "@/lib/supabase";
+import { getProductBySlugOrId } from "@/lib/supabase";
 
 // Live Pinterest pin image (1000×1500, 2:3) for a shop product — the LOCKED V2
 // "full-bleed cover" design from app/studio/pin (variant "cover"), ported into
@@ -68,7 +68,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const product = await getProductById(id);
+  // Accepts a slug or a uuid: the Pinterest cron still emits uuid pin URLs,
+  // and a hand-built /shop/{slug}/pin should render rather than 404.
+  const product = await getProductBySlugOrId(id);
 
   const image = product?.item_image || product?.images?.[0] || null;
   const brand = (product?.brand || "").trim();

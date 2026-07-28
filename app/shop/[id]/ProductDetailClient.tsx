@@ -1,5 +1,6 @@
 "use client";
 
+import { productHref } from "@/lib/productSlug";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -254,7 +255,7 @@ export default function ProductDetailClient({
       if (triggerAppPrompt("save")) return;
       sessionStorage.setItem("pendingLike", product.id);
       sessionStorage.setItem("pendingLikeProduct", JSON.stringify(product));
-      router.push(`/login?return=/shop/${product.id}`);
+      router.push(`/login?return=${productHref(product)}`);
       return;
     }
     toggleWishlist(product);

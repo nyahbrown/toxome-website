@@ -1,5 +1,6 @@
 "use client";
 
+import { productHref } from "@/lib/productSlug";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -202,7 +203,7 @@ export default function QuickShopSheet({
       if (triggerAppPrompt("save")) return;
       sessionStorage.setItem("pendingLike", p.id);
       sessionStorage.setItem("pendingLikeProduct", JSON.stringify(p));
-      router.push(`/login?return=/shop/${p.id}`);
+      router.push(`/login?return=${productHref(p)}`);
       return;
     }
     toggleWishlist(p);
@@ -286,7 +287,7 @@ export default function QuickShopSheet({
           )}
 
           <Link
-            href={`/shop/${p.id}`}
+            href={productHref(p)}
             className="qs-sheet__fulllink"
             onClick={onClose}
           >

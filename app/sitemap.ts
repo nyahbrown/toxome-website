@@ -4,6 +4,7 @@ import { getPublishedProducts } from "@/lib/supabase";
 import { getAllSlugs, getArticle } from "@/lib/journal";
 import { allCollectionSlugs } from "@/lib/shopPages";
 import { allCategoryPageParams } from "@/lib/shopCategoryPages";
+import { productHref } from "@/lib/productSlug";
 
 const BASE_URL = "https://toxome.app";
 
@@ -79,7 +80,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const products = await getPublishedProducts();
     productRoutes = products.map((p) => ({
-      url: `${BASE_URL}/shop/${p.id}`,
+      url: `${BASE_URL}${productHref(p)}`,
       lastModified: p.updated_at ? new Date(p.updated_at) : now,
       changeFrequency: "weekly",
       priority: 0.6,

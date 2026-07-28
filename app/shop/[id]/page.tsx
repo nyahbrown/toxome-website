@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
-import { getProductById, getShopTaxonomy, getCanonicalProductId } from "@/lib/supabase";
+import { notFound, permanentRedirect } from "next/navigation";
+import { getProductBySlugOrId, getShopTaxonomy, getCanonicalProductId } from "@/lib/supabase";
+import { isUuid, productHref } from "@/lib/productSlug";
 import { outboundHrefFor } from "@/lib/affiliatePrograms";
 import { findCertification } from "@/lib/certifications";
 import { availableLogos } from "@/lib/certLogos";
@@ -20,7 +21,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const product = await getProductById(id);
+  const product = await getProductBySlugOrId(id);
   if (!product) {
     return { title: "Toxome | Product not found" };
   }
@@ -52,10 +53,16 @@ export default async function ProductPage({
 }) {
   const { id } = await params;
   const [product, taxonomy] = await Promise.all([
-    getProductById(id),
+    getProductBySlugOrId(id),
     getShopTaxonomy(),
   ]);
   if (!product) notFound();
+
+  // Product pages moved from /shop/{uuid} to /shop/{slug} on 2026-07-28. Every
+  // UUID that is still out there (indexed, pinned, hard-coded in a journal
+  // article) keeps working and lands on the keyword URL with a 301, so the
+  // ranking follows rather than being stranded on a dead path.
+  if (isUuid(id) && product.slug) permanentRedirect(productHref(product));
 
   // Same consolidation the canonical uses, so the Product schema's offer URL
   // agrees with the <link rel="canonical"> instead of contradicting it.

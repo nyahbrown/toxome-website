@@ -1,3 +1,4 @@
+import { productHref } from "@/lib/productSlug";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -249,7 +250,7 @@ function BrandGrid({ title, products }: { title: string; products: BrandData["cl
         }}
       >
         {products.map((p) => (
-          <Link key={p.id} href={`/shop/${p.id}`} style={{ display: "block" }}>
+          <Link key={p.id} href={productHref(p)} style={{ display: "block" }}>
             <div style={{ aspectRatio: "3/4", background: "var(--tan)", borderRadius: 10, overflow: "hidden", marginBottom: 8 }}>
               {p.item_image && (
                 // Plain <img> like the shop grid: product images come from

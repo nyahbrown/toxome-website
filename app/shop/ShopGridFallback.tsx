@@ -1,3 +1,4 @@
+import { productHref } from "@/lib/productSlug";
 import Link from "next/link";
 import type { Product } from "@/lib/supabase";
 import type { ShopSection } from "./ShopClient";
@@ -72,7 +73,7 @@ export default function ShopGridFallback({
         return (
           <Link
             key={p.id}
-            href={`/shop/${p.id}`}
+            href={productHref(p)}
             style={{ textDecoration: "none", display: "block" }}
           >
             <div

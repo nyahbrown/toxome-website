@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { createClient } from "@supabase/supabase-js";
 import type { Product } from "@/types/product";
+import { isUuid } from "@/lib/productSlug";
 import { resolveRung, healthCertBadge, type HealthCertBadge } from "@/lib/verification";
 
 export type { Product };
@@ -212,7 +213,32 @@ export async function getProductsByIds(ids: string[]): Promise<Product[]> {
   return ids.map((id) => byId.get(id)).filter((p): p is Product => !!p);
 }
 
+/**
+ * Resolve a /shop/[id] route param, which may be either a slug (the canonical
+ * shape since 2026-07-28) or a UUID (every URL indexed, pinned or hard-coded in
+ * a journal article before that). Slug is tried first because it is now the
+ * common case; the UUID path exists so no old link ever 404s.
+ */
+export async function getProductBySlugOrId(param: string): Promise<Product | null> {
+  if (!isUuid(param)) {
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .eq("slug", param)
+      .eq("published", true)
+      .maybeSingle();
+    if (error) console.error("Supabase product slug fetch error:", error.message);
+    if (data) return data;
+    // Fall through: an id-shaped-but-not-UUID param is not expected, but a miss
+    // here should try the id lookup rather than 404 on a technicality.
+  }
+  return getProductById(param);
+}
+
 export async function getProductById(id: string): Promise<Product | null> {
+  // A slug reaching here would make Postgres reject the uuid comparison, so
+  // guard rather than let a 22P02 surface as a 500.
+  if (!isUuid(id)) return null;
   const { data, error } = await supabase
     .from("products")
     .select("*")
@@ -247,16 +273,17 @@ export async function getProductById(id: string): Promise<Product | null> {
  * Returns `id` unchanged when the product has no twin, which is the common case.
  */
 export async function getCanonicalProductId(
-  product: Pick<Product, "id" | "brand" | "item_name">,
+  product: Pick<Product, "id" | "brand" | "item_name"> & { slug?: string | null },
 ): Promise<string> {
-  if (!product.brand || !product.item_name) return product.id;
+  const self = product.slug || product.id;
+  if (!product.brand || !product.item_name) return self;
   // Matched on exact (brand, item_name): that is precisely how the duplicate
   // groups were identified, and an equality filter can't be defeated by a brand
   // with more products than any row cap. Deliberately NOT a fuzzy match — a
   // canonical pointing at the wrong garment is far worse than not setting one.
   const { data, error } = await supabase
     .from("products")
-    .select("id")
+    .select("id, slug")
     .eq("published", true)
     .eq("brand", product.brand)
     .eq("item_name", product.item_name)
@@ -265,6 +292,6 @@ export async function getCanonicalProductId(
     .limit(1)
     .maybeSingle();
 
-  if (error || !data) return product.id;
-  return data.id;
+  if (error || !data) return self;
+  return data.slug || data.id;
 }

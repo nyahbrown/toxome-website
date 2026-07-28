@@ -1,5 +1,6 @@
 "use client";
 
+import { productHref } from "@/lib/productSlug";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -762,7 +763,7 @@ function CleanerAlternativesList({ items }: { items: Product[] }) {
       {alts.map((p) => (
         <Link
           key={p.id}
-          href={`/shop/${p.id}`}
+          href={productHref(p)}
           className="acct-card"
           style={{ textDecoration: "none", color: "inherit", display: "block" }}
         >

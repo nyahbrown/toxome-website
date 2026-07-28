@@ -131,7 +131,7 @@ export async function PATCH(
 
   // Any successful mutation can change a product's visibility, so flush the
   // surfaces this product touches immediately (on-demand revalidation).
-  revalidateProductSurfaces(id, data?.brand);
+  revalidateProductSurfaces(id, data?.brand, data?.slug);
 
   return NextResponse.json({ product: data });
 }

@@ -1,3 +1,4 @@
+import { productHref } from "@/lib/productSlug";
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { pushToScheduler, type SchedulerDraft } from "@/lib/scheduler";
@@ -122,7 +123,7 @@ export async function GET(req: Request) {
       body: pinCaption(p),
       media_url: `/shop/${p.id}/pin`,
       media_type: "image",
-      link: `/shop/${p.id}`,
+      link: productHref(p),
     };
 
     if (dryRun) {

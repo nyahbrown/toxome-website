@@ -23,10 +23,12 @@ import { slugifyBrand } from "./brands";
  *
  * @param id    the product's id (for its detail page)
  * @param brand the product's brand name (for its own /brand/[slug] page)
+ * @param slug  the product's URL slug (its real detail page since 2026-07-28)
  */
 export function revalidateProductSurfaces(
   id?: string | null,
   brand?: string | null,
+  slug?: string | null,
 ) {
   // Department + index grids (static routes). Six pages, negligible write cost,
   // and the surfaces shoppers land on first.
@@ -41,8 +43,10 @@ export function revalidateProductSurfaces(
     revalidatePath(path);
   }
 
-  // The product's own detail page.
+  // The product's own detail page. Both shapes: the slug is the live URL, and
+  // the uuid path still exists as the 301 that points at it.
   if (id) revalidatePath(`/shop/${id}`);
+  if (slug) revalidatePath(`/shop/${slug}`);
 
   // The product's OWN brand page only — not every brand. Brand pages otherwise
   // ride their weekly time backstop, which is why we flush this one on-demand

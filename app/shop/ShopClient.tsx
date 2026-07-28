@@ -1,5 +1,6 @@
 "use client";
 
+import { productHref } from "@/lib/productSlug";
 import { useState, useMemo, useEffect, useLayoutEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
@@ -208,7 +209,7 @@ function ProductCard({
 
   return (
     <Link
-      href={`/shop/${p.id}`}
+      href={productHref(p)}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{ textDecoration: "none", display: "block" }}

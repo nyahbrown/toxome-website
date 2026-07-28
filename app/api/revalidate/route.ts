@@ -92,7 +92,9 @@ export async function POST(req: Request) {
   }
 
   const brand = body.record?.brand ?? body.old_record?.brand ?? undefined;
-  revalidateProductSurfaces(id, brand);
+  // Slug is the product's real URL; the uuid path is only the 301 into it.
+  const slug = (body.record?.slug ?? body.old_record?.slug) as string | undefined;
+  revalidateProductSurfaces(id, brand, slug);
 
   return NextResponse.json({ revalidated: true, id: id ?? null });
 }
