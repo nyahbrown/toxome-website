@@ -146,6 +146,10 @@
     "pla": {
       "hazard": 40,
       "_note": "Polylactic acid. Bio-based and compostable in industrial conditions, but still a thermoplastic against skin."
+    },
+    "raffia": {
+      "hazard": 10,
+      "_note": "Dried palm leaf fiber, woven. A plant fiber in the same family as jute and sisal, undyed in its natural state."
     }
   },
   "modifiers": {
