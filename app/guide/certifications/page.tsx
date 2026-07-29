@@ -15,11 +15,18 @@ import {
   type Certification,
 } from "@/lib/certifications";
 
+// The page's own top queries are "apparel and textile certification" (52
+// impressions), "apparel certification" (20) and "textile certification" — and
+// NONE of those words were in the title, which said only "Clothing". 1,182
+// impressions were converting at 0.08%. Position 11 is the deeper problem, but
+// a title that omits the searcher's noun cannot win either way.
 export const metadata: Metadata = {
-  title: "Clothing Certifications, Decoded | Toxome",
+  title: "Textile & Apparel Certifications, Decoded | Toxome",
   description:
-    "OEKO-TEX, GOTS, GRS, bluesign and more. What each clothing certification verifies, and the one thing it leaves out.",
+    "OEKO-TEX, GOTS, GRS, bluesign, MADE SAFE and more. What each clothing and textile certification verifies, and the one thing they all leave out.",
   keywords: [
+    "textile certification",
+    "apparel certification",
     "clothing certifications",
     "what does OEKO-TEX mean",
     "GOTS certified",
@@ -32,17 +39,17 @@ export const metadata: Metadata = {
   alternates: { canonical: "/guide/certifications" },
   openGraph: {
     type: "article",
-    title: "Clothing Certifications, Decoded",
+    title: "Textile & Apparel Certifications, Decoded",
     description:
-      "What every clothing label verifies, and the one thing it leaves out.",
+      "What every clothing and textile label verifies, and the one thing it leaves out.",
     url: "/guide/certifications",
     siteName: "Toxome",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Clothing Certifications, Decoded",
+    title: "Textile & Apparel Certifications, Decoded",
     description:
-      "What every clothing label verifies, and the one thing it leaves out.",
+      "What every clothing and textile label verifies, and the one thing it leaves out.",
   },
 };
 

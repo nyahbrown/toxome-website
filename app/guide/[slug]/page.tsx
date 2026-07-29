@@ -56,12 +56,21 @@ const VERDICT: Record<FiberBand, string> = {
   high: "Worth avoiding",
 };
 
-// Meta-description tail by band. Answer-first, verdict + a nudge to click, so
-// the "is X toxic" searcher sees the payoff in the SERP snippet.
-const DESC_CLAUSE: Record<FiberBand, string> = {
-  low: "One of the gentler fibers to wear, as long as the finish is clean.",
-  moderate: "Fine to wear, but the label is what decides. See what to check.",
-  high: "The real risk is what gets added to it. See what to avoid.",
+// Short verdict for the TITLE, where there is room for it. Deliberately reads
+// as an answer to "is X safe to wear", not as a rating label.
+const TITLE_VERDICT: Record<FiberBand, string> = {
+  low: "Mostly Yes",
+  moderate: "With Care",
+  high: "Not Really",
+};
+
+// Meta-description opener by band. This is the snippet's job: answer the
+// question in plain words before the number, because "scores 64/100" means
+// nothing to someone who has never heard of Toxome.
+const DESC_VERDICT: Record<FiberBand, string> = {
+  low: "Among the safest fibers to wear.",
+  moderate: "Wear it with care.",
+  high: "Worth avoiding where you can.",
 };
 
 // Rail lead line. Falls back to a band-appropriate summary so all 28 fibers get
@@ -141,22 +150,43 @@ export async function generateMetadata({
   if (!fiber) return { title: "Toxome | Fabric Guide" };
 
   const { name, score } = fiber;
-  // Answer-first, score-forward title. Trim to progressively shorter forms so
-  // long fiber names keep the tag under ~60 characters.
+  // "Safe to Wear" rather than "Safe": the real queries are "is rayon safe to
+  // WEAR" and "is rayon toxic to SKIN", and matching the searcher's own phrasing
+  // is most of what a title can do. "Health Score" was dropped as jargon; the
+  // bare number carries further. Ladder down so long fiber names still fit ~60.
   const candidates = [
-    `Is ${name} Toxic or Safe? Health Score ${score}/100 | Toxome`,
-    `Is ${name} Safe? Health Score ${score}/100 | Toxome`,
-    `${name} Health Score ${score}/100 | Toxome`,
+    `Is ${name} Safe to Wear? ${TITLE_VERDICT[fiber.band]}, Scored ${score}/100 | Toxome`,
+    `Is ${name} Safe to Wear? Scored ${score}/100 | Toxome`,
+    `Is ${name} Safe? Scored ${score}/100 | Toxome`,
+    `${name}: Scored ${score}/100 | Toxome`,
   ];
-  const title = candidates.find((t) => t.length <= 60) ?? candidates[2];
+  const title = candidates.find((t) => t.length <= 60) ?? candidates[3];
 
-  // Answer-first, query-matched description. Leads with the exact question
-  // people search ("is X toxic"), gives the score, then the band verdict and a
-  // reason to click. Higher CTR than a raw first sentence of body copy.
+  // The description must ANSWER, not restate. It used to open "Is {fiber}
+  // toxic?", which duplicated the question already in the title, spent the
+  // snippet's most valuable characters saying nothing, and named the fiber a
+  // third time. /guide/rayon was earning 0.27% CTR on 3,314 impressions at
+  // position 9. Now: plain verdict, then the one fact that justifies it, then
+  // the score as corroboration rather than as the lead.
   const lower = fiber.sentenceName ?? name.toLowerCase();
-  const desc = plain(
-    `Is ${lower} toxic? ${name} scores ${score}/100 for wearer health. ${DESC_CLAUSE[fiber.band]}`
-  ).slice(0, 158);
+  const cap = (t: string) => `${t.charAt(0).toUpperCase()}${t.slice(1)}`;
+  const reason = fiber.summary ? `${cap(lower)} is ${fiber.summary}` : "";
+  // Ladder rather than a hard slice: cutting at 158 chopped mid-word ("Scored
+  // 64/100 for wearer he"), which reads as a broken page in the result. Drop
+  // the qualifier first, then trim the reason on a word boundary, so the
+  // snippet always ends on a whole sentence.
+  const build = (r: string, tail: string) =>
+    plain(`${DESC_VERDICT[fiber.band]} ${r} ${tail}`).replace(/\s+/g, " ").trim();
+  const long = `Scored ${score}/100 for wearer health.`;
+  const short = `Scored ${score}/100.`;
+  let desc = build(reason, long);
+  if (desc.length > 160) desc = build(reason, short);
+  if (desc.length > 160) {
+    // Still too long: shorten the reason itself, never the verdict or the score.
+    const room = 160 - build("", short).length - 1;
+    const cut = reason.slice(0, Math.max(0, room));
+    desc = build(`${cut.slice(0, cut.lastIndexOf(" ")).replace(/[,;:]$/, "")}.`, short);
+  }
 
   return {
     title,
