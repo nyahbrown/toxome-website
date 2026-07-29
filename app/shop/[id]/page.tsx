@@ -10,6 +10,8 @@ import Footer from "@/components/Footer";
 import JsonLd from "@/components/JsonLd";
 import { productSeoTitle, productSeoDescription } from "@/lib/productSeo";
 import ProductDetailClient from "./ProductDetailClient";
+import ProductSeoSection from "./ProductSeoSection";
+import { productFaqs, productCategoryPage } from "@/lib/productCopy";
 
 export const revalidate = 604800; // weekly backstop; on-demand revalidation keeps it fresh on change
 
@@ -107,8 +109,9 @@ export default async function ProductPage({
   const images = [product.item_image, ...(product.images ?? [])].filter(
     (u): u is string => !!u
   );
-  const schema = {
-    "@context": "https://schema.org",
+  const faqs = productFaqs(product);
+  const categoryPage = productCategoryPage(product);
+  const productSchema = {
     "@type": "Product",
     name: product.item_name,
     ...(images.length ? { image: images } : {}),
@@ -141,6 +144,44 @@ export default async function ProductPage({
       : {}),
   };
 
+  // One @graph rather than three script tags: the Product, the questions this
+  // page now answers in prose, and the Home > Shop > Department > Product trail.
+  const schema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      productSchema,
+      {
+        "@type": "FAQPage",
+        mainEntity: faqs.map((f) => ({
+          "@type": "Question",
+          name: f.q,
+          acceptedAnswer: { "@type": "Answer", text: f.a },
+        })),
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: SITE },
+          { "@type": "ListItem", position: 2, name: "Shop", item: `${SITE}/shop` },
+          ...(categoryPage
+            ? [{
+                "@type": "ListItem",
+                position: 3,
+                name: categoryPage.heading,
+                item: `${SITE}${categoryPage.href}`,
+              }]
+            : []),
+          {
+            "@type": "ListItem",
+            position: categoryPage ? 4 : 3,
+            name: product.item_name,
+            item: `${SITE}/shop/${canonicalId}`,
+          },
+        ],
+      },
+    ],
+  };
+
   return (
     <>
       <JsonLd data={schema} />
@@ -150,6 +191,7 @@ export default async function ProductPage({
         certBadges={certBadges}
         outboundHref={outboundHref}
       />
+      <ProductSeoSection product={product} />
       <Footer />
     </>
   );

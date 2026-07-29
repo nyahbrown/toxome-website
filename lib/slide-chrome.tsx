@@ -28,7 +28,19 @@ export function publicImageDataUri(publicPath: string): string | null {
     const rel = publicPath.replace(/^\//, "");
     const buf = fs.readFileSync(path.join(process.cwd(), "public", rel));
     const ext = path.extname(rel).slice(1).toLowerCase();
-    const mime = ext === "png" ? "image/png" : ext === "webp" ? "image/webp" : "image/jpeg";
+    // Every non-png, non-webp extension used to fall through to image/jpeg,
+    // which mislabelled oeko-tex-standard-100.svg as a JPEG and made Satori
+    // throw "Invalid JPEG" — killing the whole slide, not just the badge.
+    const MIME: Record<string, string> = {
+      png: "image/png",
+      webp: "image/webp",
+      svg: "image/svg+xml",
+      gif: "image/gif",
+      avif: "image/avif",
+      jpg: "image/jpeg",
+      jpeg: "image/jpeg",
+    };
+    const mime = MIME[ext] ?? "image/jpeg";
     return `data:${mime};base64,${buf.toString("base64")}`;
   } catch {
     return null;
@@ -171,51 +183,93 @@ export async function slideChrome(
     );
   }
 
-  // Cert badge — the same circular white badge the shop grid renders
-  // (components/CertBadge), resolved the same way: a local file in /public/certs
-  // first, then the certifying body's logo, then a monogram.
-  const cert = slide.certifications.map((c) => findCertification(c)).find(Boolean);
-  if (cert) {
-    const local = availableLogos().get(cert.slug);
-    let logo = local ? publicImageDataUri(local) : null;
-    if (!logo) {
-      for (const url of remoteCandidates(cert.slug, 256)) {
-        logo = await remoteImageDataUri(url);
-        if (logo) break;
-      }
-    }
-    nodes.push(
-      <div
-        key="cert"
-        style={{
-          position: "absolute",
-          top: pad + ringSize + 20,
-          left: width - pad - ringSize, // same footprint as the ring, stacked under it
-          width: ringSize,
-          height: ringSize,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          borderRadius: 999,
-          background: "#FFFFFF",
-        }}
-      >
-        {logo ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={logo}
-            alt={cert.name}
-            width={Math.round(ringSize * 0.7)}
-            height={Math.round(ringSize * 0.7)}
-            style={{ objectFit: "contain" }}
-          />
-        ) : (
-          <span style={{ fontFamily: "Inter", fontSize: 30, fontWeight: 600, color: INK }}>
-            {markFor(cert.slug, cert.abbr, cert.name)}
-          </span>
-        )}
-      </div>
+  // Certifications — every one the product holds, as circular logo badges,
+  // resolved exactly the way the article's j-pick cards do: a local file in
+  // /public/certs first, then the certifying body's logo from the favicon
+  // service, then a monogram. Stacked down the right edge under the ring.
+  //
+  // Satori has no flex `gap` and no position:relative containing block, so the
+  // column is laid out by hand: each badge is its own absolutely-positioned
+  // node at a computed top.
+  const certs = slide.certifications
+    .map((c) => findCertification(c))
+    .filter((c): c is NonNullable<typeof c> => Boolean(c));
+
+  if (certs.length) {
+    // One cert keeps the original full-size badge, so the apparel slides render
+    // exactly as they did. More than one has to shrink to fit the column.
+    const badge = certs.length === 1 ? ringSize : certs.length <= 3 ? 128 : 104;
+    const gap = Math.round(badge * 0.14);
+    const top = typeof score === "number" ? pad + ringSize + 20 : pad;
+
+    const logos = await Promise.all(
+      certs.map(async (cert) => {
+        const local = availableLogos().get(cert.slug);
+        // Satori cannot decode WebP: a .webp local mark (MADE SAFE) throws
+        // "u2 is not iterable" and takes the whole render down. Skip it here
+        // and let the remote logo answer. The site's own badges still use the
+        // local file, which is why /public/certs is left alone.
+        const usable = local && !local.toLowerCase().endsWith(".webp") ? local : null;
+        const localUri = usable ? publicImageDataUri(usable) : null;
+        if (localUri) return localUri;
+        for (const url of remoteCandidates(cert.slug, 256)) {
+          const remote = await remoteImageDataUri(url);
+          if (remote) return remote;
+        }
+        return null;
+      })
     );
+
+    certs.forEach((cert, n) => {
+      const logo = logos[n];
+      const mark = markFor(cert.slug, cert.abbr, cert.name);
+      nodes.push(
+        <div
+          key={`cert-${cert.slug}`}
+          style={{
+            position: "absolute",
+            top: top + n * (badge + gap),
+            // Right-aligned to the same edge as the ring whatever the size.
+            left: width - pad - badge,
+            width: badge,
+            height: badge,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: 999,
+            background: "#FFFFFF",
+          }}
+        >
+          {logo ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={logo}
+              alt={cert.name}
+              width={Math.round(badge * 0.7)}
+              height={Math.round(badge * 0.7)}
+              style={{ objectFit: "contain" }}
+            />
+          ) : (
+            <span
+              style={{
+                fontFamily: "Inter",
+                // Long monograms (GOLS, USDA) overflow a circle at one fixed
+                // size, so the type scales down as the mark gets longer. Same
+                // ratios as CertBadge's fontFor.
+                fontSize: Math.round(
+                  badge * (mark.length <= 1 ? 0.46 : mark.length === 2 ? 0.4 : mark.length === 3 ? 0.3 : 0.235)
+                ),
+                fontWeight: 600,
+                letterSpacing: "-0.02em",
+                color: INK,
+              }}
+            >
+              {mark}
+            </span>
+          )}
+        </div>
+      );
+    });
   }
 
   return nodes;

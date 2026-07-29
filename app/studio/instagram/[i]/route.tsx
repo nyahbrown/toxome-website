@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { SLIDES, slideFileName } from "@/lib/social-slides";
+import { slideFileName, slidesFor } from "@/lib/social-slides";
 import { bottomScrim, interFonts, slideChrome, topScrim } from "@/lib/slide-chrome";
 
 // Instagram post slide. Same chrome as the TikTok slide (lockup, score ring,
@@ -21,10 +21,10 @@ const WHITE = "#FFFFFF";
 export async function GET(req: Request, { params }: { params: Promise<{ i: string }> }) {
   const { i } = await params;
   const idx = Number(i);
-  const slide = SLIDES[idx];
+  const sp = new URL(req.url).searchParams;
+  const slide = slidesFor(sp.get("set") ?? undefined)[idx];
   if (!slide) return new Response("Not found", { status: 404 });
 
-  const sp = new URL(req.url).searchParams;
   const square = sp.get("size") === "square";
   const download = sp.get("download") === "1";
   const H = square ? 1080 : 1350;
@@ -68,6 +68,21 @@ export async function GET(req: Request, { params }: { params: Promise<{ i: strin
           >
             {slide.brand}
           </span>
+          {slide.subtitle ? (
+            <span
+              style={{
+                fontFamily: "Inter",
+                fontSize: 34,
+                fontWeight: 400,
+                letterSpacing: "-0.01em",
+                color: WHITE,
+                lineHeight: 1.2,
+                marginTop: 8,
+              }}
+            >
+              {slide.subtitle}
+            </span>
+          ) : null}
           <span
             style={{
               fontFamily: "Inter",
@@ -91,7 +106,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ i: strin
               marginTop: 14,
             }}
           >
-            ${slide.price}
+            ${slide.price.toLocaleString("en-US")}
           </span>
         </div>
       </div>

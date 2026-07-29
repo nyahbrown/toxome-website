@@ -1,4 +1,4 @@
-import { SLIDES, slideScore, slideRisk, slideFileName } from "@/lib/social-slides";
+import { SLIDE_SETS, slideSet, slidesFor, slideScore, slideRisk, slideFileName } from "@/lib/social-slides";
 
 // Localhost preview of the Instagram post slides. Not linked from anywhere, not
 // meant to ship. 4:5 by default (the tallest feed post IG allows), 1:1 optional.
@@ -8,11 +8,24 @@ export const dynamic = "force-dynamic";
 export default async function InstagramStudio({
   searchParams,
 }: {
-  searchParams: Promise<{ size?: string }>;
+  searchParams: Promise<{ size?: string; set?: string }>;
 }) {
   const sp = await searchParams;
   const square = sp.size === "square";
-  const qs = square ? "?size=square" : "";
+  const set = slideSet(sp.set);
+  const slides = slidesFor(sp.set);
+  // Both params have to survive every link on the page, or switching the size
+  // silently throws you back to the apparel set.
+  const link = (over: { size?: string; set?: string } = {}) => {
+    const q = new URLSearchParams();
+    const size = "size" in over ? over.size : square ? "square" : undefined;
+    const s = "set" in over ? over.set : set === "apparel" ? undefined : set;
+    if (size) q.set("size", size);
+    if (s) q.set("set", s);
+    const str = q.toString();
+    return str ? `?${str}` : "";
+  };
+  const qs = link();
   const w = 270;
   const h = square ? 270 : 338;
 
@@ -42,12 +55,18 @@ export default async function InstagramStudio({
       </p>
 
       <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 24 }}>
-        {tab("4:5 (1080×1350)", "/studio/instagram", !square)}
-        {tab("1:1 (1080×1080)", "/studio/instagram?size=square", square)}
+        {(Object.keys(SLIDE_SETS) as Array<keyof typeof SLIDE_SETS>).map((k) =>
+          tab(SLIDE_SETS[k].label, `/studio/instagram${link({ set: k === "apparel" ? undefined : k })}`, set === k)
+        )}
+      </div>
+
+      <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 12 }}>
+        {tab("4:5 (1080×1350)", `/studio/instagram${link({ size: undefined })}`, !square)}
+        {tab("1:1 (1080×1080)", `/studio/instagram${link({ size: "square" })}`, square)}
       </div>
 
       <div style={{ display: "flex", gap: 28, marginTop: 36, flexWrap: "wrap" }}>
-        {SLIDES.map((s, i) => (
+        {slides.map((s, i) => (
           <div key={s.url} style={{ width: w }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -59,10 +78,13 @@ export default async function InstagramStudio({
             />
             <div style={{ marginTop: 12, fontSize: 14, color: "var(--ink)", fontWeight: 600 }}>{s.brand}</div>
             <div style={{ fontSize: 13, color: "var(--ink-3)", marginTop: 4 }}>
-              ${s.price} · score {slideScore(s)} · {slideRisk(s)}
+              {/* No score is a real state, not a missing value: the mattress set
+                  has none on purpose, so say so rather than printing "score". */}
+              ${s.price.toLocaleString()}
+              {slideScore(s) === null ? " · no score, certifications only" : ` · score ${slideScore(s)} · ${slideRisk(s)}`}
             </div>
             <a
-              href={`/studio/instagram/${i}?download=1${square ? "&size=square" : ""}`}
+              href={`/studio/instagram/${i}${link()}${link() ? "&" : "?"}download=1`}
               download={slideFileName(s, i, "ig")}
               style={{
                 display: "inline-block",

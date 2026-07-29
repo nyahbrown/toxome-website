@@ -10,8 +10,13 @@ export type Slide = {
   name: string;
   url: string;
   photo: string;
-  // Machine-readable composition — what the scorer runs on.
+  // Machine-readable composition — what the scorer runs on. Leave it empty for
+  // a category the Toxome score does not cover (see MATTRESS_SLIDES): the
+  // scorer returns null and the chrome drops the ring rather than inventing one.
   composition: Record<string, number>;
+  // Optional model line under the brand. Apparel slides omit it, so the locked
+  // brand / composition / price overlay renders byte-identical to before.
+  subtitle?: string;
   // Composition as the brand writes it on the tag, for the Instagram overlay.
   // Kept separate from `composition` on purpose: the scorer needs "elastane",
   // but the label should read "Lycra" when that's what the PDP says.
@@ -237,6 +242,142 @@ export const SLIDES: Slide[] = [
     certifications: [], // OEKO-TEX omitted, see the Arms of Andes note above
   },
 ];
+
+/**
+ * The 8 Best Non-Toxic Mattresses roundup, as an Instagram carousel.
+ * Source: content/journal/best-non-toxic-mattresses.md
+ *
+ * `composition` is deliberately empty on every one of these. The article says
+ * in print that none of these beds carry a Toxome score, because the score
+ * reads fiber composition and a mattress is latex, steel and a flame barrier.
+ * Scoring the cover fabric and printing it as a mattress score would say
+ * nothing. So the ring is absent by construction, and the certification badge
+ * carries the slide instead — which is how the article sorts them too.
+ *
+ * Order matches the article. Prices are queen, as listed July 2026.
+ * The lead certification is first in each array: that is the one the badge shows.
+ */
+export const MATTRESS_SLIDES: Slide[] = [
+  {
+    brand: "Avocado",
+    name: "Green Mattress",
+    subtitle: "Green Mattress",
+    url: "https://www.avocadogreenmattress.com/products/organic-mattress",
+    photo:
+      "https://cdn.shopify.com/s/files/1/0444/9488/0918/files/Avocado-Green-Tight-Top-Compare-Image.jpg",
+    composition: {},
+    compositionLabel: "Organic Dunlop latex over coils / organic wool barrier",
+    price: 1699,
+    // The only finished-product GOTS license on the list (CU863637).
+    certifications: ["GOTS", "GOLS", "GREENGUARD Gold", "MADE SAFE", "OEKO-TEX Standard 100"],
+  },
+  {
+    brand: "My Green Mattress",
+    name: "Natural Escape",
+    subtitle: "Natural Escape",
+    url: "https://www.mygreenmattress.com/product/natural-escape/",
+    photo: "https://www.mygreenmattress.com/wp-content/uploads/2025/12/Natural-Escape-Main-Img.jpg",
+    composition: {},
+    compositionLabel: "3in organic latex over 1,462 coils / GOTS wool barrier",
+    price: 1159,
+    // Best certification per dollar on the list. Licenses published:
+    // GOTS CU1015248, GOLS CU865932.
+    certifications: ["GOTS", "GOLS", "GREENGUARD Gold", "MADE SAFE"],
+  },
+  {
+    brand: "PlushBeds",
+    name: "Botanical Bliss",
+    subtitle: "Botanical Bliss",
+    url: "https://www.plushbeds.com/products/botanical-bliss-organic-latex-mattress",
+    photo:
+      "https://cdn.shopify.com/s/files/1/0061/7195/1202/products/the-botanical-bliss-organic-latex-mattress-618537.jpg",
+    composition: {},
+    compositionLabel: "6in GOLS latex core / organic cotton / wool layer",
+    price: 2024,
+    // Two independent emissions tests: eco-INSTITUT and GREENGUARD.
+    certifications: ["GOLS", "GOTS", "eco-INSTITUT", "GREENGUARD Gold"],
+  },
+  {
+    brand: "Naturepedic",
+    name: "EOS Classic",
+    subtitle: "EOS Classic",
+    url: "https://www.naturepedic.com/products/eos-classic-organic-mattress",
+    // The /media/catalog/ URL the article uses is a dead Magento path —
+    // Naturepedic has since moved to Shopify and it 404s. Repointed at the
+    // live CDN. The article's own <img> for this pick needs the same fix.
+    photo: "https://www.naturepedic.com/cdn/shop/files/NP_PDP_Mattress_EOS-Classic_List-1.jpg",
+    composition: {},
+    compositionLabel: "Organic latex over glueless coils / no flame barrier",
+    price: 3799,
+    // Passes the burn test with no retardant and no barrier, through removal.
+    certifications: ["GOLS", "GREENGUARD Gold", "MADE SAFE"],
+  },
+  {
+    brand: "Happsy",
+    name: "Happsy Organic Mattress",
+    subtitle: "Organic Mattress",
+    url: "https://happsy.com/products/happsy-organic-mattress",
+    photo: "https://happsy.com/media/catalog/product/n/p/np_happsy6361_1000x1000.jpg",
+    composition: {},
+    compositionLabel: "Organic latex over coils / no barrier, no glue, no foam",
+    price: 1399,
+    certifications: ["GOTS", "GOLS", "GREENGUARD Gold", "MADE SAFE"],
+  },
+  {
+    brand: "Saatva",
+    name: "Zenhaven",
+    subtitle: "Zenhaven",
+    url: "https://www.saatva.com/mattresses/zenhaven",
+    photo:
+      "https://saatva.imgix.net/products/zenhaven/room-angle-raised/standard/zenhaven-room-angle-raised-standard-3-2.jpg",
+    composition: {},
+    compositionLabel: "5-zone GOLS latex, no coils / NZ wool barrier",
+    price: 3549,
+    // Only the latex models carry the organic wool barrier.
+    certifications: ["GOLS", "eco-INSTITUT", "GREENGUARD Gold", "GOTS"],
+  },
+  {
+    brand: "Savvy Rest",
+    name: "Serenity",
+    subtitle: "Serenity",
+    url: "https://savvyrest.com/mattresses/serenity-organic-mattress/",
+    photo: "https://savvyrest.com/wp-content/uploads/2023/03/Mattress-Afton_1080x1080-1.jpg",
+    composition: {},
+    compositionLabel: "Three swappable latex layers / GOTS wool batting",
+    price: 3299,
+    // The only brand on the list whose factory itself holds GOTS.
+    certifications: ["GOTS", "GOLS", "Cradle to Cradle"],
+  },
+  {
+    brand: "Eco Terra",
+    name: "Hybrid Latex Mattress",
+    subtitle: "Hybrid Latex",
+    url: "https://ecoterrabeds.com/products/eco-terra-latex-mattress",
+    photo: "https://cdn.shopify.com/s/files/1/1390/2279/files/product_img_16.jpg",
+    composition: {},
+    compositionLabel: "Single-origin GOLS latex over coils / organic wool",
+    price: 709,
+    // Cheapest real GOLS latex bed found anywhere. No published certificate
+    // numbers and no emissions testing, which the article says on the card.
+    certifications: ["GOLS", "GOTS", "eco-INSTITUT"],
+  },
+];
+
+export type SlideSetName = "apparel" | "mattress";
+
+/** Studio sets. `?set=` on the studio routes picks between them. */
+export const SLIDE_SETS: Record<SlideSetName, { label: string; slides: Slide[] }> = {
+  apparel: { label: "apparel", slides: SLIDES },
+  mattress: { label: "mattresses", slides: MATTRESS_SLIDES },
+};
+
+export function slideSet(name: string | undefined): SlideSetName {
+  return name === "mattress" ? "mattress" : "apparel";
+}
+
+export function slidesFor(name: string | undefined): Slide[] {
+  return SLIDE_SETS[slideSet(name)].slides;
+}
 
 export function slideScore(slide: Slide): number | null {
   return calcToxomeScore(slide.composition, { certifications: slide.certifications });
