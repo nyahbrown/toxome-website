@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node test/parity.test.js"
+    "test": "node test/parity.test.js && npx tsx test/footwear.test.mts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.106.2",

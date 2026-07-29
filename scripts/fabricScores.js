@@ -197,6 +197,15 @@ function scoreToRiskLevel(clean) {
  */
 function scoreProductRow(row) {
   if (!row) return { score: null, risk: null };
+  // ⚠ FOOTWEAR IS NOT SCORED BY THIS RUBRIC. A shoe is an assembly, and this
+  // function reads one composition string, which for footwear means it reads
+  // the upper and never sees the sole. That is how the Vivobarefoot Primus
+  // Lite Knit Natural rated 85 and "low risk" on a recycled-polyurethane sole.
+  // Shoes are scored by lib/footwearScore.ts and written once; every batch
+  // rescorer runs through here, so guarding centrally is what stops the next
+  // recompute-scores run from silently overwriting a footwear score with the
+  // upper-only number. See lib/footwear-scores.json.
+  if (row.category === "Footwear") return { score: row.toxome_score ?? null, risk: row.risk_level ?? null };
   const score = calcToxomeScore(row.fabric_composition, {
     certifications: row.certifications || [],
     // ⚠ BRAND-STATED TEXT ONLY. `description` is deliberately excluded.

@@ -32,9 +32,12 @@ const supabase = createClient(
       // function of composition alone. Dropping them is what made every cert on
       // every row invisible to the score. `description` is intentionally NOT
       // scored (Toxome's own copy, not brand disclosure) — see scoreProductRow.
+      // `category` is REQUIRED: scoreProductRow uses it to refuse footwear,
+      // which is scored by the separate assembly rubric and must not be
+      // overwritten with an upper-only number.
       .select(
         "id, brand, item_name, fabric_composition, toxome_score, risk_level, " +
-          "certifications, materials_text"
+          "certifications, materials_text, category"
       )
       .not("fabric_composition", "is", null)
       .order("id", { ascending: true })

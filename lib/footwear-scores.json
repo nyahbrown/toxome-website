@@ -1,0 +1,118 @@
+{
+  "_comment": [
+    "FOOTWEAR RUBRIC v1 (2026-07-29). Hazard space: 0 = inert, 100 = worst.",
+    "Public Toxome Score is the inverse (100 - hazard), so HIGHER = CLEANER,",
+    "matching lib/fiber-scores.json.",
+    "",
+    "WHY THIS EXISTS. Shoes cannot use the apparel fiber rubric. That rubric",
+    "reads one composition string and assumes it describes the whole garment.",
+    "A shoe is an assembly: an upper, a lining, a footbed and a sole, each a",
+    "different material, and only the upper is ever quoted as a percentage.",
+    "Scoring the upper alone rated the Vivobarefoot Primus Lite Knit Natural 85",
+    "and 'low risk' while its sole is recycled polyurethane, which scores 28 on",
+    "its own. That is the failure this file corrects.",
+    "",
+    "MATERIAL HAZARDS below reuse the fiber table's numbers wherever the two",
+    "overlap (wool 24, merino 10, organic cotton 8, lyocell 12, leather 40 with",
+    "a 30 vegetable-tanned floor, polyurethane 72, polyester 70, nylon 64,",
+    "elastane 63) so a wool shoe and a wool sweater cannot disagree. Materials",
+    "that only appear in footwear are new."
+  ],
+  "constants": {
+    "_comment": [
+      "Component weights are skin-contact-and-mass, not surface area. The upper",
+      "and the lining are what touch skin all day; the sole is the bulk of the",
+      "plastic and the offgassing but sits under the foot behind a footbed.",
+      "Weights are renormalised over whatever components are actually disclosed,",
+      "so a shoe that states only upper and sole is scored on those two rather",
+      "than being silently credited for a lining nobody described."
+    ],
+    "weights": {
+      "upper": 0.4,
+      "lining": 0.2,
+      "footbed": 0.15,
+      "sole": 0.25
+    },
+    "modifierCap": 20,
+    "unknownMaterial": 50
+  },
+  "thresholds": {
+    "_comment": "Identical bands to the fiber rubric, so 67 remains the clean bar.",
+    "lowMax": 32,
+    "moderateMax": 60
+  },
+  "materials": {
+    "_comment": "Keys are normalised: lowercase, spaces to underscores.",
+
+    "linen": { "hazard": 6 },
+    "hemp": { "hazard": 6 },
+    "organic_cotton": { "hazard": 8 },
+    "merino_wool": { "hazard": 10 },
+    "silk": { "hazard": 8 },
+    "alpaca": { "hazard": 8 },
+    "jute": { "hazard": 10 },
+    "sisal": { "hazard": 10 },
+    "cork": { "hazard": 10 },
+    "lyocell": { "hazard": 12 },
+    "cotton": { "hazard": 16 },
+    "cotton_canvas": { "hazard": 16 },
+    "wool": { "hazard": 24 },
+    "wool_felt": { "hazard": 24 },
+
+    "natural_latex": { "hazard": 18 },
+    "natural_rubber": {
+      "hazard": 20,
+      "_note": "Vulcanisation uses sulfur and accelerators (thiurams, carbamates), a real contact-allergen route, but it is not a petroleum polymer and does not shed microplastic."
+    },
+
+    "leather": {
+      "hazard": 40,
+      "floor": 30,
+      "_note": "Floor unlocks on stated vegetable tanning. Chrome tanning is the exposure that matters here, so tanning is a pillar rather than a footnote."
+    },
+    "suede": { "hazard": 40, "floor": 30 },
+    "nubuck": { "hazard": 40, "floor": 30 },
+
+    "hotmelt": {
+      "hazard": 55,
+      "_note": "Thermoplastic adhesive, usually polyurethane or polyamide. Solid and largely bound once cured, so below a structural plastic but not inert."
+    },
+    "eva": {
+      "hazard": 60,
+      "_note": "Ethylene-vinyl acetate foam. A plastic, and it does abrade, but relatively inert and not a known endocrine route, so it sits below polyurethane."
+    },
+    "elastane": { "hazard": 63 },
+    "nylon": { "hazard": 64 },
+    "tpu": { "hazard": 68 },
+    "polyester": { "hazard": 70 },
+    "recycled_polyester": { "hazard": 74 },
+    "polyurethane": {
+      "hazard": 72,
+      "_note": "Includes recycled PU. Recycling changes the feedstock, not what the material does against skin, so it scores the same. Same call the fiber rubric makes on recycled polyester."
+    },
+    "pvc": { "hazard": 85 }
+  },
+  "modifiers": {
+    "_comment": [
+      "Additive hazard, applied after the weighted component blend and capped in",
+      "total by constants.modifierCap. Only applied when the brand STATES the",
+      "thing. An undisclosed treatment is recorded in `missing`, never guessed."
+    ],
+    "waterproof_membrane": {
+      "hazard": 12,
+      "_note": "Durable water repellency is the main PFAS route in footwear."
+    },
+    "waterproof_pfc_free": {
+      "hazard": 4,
+      "_note": "Brand states PFC/PFAS-free. Still a coating, but not the fluorinated one."
+    },
+    "antimicrobial_treatment": {
+      "hazard": 8,
+      "_note": "Silver or triclosan finishes, applied to the part held against skin."
+    },
+    "solvent_cemented": {
+      "hazard": 5,
+      "_note": "Solvent-based cement construction. Only applied when stated; most brands never say, so this is usually absent rather than zero."
+    }
+  }
+}
