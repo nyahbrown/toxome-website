@@ -140,6 +140,38 @@ t("modifiers are capped so they cannot swamp the materials", () => {
   assert.ok(r.score! > uncapped, "capping must actually help");
 });
 
+// ── An unstated split must not flatter ──────────────────────────────────────
+t("a component listed without percentages takes the WORST material, not the average", () => {
+  // Baabuk lists the Shunya upper as "100% Burel Wool + MIRUM" with no ratio.
+  // Splitting an unknown ratio evenly is a guess, and it always guesses upward.
+  const parts = { wool: 1, eva: 1 };
+  const guessed = scoreFootwear({
+    upper: { parts },
+    sole: { parts: { natural_rubber: 1 } },
+  });
+  const conservative = scoreFootwear({
+    upper: { parts, estimated: true },
+    sole: { parts: { natural_rubber: 1 } },
+  });
+  assert.ok(
+    conservative.score! < guessed.score!,
+    "an unstated split must score no better than the worst material present",
+  );
+  assert.strictEqual(conservative.estimated, true);
+});
+
+t("a single material with no percentage is unaffected by the rule", () => {
+  const a = scoreFootwear({
+    upper: { parts: { merino_wool: 1 } },
+    sole: { parts: { natural_rubber: 1 } },
+  });
+  const b = scoreFootwear({
+    upper: { parts: { merino_wool: 1 }, estimated: true },
+    sole: { parts: { natural_rubber: 1 } },
+  });
+  assert.strictEqual(a.score, b.score, "nothing to be conservative about with one material");
+});
+
 // ── Unknowns must never read as clean ───────────────────────────────────────
 t("an unrecognised material scores neutral, not zero-hazard", () => {
   const known = scoreFootwear({

@@ -33,6 +33,24 @@ export type ArticleMeta = {
   slug: string;
   title: string;
   dek: string;
+  /**
+   * SEARCH-ONLY overrides. `title` and `dek` are editorial: they set the H1 and
+   * the standfirst a reader sees. These two set the <title> tag and the meta
+   * description instead, so a piece can carry a keyword-first result in Google
+   * without the page itself having to read like a keyword.
+   *
+   * WHY (GSC, 90 days to 2026-07-27): the Journal's pages rank and then do not
+   * get clicked. "viscose vs cotton" sat at position 10.1 on 596 impressions
+   * with zero clicks; "toxin clothing" at 8.5 on 276 with zero. Position was
+   * never the problem, the result text was. Separating the two lets the snippet
+   * be optimised without touching the voice.
+   *
+   * Both fall back to the editorial value when absent, so existing articles are
+   * unaffected. Keep seoTitle under ~60 chars and seoDescription under ~155, or
+   * Google truncates them and the work is wasted.
+   */
+  seoTitle?: string;
+  seoDescription?: string;
   date: string; // ISO (YYYY-MM-DD)
   pillar: string;
   mode?: string;
@@ -174,6 +192,10 @@ function readArticle(slug: string): Article | null {
     slug,
     title: String(data.title ?? ""),
     dek: String(data.dek ?? ""),
+    seoTitle: data.seoTitle ? String(data.seoTitle) : undefined,
+    seoDescription: data.seoDescription
+      ? String(data.seoDescription)
+      : undefined,
     date: String(data.date ?? ""),
     pillar: String(data.pillar ?? "Journal"),
     mode: data.mode ? String(data.mode) : undefined,

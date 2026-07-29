@@ -134,25 +134,42 @@ export function unresolvedMaterials(input: FootwearInput): string[] {
   return [...new Set(out)];
 }
 
-/** Share-weighted hazard for one component. */
+/**
+ * Hazard for one component.
+ *
+ * When the brand published percentages, this is the share-weighted blend.
+ * When it did NOT (`estimated`), it is the WORST material present, not the
+ * average. Averaging an unknown split is a guess that always flatters: Baabuk
+ * lists the Shunya upper as "100% Burel Wool + MIRUM" with no ratio, and
+ * splitting that evenly would quietly invent a number that happens to look
+ * better. Taking the worst can only ever understate the product, which is the
+ * safe direction for a score people trust.
+ */
 function componentHazard(spec: ComponentSpec, vegTanned: boolean): number {
   const entries = Object.entries(spec.parts);
   const total = entries.reduce((a, [, v]) => a + v, 0);
   if (!total) return unknownMaterial;
 
+  if (spec.estimated && entries.length > 1) {
+    return Math.max(...entries.map(([raw]) => materialHazard(raw, vegTanned)));
+  }
+
   let hazard = 0;
   for (const [raw, share] of entries) {
-    const m = resolveMaterial(raw);
-    // An unrecognised material scores the neutral 50 rather than 0. Silence
-    // must never read as clean.
-    const base = m ? MATERIALS[m] : { hazard: unknownMaterial } as { hazard: number; floor?: number };
-    const h =
-      m && base.floor != null && vegTanned && (m === "leather" || m === "suede" || m === "nubuck")
-        ? base.floor
-        : base.hazard;
-    hazard += h * (share / total);
+    hazard += materialHazard(raw, vegTanned) * (share / total);
   }
   return hazard;
+}
+
+/** One material's hazard, applying the vegetable-tanning floor where it exists.
+ *  An unrecognised material scores the neutral 50 rather than 0: silence must
+ *  never read as clean. */
+function materialHazard(raw: string, vegTanned: boolean): number {
+  const m = resolveMaterial(raw);
+  if (!m) return unknownMaterial;
+  const base = MATERIALS[m];
+  const tannable = m === "leather" || m === "suede" || m === "nubuck";
+  return base.floor != null && vegTanned && tannable ? base.floor : base.hazard;
 }
 
 export function scoreFootwear(input: FootwearInput): FootwearResult {

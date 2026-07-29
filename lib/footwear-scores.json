@@ -43,36 +43,68 @@
   },
   "materials": {
     "_comment": "Keys are normalised: lowercase, spaces to underscores.",
-
-    "linen": { "hazard": 6 },
-    "hemp": { "hazard": 6 },
-    "organic_cotton": { "hazard": 8 },
-    "merino_wool": { "hazard": 10 },
-    "silk": { "hazard": 8 },
-    "alpaca": { "hazard": 8 },
-    "jute": { "hazard": 10 },
-    "sisal": { "hazard": 10 },
-    "cork": { "hazard": 10 },
-    "lyocell": { "hazard": 12 },
-    "cotton": { "hazard": 16 },
-    "cotton_canvas": { "hazard": 16 },
-    "wool": { "hazard": 24 },
-    "wool_felt": { "hazard": 24 },
-
-    "natural_latex": { "hazard": 18 },
+    "linen": {
+      "hazard": 6
+    },
+    "hemp": {
+      "hazard": 6
+    },
+    "organic_cotton": {
+      "hazard": 8
+    },
+    "merino_wool": {
+      "hazard": 10
+    },
+    "silk": {
+      "hazard": 8
+    },
+    "alpaca": {
+      "hazard": 8
+    },
+    "jute": {
+      "hazard": 10
+    },
+    "sisal": {
+      "hazard": 10
+    },
+    "cork": {
+      "hazard": 10
+    },
+    "lyocell": {
+      "hazard": 12
+    },
+    "cotton": {
+      "hazard": 16
+    },
+    "cotton_canvas": {
+      "hazard": 16
+    },
+    "wool": {
+      "hazard": 24
+    },
+    "wool_felt": {
+      "hazard": 24
+    },
+    "natural_latex": {
+      "hazard": 18
+    },
     "natural_rubber": {
       "hazard": 20,
       "_note": "Vulcanisation uses sulfur and accelerators (thiurams, carbamates), a real contact-allergen route, but it is not a petroleum polymer and does not shed microplastic."
     },
-
     "leather": {
       "hazard": 40,
       "floor": 30,
       "_note": "Floor unlocks on stated vegetable tanning. Chrome tanning is the exposure that matters here, so tanning is a pillar rather than a footnote."
     },
-    "suede": { "hazard": 40, "floor": 30 },
-    "nubuck": { "hazard": 40, "floor": 30 },
-
+    "suede": {
+      "hazard": 40,
+      "floor": 30
+    },
+    "nubuck": {
+      "hazard": 40,
+      "floor": 30
+    },
     "hotmelt": {
       "hazard": 55,
       "_note": "Thermoplastic adhesive, usually polyurethane or polyamide. Solid and largely bound once cured, so below a structural plastic but not inert."
@@ -81,16 +113,40 @@
       "hazard": 60,
       "_note": "Ethylene-vinyl acetate foam. A plastic, and it does abrade, but relatively inert and not a known endocrine route, so it sits below polyurethane."
     },
-    "elastane": { "hazard": 63 },
-    "nylon": { "hazard": 64 },
-    "tpu": { "hazard": 68 },
-    "polyester": { "hazard": 70 },
-    "recycled_polyester": { "hazard": 74 },
+    "elastane": {
+      "hazard": 63
+    },
+    "nylon": {
+      "hazard": 64
+    },
+    "tpu": {
+      "hazard": 68
+    },
+    "polyester": {
+      "hazard": 70
+    },
+    "recycled_polyester": {
+      "hazard": 74
+    },
     "polyurethane": {
       "hazard": 72,
       "_note": "Includes recycled PU. Recycling changes the feedstock, not what the material does against skin, so it scores the same. Same call the fiber rubric makes on recycled polyester."
     },
-    "pvc": { "hazard": 85 }
+    "pvc": {
+      "hazard": 85
+    },
+    "mirum": {
+      "hazard": 20,
+      "_note": "MIRUM (Natural Fiber Welding): plant-based leather alternative of natural rubber, plant oils, minerals and plant fibers. Brand-stated as containing no synthetics or plastic. Priced with natural rubber, which is its binder."
+    },
+    "synthetic_rubber": {
+      "hazard": 55,
+      "_note": "SBR/BR and friends. A petroleum polymer, so well above natural rubber, but a cured solid rather than a foam and not a known endocrine route, so below polyurethane."
+    },
+    "pla": {
+      "hazard": 40,
+      "_note": "Polylactic acid. Bio-based and compostable in industrial conditions, but still a thermoplastic against skin."
+    }
   },
   "modifiers": {
     "_comment": [
