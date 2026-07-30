@@ -32,9 +32,12 @@ export async function generateMetadata({
   const { slug } = await params;
   const article = getArticle(slug);
   if (!article) return {};
+  // Search gets the keyword-first pair when an article supplies one; social and
+  // the page itself keep the editorial headline. See the seoTitle note in
+  // lib/journal.ts for why these are separable.
   return {
-    title: `${article.title} | Toxome`,
-    description: article.dek,
+    title: `${article.seoTitle ?? article.title} | Toxome`,
+    description: article.seoDescription ?? article.dek,
     keywords: article.keywords.length ? article.keywords : undefined,
     alternates: { canonical: `/journal/${slug}` },
     openGraph: {
