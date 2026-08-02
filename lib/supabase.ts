@@ -67,7 +67,71 @@ export async function getPublishedProducts(): Promise<Product[]> {
   }
 }
 
-export const getShopTaxonomy = cache(async (): Promise<ShopTaxonomy> => {
+/**
+ * Slugs of every published product, for prerendering /shop/[id] at build time.
+ *
+ * Deliberately narrow (`slug` only) rather than reusing getPublishedProducts():
+ * this just needs a list of paths, and there is no reason to move the whole
+ * catalog across the wire to get one.
+ *
+ * Rows with no slug are skipped. They are still reachable by UUID, which
+ * dynamicParams renders on demand.
+ */
+export async function getPublishedProductSlugs(): Promise<string[]> {
+  try {
+    const rows = await selectAllPages<{ slug: string | null }>((from, to) =>
+      supabase
+        .from("products")
+        .select("slug")
+        .eq("published", true)
+        .not("slug", "is", null)
+        .order("id", { ascending: true })
+        .range(from, to)
+    );
+    return rows.map((r) => r.slug).filter((s): s is string => Boolean(s));
+  } catch (e) {
+    console.error("Supabase product slug fetch error:", (e as Error).message);
+    return [];
+  }
+}
+
+// Every page that renders the shop nav calls this, and it pulls the WHOLE
+// published catalog to count categories. React cache() only dedupes inside a
+// single render, so before this memo a full catalog crawl cost one 800+ row
+// fetch per product page, and prerendering the catalog cost one per page built.
+//
+// Memoized on the promise, not the result, so concurrent renders in the same
+// process share one in-flight fetch instead of stampeding.
+//
+// TTL rather than forever: a warm lambda would otherwise serve a category list
+// frozen at cold start. An hour sits well inside the daily `revalidate` on every
+// page that reads this, so it can never be the stalest thing on the page.
+const TAXONOMY_TTL_MS = 60 * 60 * 1000;
+let taxonomyMemo: { at: number; value: Promise<ShopTaxonomy> } | null = null;
+
+export const getShopTaxonomy = cache((): Promise<ShopTaxonomy> => {
+  const now = Date.now();
+  if (taxonomyMemo && now - taxonomyMemo.at < TAXONOMY_TTL_MS) {
+    return taxonomyMemo.value;
+  }
+  const value = fetchShopTaxonomy();
+  taxonomyMemo = { at: now, value };
+  // A failed fetch resolves to the empty taxonomy (see the catch below). Drop it
+  // from the memo so the next caller retries instead of every page on this
+  // instance rendering an empty category dropdown for the next hour.
+  value
+    .then((t) => {
+      if (!t.women.length && !t.men.length && !t.kids.length && !t.home.length) {
+        taxonomyMemo = null;
+      }
+    })
+    .catch(() => {
+      taxonomyMemo = null;
+    });
+  return value;
+});
+
+async function fetchShopTaxonomy(): Promise<ShopTaxonomy> {
   let data: { category: string | null; gender: string | null }[];
   try {
     data = await selectAllPages((from, to) =>
@@ -114,7 +178,7 @@ export const getShopTaxonomy = cache(async (): Promise<ShopTaxonomy> => {
     kids: byRelevance(kids),
     home: byRelevance(home),
   };
-});
+}
 
 export async function getCleanerAlternatives(
   problemCategories: string[],
@@ -219,7 +283,7 @@ export async function getProductsByIds(ids: string[]): Promise<Product[]> {
  * a journal article before that). Slug is tried first because it is now the
  * common case; the UUID path exists so no old link ever 404s.
  */
-export async function getProductBySlugOrId(param: string): Promise<Product | null> {
+export const getProductBySlugOrId = cache(async (param: string): Promise<Product | null> => {
   if (!isUuid(param)) {
     const { data, error } = await supabase
       .from("products")
@@ -233,9 +297,9 @@ export async function getProductBySlugOrId(param: string): Promise<Product | nul
     // here should try the id lookup rather than 404 on a technicality.
   }
   return getProductById(param);
-}
+});
 
-export async function getProductById(id: string): Promise<Product | null> {
+export const getProductById = cache(async (id: string): Promise<Product | null> => {
   // A slug reaching here would make Postgres reject the uuid comparison, so
   // guard rather than let a 22P02 surface as a 500.
   if (!isUuid(id)) return null;
@@ -251,7 +315,7 @@ export async function getProductById(id: string): Promise<Product | null> {
     return null;
   }
   return data;
-}
+});
 
 /**
  * The id a product's canonical URL should point at.
@@ -272,9 +336,9 @@ export async function getProductById(id: string): Promise<Product | null> {
  *
  * Returns `id` unchanged when the product has no twin, which is the common case.
  */
-export async function getCanonicalProductId(
+export const getCanonicalProductId = cache(async (
   product: Pick<Product, "id" | "brand" | "item_name"> & { slug?: string | null },
-): Promise<string> {
+): Promise<string> => {
   const self = product.slug || product.id;
   if (!product.brand || !product.item_name) return self;
   // Matched on exact (brand, item_name): that is precisely how the duplicate
@@ -294,4 +358,4 @@ export async function getCanonicalProductId(
 
   if (error || !data) return self;
   return data.slug || data.id;
-}
+});

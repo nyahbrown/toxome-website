@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
-import { getProductBySlugOrId, getShopTaxonomy, getCanonicalProductId } from "@/lib/supabase";
+import {
+  getProductBySlugOrId,
+  getShopTaxonomy,
+  getCanonicalProductId,
+  getPublishedProductSlugs,
+} from "@/lib/supabase";
 import { isUuid, productHref } from "@/lib/productSlug";
 import { outboundHrefFor } from "@/lib/affiliatePrograms";
 import { findCertification } from "@/lib/certifications";
@@ -14,6 +19,23 @@ import ProductSeoSection from "./ProductSeoSection";
 import { productFaqs, productCategoryPage } from "@/lib/productCopy";
 
 export const revalidate = 604800; // weekly backstop; on-demand revalidation keeps it fresh on change
+
+/**
+ * Prerender every published product at build time.
+ *
+ * Without this, each product URL was a cold render on first request, and since a
+ * crawler hits each URL roughly once, the ISR cache never got to help: logs
+ * showed cache=MISS on essentially every /shop/* hit. One full catalog crawl was
+ * ~800 cold renders (~1,600 invocations counting the UUID redirect hop), which
+ * is what exhausted the Vercel Fluid Active CPU allowance.
+ *
+ * dynamicParams stays at its default (true), so UUID URLs and anything published
+ * between builds still render on demand and 301 to the slug as before.
+ */
+export async function generateStaticParams() {
+  const slugs = await getPublishedProductSlugs();
+  return slugs.map((id) => ({ id }));
+}
 
 const SITE = "https://toxome.app";
 
