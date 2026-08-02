@@ -15,7 +15,7 @@ keywords:
   - "toxic chemicals in clothes"
   - "how to tell if clothes are toxic"
   - "chemicals in clothing"
-  - "non-toxic clothing"
+  - "natural fiber clothing"
   - "formaldehyde in clothing"
   - "how to read a clothing label"
 cta: "app"
@@ -65,7 +65,7 @@ You do not need a lab to use this. Just flip your instinct: a fabric selling you
 
 Because no law forces a full disclosure, a trustworthy third-party seal is the closest thing to an ingredient list you will find. Two are worth memorizing.
 
-*[OEKO-TEX Standard 100](/guide/certifications#oeko-tex-standard-100)* means the finished item, every thread and button, was tested against a list of more than 1,000 harmful substances and passed. It even sorts products by how much they touch you: the strictest limits apply to baby clothing, the loosest to a jacket lining. It is the single most useful mark to look for on non-toxic clothing.
+*[OEKO-TEX Standard 100](/guide/certifications#oeko-tex-standard-100)* means the finished item, every thread and button, was tested against a list of more than 1,000 harmful substances and passed. It even sorts products by how much they touch you: the strictest limits apply to baby clothing, the loosest to a jacket lining. It is the single most useful mark to look for.
 
 *[GOTS](/guide/certifications#gots),* the Global Organic Textile Standard, goes further for natural fibers. It certifies that the material is organically grown *and* that the dyeing and processing met strict chemical rules, banning formaldehyde and the riskiest dyes along the way.
 

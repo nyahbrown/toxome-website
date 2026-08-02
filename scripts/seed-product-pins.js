@@ -53,7 +53,7 @@ const DRY = has("--dry-run");
 const LIMIT = flag("--limit", null);
 const ids = argv.filter((a, i) => !a.startsWith("--") && argv[i - 1]?.startsWith("--") !== true);
 
-// Lowercase a category for use inside a phrase ("non-toxic dresses"), tolerating
+// Lowercase a category for use inside a phrase ("natural fiber dresses"), tolerating
 // a null category (some home goods / catch-alls have none).
 function categoryPhrase(p) {
   const c = (p.category || "").trim().toLowerCase();
@@ -62,13 +62,13 @@ function categoryPhrase(p) {
 }
 
 // Pinterest is a search engine, so the description leads with the health-intent
-// keyword ("non-toxic <category>"), names the brand, states the Toxome score when
+// keyword ("natural fiber <category>"), names the brand, states the Toxome score when
 // there is one, and closes with a soft, on-brand CTA. No hashtags.
 function pinDescription(p) {
   const cat = categoryPhrase(p);
   const brand = (p.brand || "").trim();
   const parts = [];
-  parts.push(brand ? `Non-toxic ${cat} from ${brand}.` : `Non-toxic ${cat}.`);
+  parts.push(brand ? `Natural fiber ${cat} from ${brand}.` : `Natural fiber ${cat}.`);
   if (typeof p.toxome_score === "number") {
     parts.push(`Toxome score ${p.toxome_score}/100.`);
   }

@@ -9,9 +9,9 @@ import { SHOP_COLLECTIONS } from "@/lib/shopPages";
 const SITE = "https://toxome.app";
 
 export const metadata: Metadata = {
-  title: "Shop by Collection: Non-Toxic Clothing Edits | Toxome",
+  title: "Shop by Collection: Natural Fiber Clothing Edits | Toxome",
   description:
-    "Browse Toxome's non-toxic clothing collections by material, certification, and category, from organic cotton, linen, and silk to GOTS and OEKO-TEX certified pieces.",
+    "Browse Toxome's natural fiber clothing collections by material, certification, and category, from organic cotton, linen, and silk to GOTS and OEKO-TEX certified pieces.",
   alternates: { canonical: "/shop/collections" },
 };
 

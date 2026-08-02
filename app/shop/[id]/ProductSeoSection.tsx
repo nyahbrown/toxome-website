@@ -94,7 +94,7 @@ export default function ProductSeoSection({ product }: { product: Product }) {
               )}
               {brandHref && (
                 <Link href={brandHref} style={linkStyle}>
-                  is {product.brand} non-toxic?
+                  what is {product.brand} made of?
                 </Link>
               )}
             </div>

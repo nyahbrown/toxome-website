@@ -12,8 +12,8 @@ export const metadata: Metadata = {
   keywords: [
     "fashion wellness",
     "what is fashion wellness",
-    "non-toxic clothing",
-    "non-toxic fashion",
+    "natural fiber clothing",
+    "natural fiber fashion",
     "endocrine disruptors in textiles",
     "PFAS in clothing",
     "microplastics in fabric",

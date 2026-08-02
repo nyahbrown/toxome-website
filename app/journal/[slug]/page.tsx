@@ -356,7 +356,7 @@ export default async function ArticlePage({
             )}
           </article>
 
-          {/* Shop the edit — non-toxic women's pieces, right after the read */}
+          {/* Shop the edit — natural fiber women's pieces, right after the read */}
           <ShopTheEdit article={article} />
         </>
       )}

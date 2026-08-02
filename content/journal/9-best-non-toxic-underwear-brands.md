@@ -1,5 +1,5 @@
 ---
-title: "9 Best Non-Toxic Underwear Brands (2026 Review)"
+title: "9 Best Natural Fiber Underwear Brands (2026 Review)"
 dek: "Underwear has more contact time with more permeable skin than anything else in the drawer. These nine are made of fiber worth sitting in, scored and priced from $8 to $55."
 date: "2026-07-21"
 pillar: "The Clean Edit"

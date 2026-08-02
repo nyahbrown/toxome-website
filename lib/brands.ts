@@ -4,7 +4,7 @@
 // published products by `brand`, then compute a brand-level verdict (average
 // Toxome score, risk spread, the fibers the brand leans on, cleanest picks and
 // the pieces to skip). No new data source — this is the same catalog the shop
-// runs on, re-cut by brand so we can rank for "is [brand] non-toxic".
+// runs on, re-cut by brand so we can rank for "what is [brand] made of".
 
 import { getPublishedProducts } from "@/lib/supabase";
 import { isBlacklisted } from "@/lib/brandBlacklist";

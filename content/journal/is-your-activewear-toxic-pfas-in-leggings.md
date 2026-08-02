@@ -1,6 +1,6 @@
 ---
 title: "Is Your Activewear Toxic? PFAS in Leggings, Explained"
-dek: "PFAS, the forever chemicals, hide in the water-repellent and sweat-wicking finishes on a lot of performance gear. How they end up in leggings, what they do to your hormones, and how to find non-toxic, PFAS-free activewear."
+dek: "PFAS, the forever chemicals, hide in the water-repellent and sweat-wicking finishes on a lot of performance gear. How they end up in leggings, what they do to your hormones, and how to find natural fiber, PFAS-free activewear."
 date: "2026-06-30"
 pillar: "Fabric Science"
 mode: "educational"
@@ -10,9 +10,9 @@ caption: "The finish that keeps a legging dry is often the part worth reading th
 keywords:
   - "is your activewear toxic"
   - "pfas in leggings"
-  - "non-toxic workout clothes"
+  - "natural fiber workout clothes"
   - "pfas-free leggings"
-  - "non-toxic activewear"
+  - "natural fiber activewear"
   - "pfas in activewear"
 cta: "shop"
 products:
@@ -54,9 +54,9 @@ For years the assumption was that whatever sat on a fabric stayed on the fabric.
 
 Why mind what gets in? PFAS are endocrine disruptors, which is the plain way of saying they interfere with your hormones, the chemical messages that run your metabolism, your thyroid, your cycle, your fertility. The U.S. EPA and the CDC link PFAS exposure to thyroid disease, hormone disruption, reduced fertility, weakened immune response, and certain cancers. No single pair of leggings is the cause. The concern is the sum, the steady drip of a chemical that never leaves, layered across everything you wear and drink and touch.
 
-### How to find non-toxic, PFAS-free activewear
+### How to find natural fiber, PFAS-free activewear
 
-The market is moving in your favor. California's law banning PFAS in clothing took effect in 2025, New York followed, and a growing list of brands now market PFAS-free leggings outright. Searching for non-toxic workout clothes is no longer a dead end. Here is what to look for, in order.
+The market is moving in your favor. California's law banning PFAS in clothing took effect in 2025, New York followed, and a growing list of brands now market PFAS-free leggings outright. Searching for natural fiber workout clothes is no longer a dead end. Here is what to look for, in order.
 
 The words *PFAS-free* on the label. A brand that has taken them out tends to say so in writing.
 
