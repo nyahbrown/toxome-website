@@ -1,5 +1,5 @@
 ---
-title: "The 8 Best Non-Toxic Mattresses (2026 Review)"
+title: "The 8 Best Fiberglass-Free Mattresses (2026 Review)"
 dek: "California bans fiberglass in mattresses on January 1, 2027. Here are eight beds that already tell you what is inside them, and how to read the certifications on the rest."
 date: "2026-07-21"
 pillar: "The Clean Edit"

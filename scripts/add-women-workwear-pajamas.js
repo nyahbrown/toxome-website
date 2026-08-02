@@ -120,7 +120,7 @@ const ITEMS = [
     description: "A clean-lined column dress in 100% organic cotton, cut to a quiet, tailored silhouette that works for the office and after it. A natural fiber against the skin all day, with nothing synthetic blended in. Shown in alabaster." },
   { brand: "Christy Dawn", name: "The Yvette Dress", category: "Dresses", occasion: WORK,
     url: "https://christydawn.com/products/the-yvette-dress-alabaster",
-    description: "A structured organic-cotton dress in a solid neutral, tailored enough to carry a workday and made from regeneratively grown, non-toxic fiber. Breathable where a polyester sheath would trap heat. Shown in alabaster." },
+    description: "A structured organic-cotton dress in a solid neutral, tailored enough to carry a workday and made from regeneratively grown, natural fiber fiber. Breathable where a polyester sheath would trap heat. Shown in alabaster." },
 
   // ---- Amour Vert — tailored linen trouser --------------------------------
   { brand: "Amour Vert", name: "Larisa Cotton Linen Pant", category: "Bottoms", occasion: WORK, price: 79.99,

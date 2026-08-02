@@ -11,7 +11,7 @@ keywords:
   - "fashion wellness"
   - "what you wear is a health choice"
   - "clean clothing"
-  - "non-toxic fashion"
+  - "natural fiber fashion"
   - "clothing and health"
   - "endocrine disruptors clothing"
   - "synthetic fabric hormones"

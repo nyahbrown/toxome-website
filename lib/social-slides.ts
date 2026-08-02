@@ -87,7 +87,7 @@ export const SLIDES: Slide[] = [
     certifications: [],
   },
 
-  // ---- Non-toxic underwear roundup (indices 5–10) ----------------------
+  // ---- Natural fiber underwear roundup (indices 5–10) ----------------------
   // All six are LIVE, published products in the toxome.app catalog, so the
   // "shop on toxome.app" caption CTA resolves for every slide. Prices below
   // are the live Shopify variant price, not the catalog value — Cou Cou
@@ -172,7 +172,7 @@ export const SLIDES: Slide[] = [
     certifications: ["GOTS"],
   },
 
-  // ---- 5 best brands for non-toxic bath towels (indices 11–15) ---------
+  // ---- 5 best brands for natural fiber bath towels (indices 11–15) ---------
   // Prices are the BATH TOWEL variant, read off the live Shopify variant list.
   // The catalog stores the min-variant price for these, which on towels is the
   // washcloth or hand towel: Coyuchi is listed at $24 (hand towel, bath towel
@@ -244,7 +244,7 @@ export const SLIDES: Slide[] = [
 ];
 
 /**
- * The 8 Best Non-Toxic Mattresses roundup, as an Instagram carousel.
+ * The 8 Best Fiberglass-Free Mattresses roundup, as an Instagram carousel.
  * Source: content/journal/best-non-toxic-mattresses.md
  *
  * `composition` is deliberately empty on every one of these. The article says

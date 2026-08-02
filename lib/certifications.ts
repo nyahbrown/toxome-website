@@ -276,7 +276,7 @@ export const CERTIFICATIONS: Certification[] = [
       "Some restrictions on chemicals used in processing",
     ],
     blindSpot:
-      "Recycled is not the same as non-toxic or natural. Recycled polyester is still plastic. It sheds microfibers and sits against your skin like any other synthetic.",
+      "Recycled is not the same as clean or natural. Recycled polyester is still plastic. It sheds microfibers and sits against your skin like any other synthetic.",
     take: "Good for keeping plastic in circulation, but a recycled-plastic shirt is still a plastic shirt. The badge is about the source, not the safety.",
   },
   {

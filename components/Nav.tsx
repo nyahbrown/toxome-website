@@ -58,7 +58,9 @@ function buildShopColumns(taxonomy: ShopTaxonomy) {
   // Mattresses routes to its own collection page rather than the generic
   // ?category= filter, because it is the only category whose products carry no
   // Toxome score: that page explains why and leads with certifications instead.
-  // It is also the SEO target for "non toxic mattress".
+  // It is also the SEO target for "non toxic mattress" (the slug is retained for
+  // that) while the visible copy leads with "fiberglass-free", which is the part
+  // Toxome can actually verify.
   //
   // The entry appears only once mattress products are published, since the menu
   // must never open an empty grid. Approving the rows in /admin turns it on.

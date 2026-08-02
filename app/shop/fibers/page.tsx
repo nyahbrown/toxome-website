@@ -9,9 +9,9 @@ import { getShopTaxonomy } from "@/lib/supabase";
 const SITE = "https://toxome.app";
 
 export const metadata: Metadata = {
-  title: "Shop by Natural Fiber: Non-Toxic Clothing by Material | Toxome",
+  title: "Shop by Natural Fiber: Clothing by Material | Toxome",
   description:
-    "Shop non-toxic clothing by natural fiber. Organic cotton, linen, hemp, wool, merino, silk, cashmere, alpaca, ramie, and TENCEL lyocell, each scored by Toxome for what it does to your body.",
+    "Shop clothing by natural fiber. Organic cotton, linen, hemp, wool, merino, silk, cashmere, alpaca, ramie, and TENCEL lyocell, each scored by Toxome for what it does to your body.",
   alternates: { canonical: "/shop/fibers" },
 };
 

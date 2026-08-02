@@ -60,9 +60,19 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Run on page requests only — skip API routes, static assets, image
+  // Run on page requests only: skip API routes, static assets, image
   // optimization, and metadata files.
+  //
+  // The extension clause matters as much as the named ones. `_next/static` only
+  // covers the build output, NOT anything served straight out of /public, so
+  // before it was added this proxy woke a function for every raw asset request:
+  // /toxome-logo.png, every /journal/*.jpg hero, /app-store-badge.svg. That was
+  // ~60% of all proxy invocations, none of which can use a region cookie.
+  //
+  // Anything with a file extension is an asset by definition here. No page route
+  // on this site has a dot in its last segment (product and journal slugs are
+  // kebab-case), so this cannot swallow a real page.
   matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|.*\\.(?:png|jpg|jpeg|gif|svg|webp|avif|ico|mp4|webm|css|js|json|xml|txt|html|pdf|woff|woff2|ttf)$).*)",
   ],
 };

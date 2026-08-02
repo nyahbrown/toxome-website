@@ -1,5 +1,5 @@
 ---
-title: "7 Best Non-Toxic Swimwear Brands Making Natural Fiber Suits (2026 Review)"
+title: "7 Best Natural Fiber Swimwear Brands Making Plastic-Free Suits (2026 Review)"
 dek: "Almost every swimsuit on earth is plastic. These seven brands build theirs from hemp, organic cotton, or merino wool, and together they are close to the whole category."
 date: "2026-07-16"
 pillar: "The Clean Edit"

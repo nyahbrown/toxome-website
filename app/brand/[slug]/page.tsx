@@ -43,11 +43,11 @@ export async function generateMetadata({
   if (!b) return { title: "Brand not found | Toxome" };
 
   return {
-    title: `Is ${b.brand} Non-Toxic? Fiber Scores & Safety | Toxome`,
+    title: `What Is ${b.brand} Made Of? Fiber Scores & Safety | Toxome`,
     description: verdictSentence(b),
     alternates: { canonical: `/brand/${b.slug}` },
     openGraph: {
-      title: `Is ${b.brand} Non-Toxic? The Toxome Verdict`,
+      title: `What Is ${b.brand} Made Of? The Toxome Verdict`,
       description: verdictSentence(b),
       url: `/brand/${b.slug}`,
     },
@@ -86,7 +86,7 @@ export default async function BrandPage({
         mainEntity: [
           {
             "@type": "Question",
-            name: `Is ${b.brand} non-toxic?`,
+            name: `What is ${b.brand} made of?`,
             acceptedAnswer: { "@type": "Answer", text: verdict },
           },
           {
@@ -141,7 +141,7 @@ export default async function BrandPage({
             maxWidth: 720,
           }}
         >
-          is {b.brand} non-toxic?
+          what is {b.brand} made of?
         </h1>
 
         <div style={{ display: "flex", alignItems: "baseline", gap: 18, marginBottom: 20 }}>

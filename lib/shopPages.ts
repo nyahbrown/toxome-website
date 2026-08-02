@@ -113,15 +113,15 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
   },
   {
     slug: "non-toxic-silk-dresses",
-    title: "Non-Toxic Silk Dresses, Scored by Fiber | Toxome",
-    heading: "non-toxic silk dresses",
+    title: "Natural Fiber Silk Dresses, Scored by Fiber | Toxome",
+    heading: "natural fiber silk dresses",
     description:
       "Real silk dresses, scored by Toxome and free of the plastic fibers in synthetic 'silky' fabrics. Natural, breathable, and gentle on skin.",
     intro:
       "most dresses sold as silky are polyester, a plastic fiber that traps heat and sits against the skin without breathing. every dress here is real silk, a natural protein fiber that regulates temperature and feels light on the body. toxome scores each one by its actual fiber content, so you can tell genuine silk from a synthetic imitation.",
     faqs: [
       {
-        q: "Is silk a non-toxic fabric?",
+        q: "Is silk a natural fiber fabric?",
         a: "Silk is a natural protein fiber spun by silkworms, free of the petroleum-based plastics in polyester and nylon. It breathes, regulates temperature, and carries none of the microplastic shedding of synthetic 'silky' fabrics. Toxome scores each dress so you can confirm it is real silk.",
       },
       {
@@ -141,15 +141,15 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
   },
   {
     slug: "non-toxic-linen-dresses",
-    title: "Non-Toxic Linen Dresses, Scored by Fiber | Toxome",
-    heading: "non-toxic linen dresses",
+    title: "Natural Fiber Linen Dresses, Scored by Fiber | Toxome",
+    heading: "natural fiber linen dresses",
     description:
       "Pure linen dresses, scored by Toxome and free of plastic fibers. Breathable flax that keeps you cool and softens with every wash.",
     intro:
       "linen comes from the flax plant, one of the oldest and cleanest fibers people have worn. it breathes, pulls heat away from the body, and softens with every wash, the opposite of the polyester blends that fill summer dress racks. every dress here is scored by toxome for its real fiber content, so you know you are buying flax, not plastic.",
     faqs: [
       {
-        q: "Is linen a non-toxic fabric?",
+        q: "Is linen a natural fiber fabric?",
         a: "Linen is a natural fiber made from the flax plant, free of the petroleum-based plastics in synthetic fabrics. It needs little water or pesticide to grow and breathes better than almost any other fiber, which is why it stays cool in heat. Toxome scores each dress by its fiber content.",
       },
       {
@@ -181,7 +181,7 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
         a: "Organic cotton is grown without the synthetic pesticides and fertilizers used on conventional cotton, one of the most chemically treated crops in the world. The finished fiber is the same soft, breathable cotton, grown in a way that keeps those chemicals off the field and off your skin.",
       },
       {
-        q: "Are cotton tops non-toxic?",
+        q: "Are cotton tops made from natural fiber?",
         a: "Pure cotton is a natural, breathable fiber. The catch is that many 'cotton' tops are blended with polyester, and conventional cotton is grown with heavy pesticides. Toxome scores each top by fiber content so you can choose organic cotton without the plastic blend.",
       },
       {
@@ -197,15 +197,15 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
   },
   {
     slug: "non-toxic-organic-cotton-clothing",
-    title: "Non-Toxic Organic Cotton Clothing, Scored | Toxome",
-    heading: "non-toxic organic cotton clothing",
+    title: "Natural Fiber Organic Cotton Clothing, Scored | Toxome",
+    heading: "natural fiber organic cotton clothing",
     description:
       "Organic cotton clothing scored by Toxome, grown without synthetic pesticides and free of the plastic fibers in conventional blends.",
     intro:
       "conventional cotton is one of the most pesticide-heavy crops in the world, and much of what is labeled cotton is cut with polyester to lower the price. organic cotton skips the synthetic pesticides and stays a pure, breathable natural fiber. every piece here is scored by toxome for its real fiber content.",
     faqs: [
       {
-        q: "Is organic cotton non-toxic?",
+        q: "Is organic cotton a natural fiber?",
         a: "Organic cotton is a natural plant fiber grown without synthetic pesticides or fertilizers, and it carries none of the plastic found in polyester blends. It is one of the cleanest everyday fibers for skin contact. Toxome scores each piece by its fiber content.",
       },
       {
@@ -223,15 +223,15 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
   },
   {
     slug: "non-toxic-linen-clothing",
-    title: "Non-Toxic Linen Clothing, Scored by Fiber | Toxome",
-    heading: "non-toxic linen clothing",
+    title: "Natural Fiber Linen Clothing, Scored by Fiber | Toxome",
+    heading: "natural fiber linen clothing",
     description:
       "Pure linen clothing scored by Toxome. Breathable flax that keeps you cool, needs little water to grow, and softens with every wash.",
     intro:
       "linen is spun from the flax plant, one of the oldest and lowest-impact fibers people have worn. it breathes, pulls heat off the body, and softens every time you wash it. every piece here is scored by toxome for its real fiber content, so you know you are wearing flax, not a plastic blend.",
     faqs: [
       {
-        q: "Is linen a non-toxic fabric?",
+        q: "Is linen a natural fiber fabric?",
         a: "Linen is a natural fiber made from the flax plant, free of the petroleum-based plastics in synthetic fabrics. It needs little water or pesticide to grow and breathes better than almost any other fiber. Toxome scores each piece by its fiber content.",
       },
       {
@@ -249,15 +249,15 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
   },
   {
     slug: "non-toxic-silk-clothing",
-    title: "Non-Toxic Silk Clothing, Scored by Fiber | Toxome",
-    heading: "non-toxic silk clothing",
+    title: "Natural Fiber Silk Clothing, Scored by Fiber | Toxome",
+    heading: "natural fiber silk clothing",
     description:
       "Real silk clothing scored by Toxome and free of the plastic fibers in synthetic 'silky' fabrics. Natural, breathable, temperature-regulating.",
     intro:
       "most things sold as silky are polyester, a plastic fiber that traps heat against the skin. real silk is a natural protein fiber that breathes and regulates temperature. every piece here is scored by toxome for its real fiber content, so you can tell genuine silk from a synthetic imitation.",
     faqs: [
       {
-        q: "Is silk a non-toxic fabric?",
+        q: "Is silk a natural fiber fabric?",
         a: "Silk is a natural protein fiber spun by silkworms, free of the petroleum-based plastics in polyester and nylon. It breathes, regulates temperature, and carries none of the microplastic shedding of synthetic 'silky' fabrics. Toxome scores each piece so you can confirm it is real silk.",
       },
       {
@@ -275,15 +275,15 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
   },
   {
     slug: "non-toxic-hemp-clothing",
-    title: "Non-Toxic Hemp Clothing, Scored by Fiber | Toxome",
-    heading: "non-toxic hemp clothing",
+    title: "Natural Fiber Hemp Clothing, Scored by Fiber | Toxome",
+    heading: "natural fiber hemp clothing",
     description:
       "Hemp clothing scored by Toxome. A durable, breathable plant fiber grown with little water and no need for pesticides.",
     intro:
       "hemp is one of the most durable plant fibers, and it grows fast with little water and no need for pesticides. it breathes like linen and gets softer with wear. every piece here is scored by toxome for its real fiber content.",
     faqs: [
       {
-        q: "Is hemp fabric non-toxic?",
+        q: "Is hemp a natural fiber?",
         a: "Hemp is a natural plant fiber grown without the pesticides conventional cotton relies on, and it contains none of the plastic of synthetic fabrics. It is breathable, durable, and clean against the skin. Toxome scores each piece by its fiber content.",
       },
       {
@@ -301,15 +301,15 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
   },
   {
     slug: "non-toxic-cashmere",
-    title: "Non-Toxic Cashmere, Ethically Sourced | Toxome",
-    heading: "non-toxic cashmere",
+    title: "Natural Fiber Cashmere, Ethically Sourced | Toxome",
+    heading: "natural fiber cashmere",
     description:
       "Pure cashmere scored by Toxome. A natural goat fiber that insulates without the plastic of acrylic knits, dehaired for softness and free of synthetic blends.",
     intro:
       "many soft sweaters are acrylic, a plastic fiber that pills, traps heat, and sheds microplastics in the wash. real cashmere is the fine under-layer combed from cashmere goats, and how good it feels comes down to how well it was made. the fine fluff is dehaired to pull out the coarse guard hairs, and only a rushed job leaves those hairs in to scratch. every piece here is scored by toxome for its real fiber content, so you can tell well-made, pure cashmere from a synthetic blend.",
     faqs: [
       {
-        q: "Is cashmere non-toxic?",
+        q: "Is cashmere a natural fiber?",
         a: "Cashmere is a natural fiber from cashmere goats, free of the plastics in acrylic and polyester knits. It is warm, breathable, and gentle on skin. Look for OEKO-TEX Standard 100 for safe dyes and finishes. Toxome scores each piece so you can confirm it is real cashmere and not a synthetic blend.",
       },
       {
@@ -335,15 +335,15 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
   },
   {
     slug: "non-toxic-merino-wool",
-    title: "Non-Toxic Merino Wool Clothing | Toxome",
-    heading: "non-toxic merino wool",
+    title: "Natural Fiber Merino Wool Clothing | Toxome",
+    heading: "natural fiber merino wool",
     description:
       "Merino wool clothing scored by Toxome. A fine natural fiber that regulates temperature and resists odor, without the superwash plastic coating on most machine-washable knits.",
     intro:
       "merino wool comes from sheep bred for an especially fine fleece, fine enough to feel soft against the skin instead of scratchy, which is why it is used for base layers worn right on the body. it keeps you warm when it is cold and cool when it is warm, and it resists odor on its own without the antimicrobial finishes added to synthetic activewear. the catch is the superwash treatment, a chlorine bath and thin plastic coating many merinos get so they can be machine washed. every piece here is scored by toxome for its real fiber content, so you can choose fine, untreated merino.",
     faqs: [
       {
-        q: "Is merino wool non-toxic?",
+        q: "Is merino wool a natural fiber?",
         a: "Merino wool is a natural animal fiber, free of the plastics in polyester and nylon activewear. It regulates temperature and resists odor on its own, without antimicrobial chemical treatments. The concern is the superwash coating, so choose untreated merino with OEKO-TEX Standard 100 and the Responsible Wool Standard, which also bans mulesing. Toxome scores each piece by its fiber content.",
       },
       {
@@ -402,7 +402,7 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
         a: "Organic cotton is grown without the synthetic pesticides and fertilizers used on conventional cotton, one of the most chemically treated crops in the world. The finished fiber is the same soft, breathable cotton, grown in a way that keeps those chemicals off the field and off your skin.",
       },
       {
-        q: "Are cotton tops non-toxic?",
+        q: "Are cotton tops made from natural fiber?",
         a: "Pure cotton is a natural, breathable fiber. The catch is that many 'cotton' tops are blended with polyester, and conventional cotton is grown with heavy pesticides. Toxome scores each top by fiber content so you can choose organic cotton without the plastic blend.",
       },
       {
@@ -452,8 +452,8 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
     // to say about it; the cards show certifications instead. See the roundup at
     // /journal/best-non-toxic-mattresses for what each certification covers.
     slug: "non-toxic-mattresses",
-    title: "Non-Toxic Mattresses, Certified Organic Latex | Toxome",
-    heading: "non-toxic mattresses",
+    title: "Fiberglass-Free Mattresses, Certified Organic Latex | Toxome",
+    heading: "fiberglass-free mattresses",
     description:
       "Organic latex mattresses with named flame barriers and verified certifications, hand-checked by Toxome. No fiberglass, no polyurethane foam.",
     intro:
@@ -481,15 +481,15 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
   },
   {
     slug: "non-toxic-silk-tops",
-    title: "Non-Toxic Silk Tops, Scored by Fiber | Toxome",
-    heading: "non-toxic silk tops",
+    title: "Natural Fiber Silk Tops, Scored by Fiber | Toxome",
+    heading: "natural fiber silk tops",
     description:
       "Real silk tops and blouses for women, scored by Toxome and free of the plastic fibers in synthetic 'silky' fabrics.",
     intro:
       "most blouses sold as silky are polyester, a plastic fiber that traps heat against the skin. real silk is a natural protein fiber that breathes and regulates temperature. every top here is scored by toxome for its real fiber content, so you can tell genuine silk from a synthetic imitation.",
     faqs: [
       {
-        q: "Is silk a non-toxic fabric?",
+        q: "Is silk a natural fiber fabric?",
         a: "Silk is a natural protein fiber spun by silkworms, free of the petroleum-based plastics in polyester and nylon. It breathes, regulates temperature, and carries none of the microplastic shedding of synthetic 'silky' fabrics. Toxome scores each piece so you can confirm it is real silk.",
       },
       {
@@ -509,8 +509,8 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
   },
   {
     slug: "non-toxic-linen-pants",
-    title: "Non-Toxic Linen Pants, Scored by Fiber | Toxome",
-    heading: "non-toxic linen pants",
+    title: "Natural Fiber Linen Pants, Scored by Fiber | Toxome",
+    heading: "natural fiber linen pants",
     description:
       "Pure linen pants and trousers for women, scored by Toxome. Breathable flax that keeps you cool, free of 'linen-look' plastic blends.",
     intro:
@@ -521,7 +521,7 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
         a: "Linen is breathable, strong, and gets softer with wear, which makes it ideal for warm-weather trousers. It wrinkles more than cotton, but that relaxed crease is part of the look.",
       },
       {
-        q: "Is linen a non-toxic fabric?",
+        q: "Is linen a natural fiber fabric?",
         a: "Linen is a natural fiber made from the flax plant, free of the petroleum-based plastics in synthetic fabrics. It needs little water or pesticide to grow and breathes better than almost any other fiber. Toxome scores each pair by its fiber content.",
       },
       {
@@ -537,15 +537,15 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
   },
   {
     slug: "non-toxic-organic-cotton-dresses",
-    title: "Non-Toxic Organic Cotton Dresses, Scored | Toxome",
-    heading: "non-toxic organic cotton dresses",
+    title: "Natural Fiber Organic Cotton Dresses, Scored | Toxome",
+    heading: "natural fiber organic cotton dresses",
     description:
       "Organic cotton dresses for women, scored by Toxome and free of the plastic blends and pesticides in conventional cotton. Breathable, everyday-soft, clean against the skin.",
     intro:
       "a dress moves with you all day, so the fiber against your skin matters. conventional cotton is one of the most pesticide-heavy crops, and plenty of 'cotton' dresses are cut with polyester to drop the price. every dress here is organic cotton, grown without synthetic pesticides, and scored by toxome for its real fiber content.",
     faqs: [
       {
-        q: "Are organic cotton dresses non-toxic?",
+        q: "Are organic cotton dresses made from natural fiber?",
         a: "Organic cotton is a natural plant fiber grown without synthetic pesticides or fertilizers, and it carries none of the plastic found in polyester blends. It breathes and stays soft against the skin. Toxome scores each dress by its fiber content so you can confirm it is organic cotton and not a synthetic blend.",
       },
       {
@@ -565,15 +565,15 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
   },
   {
     slug: "non-toxic-linen-tops",
-    title: "Non-Toxic Linen Tops, Scored by Fiber | Toxome",
-    heading: "non-toxic linen tops",
+    title: "Natural Fiber Linen Tops, Scored by Fiber | Toxome",
+    heading: "natural fiber linen tops",
     description:
       "Pure linen tops and blouses for women, scored by Toxome. Breathable flax that stays cool, free of the 'linen-look' polyester blends on most racks.",
     intro:
       "linen comes from the flax plant, the most breathable fiber you can wear, which is why a linen top stays cool when a synthetic one turns clammy. every top here is scored by toxome for its real fiber content, so you know you are getting flax, not a 'linen-look' plastic blend.",
     faqs: [
       {
-        q: "Is linen a non-toxic fabric?",
+        q: "Is linen a natural fiber fabric?",
         a: "Linen is a natural fiber made from the flax plant, free of the petroleum-based plastics in synthetic fabrics. It needs little water or pesticide to grow and breathes better than almost any other fiber. Toxome scores each top by its fiber content.",
       },
       {
@@ -621,8 +621,8 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
   },
   {
     slug: "non-toxic-bras",
-    title: "Non-Toxic Bras & Bralettes for Women, Scored | Toxome",
-    heading: "non-toxic bras",
+    title: "Natural Fiber Bras & Bralettes for Women, Scored | Toxome",
+    heading: "natural fiber bras",
     description:
       "Bras and bralettes made from natural fibers, scored by Toxome. Breathable organic cotton, hemp, and silk against your chest all day, without polyester or synthetic finishes.",
     intro:
@@ -656,8 +656,8 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
   },
   {
     slug: "non-toxic-pajamas",
-    title: "Non-Toxic Pajamas & Sleepwear, Scored | Toxome",
-    heading: "non-toxic pajamas",
+    title: "Natural Fiber Pajamas & Sleepwear, Scored | Toxome",
+    heading: "natural fiber pajamas",
     description:
       "Pajamas and sleepwear made from natural fibers, scored by Toxome. Breathable cotton, linen, and silk you sleep in for hours, without polyester.",
     intro:
@@ -686,8 +686,8 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
   },
   {
     slug: "non-toxic-activewear",
-    title: "Non-Toxic Activewear, Scored by Fiber | Toxome",
-    heading: "non-toxic activewear",
+    title: "Natural Fiber Activewear, Scored by Fiber | Toxome",
+    heading: "natural fiber activewear",
     description:
       "Activewear built on natural fibers like organic cotton and merino wool, scored by Toxome instead of the pure plastic most leggings are made of.",
     intro:
@@ -717,8 +717,8 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
   },
   {
     slug: "non-toxic-swimwear",
-    title: "Non-Toxic Swimwear: Natural Fiber Swimsuits, Scored | Toxome",
-    heading: "non-toxic swimwear",
+    title: "Natural Fiber Swimwear: Plastic-Free Swimsuits, Scored | Toxome",
+    heading: "natural fiber swimwear",
     description:
       "Swimwear made from hemp, organic cotton, and merino wool instead of the nylon and elastane nearly every swimsuit is built from. Each piece scored by Toxome on its real fiber content.",
     intro:
@@ -756,8 +756,8 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
   },
   {
     slug: "non-toxic-wool-sweaters",
-    title: "Non-Toxic Wool & Cashmere Sweaters, Scored | Toxome",
-    heading: "non-toxic wool sweaters",
+    title: "Natural Fiber Wool & Cashmere Sweaters, Scored | Toxome",
+    heading: "natural fiber wool sweaters",
     description:
       "Sweaters knit from wool, cashmere, and alpaca, scored by Toxome and free of the acrylic plastic in most 'soft' knits.",
     intro:
@@ -768,7 +768,7 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
         a: "Acrylic is a plastic fiber. It traps heat, pills quickly, and sheds microplastics in the wash, and it doesn't breathe the way a natural fiber does. Wool, cashmere, and alpaca insulate while still letting the body breathe, which is why they wear so differently over time.",
       },
       {
-        q: "Is wool a non-toxic fabric?",
+        q: "Is wool a natural fiber fabric?",
         a: "Wool is a natural animal fiber, free of the plastics in acrylic and polyester knits. It insulates, breathes, and resists odor without chemical treatments. Toxome scores each sweater by its fiber content so you can tell natural wool from a synthetic blend.",
       },
       {
@@ -785,7 +785,7 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
   },
   {
     slug: "summer-edit",
-    title: "Summer Edit: Non-Toxic Natural-Fiber Clothing | Toxome",
+    title: "Summer Edit: Natural-Fiber Clothing | Toxome",
     heading: "summer edit",
     description:
       "Summer dresses, tops, and bottoms cut only from natural fibers: linen, organic cotton, hemp, and silk, scored by Toxome and free of the polyester that traps heat against your skin. Farm to closet, no plastic in the heat.",
@@ -834,15 +834,15 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
   },
   {
     slug: "non-toxic-wool-clothing",
-    title: "Non-Toxic Wool Clothing, Untreated and Responsibly Made | Toxome",
-    heading: "non-toxic wool clothing",
+    title: "Natural Fiber Wool Clothing, Untreated and Responsibly Made | Toxome",
+    heading: "natural fiber wool clothing",
     description:
       "Untreated wool clothing scored by Toxome. A natural animal fiber that insulates and resists odor, without the superwash plastic coating or moth-proofing chemicals.",
     intro:
       "wool is a natural animal fiber that insulates, breathes, and resists odor without any chemical help, and the old idea that everyone is allergic to it is a myth. the itch people blame on wool is usually stiff fibers poking the skin, a feeling called prickle, not a real allergy. what actually matters is the treatment. a superwash finish coats the fiber in a thin plastic film and leaves chlorine traces, and some wool is moth-proofed with permethrin, a pesticide locked into the cloth. every piece here is scored by toxome for its real fiber content, so you can favor untreated wool over the coated kind.",
     faqs: [
       {
-        q: "Is wool a non-toxic fabric?",
+        q: "Is wool a natural fiber fabric?",
         a: "Wool is a natural animal fiber, free of the plastics in acrylic and polyester knits. The real concern is the treatment: a superwash finish leaves a thin plastic coating and chlorine traces, and some wool is moth-proofed with permethrin, a pesticide. Choose untreated wool with OEKO-TEX Standard 100 and the Responsible Wool Standard, which also bans mulesing. Toxome scores each piece by its fiber content.",
       },
       {
@@ -864,15 +864,15 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
   },
   {
     slug: "non-toxic-tencel-lyocell-clothing",
-    title: "Non-Toxic TENCEL Lyocell Clothing | Toxome",
-    heading: "non-toxic tencel lyocell clothing",
+    title: "TENCEL Lyocell Clothing, Scored by Fiber | Toxome",
+    heading: "tencel lyocell clothing",
     description:
       "TENCEL Lyocell clothing scored by Toxome. A smooth fiber regenerated from wood in a closed loop that reuses its solvent, free of the carbon disulfide behind ordinary viscose.",
     intro:
       "tencel lyocell starts as wood pulp dissolved in a non-toxic solvent and spun into thread, and the factory runs a closed loop that captures over 99 percent of that solvent and reuses it instead of dumping it. that skips the harsh carbon disulfide older fabrics like viscose rely on. it is about as clean as a manufactured fiber gets against your skin, smooth and good at pulling moisture away. your real risk is what gets added later, the dyes and wrinkle-proof coatings that can leave formaldehyde behind, so every piece here is scored by toxome for its real fiber content.",
     faqs: [
       {
-        q: "Is TENCEL lyocell non-toxic?",
+        q: "What is TENCEL lyocell made of?",
         a: "TENCEL lyocell is made from wood in a closed loop with a non-toxic solvent that is captured and reused, so the finished thread carries almost no leftover chemistry. It is smooth and moisture-wicking, which is gentle on skin. The thing to check is the dye and finish, so look for OEKO-TEX Standard 100. Toxome scores each piece by its fiber content.",
       },
       {
@@ -894,15 +894,15 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
   },
   {
     slug: "non-toxic-ramie-clothing",
-    title: "Non-Toxic Ramie Clothing | Toxome",
-    heading: "non-toxic ramie clothing",
+    title: "Natural Fiber Ramie Clothing | Toxome",
+    heading: "natural fiber ramie clothing",
     description:
       "Ramie clothing scored by Toxome. A strong, breathable plant fiber that resists mildew, best when enzyme-softened and OEKO-TEX tested for clean finishing.",
     intro:
       "ramie is a strong, linen-like fiber from a plant in the nettle family. it breathes well, dries fast, and naturally resists mildew, so it is genuinely nice to wear in heat. two things decide whether a piece feels good: how well it was softened, since raw ramie is stiff and can prickle until it is enzyme-softened, and how thoroughly the harsh degumming chemicals were rinsed out. every piece here is scored by toxome for its real fiber content, so you can favor smooth, well-finished ramie.",
     faqs: [
       {
-        q: "Is ramie a non-toxic fabric?",
+        q: "Is ramie a natural fiber fabric?",
         a: "Ramie is a natural plant fiber, breathable and mildew-resistant, free of the plastics in synthetic fabrics. The catch is finishing: turning the stalk into soft fiber uses strong chemical baths that have to be fully rinsed out. Choose OEKO-TEX Standard 100 ramie. Toxome scores each piece by its fiber content.",
       },
       {
@@ -924,15 +924,15 @@ export const SHOP_COLLECTIONS: ShopCollection[] = [
   },
   {
     slug: "non-toxic-alpaca-clothing",
-    title: "Non-Toxic Alpaca Clothing | Toxome",
-    heading: "non-toxic alpaca clothing",
+    title: "Natural Fiber Alpaca Clothing | Toxome",
+    heading: "natural fiber alpaca clothing",
     description:
       "Alpaca clothing scored by Toxome. A warm natural fiber with no lanolin and a smooth surface, often gentler on sensitive skin than sheep wool.",
     intro:
       "alpaca fiber comes from the alpaca, a relative of the camel raised high in the andes, and it is often easier on touchy skin than sheep wool for two reasons you can feel. it has no lanolin, the waxy grease behind most real wool-grease reactions, and its surface is smoother and rounder, so it pokes less. the softer grades are dehaired to pull out the thick, coarse hairs. every piece here is scored by toxome for its real fiber content, so you can choose fine, dehaired alpaca over the coarse kind.",
     faqs: [
       {
-        q: "Is alpaca non-toxic?",
+        q: "Is alpaca a natural fiber?",
         a: "Alpaca is a natural animal fiber, free of the plastics in acrylic and polyester knits, and it is warm and breathable. Because it has no lanolin and a smoother surface, it is often gentler than sheep wool. Look for OEKO-TEX Standard 100 to limit leftover dyes. Toxome scores each piece by its fiber content.",
       },
       {

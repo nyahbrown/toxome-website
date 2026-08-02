@@ -48,10 +48,10 @@ function cluster(p: Row): { tag: string; lead: string } {
     /\b(legging|sports bra|activewear|workout|athletic|yoga|running|active|bike short)\b/.test(hay);
 
   if (isBaby) return { tag: "Organic Cotton Baby Clothes", lead: "Organic cotton baby clothes" };
-  if (isActive) return { tag: "Non-Toxic Activewear", lead: "Non-toxic workout clothes, PFAS-free" };
-  if (fibers.includes("linen")) return { tag: "Linen Clothing", lead: "Linen outfit, non-toxic" };
+  if (isActive) return { tag: "Natural Fiber Activewear", lead: "Natural fiber workout clothes, PFAS-free" };
+  if (fibers.includes("linen")) return { tag: "Linen Clothing", lead: "Linen outfit, natural fiber" };
   if (fibers.includes("cotton")) return { tag: "Organic Cotton Clothing", lead: "Organic cotton clothing" };
-  return { tag: "Non-Toxic Clothing", lead: "Non-toxic clothing, scored" };
+  return { tag: "Natural Fiber Clothing", lead: "Natural fiber clothing, scored" };
 }
 
 // Pinterest is a search engine. 2026 ranking rules drive the copy: front-load
@@ -66,7 +66,7 @@ function pinCaption(p: Row): string {
       : "";
   return (
     `${cluster(p).lead}: ${who}.${score} ` +
-    "Shop natural-fiber, non-toxic fashion on toxome.app, and know what's in your clothes."
+    "Shop natural-fiber fashion on toxome.app, and know what's in your clothes."
   );
 }
 

@@ -23,10 +23,10 @@ const organizationSchema = {
   logo: "https://toxome.app/icon.png",
   slogan: "know what's in your clothes.",
   description:
-    "Toxome reads the fibers in your clothes and tells you what they do to your body and the planet. Toxome is the curated directory of non-toxic clothing and the company behind Fashion Wellness, the practice of choosing clothes by what they do to your body.",
+    "Toxome reads the fibers in your clothes and tells you what they do to your body and the planet. Toxome is the curated directory of natural fiber clothing and the company behind Fashion Wellness, the practice of choosing clothes by what they do to your body.",
   knowsAbout: [
     "Fashion Wellness",
-    "non-toxic clothing",
+    "natural fiber clothing",
     "endocrine disruptors in textiles",
     "PFAS in clothing",
     "microplastics in fabric",
@@ -46,14 +46,14 @@ const inter = Inter({
 });
 
 const SITE_DESCRIPTION =
-  "Toxome is the curated directory of non-toxic fashion. Every piece scored for what it does to your body. Know what's in your clothes.";
+  "Toxome is the curated directory of natural fiber fashion. Every piece scored for what it does to your body. Know what's in your clothes.";
 
 export const metadata: Metadata = {
   // Resolves all relative canonical / OpenGraph URLs to absolute ones.
   metadataBase: new URL("https://toxome.app"),
-  title: "Toxome: Know What's in Your Clothes | Non-Toxic Fashion, Scored",
+  title: "Toxome: Know What's in Your Clothes | Natural Fiber Fashion, Scored",
   description:
-    "Toxome is the curated directory of non-toxic clothing. Every piece scored for what it does to your body. Know what's in your clothes.",
+    "Toxome is the curated directory of natural fiber clothing. Every piece scored for what it does to your body. Know what's in your clothes.",
   // Self-referencing canonical for the homepage. Every other route overrides
   // this with its own path.
   alternates: {

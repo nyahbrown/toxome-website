@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "newsletter:shop": "node --env-file=.env.local scripts/newsletter-shop-block.js",
     "test": "node test/parity.test.js && npx tsx test/footwear.test.mts"
   },
   "dependencies": {

@@ -35,7 +35,7 @@ export default function ShopGridFallback({
   const items = sectionGender
     ? products.filter((p) => p.gender === sectionGender)
     : products;
-  const title = heading ?? "Shop non-toxic clothing by fiber";
+  const title = heading ?? "Shop natural fiber clothing by fiber";
 
   return (
     <div className="shell" style={{ paddingTop: 24, paddingBottom: 64 }}>

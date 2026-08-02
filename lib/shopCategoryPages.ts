@@ -144,11 +144,11 @@ export const SHOP_CATEGORY_PAGES: ShopCategoryPage[] = [
     intro:
       "underwear is the highest-contact clothing you own: closest fit, longest wear, thinnest barrier, most sensitive skin. it is also almost entirely synthetic by default, because nylon and elastane are what make it stretch and hold shape. every piece here is a natural fiber base, mostly organic cotton, and includes the elastic-free and latex-free styles that exist for people who react to the usual construction.",
     // Intimates splits into two shopping intents, and they take DIFFERENT
-    // terms (Nyah, 2026-07-27): bras go "non-toxic", matching the existing
+    // terms (Nyah, 2026-07-27): bras go "natural fiber", matching the existing
     // /shop/collection/non-toxic-bras page and the way people search for them;
     // underwear goes "natural fiber" like the rest of the department.
     subcategoryHeadings: {
-      Bras: "women's non-toxic bras",
+      Bras: "women's natural fiber bras",
       Underwear: "women's natural fiber underwear",
     },
     faqs: [
@@ -484,7 +484,7 @@ export const SHOP_CATEGORY_PAGES: ShopCategoryPage[] = [
     section: "kids",
     slug: "dresses",
     category: "Dresses",
-    title: "Non-Toxic Girls' Dresses, Organic Cotton & Linen | Toxome",
+    title: "Natural Fiber Girls' Dresses, Organic Cotton & Linen | Toxome",
     heading: "non-toxic kids' dresses",
     description:
       "Organic cotton and linen dresses for girls, scored by Toxome. Natural fiber instead of the polyester tulle and party-dress default.",
