@@ -51,20 +51,32 @@ const norm = (r) => {
   if (/polyester/.test(s)) return "polyester";
   if (/nylon|polyamide/.test(s)) return "nylon";
   if (/acrylic/.test(s)) return "acrylic";
-  if (/elastane|spandex/.test(s)) return "elastane";
+  if (/elastane|spandex|lycra/.test(s)) return "elastane";
+  if (/\bhemp\b/.test(s)) return "hemp";
+  if (/\bramie\b/.test(s)) return "ramie";
   return null;
 };
 function compFromBody(body) {
   const f = {};
+  const seen = new Set();
   let m;
   const rx = /(\d{1,3})\s*%\s*([a-z ]{3,25})/gi;
   while ((m = rx.exec(body))) {
     const p = +m[1];
     const fi = norm(m[2]);
-    if (p > 0 && p <= 100 && fi) f[fi] = (f[fi] || 0) + p;
+    if (!(p > 0 && p <= 100 && fi)) continue;
+    // Pages restate the composition (fabric blurb + care line), so summing
+    // repeats gives 200 and the item is silently dropped.
+    const k = `${p}|${fi}`;
+    if (seen.has(k)) continue;
+    seen.add(k);
+    f[fi] = (f[fi] || 0) + p;
   }
   const t = Object.values(f).reduce((a, b) => a + b, 0);
-  return t >= 95 && t <= 105 ? f : null;
+  // Strict 99-101, NOT the old 95-105. A short sum means a fiber was missed —
+  // e.g. White + Warren states "95% Cashmere, 5% Lycra" and the old window
+  // accepted the 95 alone, scoring a cashmere/elastane knit as pure cashmere.
+  return t >= 99 && t <= 101 ? f : null;
 }
 const bodyText = (p) => String(p.body_html || "").replace(/<[^>]+>/g, " ").replace(/&[a-z]+;/gi, " ").replace(/\s+/g, " ");
 // Strip the colorway from a retailer title: cut at " | " / " - ", drop a trailing
