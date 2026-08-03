@@ -3,13 +3,18 @@
 import Link from "next/link";
 
 // Top nav shared by the admin pages so you can click between the product
-// pipeline (/admin), content (/admin/content), brand-traffic analytics
-// (/admin/analytics), the brands/closet dashboard (/admin/brands), and
-// the closets analytics overview (/admin/closets).
+// pipeline (/admin), brand-traffic analytics (/admin/analytics), geolocation
+// (/admin/geolocation), the brands/closet dashboard (/admin/brands), and the
+// closets analytics overview (/admin/closets).
+//
+// /admin/content is deliberately not in this list. The route still works and
+// the newsletter-draft cron still links straight to it, it just doesn't earn a
+// nav pill any more. "content" stays in the `active` union so that page keeps
+// type-checking.
 const TABS = [
   { key: "products", label: "Products", href: "/admin" },
-  { key: "content", label: "Content", href: "/admin/content" },
   { key: "analytics", label: "Brand traffic", href: "/admin/analytics" },
+  { key: "geolocation", label: "Geolocation", href: "/admin/geolocation" },
   { key: "brands", label: "Brands", href: "/admin/brands" },
   { key: "disclosures", label: "Disclosures", href: "/admin/disclosures" },
   { key: "closets", label: "Closets", href: "/admin/closets" },
@@ -22,6 +27,7 @@ export default function AdminTabs({
     | "products"
     | "content"
     | "analytics"
+    | "geolocation"
     | "brands"
     | "disclosures"
     | "closets";
