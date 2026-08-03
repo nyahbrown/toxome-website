@@ -5,11 +5,25 @@ import { supabaseAdmin } from "@/lib/supabaseAdmin";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// Normalize a brand name the same way the DB helper does:
-// lowercase → collapse non-alphanumeric runs to single space → trim.
+// Canonical brand key. Mirrored in the DB (public.normalize_brand), the
+// extension (scanEvents.js) and the Flutter app (brand_service.dart). Change
+// all four together.
+//
+// Order matters:
+//   1. lower + strip accents. NFD splits an accented letter into a base letter
+//      plus a combining mark, so dropping the marks leaves the base letter.
+//      Without this step the [^a-z0-9] pass ate the accented letter itself:
+//      Chloe -> "chlo", DOEN -> "d en". That forked those brands into a second
+//      row the moment anyone typed the unaccented spelling.
+//   2. delete apostrophes, giving "kohls" and not "kohl s". Deleting rather
+//      than splitting matches what people type and what OCR reads off a tag.
+//   3. collapse every other run of non-alphanumerics to one space, then trim.
 function normalizeBrand(raw: string): string {
   return raw
     .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/['\u2019`]/g, "")
     .replace(/[^a-z0-9]+/g, " ")
     .trim();
 }
@@ -110,18 +124,27 @@ export async function POST(req: Request) {
   // approve: upsert into brands, then stamp all matching pending submissions.
   const brandName = name || normalized;
 
-  // Check whether a brands row already exists for this normalized key.
+  // Match on the normalized key OR an existing alias. Alias has to be included:
+  // "print fresh" and "printfresh" are the same brand but different keys, and an
+  // eq("normalized") lookup alone misses that and inserts a second Printfresh.
+  // Every known spelling of a brand lives in aliases, so that is the thing to
+  // search before concluding the brand is new.
   const { data: existing } = await supabaseAdmin
     .from("brands")
     .select("id, aliases")
-    .eq("normalized", normalized)
+    .or(`normalized.eq.${normalized},aliases.cs.{"${normalized}"}`)
     .maybeSingle();
 
   let brandId: string | null = null;
 
   if (existing) {
     brandId = existing.id as string;
-    // Optionally push any new raw variants into aliases (deduped).
+    // Record every spelling that came in as an alias, so the next scan of any
+    // of them resolves here instead of opening a new submission.
+    //
+    // Store the NORMALIZED form, not raw_name. Lookups compare a normalized key
+    // against this array, so a raw alias like "Abercrombie&Fitch" could never
+    // match anything and the entry was dead weight.
     const { data: pendingRows } = await supabaseAdmin
       .from("brand_submissions")
       .select("raw_name")
@@ -129,14 +152,19 @@ export async function POST(req: Request) {
       .eq("status", "pending");
 
     const currentAliases: string[] = (existing.aliases as string[]) ?? [];
-    const newRaws = (pendingRows ?? [])
-      .map((r) => (r.raw_name as string) ?? "")
-      .filter((r) => r && r !== brandName && !currentAliases.includes(r));
+    const newKeys = [
+      ...new Set(
+        (pendingRows ?? [])
+          .map((r) => normalizeBrand((r.raw_name as string) ?? ""))
+          .concat(normalized)
+          .filter((k) => k && !currentAliases.includes(k))
+      ),
+    ];
 
-    if (newRaws.length > 0) {
+    if (newKeys.length > 0) {
       await supabaseAdmin
         .from("brands")
-        .update({ aliases: [...currentAliases, ...newRaws] })
+        .update({ aliases: [...currentAliases, ...newKeys] })
         .eq("id", brandId);
     }
   } else {
